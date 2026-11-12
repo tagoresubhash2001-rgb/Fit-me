@@ -1,0 +1,31 @@
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+*.iml
+
+# Secrets — never commit
+.env
+.env.*
+*.keystore
+*.jks
+key.properties
+service-account*.json
+
+# Node / functions
+node_modules/
+functions/lib/
+*.log
+
+# Firebase
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+
+# Flutter / Dart
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
