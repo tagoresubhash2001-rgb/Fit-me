@@ -1,5 +1,9 @@
 # FIT ME AI — Claude Code prompts (paste one phase at a time)
 
+> **Superseded (2026-11-14):** the stack changed from Flutter to React + Capacitor.
+> These Flutter phase prompts are kept for reference only; the phase goals still apply,
+> but follow `CLAUDE.md` for the stack and commands.
+
 Setup before Phase 0:
 1. Create an empty folder `fit-me-ai`, put `CLAUDE.md` in its root.
 2. Create `docs/PRD.md` — export the Master PRD v2.0 doc as Markdown and save it there.

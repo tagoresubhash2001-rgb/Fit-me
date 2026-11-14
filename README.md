@@ -1,9 +1,10 @@
 # Fit-me — FIT ME AI
 
-Global AI health & wellness app (iOS, Android, Web) built with Flutter and Firebase.
+Global AI health & wellness app. One React + TypeScript codebase for web, with iOS and
+Android via Capacitor. Firebase backend.
 
 - Project rules for Claude Code: [`CLAUDE.md`](CLAUDE.md)
 - Product spec: `docs/PRD.md` (Master PRD v2.0 — to be added)
-- Phase-by-phase build prompts: [`docs/BUILD_PROMPTS.md`](docs/BUILD_PROMPTS.md)
+- Original feature spec: `docs/ORIGINAL_SPEC.md` (to be added)
 
-Status: Phase 0 (Foundation) — planning.
+Status: imported from Google AI Studio; audit and redesign in progress.

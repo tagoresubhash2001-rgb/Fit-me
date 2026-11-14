@@ -1,7 +1,7 @@
 # FIT ME AI — Project Instructions for Claude Code
 
 FIT ME AI is a global AI health & wellness app by Sindulis Innovative Solutions.
-One Flutter codebase → iOS, Android, Web. Firebase backend for launch (may move later).
+One React + TypeScript codebase → Web, plus iOS and Android via Capacitor. Firebase backend for launch (may move later).
 Full product spec: `docs/PRD.md` (read the relevant section before starting any task).
 
 ## Golden rules (never break these)
@@ -13,7 +13,7 @@ Full product spec: `docs/PRD.md` (read the relevant section before starting any 
 4. Never overwrite or delete existing Firestore data or user files without asking.
 5. Plan gating (free / premium / pro) is enforced server-side in Cloud Functions, never only in UI.
 6. AI never invents user data and never saves a health record without the user confirming it.
-7. No user-facing string hardcoded in Dart — everything goes in ARB localization files.
+7. No user-facing string hardcoded in components — everything goes in i18next JSON translation files.
 8. Secrets (Gemini key, RevenueCat, Cashfree, AdMob) only in Secret Manager / env config. Never in the client or git.
 9. Work phase by phase (see "Roadmap"). Finish and verify the current phase before starting the next.
 10. When something in the PRD is unclear, ask instead of guessing.
@@ -22,44 +22,51 @@ Full product spec: `docs/PRD.md` (read the relevant section before starting any 
 
 | Layer | Choice |
 |---|---|
-| App | Flutter (stable), Dart 3, Material 3 with custom theme |
-| State / routing | Riverpod (code-gen), go_router |
-| Models | freezed + json_serializable |
-| Auth | Firebase Auth: Google, Sign in with Apple, email, phone OTP |
+| App | React 19 + TypeScript + Vite, Tailwind CSS 4 (design tokens via `@theme` + CSS variables) |
+| Native shells | Capacitor (iOS + Android) wrapping the same web build |
+| State | Zustand stores backed by Firestore (Firestore offline cache = local persistence; no localStorage for user data) |
+| Validation | zod schemas shared by client and Cloud Functions |
+| i18n | i18next + react-i18next, JSON files per language; RTL via `dir` on `<html>` |
+| Auth | Firebase Auth: Google, Sign in with Apple, email, phone OTP (native via `@capacitor-firebase/authentication`, JS SDK on web) |
 | DB | Cloud Firestore |
 | Storage | Firebase Storage |
-| Backend | Cloud Functions 2nd gen, TypeScript, Node LTS |
-| AI | Gemini API called ONLY from Cloud Functions; provider behind an interface so it can be swapped |
-| Payments | RevenueCat (`purchases_flutter`) + Apple IAP + Google Play Billing on mobile; Cashfree on web via Functions + webhooks |
-| Health data | `health` package (HealthKit / Health Connect) |
-| Ads | google_mobile_ads, free users only |
-| Push | Firebase Cloud Messaging |
-| Monitoring | Crashlytics, Performance, Analytics |
-| Security | App Check, Security Rules, Secret Manager |
+| Backend | Cloud Functions 2nd gen, TypeScript, Node LTS (replaces `server.ts` Express server) |
+| AI | Gemini API called ONLY from Cloud Functions; key in Secret Manager; provider behind an interface so it can be swapped |
+| Payments | RevenueCat (`@revenuecat/purchases-capacitor`) + Apple IAP + Google Play Billing on mobile; Cashfree on web via Functions + webhooks |
+| Health data | HealthKit / Health Connect via a Capacitor health plugin |
+| Ads | AdMob via `@capacitor-community/admob` on mobile, free users only (web ad network TBD) |
+| Push | Firebase Cloud Messaging (`@capacitor-firebase/messaging` on native) |
+| Monitoring | Crashlytics (native), Performance, Analytics |
+| Security | App Check (App Attest / Play Integrity native, reCAPTCHA Enterprise web), Security Rules, Secret Manager |
+| Hosting | Firebase Hosting for the web app |
+| Tests | Vitest + React Testing Library (unit/component), Playwright (e2e + screenshots), `@firebase/rules-unit-testing` (rules) |
 
-Firebase projects: `fitmeai-dev`, `fitmeai-staging`, `fitmeai-prod` (use flavors / `--dart-define`).
+Firebase projects: `fitmeai-dev`, `fitmeai-staging`, `fitmeai-prod` (selected via Vite mode / `VITE_ENV`).
 
 ## Repo structure
 
 ```
-apps/mobile/            Flutter app (iOS, Android, Web)
-  lib/
-    core/               theme, router, l10n, env, errors, utils
-    data/               repositories, Firestore/Functions services
-    domain/             models (freezed), calculators (BMR, TDEE, macros)
-    features/<module>/  presentation (screens, widgets) + controllers
-  l10n/                 ARB files
-  test/ integration_test/
-apps/admin/             Flutter web admin panel (later phase)
+src/                    React app (web + Capacitor)
+  app/                  app shell, router, providers
+  components/ui/        design-system primitives (Button, Card, Input, ...)
+  features/<module>/    screens, widgets, hooks per module
+  stores/               Zustand stores (Firestore-backed)
+  lib/                  firebase, i18n, env, api clients, utils
+  domain/               pure logic: calculators (BMR, TDEE, macros), models, zod schemas
+  locales/<lang>.json   translation files
+ios/  android/          Capacitor native projects
 functions/              Cloud Functions (TypeScript)
   src/ai/               orchestrator, Jai/Jaya personas, tools
   src/billing/          RevenueCat + Cashfree webhooks, entitlements
   src/foods/            food search, import scripts
-firestore.rules  storage.rules  firestore.indexes.json
-docs/PRD.md             product spec
+tests/rules/            Security Rules tests (emulator)
+e2e/                    Playwright tests and screenshot scripts
+firestore.rules  storage.rules  firestore.indexes.json  firebase.json  capacitor.config.ts
+docs/PRD.md  docs/ORIGINAL_SPEC.md  docs/AUDIT.md
 ```
 
-Keep features modular. Business logic in `domain/` and Functions, not in widgets.
+Admin panel is a separate role-gated route in the same app (Phase 5).
+Keep features modular. Business logic in `src/domain/` and Functions, not in components.
 
 ## Key product decisions
 
@@ -102,25 +109,29 @@ Respect reduced motion. No overflow or clipped text at any size or language (tes
 
 ```
 # app
-cd apps/mobile && flutter pub get
-dart run build_runner build --delete-conflicting-outputs
-flutter gen-l10n
-flutter analyze && flutter test
-flutter run --dart-define=ENV=dev
+npm ci
+npm run dev                  # Vite dev server (uses Functions emulator in dev)
+npm run lint                 # tsc --noEmit + eslint
+npm test                     # vitest
+npm run build                # production web build
+npx cap sync                 # copy web build into ios/ and android/
+npx cap open ios | android   # open native project (Xcode / Android Studio)
+npx playwright test          # e2e + screenshots
 
 # backend
 cd functions && npm ci && npm run lint && npm test
+npm run test:rules           # rules tests against the emulator
 firebase emulators:start
-firebase deploy --only functions,firestore:rules --project fitmeai-dev
+firebase deploy --only functions,firestore:rules,hosting --project fitmeai-dev
 ```
 
 ## Definition of done (every task)
 
-- [ ] `flutter analyze` and `npm run lint` clean
+- [ ] `npm run lint` clean (app and functions)
 - [ ] Unit tests for logic, widget tests for new screens, rules tests for new collections
 - [ ] Works on Android, iOS, web (or the gap is stated)
 - [ ] Loading, empty, error, offline states
-- [ ] All strings in ARB (at least `en`; other languages via translation step)
+- [ ] All strings in i18next JSON (at least `en`; other languages via translation step)
 - [ ] Data persists and syncs; gating enforced server-side where relevant
 - [ ] Short summary to the user: what was built, what was tested, what is NOT done yet
 
