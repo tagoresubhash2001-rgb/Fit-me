@@ -28,7 +28,7 @@ export const useDeviceStore = create<DeviceState>((set, get) => ({
   connections: [
     { id: 'fitbit', name: 'Fitbit Sense 3 Pro', connected: true, batteryLevel: 82, lastSynced: 'Just Now' },
     { id: 'healthkit', name: 'Apple HealthKit Sandbox', connected: false, batteryLevel: null, lastSynced: '1 hour ago' },
-    { id: 'ble_scale', name: 'BLE Organic Composition Scale', connected: false, batteryLevel: 100, lastSynced: 'Yesterday' }
+    { id: 'ble_scale', name: 'BLE Organic Composition Scale', connected: false, batteryLevel: 100, lastSynced: 'Yesterday' },
   ],
   syncing: false,
   gpsActive: false,
@@ -36,9 +36,7 @@ export const useDeviceStore = create<DeviceState>((set, get) => ({
 
   toggleConnection: (id) => {
     set((state) => ({
-      connections: state.connections.map((c) =>
-        c.id === id ? { ...c, connected: !c.connected, lastSynced: 'Just Now' } : c
-      )
+      connections: state.connections.map((c) => (c.id === id ? { ...c, connected: !c.connected, lastSynced: 'Just Now' } : c)),
     }));
   },
 
@@ -48,9 +46,7 @@ export const useDeviceStore = create<DeviceState>((set, get) => ({
     await new Promise((resolve) => setTimeout(resolve, 1200));
     set((state) => ({
       syncing: false,
-      connections: state.connections.map((c) =>
-        c.connected ? { ...c, lastSynced: 'Just Now' } : c
-      )
+      connections: state.connections.map((c) => (c.connected ? { ...c, lastSynced: 'Just Now' } : c)),
     }));
   },
 
@@ -60,5 +56,5 @@ export const useDeviceStore = create<DeviceState>((set, get) => ({
 
   updateWearableHeartRate: (bpm) => {
     set({ wearableHeartRate: bpm });
-  }
+  },
 }));

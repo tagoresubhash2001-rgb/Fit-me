@@ -10,6 +10,6 @@ export function validatePlannerEventTime(timeStr: string): boolean {
 
 export function validatePlannerLabel(label: string): string {
   const trimmed = label.trim();
-  if (!trimmed) return "Unnamed Custom Focus Activity";
+  if (!trimmed) return 'Unnamed Custom Focus Activity';
   return trimmed.slice(0, 80);
 }

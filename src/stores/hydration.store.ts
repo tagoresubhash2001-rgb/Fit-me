@@ -29,5 +29,5 @@ export const useHydrationStore = create<HydrationState>((set) => ({
   resetWater: () => {
     localStorage.removeItem('fit_me_water_v1');
     set({ waterAmount: 0 });
-  }
+  },
 }));

@@ -70,6 +70,12 @@ Effort key: **S** (under 1 day), **M** (1–3 days), **L** (over 3 days).
 
 ## 3. Unused components: decision for each
 
+> **Redesign step (2026-11-14):** `DiseasePrograms`, `Supplements`, `WhatsAppAlerts`, `AdminPanel`,
+> `SubscriptionModal`, `ClinicalTrackingModules` and `lib/dbSchema.ts` were deleted as decided below.
+> `AICoach`, `CalorieTracker` and `ProgressCenter` were also deleted: once React types were installed they no
+> longer type-checked (wrong meal-slot union, missing `teluguTitle` field), and their useful ideas are already
+> listed below for the Phase 1/4 rebuilds.
+
 | Component | Lines | Decision | Where |
 | --- | --- | --- | --- |
 | `AICoach.tsx` | 339 | **Merge, then delete.** Its persona selector and TTS (`speechSynthesis`) ideas move into the Jai/Jaya chat sheet (Phase 4). The rest duplicates `FloatingAI.tsx`. | Phase 4, `src/features/coach/` |
@@ -187,3 +193,4 @@ Effort key: **S** (under 1 day), **M** (1–3 days), **L** (over 3 days).
 | Date | Phase | Change |
 | --- | --- | --- |
 | 2026-11-14 | Audit | Initial audit of the AI Studio export. |
+| 2026-11-14 | Redesign | PRD §12 tokens (`src/index.css`), self-hosted Inter + Noto (Telugu, Devanagari, Tamil, Arabic), shared UI kit in `src/components/ui/`, light default theme, new header/nav (Home, Planner, Health, Workouts, Store; profile from the avatar), solid green coach button, all screens remapped to tokens, emojis and jargon removed, unverifiable HIPAA claims replaced with a medical disclaimer. Screenshots in `docs/screenshots/`. Features and data unchanged: all MOCKED statuses above still apply. Also found: Settings "Gemini temperature" slider changes nothing (remove in Phase 1). |

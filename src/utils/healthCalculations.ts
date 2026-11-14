@@ -28,7 +28,7 @@ export function calculateHealthTargets(profile: UserProfile): HealthTargets {
   const disease = profile.disease || 'none';
 
   // 1. Calculate Basal Metabolic Rate (BMR) (Mifflin-St Jeor)
-  let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+  let bmr = 10 * weight + 6.25 * height - 5 * age;
   if (gender === 'male') {
     bmr += 5;
   } else if (gender === 'female') {
@@ -88,7 +88,7 @@ export function calculateHealthTargets(profile: UserProfile): HealthTargets {
   const fatKcalPercentage = disease === 'fatty_liver' || disease === 'hypertension' ? 0.22 : 0.28;
   const targetFatsGrams = Math.round((targetCalories * fatKcalPercentage) / 9);
   // Carbs: Remaining calories. 1g carb = 4 kcal
-  const remainingKcal = targetCalories - (targetProteinGrams * 4) - (targetFatsGrams * 9);
+  const remainingKcal = targetCalories - targetProteinGrams * 4 - targetFatsGrams * 9;
   const targetCarbsGrams = Math.max(50, Math.round(remainingKcal / 4)); // absolute minimum carb floor
 
   // 6. Water Hydration Target calculating biological parameters
@@ -113,6 +113,6 @@ export function calculateHealthTargets(profile: UserProfile): HealthTargets {
     carbs: targetCarbsGrams,
     fats: targetFatsGrams,
     waterMl: targetWaterMl,
-    steps: stepsGoal
+    steps: stepsGoal,
   };
 }

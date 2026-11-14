@@ -30,9 +30,16 @@ interface AIState {
 export const useAIStore = create<AIState>((set, get) => ({
   chatHistory: (() => {
     const saved = localStorage.getItem('fit_me_chat_history');
-    return saved ? JSON.parse(saved) : [
-      { id: '1', sender: 'coach', text: "Namskaram! Ready values configured. What are we planning to accomplish today?", timestamp: '08:00 AM' }
-    ];
+    return saved
+      ? JSON.parse(saved)
+      : [
+          {
+            id: '1',
+            sender: 'coach',
+            text: 'Namskaram! Ready values configured. What are we planning to accomplish today?',
+            timestamp: '08:00 AM',
+          },
+        ];
   })(),
   coachLoading: false,
   voiceActive: false,
@@ -44,7 +51,7 @@ export const useAIStore = create<AIState>((set, get) => ({
       id: `msg-${Date.now()}`,
       sender,
       text,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
     set((state) => {
       const updated = [...state.chatHistory, newMsg];
@@ -68,8 +75,8 @@ export const useAIStore = create<AIState>((set, get) => ({
         body: JSON.stringify({
           message,
           history: get().chatHistory,
-          profile
-        })
+          profile,
+        }),
       });
 
       if (!response.ok) {
@@ -77,11 +84,10 @@ export const useAIStore = create<AIState>((set, get) => ({
       }
 
       const data = await response.json();
-      const reply = data.text || "Pardon, can we try that again?";
+      const reply = data.text || 'Pardon, can we try that again?';
       get().addMessage('coach', reply);
       set({ coachLoading: false });
       return reply;
-
     } catch (e) {
       console.error(e);
       const fallbackReply = "I am processing the data. Please ensure the backend is connected! Let's stay on targets!";
@@ -94,5 +100,5 @@ export const useAIStore = create<AIState>((set, get) => ({
   clearHistory: () => {
     localStorage.removeItem('fit_me_chat_history');
     set({ chatHistory: [] });
-  }
+  },
 }));

@@ -1,8 +1,3 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import { create } from 'zustand';
 
 export type VisualTheme = 'light' | 'dark' | 'system';
@@ -13,28 +8,35 @@ interface ThemeState {
   applyTheme: () => void;
 }
 
+const STORAGE_KEY = 'fit_me_theme';
+
+function readStoredTheme(): VisualTheme {
+  try {
+    const v = localStorage.getItem(STORAGE_KEY);
+    return v === 'dark' || v === 'system' || v === 'light' ? v : 'light';
+  } catch {
+    return 'light';
+  }
+}
+
+/** Light mode is the default experience (PRD section 12). Dark mode is opt-in. */
 export const useThemeStore = create<ThemeState>((set, get) => ({
-  theme: (localStorage.getItem('fit_me_theme') as VisualTheme) || 'system',
-  
+  theme: readStoredTheme(),
+
   setTheme: (theme) => {
-    localStorage.setItem('fit_me_theme', theme);
+    try {
+      localStorage.setItem(STORAGE_KEY, theme);
+    } catch {
+      /* storage unavailable: theme still applies for this session */
+    }
     set({ theme });
     get().applyTheme();
   },
 
   applyTheme: () => {
     const { theme } = get();
-    if (theme === 'light') {
-      document.documentElement.classList.add('light');
-    } else if (theme === 'dark') {
-      document.documentElement.classList.remove('light');
-    } else {
-      const systemPrefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-      if (systemPrefersLight) {
-        document.documentElement.classList.add('light');
-      } else {
-        document.documentElement.classList.remove('light');
-      }
-    }
-  }
+    const prefersDark = typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+    const dark = theme === 'dark' || (theme === 'system' && prefersDark);
+    document.documentElement.classList.toggle('dark', dark);
+  },
 }));

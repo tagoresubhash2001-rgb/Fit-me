@@ -5,10 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  ArrowRight, Sparkles, User, Dumbbell, ShieldAlert, Heart, MapPin, 
-  Flame, Utensils, Award, BookOpen, Volume2 
-} from 'lucide-react';
+import { ArrowRight, Sparkles, User, Dumbbell, ShieldAlert, Heart, MapPin, Flame, Utensils, Award, BookOpen, Volume2 } from 'lucide-react';
 import { UserProfile, Gender, ActivityLevel, Goal, DiseaseCondition, FoodPreference, Region, Lifestyle } from '../types';
 
 interface OnboardingProps {
@@ -32,12 +29,12 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
   const [region, setRegion] = useState<Region>('andhra');
   const [lifestyle, setLifestyle] = useState<Lifestyle>('busy_professional');
   const [selectedCoach, setSelectedCoach] = useState<'jai' | 'jaya'>('jaya');
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
+  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
 
   const containerVariants = {
     hidden: { opacity: 0, scale: 0.98 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: 'easeOut' } },
-    exit: { opacity: 0, x: -30, transition: { duration: 0.3 } }
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: 'easeOut' as const } },
+    exit: { opacity: 0, x: -30, transition: { duration: 0.3 } },
   };
 
   const handleNext = () => {
@@ -72,31 +69,25 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F1720] text-gray-100 flex flex-col items-center justify-center p-4 selection:bg-[#1FA45B] selection:text-white relative overflow-hidden">
+    <div className="min-h-dvh bg-canvas text-ink flex flex-col items-center justify-center p-4 selection:bg-primary selection:text-on-primary relative overflow-hidden">
       {/* Dynamic ambient background glow */}
-      <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-[#1FA45B]/10 blur-[120px]" />
-      <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] rounded-full bg-[#FF8A24]/10 blur-[120px]" />
 
-      <div className="w-full max-w-xl bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative z-10 flex flex-col justify-between min-h-[580px]">
+      <div className="w-full max-w-xl bg-surface backdrop-blur-xl border border-line rounded-card p-6 sm:p-8 shadow-card relative z-10 flex flex-col justify-between min-h-[580px]">
         {/* Header progress bar */}
         <div>
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-2">
-              <span className="text-xl font-bold bg-gradient-to-r from-[#1FA45B] to-[#FF8A24] bg-clip-text text-transparent tracking-wider">
-                FIT ME AI
-              </span>
-              <span className="text-xs bg-slate-800 text-[#1FA45B] font-mono px-2 py-0.5 rounded-full border border-[#1FA45B]/20">
-                v2.0 Beta
-              </span>
+              <span className="text-title font-semibold">FIT ME AI</span>
+              <span className="text-caption bg-surface text-primary px-2 py-0.5 rounded-full border border-primary/30">v2.0 Beta</span>
             </div>
-            <span className="text-xs text-gray-400 font-mono">
+            <span className="text-caption text-muted">
               Step {step} of {totalSteps}
             </span>
           </div>
 
-          <div className="w-full bg-slate-800 h-1.5 rounded-full mb-8 overflow-hidden">
-            <motion.div 
-              className="h-full bg-gradient-to-r from-[#1FA45B] to-[#FF8A24]"
+          <div className="w-full bg-track h-1.5 rounded-full mb-8 overflow-hidden">
+            <motion.div
+              className="h-full bg-primary rounded-full"
               initial={{ width: '0%' }}
               animate={{ width: `${(step / totalSteps) * 100}%` }}
               transition={{ duration: 0.3 }}
@@ -108,59 +99,50 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
         <div className="flex-grow flex flex-col justify-center">
           <AnimatePresence mode="wait">
             {step === 1 && (
-              <motion.div
-                key="step1"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="space-y-6"
-              >
+              <motion.div key="step1" variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
                 <div className="space-y-2">
-                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
-                    Let's customize your AI ecosystem <Sparkles className="text-[#FF8A24] w-6 h-6 animate-pulse" />
+                  <h1 className="text-display sm:text-display font-semibold text-ink flex items-center gap-2">
+                    Let's customize your AI ecosystem <Sparkles className="text-accent w-6 h-6" />
                   </h1>
-                  <p className="text-sm text-gray-400">
-                    What should we call you? Fit Me tracks regional habits to tailor your routine.
-                  </p>
+                  <p className="text-small text-muted">What should we call you? Fit Me tracks regional habits to tailor your routine.</p>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-2"> Your Name </label>
+                    <label className="block text-caption text-muted mb-2"> Your Name </label>
                     <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-                      <input 
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-muted w-5 h-5" />
+                      <input
                         id="user-name-input"
-                        type="text" 
+                        type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="E.g., Naresh, Swathi, Sridhar..."
-                        className="w-full bg-slate-850 border border-slate-700 rounded-xl py-3 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:border-[#1FA45B] transition-colors"
+                        className="w-full bg-surface border border-line rounded-xl py-3 pl-12 pr-4 text-ink placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-2"> Your Age </label>
-                      <input 
+                      <label className="block text-caption text-muted mb-2"> Your Age </label>
+                      <input
                         id="user-age-input"
-                        type="number" 
+                        type="number"
                         value={age || ''}
                         onChange={(e) => setAge(Number(e.target.value))}
-                        className="w-full bg-slate-850 border border-slate-700 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-[#1FA45B] transition-colors"
+                        className="w-full bg-surface border border-line rounded-xl py-3 px-4 text-ink focus:outline-none focus:border-primary transition-colors"
                         min="10"
                         max="110"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-2"> Gender </label>
+                      <label className="block text-caption text-muted mb-2"> Gender </label>
                       <select
                         id="user-gender-select"
                         value={gender}
                         onChange={(e) => setGender(e.target.value as Gender)}
-                        className="w-full bg-slate-850 border border-slate-700 rounded-xl py-3 px-3 text-white focus:outline-none focus:border-[#1FA45B] transition-colors appearance-none"
+                        className="w-full bg-surface border border-line rounded-xl py-3 px-3 text-ink focus:outline-none focus:border-primary transition-colors appearance-none"
                       >
                         <option value="male">Male</option>
                         <option value="female">Female</option>
@@ -170,12 +152,12 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-2"> Choose Appearance </label>
+                    <label className="block text-caption text-muted mb-2"> Choose Appearance </label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         { id: 'light', label: 'Light Theme' },
                         { id: 'dark', label: 'Dark Theme' },
-                        { id: 'system', label: 'System Theme' }
+                        { id: 'system', label: 'System Theme' },
                       ].map((t) => (
                         <button
                           key={t.id}
@@ -193,10 +175,10 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
                               else document.documentElement.classList.remove('light');
                             }
                           }}
-                          className={`py-2 px-1 rounded-xl border text-center text-xs font-bold transition-all cursor-pointer ${
-                            theme === t.id 
-                              ? 'bg-[#1FA45B]/10 border-[#1FA45B] text-white font-black shadow-[0_0_12px_rgba(31,164,91,0.2)]' 
-                              : 'bg-slate-900/40 border-slate-800 text-gray-450 hover:bg-slate-800'
+                          className={`py-2 px-1 rounded-xl border text-center text-caption font-semibold transition-all cursor-pointer ${
+                            theme === t.id
+                              ? 'bg-primary-subtle border-primary text-ink font-semibold shadow-card'
+                              : 'bg-raised border-line text-muted hover:bg-surface'
                           }`}
                         >
                           {t.label}
@@ -209,66 +191,55 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
             )}
 
             {step === 2 && (
-              <motion.div
-                key="step2"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="space-y-6"
-              >
+              <motion.div key="step2" variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
                 <div className="space-y-2">
-                  <h1 className="text-2xl font-extrabold text-white tracking-tight">
-                    Your Physical Indicators 📐
-                  </h1>
-                  <p className="text-sm text-gray-400">
+                  <h1 className="text-display font-semibold text-ink">Your Physical Indicators</h1>
+                  <p className="text-small text-muted">
                     Entering accurate stats calculates accurate metabolic rates and calorie allowances.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-slate-850 p-3 rounded-2xl border border-slate-800 flex flex-col items-center">
-                    <span className="text-xs text-gray-400 font-mono uppercase mb-2">Height (cm)</span>
-                    <input 
+                  <div className="bg-surface p-3 rounded-2xl border border-line flex flex-col items-center">
+                    <span className="text-caption text-muted mb-2">Height (cm)</span>
+                    <input
                       id="user-height-input"
                       type="number"
                       value={height}
                       onChange={(e) => setHeight(Number(e.target.value))}
-                      className="text-center w-full bg-transparent border-b border-slate-700 text-xl font-bold font-mono text-white focus:outline-none focus:border-[#1FA45B] py-1"
+                      className="text-center w-full bg-transparent border-b border-line text-title font-semibold text-ink focus:outline-none focus:border-primary py-1"
                     />
                   </div>
 
-                  <div className="bg-slate-850 p-3 rounded-2xl border border-slate-800 flex flex-col items-center">
-                    <span className="text-xs text-gray-400 font-mono uppercase mb-2">Weight (kg)</span>
-                    <input 
+                  <div className="bg-surface p-3 rounded-2xl border border-line flex flex-col items-center">
+                    <span className="text-caption text-muted mb-2">Weight (kg)</span>
+                    <input
                       id="user-weight-input"
                       type="number"
                       value={weight}
                       onChange={(e) => setWeight(Number(e.target.value))}
-                      className="text-center w-full bg-transparent border-b border-slate-700 text-xl font-bold font-mono text-white focus:outline-none focus:border-[#1FA45B] py-1"
+                      className="text-center w-full bg-transparent border-b border-line text-title font-semibold text-ink focus:outline-none focus:border-primary py-1"
                     />
                   </div>
 
-                  <div className="bg-slate-850 p-3 rounded-2xl border border-slate-800 flex flex-col items-center">
-                    <span className="text-xs text-gray-400 font-mono uppercase mb-2">Target (kg)</span>
-                    <input 
+                  <div className="bg-surface p-3 rounded-2xl border border-line flex flex-col items-center">
+                    <span className="text-caption text-muted mb-2">Target (kg)</span>
+                    <input
                       id="user-target-weight-input"
                       type="number"
                       value={targetWeight}
                       onChange={(e) => setTargetWeight(Number(e.target.value))}
-                      className="text-center w-full bg-transparent border-b border-slate-700 text-xl font-bold font-mono text-white focus:outline-none focus:border-[#1FA45B] py-1"
+                      className="text-center w-full bg-transparent border-b border-line text-title font-semibold text-ink focus:outline-none focus:border-primary py-1"
                     />
                   </div>
                 </div>
 
-                <div className="bg-slate-850 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
+                <div className="bg-surface p-4 rounded-xl border border-line flex items-center justify-between">
                   <div>
-                    <p className="text-xs text-gray-400 uppercase font-mono">Calculated BMI Indicator</p>
-                    <p className="text-lg font-bold text-[#1FA45B] mt-1">
-                      {((weight / ((height / 100) * (height / 100)))).toFixed(1)}
-                    </p>
+                    <p className="text-caption text-muted">Calculated BMI Indicator</p>
+                    <p className="text-title font-semibold text-primary mt-1">{(weight / ((height / 100) * (height / 100))).toFixed(1)}</p>
                   </div>
-                  <span className="text-xs px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-gray-300">
+                  <span className="text-caption px-3 py-1 rounded-full bg-surface border border-line text-ink">
                     {(() => {
                       const bmi = weight / ((height / 100) * (height / 100));
                       if (bmi < 18.5) return 'Underweight';
@@ -282,44 +253,33 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
             )}
 
             {step === 3 && (
-              <motion.div
-                key="step3"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="space-y-6"
-              >
+              <motion.div key="step3" variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
                 <div className="space-y-2">
-                  <h1 className="text-2xl font-extrabold text-white tracking-tight">
-                    Your Goals & Food Preferences 🥗
-                  </h1>
-                  <p className="text-sm text-gray-400">
-                    Your visual calorie wheels adjust matching your body target and dietary rules.
-                  </p>
+                  <h1 className="text-display font-semibold text-ink">Your Goals & Food Preferences</h1>
+                  <p className="text-small text-muted">Your visual calorie wheels adjust matching your body target and dietary rules.</p>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-2">Core Life Goal</label>
+                    <label className="block text-caption text-muted mb-2">Core Life Goal</label>
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        { id: 'fat_loss', label: 'Fat Loss', icon: Flame, color: '#FF8A24' },
-                        { id: 'weight_gain', label: 'Weight Gain', icon: Dumbbell, color: '#1FA45B' },
-                        { id: 'maintenance', label: 'Weight Management', icon: Heart, color: '#1FA45B' },
-                        { id: 'muscle_building', label: 'Muscle Building', icon: Award, color: '#FF8A24' }
+                        { id: 'fat_loss', label: 'Fat Loss', icon: Flame, color: 'text-accent' },
+                        { id: 'weight_gain', label: 'Weight Gain', icon: Dumbbell, color: 'text-primary' },
+                        { id: 'maintenance', label: 'Weight Management', icon: Heart, color: 'text-primary' },
+                        { id: 'muscle_building', label: 'Muscle Building', icon: Award, color: 'text-accent' },
                       ].map((g) => (
                         <button
                           key={g.id}
                           id={`goal-btn-${g.id}`}
                           onClick={() => setGoal(g.id as Goal)}
-                          className={`flex items-center gap-3 p-3 rounded-xl border text-left text-sm transition-all ${
-                            goal === g.id 
-                              ? 'bg-slate-800 border-slate-600 text-white shadow-md ring-1 ring-slate-700' 
-                              : 'bg-slate-900/40 border-slate-800 text-gray-400 hover:bg-slate-850'
+                          className={`flex items-center gap-3 p-3 rounded-xl border text-left text-small transition-all ${
+                            goal === g.id
+                              ? 'bg-primary-subtle border-primary text-ink'
+                              : 'bg-raised border-line text-muted hover:bg-surface'
                           }`}
                         >
-                          <g.icon className="w-5 h-5 shrink-0" style={{ color: goal === g.id ? g.color : '#6b7280' }} />
+                          <g.icon className={`w-5 h-5 shrink-0 ${goal === g.id ? g.color : 'text-muted'}`} strokeWidth={1.75} />
                           <span>{g.label}</span>
                         </button>
                       ))}
@@ -327,21 +287,21 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-2">Dietary Orientation</label>
+                    <label className="block text-caption text-muted mb-2">Dietary Orientation</label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         { id: 'veg', label: 'Vegetarian' },
                         { id: 'non_veg', label: 'Non-Vegetarian' },
-                        { id: 'eggetarian', label: 'Egg-Vegetarian' }
+                        { id: 'eggetarian', label: 'Egg-Vegetarian' },
                       ].map((f) => (
                         <button
                           key={f.id}
                           id={`food-preference-btn-${f.id}`}
                           onClick={() => setFoodPreference(f.id as FoodPreference)}
-                          className={`p-3 rounded-xl border text-center text-xs transition-all ${
-                            foodPreference === f.id 
-                              ? 'bg-[#1FA45B]/10 border-[#1FA45B] text-white font-bold' 
-                              : 'bg-slate-900/40 border-slate-800 text-gray-400 hover:bg-slate-850'
+                          className={`p-3 rounded-xl border text-center text-caption transition-all ${
+                            foodPreference === f.id
+                              ? 'bg-primary-subtle border-primary text-ink font-semibold'
+                              : 'bg-raised border-line text-muted hover:bg-surface'
                           }`}
                         >
                           {f.label}
@@ -354,26 +314,17 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
             )}
 
             {step === 4 && (
-              <motion.div
-                key="step4"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="space-y-6"
-              >
+              <motion.div key="step4" variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
                 <div className="space-y-2">
-                  <h1 className="text-2xl font-extrabold text-white tracking-tight">
-                    Custom Disease Programs 🩺
-                  </h1>
-                  <p className="text-sm text-gray-400">
-                    Fit Me is highly scientific. If you have any clinical markers, our system adjusts food guidelines.
+                  <h1 className="text-display font-semibold text-ink">Health conditions</h1>
+                  <p className="text-small text-muted">
+                    Tell us about any health conditions so we can show you relevant food tips. This is not medical advice.
                   </p>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider">Do you suffer from any condition?</label>
-                  
+                  <label className="block text-caption text-muted">Do you suffer from any condition?</label>
+
                   <div className="grid grid-cols-2 gap-2">
                     {[
                       { id: 'none', label: 'Perfect Health (No Issues)', desc: 'General fitness, higher high energy foods.' },
@@ -381,25 +332,21 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
                       { id: 'pcos', label: 'PCOS / PCOD', desc: 'Hormonal balancing, insulin checks.' },
                       { id: 'thyroid', label: 'Thyroid Management', desc: 'Optimal iodine, selenium and metabolic boosters.' },
                       { id: 'hypertension', label: 'Hypertension', desc: 'Strict low salt, high potassium regional advise.' },
-                      { id: 'fatty_liver', label: 'Fatty Liver Support', desc: 'No processed oils. Pure home cook plans.' }
+                      { id: 'fatty_liver', label: 'Fatty Liver Support', desc: 'No processed oils. Pure home cook plans.' },
                     ].map((d) => (
                       <button
                         key={d.id}
                         id={`disease-btn-${d.id}`}
                         onClick={() => setDisease(d.id as DiseaseCondition)}
                         className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all min-h-[96px] ${
-                          disease === d.id 
-                            ? 'bg-slate-800 border-slate-600 text-white' 
-                            : 'bg-slate-900/40 border-slate-800 text-gray-400 hover:bg-slate-850'
+                          disease === d.id ? 'bg-surface border-line text-ink' : 'bg-raised border-line text-muted hover:bg-surface'
                         }`}
                       >
                         <div className="flex justify-between items-start w-full">
-                          <span className={`text-xs font-bold ${disease === d.id ? 'text-[#FF8A24]' : 'text-gray-300'}`}>
-                            {d.label}
-                          </span>
-                          {disease === d.id && <ShieldAlert className="w-4 h-4 text-[#FF8A24]" />}
+                          <span className={`text-caption font-semibold ${disease === d.id ? 'text-accent' : 'text-ink'}`}>{d.label}</span>
+                          {disease === d.id && <ShieldAlert className="w-4 h-4 text-accent" />}
                         </div>
-                        <span className="text-[11px] text-gray-400 leading-tight mt-1">{d.desc}</span>
+                        <span className="text-caption text-muted leading-tight mt-1">{d.desc}</span>
                       </button>
                     ))}
                   </div>
@@ -408,44 +355,35 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
             )}
 
             {step === 5 && (
-              <motion.div
-                key="step5"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="space-y-6"
-              >
+              <motion.div key="step5" variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
                 <div className="space-y-2">
-                  <h1 className="text-2xl font-extrabold text-white tracking-tight">
-                    Region & Lifestyle Localization 🗺️
-                  </h1>
-                  <p className="text-sm text-gray-400">
+                  <h1 className="text-display font-semibold text-ink">Region & Lifestyle Localization</h1>
+                  <p className="text-small text-muted">
                     Our AI models utilize region mappings to estimate carbs/oils for Rayalaseema vs. Andhra vs. Telangana home cooking.
                   </p>
                 </div>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-2">Regional Home Food Mapping</label>
+                    <label className="block text-caption text-muted mb-2">Regional Home Food Mapping</label>
                     <div className="grid grid-cols-2 gap-2">
                       {[
                         { id: 'andhra', label: 'Coastal Andhra (Lighter grains, spices, seafood)' },
                         { id: 'telangana', label: 'Telangana (Millets, spice-infused, active grains)' },
                         { id: 'rayalaseema', label: 'Rayalaseema (Ragi, whole grains, stews)' },
-                        { id: 'general_indian', label: 'General Indian / Pan-Indian' }
+                        { id: 'general_indian', label: 'General Indian / Pan-Indian' },
                       ].map((r) => (
                         <button
                           key={r.id}
                           id={`region-btn-${r.id}`}
                           onClick={() => setRegion(r.id as Region)}
-                          className={`p-3 rounded-xl border text-left text-xs transition-all ${
-                            region === r.id 
-                              ? 'bg-[#FF8A24]/10 border-[#FF8A24] text-white' 
-                              : 'bg-slate-900/40 border-slate-800 text-gray-400 hover:bg-slate-850'
+                          className={`p-3 rounded-xl border text-left text-caption transition-all ${
+                            region === r.id
+                              ? 'bg-accent-subtle border-accent-fill/40 text-ink'
+                              : 'bg-raised border-line text-muted hover:bg-surface'
                           }`}
                         >
-                          <MapPin className={`w-3.5 h-3.5 inline mr-1.5 ${region === r.id ? 'text-[#FF8A24]' : 'text-gray-500'}`} />
+                          <MapPin className={`w-3.5 h-3.5 inline mr-1.5 ${region === r.id ? 'text-accent' : 'text-muted'}`} />
                           {r.label}
                         </button>
                       ))}
@@ -453,21 +391,21 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-gray-400 uppercase tracking-wider mb-2">Your Lifestyle & Schedule</label>
+                    <label className="block text-caption text-muted mb-2">Your Lifestyle & Schedule</label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         { id: 'busy_professional', label: 'Professional / Job Holder' },
                         { id: 'homemaker', label: 'Homemaker' },
-                        { id: 'student', label: 'Student / Gym' }
+                        { id: 'student', label: 'Student / Gym' },
                       ].map((l) => (
                         <button
                           key={l.id}
                           id={`lifestyle-btn-${l.id}`}
                           onClick={() => setLifestyle(l.id as Lifestyle)}
-                          className={`p-2.5 rounded-xl border text-center text-xs transition-all ${
-                            lifestyle === l.id 
-                              ? 'bg-slate-800 border-slate-600 text-white font-medium' 
-                              : 'bg-slate-900/40 border-slate-800 text-gray-400 hover:bg-slate-850'
+                          className={`p-2.5 rounded-xl border text-center text-caption transition-all ${
+                            lifestyle === l.id
+                              ? 'bg-surface border-line text-ink font-medium'
+                              : 'bg-raised border-line text-muted hover:bg-surface'
                           }`}
                         >
                           {l.label}
@@ -480,20 +418,12 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
             )}
 
             {step === 6 && (
-              <motion.div
-                key="step6"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="space-y-6"
-              >
+              <motion.div key="step6" variants={containerVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
                 <div className="space-y-2">
-                  <h1 className="text-2xl font-extrabold text-white tracking-tight">
-                    Select Your AI Wellness Coach 🎙️
-                  </h1>
-                  <p className="text-sm text-gray-400">
-                    Choose the ideal guide for your journey. They specialize in regional food-log strategies, glycemic indexes, and daily behavioral encouragement.
+                  <h1 className="text-display font-semibold text-ink">Select Your AI Wellness Coach</h1>
+                  <p className="text-small text-muted">
+                    Choose the ideal guide for your journey. They specialize in regional food-log strategies, glycemic indexes, and daily
+                    behavioral encouragement.
                   </p>
                 </div>
 
@@ -503,23 +433,24 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
                     id="coach-btn-jai"
                     onClick={() => setSelectedCoach('jai')}
                     className={`relative p-5 rounded-2xl border text-left transition-all flex flex-col justify-between h-56 group overflow-hidden ${
-                      selectedCoach === 'jai' 
-                        ? 'bg-slate-850 border-[#1FA45B] ring-1 ring-[#1FA45B]/30' 
-                        : 'bg-slate-900/30 border-slate-850 opacity-70 hover:opacity-90'
+                      selectedCoach === 'jai'
+                        ? 'bg-surface border-primary ring-1 ring-primary/30'
+                        : 'bg-raised border-line opacity-70 hover:opacity-90'
                     }`}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#1FA45B]/10 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 pointer-events-none" />
                     <div className="flex justify-between items-center w-full relative z-10">
-                      <span className="text-xs bg-slate-800 text-gray-300 font-mono px-2 py-0.5 rounded-full border border-slate-700 uppercase">
+                      <span className="text-caption bg-surface text-ink px-2 py-0.5 rounded-full border border-line">
                         Strength & Motivation
                       </span>
-                      <Volume2 className="w-4 h-4 text-[#1FA45B]" />
+                      <Volume2 className="w-4 h-4 text-primary" />
                     </div>
 
                     <div className="relative z-10">
-                      <h3 className="text-lg font-bold text-white uppercase tracking-wide group-hover:text-[#1FA45B] transition-colors">Jai</h3>
-                      <p className="text-[11px] text-gray-400 mt-1 leading-snug">
-                        "Strength-focused, goal-oriented health coach. Direct, energetic guidance with high accountability to consistently hit targets."
+                      <h3 className="text-title font-semibold text-ink group-hover:text-primary transition-colors">Jai</h3>
+                      <p className="text-caption text-muted mt-1 leading-snug">
+                        "Strength-focused, goal-oriented health coach. Direct, energetic guidance with high accountability to consistently
+                        hit targets."
                       </p>
                     </div>
                   </button>
@@ -529,23 +460,22 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
                     id="coach-btn-jaya"
                     onClick={() => setSelectedCoach('jaya')}
                     className={`relative p-5 rounded-2xl border text-left transition-all flex flex-col justify-between h-56 group overflow-hidden ${
-                      selectedCoach === 'jaya' 
-                        ? 'bg-slate-850 border-[#FF8A24] ring-1 ring-[#FF8A24]/30' 
-                        : 'bg-slate-900/30 border-slate-850 opacity-70 hover:opacity-90'
+                      selectedCoach === 'jaya'
+                        ? 'bg-surface border-accent-fill/40 ring-1 ring-accent-fill/40'
+                        : 'bg-raised border-line opacity-70 hover:opacity-90'
                     }`}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#FF8A24]/10 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 pointer-events-none" />
                     <div className="flex justify-between items-center w-full relative z-10">
-                      <span className="text-xs bg-slate-800 text-gray-300 font-mono px-2 py-0.5 rounded-full border border-slate-700 uppercase">
-                        Clinical & Warm
-                      </span>
-                      <Volume2 className="w-4 h-4 text-[#FF8A24]" />
+                      <span className="text-caption bg-surface text-ink px-2 py-0.5 rounded-full border border-line">Calm and caring</span>
+                      <Volume2 className="w-4 h-4 text-accent" />
                     </div>
 
                     <div className="relative z-10">
-                      <h3 className="text-lg font-bold text-white uppercase tracking-wide group-hover:text-[#FF8A24] transition-colors">Jaya</h3>
-                      <p className="text-[11px] text-gray-400 mt-1 leading-snug">
-                        "Clinically-focused, warm individual counselor. Expert in glycemic index parameters, whole grains, and gradual wellness habits."
+                      <h3 className="text-title font-semibold text-ink group-hover:text-accent transition-colors">Jaya</h3>
+                      <p className="text-caption text-muted mt-1 leading-snug">
+                        "Clinically-focused, warm individual counselor. Expert in glycemic index parameters, whole grains, and gradual
+                        wellness habits."
                       </p>
                     </div>
                   </button>
@@ -556,12 +486,12 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center justify-between mt-8 pt-4 border-t border-slate-800/80">
+        <div className="flex items-center justify-between mt-8 pt-4 border-t border-line">
           {step > 1 ? (
             <button
               id="onboarding-back-btn"
               onClick={handleBack}
-              className="px-5 py-2.5 rounded-xl border border-slate-800 hover:bg-slate-800 text-gray-400 text-sm font-medium transition-colors"
+              className="h-12 rounded-button border border-line bg-surface px-5 text-body font-semibold text-ink transition-colors duration-150 hover:bg-raised"
             >
               Back
             </button>
@@ -574,9 +504,9 @@ export default function AIOnboarding({ onComplete }: OnboardingProps) {
               id="onboarding-next-btn"
               onClick={handleNext}
               disabled={step === 1 && !name.trim()}
-              className="bg-gradient-to-r from-[#1FA45B] to-[#FF8A24] text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-1.5 shadow-md hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 disabled:pointer-events-none"
+              className="flex h-12 items-center gap-1.5 rounded-button bg-primary px-6 text-body font-semibold text-on-primary transition-[background-color,transform] duration-150 hover:bg-primary-pressed active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
             >
-              {step === totalSteps ? 'Launch Eco-Drive' : 'Continue'}
+              {step === totalSteps ? 'Start my plan' : 'Continue'}
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

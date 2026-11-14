@@ -27,7 +27,7 @@ const DEFAULT_PROFILE: UserProfile = {
   lifestyle: 'busy_professional',
   hasOnboarded: false,
   selectedCoach: 'jai',
-  theme: 'dark'
+  theme: 'light',
 };
 
 export const useUserStore = create<UserState>((set) => ({
@@ -47,5 +47,5 @@ export const useUserStore = create<UserState>((set) => ({
   resetProfile: () => {
     localStorage.removeItem('fit_me_profile_v2');
     set({ profile: DEFAULT_PROFILE });
-  }
+  },
 }));

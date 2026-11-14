@@ -5,9 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Sparkles, Award, PlayCircle, Trophy, BellRing, Settings as SettingsIcon 
-} from 'lucide-react';
+import { Sparkles, Award, PlayCircle, Trophy, BellRing, Settings as SettingsIcon } from 'lucide-react';
 
 import { UserProfile, Meal, ChatMessage } from './types';
 import AIOnboarding from './components/AIOnboarding';
@@ -32,7 +30,7 @@ const TAB_ORDER = ['planner', 'trackings', 'home', 'workout', 'store'];
 
 const slideVariants = {
   enter: (direction: 'left' | 'right') => ({
-    x: direction === 'right' ? 80 : -80,
+    x: direction === 'right' ? 16 : -16,
     opacity: 0,
   }),
   center: {
@@ -40,7 +38,7 @@ const slideVariants = {
     opacity: 1,
   },
   exit: (direction: 'left' | 'right') => ({
-    x: direction === 'right' ? -80 : 80,
+    x: direction === 'right' ? -16 : 16,
     opacity: 0,
   }),
 };
@@ -54,7 +52,7 @@ export default function App() {
   const { steps, incrementSteps } = useWorkoutStore();
 
   // Ordered exact tab ids: planner, trackings, home, workout, store
-  const [activeTab, setActiveTab ] = useState<string>('home');
+  const [activeTab, setActiveTab] = useState<string>('home');
   const [direction, setDirection] = useState<'left' | 'right'>('right');
   const [lastTab, setLastTab] = useState<string>('home');
 
@@ -80,15 +78,17 @@ export default function App() {
   const handleOnboardingComplete = (newProfile: UserProfile) => {
     updateProfile(newProfile);
     setTheme(newProfile.theme || 'system');
-    
+
     // Inject appropriate friendly coach greeting matching gender + goal on first launch
-    setNlpNotification(`AI Assistant configured: ${newProfile.selectedCoach === 'jai' ? 'Jai Brotherly Mode' : 'Jaya Compassionate Mode'} logged successfully.`);
+    setNlpNotification(
+      `AI Assistant configured: ${newProfile.selectedCoach === 'jai' ? 'Jai Brotherly Mode' : 'Jaya Compassionate Mode'} logged successfully.`,
+    );
     setTimeout(() => setNlpNotification(null), 4000);
   };
 
   // Reset/Clear Profile out
   const handleResetProfile = () => {
-    if (window.confirm("Do you want to reset your Fit Me profile? All logs will be cleared.")) {
+    if (window.confirm('Do you want to reset your Fit Me profile? All logs will be cleared.')) {
       resetProfile();
       clearMealLogs();
       resetWater();
@@ -100,18 +100,18 @@ export default function App() {
 
   // Triggering NLP Proxy searches from Dashboard or Coach chats
   const handleNlpLogFood = async (query: string) => {
-    setNlpNotification("Connecting with South Indian AI food parameters...");
+    setNlpNotification('Connecting with South Indian AI food parameters...');
     try {
       const response = await fetch('/api/analyze-food', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           foodQuery: query,
-          profile: profile
-        })
+          profile: profile,
+        }),
       });
 
-      if (!response.ok) throw new Error("Food log failure");
+      if (!response.ok) throw new Error('Food log failure');
       const analyzedResult = await response.json();
 
       // Append directly to active daily logs
@@ -139,10 +139,9 @@ export default function App() {
       // Trigger a success flash to screen
       setNlpNotification(`AI Analyzed & logged: ${analyzedResult.name || query} (${analyzedResult.calories || 250} kcal) successfully!`);
       setTimeout(() => setNlpNotification(null), 4000);
-
     } catch (err) {
       console.error(err);
-      setNlpNotification("System is syncing. Logged fallback meal to directory.");
+      setNlpNotification('System is syncing. Logged fallback meal to directory.');
       setTimeout(() => setNlpNotification(null), 3000);
     }
   };
@@ -167,8 +166,8 @@ export default function App() {
         return <Planner profile={profile} />;
       case 'trackings':
         return (
-          <Trackings 
-            profile={profile} 
+          <Trackings
+            profile={profile}
             waterAmount={waterAmount}
             incrementWater={handleIncrementWater}
             mealLogsCalories={mealLogs.reduce((acc, m) => acc + m.calories, 0)}
@@ -176,9 +175,9 @@ export default function App() {
         );
       case 'home':
         return (
-          <Dashboard 
-            profile={profile} 
-            mealLogs={mealLogs} 
+          <Dashboard
+            profile={profile}
+            mealLogs={mealLogs}
             waterAmount={waterAmount}
             incrementWater={handleIncrementWater}
             openMealModal={() => setActiveTab('store')}
@@ -194,7 +193,7 @@ export default function App() {
       case 'store':
         return <Store profile={profile} />;
       default:
-        return <div className="text-gray-400 py-12 text-center">Under construction</div>;
+        return <div className="text-muted py-12 text-center">Under construction</div>;
     }
   };
 
@@ -204,62 +203,54 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070C14] text-gray-150 selection:bg-[#1FA45B] selection:text-white relative pb-28 overflow-x-hidden font-sans">
-      
-      {/* Dynamic atmospheric background lights */}
-      <div className="fixed top-[-30%] left-[-20%] w-[70%] h-[70%] rounded-full bg-[#1FA45B]/5 blur-[200px] pointer-events-none" />
-      <div className="fixed bottom-[-30%] right-[-20%] w-[70%] h-[70%] rounded-full bg-[#FF8A24]/5 blur-[200px] pointer-events-none" />
-
-      {/* Floating Global Banner Notification for NLP log indicators */}
+    <div className="relative min-h-dvh overflow-x-hidden bg-canvas pb-32 text-ink">
       <AnimatePresence>
         {nlpNotification && (
           <motion.div
-            initial={{ opacity: 0, y: -50 }}
+            initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 z-[99999] bg-[#1FA45B] text-white p-4 rounded-xl shadow-2xl flex items-center gap-3 border border-emerald-400 max-w-sm"
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            role="status"
+            className="fixed inset-x-4 top-3 z-[100] mx-auto flex max-w-sm items-start gap-3 rounded-card border border-line bg-surface p-3.5 shadow-float"
           >
-            <Sparkles className="w-5 h-5 shrink-0 animate-spin text-white" />
-            <p className="text-xs font-semibold leading-relaxed leading-normal">{nlpNotification}</p>
+            <Sparkles className="mt-0.5 h-[18px] w-[18px] shrink-0 text-primary" strokeWidth={1.75} />
+            <p className="text-small text-ink">{nlpNotification}</p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Primary Header */}
-      <header className="sticky top-0 z-40 bg-[#070C14]/75 backdrop-blur-md border-b border-white/5 px-4 sm:px-6 py-3.5">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-black bg-gradient-to-r from-emerald-400 to-[#FF8A24] bg-clip-text text-transparent tracking-widest">
-              FIT ME
-            </span>
-            <span className="text-[10px] uppercase font-mono bg-slate-900 px-3 py-0.5 rounded-full border border-white/5 text-emerald-400 font-bold">
-              {profile.disease === 'none' ? 'Optimal Care' : `${profile.disease}`}
+      <header className="sticky top-0 z-40 border-b border-line bg-canvas/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-md">
+        <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="text-title font-semibold text-ink">
+              FIT ME <span className="text-primary">AI</span>
             </span>
           </div>
-
-          <div className="flex items-center gap-3">
-            {/* Quick settings gear icon triggers settings modal */}
-            <button 
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
               onClick={() => {
                 setModalMode('settings');
                 setIsModalOpen(true);
               }}
-              className="p-2 hover:bg-white/5 rounded-xl transition-all cursor-pointer text-gray-400 hover:text-white"
-              title="Global settings configure"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-muted transition-colors duration-150 hover:bg-raised hover:text-ink"
+              aria-label="Settings"
+              title="Settings"
             >
-              <SettingsIcon className="w-5 h-5 text-gray-400" />
+              <SettingsIcon className="h-5 w-5" strokeWidth={1.75} />
             </button>
-
-            {/* Quick avatar click triggers editable profile screen */}
-            <button 
+            <button
+              type="button"
               onClick={() => {
                 setModalMode('profile');
                 setIsModalOpen(true);
               }}
-              className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1FA45B] to-[#FF8A24] flex items-center justify-center font-bold text-xs text-white uppercase shadow-md border border-slate-800 cursor-pointer overflow-hidden hover:scale-105 transition-transform"
-              title="Your personal health indices"
+              className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-primary text-small font-semibold text-on-primary transition-transform duration-150 active:scale-95"
+              aria-label="Profile"
+              title="Profile"
             >
-              {profile.name[0]}
+              {profile.name[0]?.toUpperCase()}
             </button>
           </div>
         </div>
@@ -275,10 +266,7 @@ export default function App() {
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{
-              x: { type: 'spring', stiffness: 350, damping: 30 },
-              opacity: { duration: 0.18 }
-            }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
           >
             {renderTabContent()}
           </motion.div>
@@ -286,28 +274,19 @@ export default function App() {
       </main>
 
       {/* Global floating interactive AI companion button */}
-      <FloatingAI 
-        profile={profile} 
-        quickAnalyzeFood={handleNlpLogFood} 
-        incrementWater={handleIncrementWater}
-        setActiveTab={setActiveTab}
-      />
+      <FloatingAI profile={profile} quickAnalyzeFood={handleNlpLogFood} incrementWater={handleIncrementWater} setActiveTab={setActiveTab} />
 
       {/* Global Profile and Settings Modal manager */}
-      <ProfileSettings 
-        profile={profile} 
-        onChangeProfile={updateProfile} 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        initialMode={modalMode} 
+      <ProfileSettings
+        profile={profile}
+        onChangeProfile={updateProfile}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        initialMode={modalMode}
       />
 
       {/* Floating iOS Bottom Bar Navigation */}
-      <BottomNav 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-      />
-
+      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   );
 }

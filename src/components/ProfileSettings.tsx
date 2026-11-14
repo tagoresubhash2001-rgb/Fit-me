@@ -1,8 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  User, Settings, X, Lock, ShieldCheck, Heart, Sparkles, AlertCircle,
-  Bell, Volume2, Globe, CreditCard, RefreshCw, Key, Shield, Info
+import {
+  User,
+  Settings,
+  X,
+  Lock,
+  ShieldCheck,
+  Heart,
+  Sparkles,
+  AlertCircle,
+  Bell,
+  Volume2,
+  Globe,
+  CreditCard,
+  RefreshCw,
+  Key,
+  Shield,
+  Info,
 } from 'lucide-react';
 import { UserProfile, Gender, Goal, DiseaseCondition, FoodPreference, Region, Lifestyle } from '../types';
 
@@ -14,14 +28,11 @@ interface ProfileSettingsProps {
   initialMode: 'profile' | 'settings';
 }
 
-export default function ProfileSettings({
-  profile,
-  onChangeProfile,
-  isOpen,
-  onClose,
-  initialMode
-}: ProfileSettingsProps) {
+export default function ProfileSettings({ profile, onChangeProfile, isOpen, onClose, initialMode }: ProfileSettingsProps) {
   const [activeTab, setActiveTab] = useState<'profile' | 'settings'>(initialMode);
+  useEffect(() => {
+    if (isOpen) setActiveTab(initialMode);
+  }, [isOpen, initialMode]);
 
   // Profile Form States
   const [name, setName] = useState(profile.name);
@@ -59,7 +70,7 @@ export default function ProfileSettings({
       foodPreference,
       region,
       lifestyle,
-      selectedCoach
+      selectedCoach,
     };
 
     onChangeProfile(updated);
@@ -75,12 +86,12 @@ export default function ProfileSettings({
       {isOpen && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
           {/* Blur backdrop */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-[#070D14]/90 backdrop-blur-md"
+            className="absolute inset-0 bg-raised backdrop-blur-md"
           />
 
           {/* Dialog Container */}
@@ -88,37 +99,34 @@ export default function ProfileSettings({
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            className="relative bg-[#0c1219] border border-white/10 w-full max-w-2xl h-[90vh] sm:h-[80vh] rounded-3xl shadow-[0_30px_70px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden text-gray-200"
+            className="relative bg-surface border border-line w-full max-w-2xl h-[90vh] sm:h-[80vh] rounded-card shadow-card flex flex-col overflow-hidden text-ink"
           >
             {/* Top Bar Switcher */}
-            <div className="p-4 border-b border-white/5 bg-slate-950 flex justify-between items-center shrink-0">
-              <div className="flex bg-[#070D14] p-1 rounded-xl border border-white/5">
+            <div className="p-4 border-b border-line bg-surface flex justify-between items-center shrink-0">
+              <div className="flex bg-canvas p-1 rounded-xl border border-line">
                 <button
                   onClick={() => setActiveTab('profile')}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                    activeTab === 'profile' 
-                      ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black' 
-                      : 'text-gray-500 hover:text-gray-300'
+                  className={`px-4 py-1.5 rounded-lg text-caption  font-semibold transition-all cursor-pointer ${
+                    activeTab === 'profile'
+                      ? 'bg-primary-subtle border border-primary/30 text-primary font-semibold'
+                      : 'text-muted hover:text-ink'
                   }`}
                 >
                   Edit Profile
                 </button>
                 <button
                   onClick={() => setActiveTab('settings')}
-                  className={`px-4 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                    activeTab === 'settings' 
-                      ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black' 
-                      : 'text-gray-500 hover:text-gray-300'
+                  className={`px-4 py-1.5 rounded-lg text-caption  font-semibold transition-all cursor-pointer ${
+                    activeTab === 'settings'
+                      ? 'bg-primary-subtle border border-primary/30 text-primary font-semibold'
+                      : 'text-muted hover:text-ink'
                   }`}
                 >
                   App Settings
                 </button>
               </div>
 
-              <button 
-                onClick={onClose}
-                className="p-1.5 bg-slate-900/80 hover:bg-slate-800 rounded-full text-gray-400 hover:text-white cursor-pointer"
-              >
+              <button onClick={onClose} className="p-1.5 bg-raised hover:bg-surface rounded-full text-muted hover:text-ink cursor-pointer">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -130,9 +138,9 @@ export default function ProfileSettings({
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="bg-emerald-950/40 border-b border-emerald-400/20 px-5 py-2.5 text-xs text-emerald-300 font-mono text-center"
+                  className="bg-primary-subtle border-b border-primary/30 px-5 py-2.5 text-caption text-primary text-center"
                 >
-                  ✓ {savedSuccessAlert}
+                  {savedSuccessAlert}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -141,26 +149,25 @@ export default function ProfileSettings({
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {activeTab === 'profile' ? (
                 <form id="profile-edit-form" onSubmit={handleUpdateProfile} className="space-y-4">
-                  
                   {/* Basic user parameters */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-[10px] uppercase font-mono tracking-wider text-gray-400 block mb-1">Full Name</label>
-                      <input 
-                        type="text" 
-                        value={name} 
-                        onChange={e => setName(e.target.value)}
-                        className="w-full bg-slate-950 border border-white/5 rounded-xl px-3 py-2 text-xs text-white"
+                      <label className="text-caption text-muted block mb-1">Full Name</label>
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="w-full bg-surface border border-line rounded-xl px-3 py-2 text-caption text-ink"
                         required
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase font-mono tracking-wider text-gray-400 block mb-1">Age (Years)</label>
-                      <input 
-                        type="number" 
-                        value={age} 
-                        onChange={e => setAge(Number(e.target.value))}
-                        className="w-full bg-slate-950 border border-white/5 rounded-xl px-3 py-2 text-xs text-white"
+                      <label className="text-caption text-muted block mb-1">Age (Years)</label>
+                      <input
+                        type="number"
+                        value={age}
+                        onChange={(e) => setAge(Number(e.target.value))}
+                        className="w-full bg-surface border border-line rounded-xl px-3 py-2 text-caption text-ink"
                         required
                       />
                     </div>
@@ -168,11 +175,11 @@ export default function ProfileSettings({
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                      <label className="text-[10px] uppercase font-mono tracking-wider text-gray-400 block mb-1">Gender</label>
-                      <select 
-                        value={gender} 
-                        onChange={e => setGender(e.target.value as Gender)}
-                        className="w-full bg-slate-950 border border-white/5 rounded-xl px-3 py-2 text-xs text-white"
+                      <label className="text-caption text-muted block mb-1">Gender</label>
+                      <select
+                        value={gender}
+                        onChange={(e) => setGender(e.target.value as Gender)}
+                        className="w-full bg-surface border border-line rounded-xl px-3 py-2 text-caption text-ink"
                       >
                         <option value="male">Male</option>
                         <option value="female">Female</option>
@@ -180,21 +187,21 @@ export default function ProfileSettings({
                       </select>
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase font-mono tracking-wider text-gray-400 block mb-1">Height (cm)</label>
-                      <input 
-                        type="number" 
-                        value={height} 
-                        onChange={e => setHeight(Number(e.target.value))}
-                        className="w-full bg-slate-950 border border-white/5 rounded-xl px-3 py-2 text-xs text-white"
+                      <label className="text-caption text-muted block mb-1">Height (cm)</label>
+                      <input
+                        type="number"
+                        value={height}
+                        onChange={(e) => setHeight(Number(e.target.value))}
+                        className="w-full bg-surface border border-line rounded-xl px-3 py-2 text-caption text-ink"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] uppercase font-mono tracking-wider text-gray-400 block mb-1">Weight (kg)</label>
-                      <input 
-                        type="number" 
-                        value={weight} 
-                        onChange={e => setWeight(Number(e.target.value))}
-                        className="w-full bg-slate-950 border border-white/5 rounded-xl px-3 py-2 text-xs text-white"
+                      <label className="text-caption text-muted block mb-1">Weight (kg)</label>
+                      <input
+                        type="number"
+                        value={weight}
+                        onChange={(e) => setWeight(Number(e.target.value))}
+                        className="w-full bg-surface border border-line rounded-xl px-3 py-2 text-caption text-ink"
                       />
                     </div>
                   </div>
@@ -202,13 +209,13 @@ export default function ProfileSettings({
                   {/* Metabolic & Health conditions */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <div>
-                      <label className="text-[10px] uppercase font-mono tracking-wider text-[#FF8A24] block mb-1 font-bold">Primary Goal Priorities</label>
-                      <select 
-                        value={goal} 
-                        onChange={e => setGoal(e.target.value as Goal)}
-                        className="w-full bg-slate-950 border border-white/5 rounded-xl px-3 py-2 text-xs text-white"
+                      <label className="text-caption text-accent block mb-1 font-semibold">Primary Goal Priorities</label>
+                      <select
+                        value={goal}
+                        onChange={(e) => setGoal(e.target.value as Goal)}
+                        className="w-full bg-surface border border-line rounded-xl px-3 py-2 text-caption text-ink"
                       >
-                        <option value="fat_loss">Fat Loss & Leptin Balance</option>
+                        <option value="fat_loss">Fat Loss & Weight</option>
                         <option value="weight_gain">Healthy Mass Gain</option>
                         <option value="maintenance">Metabolic Maintenance</option>
                         <option value="muscle_building">Anabolic Hypertrophy</option>
@@ -216,13 +223,13 @@ export default function ProfileSettings({
                     </div>
 
                     <div>
-                      <label className="text-[10px] uppercase font-mono tracking-wider text-rose-400 block mb-1 font-bold">Clinics Health Condition</label>
-                      <select 
-                        value={disease} 
-                        onChange={e => setDisease(e.target.value as DiseaseCondition)}
-                        className="w-full bg-slate-950 border border-white/5 rounded-xl px-3 py-2 text-xs text-white"
+                      <label className="text-caption text-danger block mb-1 font-semibold">Health condition</label>
+                      <select
+                        value={disease}
+                        onChange={(e) => setDisease(e.target.value as DiseaseCondition)}
+                        className="w-full bg-surface border border-line rounded-xl px-3 py-2 text-caption text-ink"
                       >
-                        <option value="none">Optimal Care (No chronic diseases)</option>
+                        <option value="none">None</option>
                         <option value="diabetes">Diabetes (Type-2 Glycemic controls)</option>
                         <option value="pcos">PCOS (Androgen Balance targets)</option>
                         <option value="thyroid">Thyroid (T3/T4 metabolic regulators)</option>
@@ -234,11 +241,11 @@ export default function ProfileSettings({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4">
                     <div>
-                      <label className="text-[10px] uppercase font-mono tracking-wider text-gray-400 block mb-1">Nutrition Preference</label>
-                      <select 
-                        value={foodPreference} 
-                        onChange={e => setFoodPreference(e.target.value as FoodPreference)}
-                        className="w-full bg-slate-950 border border-white/5 rounded-xl px-3 py-2 text-xs text-white"
+                      <label className="text-caption text-muted block mb-1">Nutrition Preference</label>
+                      <select
+                        value={foodPreference}
+                        onChange={(e) => setFoodPreference(e.target.value as FoodPreference)}
+                        className="w-full bg-surface border border-line rounded-xl px-3 py-2 text-caption text-ink"
                       >
                         <option value="veg">Pure Vegetarian</option>
                         <option value="non_veg">Non Vegetarian (Inclusive of lean poultry)</option>
@@ -248,11 +255,11 @@ export default function ProfileSettings({
                     </div>
 
                     <div>
-                      <label className="text-[10px] uppercase font-mono tracking-wider text-gray-400 block mb-1">South Indian regional code</label>
-                      <select 
-                        value={region} 
-                        onChange={e => setRegion(e.target.value as Region)}
-                        className="w-full bg-slate-950 border border-white/5 rounded-xl px-3 py-2 text-xs text-white"
+                      <label className="text-caption text-muted block mb-1">Home region</label>
+                      <select
+                        value={region}
+                        onChange={(e) => setRegion(e.target.value as Region)}
+                        className="w-full bg-surface border border-line rounded-xl px-3 py-2 text-caption text-ink"
                       >
                         <option value="andhra">Andhra Coastal (Spicy, high fiber pappu overrides)</option>
                         <option value="telangana">Telangana region (Millets, sorghum Roti, spicy spices)</option>
@@ -262,37 +269,35 @@ export default function ProfileSettings({
                     </div>
                   </div>
 
-                  <div className="flex gap-2 justify-end pt-4 border-t border-white/5">
-                    <button 
-                      type="submit" 
-                      className="px-6 py-2.5 bg-[#1FA45B] hover:bg-emerald-600 font-mono font-black text-xs uppercase tracking-wider text-white rounded-xl shadow-lg cursor-pointer"
+                  <div className="flex gap-2 justify-end pt-4 border-t border-line">
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 bg-primary hover:bg-primary font-semibold text-caption text-on-primary rounded-xl shadow-card cursor-pointer"
                     >
                       Save & Sync
                     </button>
                   </div>
-
                 </form>
               ) : (
                 <div className="space-y-6">
-                  
                   {/* APP CONTROLS SECTIONS */}
-                  <div className="bg-[#070D14] p-4 rounded-2xl border border-white/5 space-y-4">
-                    <h3 className="text-xs font-mono uppercase tracking-wider text-[#FF8A24] font-black">AI Model configuration parameters</h3>
-                    
-                    <div className="flex justify-between items-center text-xs">
+                  <div className="bg-canvas p-4 rounded-2xl border border-line space-y-4">
+                    <h3 className="text-caption text-accent font-semibold">Your coach</h3>
+
+                    <div className="flex flex-col gap-2 text-caption">
                       <div>
-                        <strong>Select AI Coach Personas:</strong>
-                        <span className="block text-[10px] text-gray-500">Affects prompt vocabulary globally</span>
+                        <strong>Default coach</strong>
+                        <span className="block text-caption text-muted">Who answers first when you open the chat</span>
                       </div>
-                      <select 
-                        value={selectedCoach} 
-                        onChange={e => {
+                      <select
+                        value={selectedCoach}
+                        onChange={(e) => {
                           const coach = e.target.value as 'jai' | 'jaya';
                           setSelectedCoach(coach);
                           const updated = { ...profile, selectedCoach: coach };
                           onChangeProfile(updated);
                         }}
-                        className="bg-slate-950 border border-white/5 rounded-xl px-3 py-1.5 text-xs text-white"
+                        className="h-12 w-full min-w-0 rounded-input border border-line bg-surface px-3 text-small text-ink"
                       >
                         <option value="jai">Jai brotherly (Motivating, protective, warm)</option>
                         <option value="jaya">Jaya sisterly (Empathetic, nutri-scientific)</option>
@@ -300,35 +305,35 @@ export default function ProfileSettings({
                     </div>
 
                     <div className="space-y-1">
-                      <div className="flex justify-between text-xs">
+                      <div className="flex justify-between text-caption">
                         <strong>Gemini Temperature Threshold:</strong>
-                        <span className="font-mono text-emerald-400">{aiTemperature}</span>
+                        <span className="text-primary">{aiTemperature}</span>
                       </div>
-                      <input 
-                        type="range" 
-                        min="0.2" 
-                        max="1.5" 
-                        step="0.1" 
-                        value={aiTemperature} 
-                        onChange={e => setAiTemperature(Number(e.target.value))}
-                        className="w-full h-1.5 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-[#1FA45B]"
+                      <input
+                        type="range"
+                        min="0.2"
+                        max="1.5"
+                        step="0.1"
+                        value={aiTemperature}
+                        onChange={(e) => setAiTemperature(Number(e.target.value))}
+                        className="w-full h-1.5 bg-surface rounded-lg appearance-none cursor-pointer accent-primary"
                       />
                     </div>
                   </div>
 
                   {/* APPEARANCE SECTION */}
-                  <div className="bg-[#070D14] p-4 rounded-2xl border border-white/5 space-y-4">
-                    <h3 className="text-xs font-mono uppercase tracking-wider text-[#FF8A24] font-black">Appearance Preference</h3>
-                    <div className="flex justify-between items-center text-xs">
+                  <div className="bg-canvas p-4 rounded-2xl border border-line space-y-4">
+                    <h3 className="text-caption text-accent font-semibold">Appearance Preference</h3>
+                    <div className="flex justify-between items-center text-caption">
                       <div>
                         <strong>Visual Theme Select</strong>
-                        <span className="block text-[10px] text-gray-400">Choose between Warm Light, Deep Dark or OS System sync</span>
+                        <span className="block text-caption text-muted">Light, dark or match your device</span>
                       </div>
-                      <div className="flex bg-[#070D14] p-1 rounded-xl border border-white/5">
+                      <div className="flex bg-canvas p-1 rounded-xl border border-line">
                         {[
                           { id: 'light', label: 'Light' },
                           { id: 'dark', label: 'Dark' },
-                          { id: 'system', label: 'System' }
+                          { id: 'system', label: 'System' },
                         ].map((t) => {
                           const isSel = (profile.theme || 'system') === t.id;
                           return (
@@ -341,10 +346,10 @@ export default function ProfileSettings({
                                 setSavedSuccessAlert(`Theme configured to ${t.label}!`);
                                 setTimeout(() => setSavedSuccessAlert(''), 1500);
                               }}
-                              className={`px-3 py-1 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer ${
-                                isSel 
-                                  ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black' 
-                                  : 'text-gray-500 hover:text-gray-300'
+                              className={`px-3 py-1 rounded-lg text-caption  font-semibold transition-all cursor-pointer ${
+                                isSel
+                                  ? 'bg-primary-subtle border border-primary/30 text-primary font-semibold'
+                                  : 'text-muted hover:text-ink'
                               }`}
                             >
                               {t.label}
@@ -356,23 +361,23 @@ export default function ProfileSettings({
                   </div>
 
                   {/* INTEGRATION SECTION */}
-                  <div className="bg-[#070D14] p-4 rounded-2xl border border-white/5 space-y-4">
-                    <h3 className="text-xs font-mono uppercase tracking-wider text-[#FF8A24] font-black font-semibold">Integrations Sync Hub</h3>
-                    
-                    <div className="flex justify-between items-center text-xs">
+                  <div className="bg-canvas p-4 rounded-2xl border border-line space-y-4">
+                    <h3 className="text-caption text-accent font-semibold font-semibold">Integrations Sync Hub</h3>
+
+                    <div className="flex justify-between items-center text-caption">
                       <div>
                         <strong>Fitbit / Garmin Secure integration:</strong>
-                        <span className="block text-[10px] text-gray-500">Auto pull continuous pulse and sleep telemetry</span>
+                        <span className="block text-caption text-muted">Import heart rate and sleep from your watch</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => {
                           setFitbitSynced(!fitbitSynced);
-                          setSavedSuccessAlert(fitbitSynced ? 'Fitbit cloud sync unlinked.' : 'Connected to Fitbit clinical server.');
+                          setSavedSuccessAlert(fitbitSynced ? 'Fitbit cloud sync unlinked.' : 'Connected to Fitbit.');
                           setTimeout(() => setSavedSuccessAlert(''), 1500);
                         }}
-                        className={`px-3 py-1.5 rounded-xl font-mono text-[10px] uppercase font-bold transition-all cursor-pointer ${
-                          fitbitSynced ? 'bg-[#1FA45B]/15 border border-[#1FA45B]/20 text-[#1FA45B]' : 'bg-slate-850 hover:bg-slate-800 text-slate-300'
+                        className={`px-3 py-1.5 rounded-xl  text-caption  font-semibold transition-all cursor-pointer ${
+                          fitbitSynced ? 'bg-primary-subtle border border-primary/30 text-primary' : 'bg-surface hover:bg-surface text-ink'
                         }`}
                       >
                         {fitbitSynced ? 'Connected' : 'Sync Fitbit'}
@@ -381,20 +386,18 @@ export default function ProfileSettings({
                   </div>
 
                   {/* PRIVACY HUB */}
-                  <div className="bg-[#070D14] p-4 rounded-2xl border border-white/5 space-y-3">
+                  <div className="bg-canvas p-4 rounded-2xl border border-line space-y-3">
                     <div className="flex items-center gap-2">
-                      <ShieldCheck className="w-4.5 h-4.5 text-emerald-400" />
-                      <h3 className="text-xs font-mono uppercase tracking-wider text-emerald-400 font-black">Security Policy Core</h3>
+                      <ShieldCheck className="w-4.5 h-4.5 text-primary" />
+                      <h3 className="text-caption text-primary font-semibold">Security Policy Core</h3>
                     </div>
-                    <p className="text-[11px] text-slate-400 leading-relaxed font-mono">
-                      All biometric metadata, nutrition records, cycles, and insulin logs comply with HIPAA security levels. HealthOS operates on sandboxed local-first persistent boundaries, meaning zero data leakage models are possible.
+                    <p className="text-caption text-muted leading-relaxed">
+                      Your health data is private to your account. FIT ME AI is not a medical device and does not replace a doctor.
                     </p>
                   </div>
-
                 </div>
               )}
             </div>
-
           </motion.div>
         </div>
       )}

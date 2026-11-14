@@ -37,7 +37,7 @@ export const useNutritionStore = create<NutritionState>((set, get) => ({
       sodium: Math.max(0, Number(meal.sodium) || 0),
       potassium: Math.max(0, Number(meal.potassium) || 0),
       magnesium: Math.max(0, Number(meal.magnesium) || 0),
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
     set((state) => {
@@ -49,7 +49,7 @@ export const useNutritionStore = create<NutritionState>((set, get) => ({
 
   removeMealLog: (id) => {
     set((state) => {
-      const updated = state.mealLogs.filter(m => m.id !== id);
+      const updated = state.mealLogs.filter((m) => m.id !== id);
       localStorage.setItem('fit_me_meals_v1', JSON.stringify(updated));
       return { mealLogs: updated };
     });
@@ -61,12 +61,12 @@ export const useNutritionStore = create<NutritionState>((set, get) => ({
   },
 
   getCategoryCalories: (category) => {
-    return get().mealLogs
-      .filter(m => m.category === category)
+    return get()
+      .mealLogs.filter((m) => m.category === category)
       .reduce((sum, m) => sum + m.calories, 0);
   },
 
   getTotalCalories: () => {
     return get().mealLogs.reduce((sum, m) => sum + m.calories, 0);
-  }
+  },
 }));

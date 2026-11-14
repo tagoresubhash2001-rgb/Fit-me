@@ -46,7 +46,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 30,
     typicalPortion: '1 medium plate (350g)',
     category: 'lunch',
-    cuisine: 'Telangana'
+    cuisine: 'Telangana',
   },
   {
     name: 'Gongura Pappu with Sona Masuri Rice',
@@ -67,7 +67,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 45,
     typicalPortion: '1 bowl of gongura pappu + rice',
     category: 'lunch',
-    cuisine: 'Andhra'
+    cuisine: 'Andhra',
   },
   {
     name: 'Pesara Dosa / Pesarattu (2 pieces)',
@@ -88,7 +88,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 50,
     typicalPortion: '2 medium pesarattus',
     category: 'breakfast',
-    cuisine: 'Andhra'
+    cuisine: 'Andhra',
   },
   {
     name: 'Ragi Mudda / Sangati with Ghee',
@@ -109,7 +109,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 60,
     typicalPortion: '1 medium ball + 1 tsp ghee',
     category: 'lunch',
-    cuisine: 'Andhra'
+    cuisine: 'Andhra',
   },
   {
     name: 'Idly Steamed (3 pieces with Chutneys)',
@@ -130,7 +130,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 70,
     typicalPortion: '3 idlies + 2 tbsp coconut chutney',
     category: 'breakfast',
-    cuisine: 'General South Indian'
+    cuisine: 'General South Indian',
   },
   {
     name: 'Natu Kodi Pulusu (Country Chicken Gravy)',
@@ -151,7 +151,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 40,
     typicalPortion: '1 medium bowl (180g)',
     category: 'dinner',
-    cuisine: 'Andhra'
+    cuisine: 'Andhra',
   },
 
   // Global Cuisines: American
@@ -174,7 +174,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 20,
     typicalPortion: '1 burger bun & patty',
     category: 'dinner',
-    cuisine: 'American'
+    cuisine: 'American',
   },
   {
     name: 'Classic American Caesar Salad',
@@ -195,7 +195,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 80,
     typicalPortion: '1 large bowl (200g)',
     category: 'lunch',
-    cuisine: 'American'
+    cuisine: 'American',
   },
 
   // Italian
@@ -218,7 +218,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 35,
     typicalPortion: '1 plate (250g)',
     category: 'lunch',
-    cuisine: 'Italian'
+    cuisine: 'Italian',
   },
 
   // Mexican
@@ -241,7 +241,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 25,
     typicalPortion: '2 pieces with dip',
     category: 'dinner',
-    cuisine: 'Mexican'
+    cuisine: 'Mexican',
   },
   {
     name: 'Tofu & Black Beans Taco Bowl',
@@ -262,7 +262,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 60,
     typicalPortion: '1 bowl (300g)',
     category: 'lunch',
-    cuisine: 'Mexican'
+    cuisine: 'Mexican',
   },
 
   // Japanese
@@ -285,7 +285,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 50,
     typicalPortion: '6 pieces roll',
     category: 'dinner',
-    cuisine: 'Japanese'
+    cuisine: 'Japanese',
   },
 
   // Korean
@@ -308,7 +308,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 45,
     typicalPortion: '1 large bowl',
     category: 'lunch',
-    cuisine: 'Korean'
+    cuisine: 'Korean',
   },
 
   // Chinese
@@ -331,7 +331,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 55,
     typicalPortion: '4 dumplings',
     category: 'snacks',
-    cuisine: 'Chinese'
+    cuisine: 'Chinese',
   },
 
   // Mediterranean
@@ -354,7 +354,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 75,
     typicalPortion: '1 salad bowl + 1 pita bread',
     category: 'lunch',
-    cuisine: 'Mediterranean'
+    cuisine: 'Mediterranean',
   },
 
   // Arabic
@@ -377,7 +377,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 30,
     typicalPortion: '1 wrap roll',
     category: 'dinner',
-    cuisine: 'Middle Eastern'
+    cuisine: 'Middle Eastern',
   },
 
   // African
@@ -400,7 +400,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 50,
     typicalPortion: '1 flat sourdough bread + stew',
     category: 'lunch',
-    cuisine: 'African'
+    cuisine: 'African',
   },
 
   // Vegan / Keto / Paleo
@@ -423,7 +423,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 80,
     typicalPortion: '1 power plate container',
     category: 'lunch',
-    cuisine: 'Vegan Premium'
+    cuisine: 'Vegan Premium',
   },
   {
     name: 'Keto Grilled Butter Salmon & Broccoli',
@@ -444,7 +444,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 40,
     typicalPortion: '220g salmon fillet + broccoli',
     category: 'dinner',
-    cuisine: 'Keto'
+    cuisine: 'Keto',
   },
   {
     name: 'Paleo Roasted Turkey Breast with Almonds',
@@ -465,7 +465,7 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 35,
     typicalPortion: '150g turkey breast',
     category: 'dinner',
-    cuisine: 'Paleo'
+    cuisine: 'Paleo',
   },
   {
     name: 'Sports Whey Clean Protein Shake',
@@ -486,6 +486,6 @@ export const GLOBAL_FOOD_DB: FoodItem[] = [
     hydrationScore: 90,
     typicalPortion: '1 scoop (35g) with water',
     category: 'snacks',
-    cuisine: 'Sports Nutrition'
-  }
+    cuisine: 'Sports Nutrition',
+  },
 ];

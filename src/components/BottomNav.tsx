@@ -1,68 +1,53 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React from 'react';
-import { 
-  Calendar, Activity, Home, Dumbbell, ShoppingBag 
-} from 'lucide-react';
+import { Home, CalendarDays, HeartPulse, Dumbbell, ShoppingBag } from 'lucide-react';
+import { cn } from './ui';
 
 interface BottomNavProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
+// PRD section 7: Home, Planner, Health, Workouts, Store. Profile and Settings open from the header avatar.
+const NAV_ITEMS = [
+  { id: 'home', label: 'Home', icon: Home },
+  { id: 'planner', label: 'Planner', icon: CalendarDays },
+  { id: 'trackings', label: 'Health', icon: HeartPulse },
+  { id: 'workout', label: 'Workouts', icon: Dumbbell },
+  { id: 'store', label: 'Store', icon: ShoppingBag },
+] as const;
+
 export default function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
-  // Ordered exactly as requested globally: Planner, Trackings, Home, Workout, Store
-  const navItems = [
-    { id: 'planner', label: 'Planner', icon: Calendar },
-    { id: 'trackings', label: 'Trackings', icon: Activity },
-    { id: 'home', label: 'Home', icon: Home, isCenter: true },
-    { id: 'workout', label: 'Workout', icon: Dumbbell },
-    { id: 'store', label: 'Store', icon: ShoppingBag }
-  ];
-
   return (
-    <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[94vw] max-w-2xl z-[9000] bg-[#0E1521]/80 backdrop-blur-2xl border border-white/10 rounded-2xl px-2 py-1 shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
-      <div className="flex items-center justify-between gap-1">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          
+    <nav
+      aria-label="Main"
+      className="fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-50 mx-auto max-w-lg rounded-card border border-line bg-nav px-1.5 py-1.5 shadow-float"
+    >
+      <ul className="flex items-stretch justify-between gap-1">
+        {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
+          const active = activeTab === id;
           return (
-            <button
-              key={item.id}
-              id={`nav-tab-${item.id}`}
-              onClick={() => setActiveTab(item.id)}
-              className="flex flex-col items-center justify-center flex-1 py-1 transition-all relative group cursor-pointer"
-            >
-              <div 
-                className={`p-2 rounded-xl transition-all ${
-                  isActive 
-                    ? 'text-emerald-400 bg-emerald-500/10 scale-105 font-bold' 
-                    : item.isCenter 
-                      ? 'text-slate-100 bg-white/5 hover:bg-white/10' 
-                      : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
-                }`}
+            <li key={id} className="min-w-0 flex-1">
+              <button
+                id={`nav-tab-${id}`}
+                type="button"
+                onClick={() => setActiveTab(id)}
+                aria-current={active ? 'page' : undefined}
+                className="group flex w-full flex-col items-center gap-0.5 rounded-button py-1 transition-colors duration-150"
               >
-                <Icon className={`w-5 h-5 ${item.isCenter ? 'scale-110' : ''}`} />
-              </div>
-              
-              <span className={`text-[9px] mt-0.5 font-sans font-extrabold tracking-tight transition-colors uppercase ${
-                isActive ? 'text-emerald-400' : 'text-gray-500 group-hover:text-gray-300'
-              }`}>
-                {item.label}
-              </span>
-
-              {/* Slider Indicator line */}
-              {isActive && (
-                <div className="absolute top-0 left-1/4 right-1/4 h-[2.5px] bg-gradient-to-r from-emerald-400 to-[#FF8A24] rounded-full" />
-              )}
-            </button>
+                <span
+                  className={cn(
+                    'flex h-8 w-14 max-w-full items-center justify-center rounded-full transition-colors duration-150',
+                    active ? 'bg-primary-subtle text-primary' : 'text-muted group-hover:text-ink',
+                  )}
+                >
+                  <Icon className="h-5 w-5" strokeWidth={1.75} />
+                </span>
+                <span className={cn('max-w-full truncate text-caption', active ? 'text-primary' : 'text-muted')}>{label}</span>
+              </button>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </nav>
   );
 }

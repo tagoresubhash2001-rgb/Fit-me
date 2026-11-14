@@ -20,5 +20,5 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
   nextStep: () => set((state) => ({ currentStep: Math.min(state.totalSteps, state.currentStep + 1) })),
   prevStep: () => set((state) => ({ currentStep: Math.max(1, state.currentStep - 1) })),
   setStep: (step) => set({ currentStep: step }),
-  resetOnboarding: () => set({ currentStep: 1 })
+  resetOnboarding: () => set({ currentStep: 1 }),
 }));

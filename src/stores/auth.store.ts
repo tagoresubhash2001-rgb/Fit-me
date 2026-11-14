@@ -25,7 +25,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     return saved ? JSON.parse(saved) : { uid: 'temporary-guest-id', email: 'user@example.com', name: 'Buddy', emailVerified: true };
   })(),
   isAuthenticated: !!localStorage.getItem('fit_me_auth_user') || true, // Default to true as a guest OS user
-  
+
   login: (uid, email, name, emailVerified = true) => {
     const user = { uid, email, name, emailVerified };
     localStorage.setItem('fit_me_auth_user', JSON.stringify(user));
@@ -35,5 +35,5 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     localStorage.removeItem('fit_me_auth_user');
     set({ user: null, isAuthenticated: false });
-  }
+  },
 }));

@@ -43,5 +43,5 @@ export const useWorkoutStore = create<WorkoutState>((set) => ({
 
   setWorkoutActive: (workoutActive) => set({ workoutActive }),
   tickTimer: () => set((state) => ({ activeTimer: state.activeTimer + 1 })),
-  resetTimer: () => set({ activeTimer: 0 })
+  resetTimer: () => set({ activeTimer: 0 }),
 }));
