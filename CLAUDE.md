@@ -68,20 +68,32 @@ docs/PRD.md  docs/ORIGINAL_SPEC.md  docs/AUDIT.md
 Admin panel is a separate role-gated route in the same app (Phase 5).
 Keep features modular. Business logic in `src/domain/` and Functions, not in components.
 
-## Key product decisions
+## Key product decisions (PRD sections 2–4; PRD wins on any conflict)
 
-- Tiers: **Free** (macros incl. fiber, steps, watch connect, water, weight, sleep, basic workouts, ads shown),
-  **Premium** (+ micronutrients, AI food photo scan, no ads),
-  **Pro** (+ Jai & Jaya AI coaches, reminders, weekly/monthly planner, AI generators, advanced reports).
-- Prices: India ₹199 / ₹399; US $9 / $29; UK £9 / £29; EU €9 / €29; others via store local price tiers.
-- Mobile purchases = in-app purchase in every country. Web = Cashfree. RevenueCat unifies entitlements.
-  Server writes `entitlements/{uid}`; clients only read it.
-- Global from day one: local currency, language, units, foods per country. Launch languages:
-  en, hi, te, ta, es, pt, fr, de, ar (RTL), id.
-- Food DB: USDA FoodData Central + Open Food Facts + curated regional dishes; every food stores its `source`.
-- AI coaches: Jai (fitness, male voice), Jaya (nutrition/wellness, female voice), one orchestrator, shared user context.
-- Store tab exists at launch as "Coming Soon". Trainer marketplace is post-launch.
-- Health safety: no diagnosis, no medication/insulin advice; show disclaimer; urgent symptoms → advise a doctor.
+- **Tiers** (PRD §2): **Free** = food logging with macros (calories, protein, carbs, fat, fiber), steps and
+  watch / health-app connection, water, weight, sleep, basic workouts and history, ads shown.
+  **Premium** = Free + micronutrients (vitamins, minerals, sodium, sugar), AI food photo scan, no ads.
+  **Pro** = Premium + Jai & Jaya AI coaches (chat and voice), smart reminders, weekly/monthly planner and
+  AI auto-planner, AI meal plans and workout generator, advanced analytics and reports.
+- **Monthly prices** (PRD §2): India ₹199 / ₹399; US $9 / $29; UK £9 / £29; Eurozone €9 / €29
+  (Premium / Pro); other countries via store local price tiers. Always shown in local currency.
+- **Revenue streams**: subscriptions, AdMob ads for free users (mobile only; no web ads until decided),
+  trainer commission (post-launch), store commission (Store is "Coming soon" at launch).
+- **Payments** (PRD §3): mobile = Apple IAP / Google Play Billing in every country; web = Cashfree.
+  RevenueCat unifies them; Cashfree webhooks are verified in a Cloud Function and synced to RevenueCat.
+  A Cloud Function writes `entitlements/{uid}` (plan, expiry, source); clients only read it.
+  Support renewal, expiry, upgrade, downgrade, cancellation, refunds, grace periods, restore.
+  Trainer and Store payments use Cashfree split payments, never IAP.
+- **Global localization** (PRD §4): country detected at sign-up (device + store region), editable in
+  Settings. Adapts currency, app language (device default), AI language, food ranking by country,
+  local serving units (katori, roti, idli, cup, oz, slice, bowl), measurement units
+  (kg/lb, cm/ft-in, ml/fl oz, km/mi, °C/°F), date/time/number/week-start formats, local content
+  (festivals, fasting periods). Launch languages: en, hi, te, ta, es, pt, fr, de, ar (RTL), id.
+  Voice input confirms what it heard before saving.
+- **Food DB** (PRD §9): USDA FoodData Central + Open Food Facts + curated regional dishes; every food stores its `source`.
+- **AI coaches** (PRD §8): Jai (fitness, male voice), Jaya (nutrition/wellness, female voice), one orchestrator, shared user context.
+- **Health safety**: no diagnosis, no medication/insulin advice; show disclaimer; urgent symptoms → advise a doctor.
+- **Open decisions** live in PRD §15 — ask the owner before the phase that needs them.
 
 ## Calculations (must be exact and unit-tested)
 
@@ -93,9 +105,15 @@ Keep features modular. Business logic in `src/domain/` and Functions, not in com
 
 ## Design system
 
-Colors: primary green `#1FA45B`, orange `#FF8A24`, dark `#0F1720`, cream `#F7F5EF`, sage `#DDEBDD`, white `#FFFFFF`.
-Cards 16–24 px radius, soft shadows. Light mode first, full dark mode. Floating glass bottom nav
-(Home, Nutrition, Fitness, Progress, Profile) + floating Jai/Jaya button. "Nova Bar" floating pill for live activity.
+**PRD section 12 is the final design system** — read it before any UI work. Summary:
+light mode first (cream `#F7F5EF` background, white cards, primary green `#1FA45B`), dark mode optional
+(`#0F1720` background, `#17212B` cards). No navy, no purple/indigo gradients. Inter + Noto Sans Telugu,
+Devanagari, Tamil and Arabic fallbacks; 12 px minimum; tabular numbers; sentence case; no emojis; no jargon.
+All colours from tokens (`src/index.css`), shared primitives in `src/components/ui/`.
+
+Navigation: a **white floating bottom bar with five tabs — Home, Planner, Health, Workouts, Store** —
+active tab green with a pill indicator. Profile and Settings open from the avatar in the header.
+Solid green floating Jai/Jaya button on every screen. "Nova Bar" floating pill for live activity.
 Every interactive element has pressed / loading / disabled / success / error states.
 Respect reduced motion. No overflow or clipped text at any size or language (test Telugu and Arabic).
 
