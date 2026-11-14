@@ -29,3 +29,9 @@ ui-debug.log*
 build/
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# From the AI Studio export
+dist/
+coverage/
+.env*
+!.env.example

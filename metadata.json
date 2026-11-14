@@ -1,0 +1,6 @@
+{
+  "name": "Fit Me AI",
+  "description": "A global AI-powered wellness ecosystem with deep regional intelligence.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

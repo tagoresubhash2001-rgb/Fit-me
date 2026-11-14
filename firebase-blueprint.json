@@ -1,0 +1,235 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Premium user biological and preference metadata metrics",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "age": { "type": "integer" },
+        "gender": { "type": "string", "enum": ["male", "female", "other"] },
+        "height": { "type": "number", "description": "Height in cm" },
+        "weight": { "type": "number", "description": "Weight in kg" },
+        "targetWeight": { "type": "number" },
+        "activity": { "type": "string", "enum": ["sedentary", "lightly_active", "moderately_active", "very_active"] },
+        "goal": { "type": "string", "enum": ["fat_loss", "weight_gain", "maintenance", "muscle_building"] },
+        "disease": { "type": "string", "enum": ["none", "diabetes", "pcos", "thyroid", "hypertension", "fatty_liver"] },
+        "foodPreference": { "type": "string", "enum": ["veg", "non_veg", "eggetarian", "vegan"] },
+        "region": { "type": "string", "enum": ["andhra", "telangana", "rayalaseema", "general_indian"] },
+        "lifestyle": { "type": "string" },
+        "selectedCoach": { "type": "string", "enum": ["jai", "jaya"] },
+        "theme": { "type": "string", "enum": ["light", "dark", "system"] }
+      },
+      "required": ["name", "age", "gender", "height", "weight", "activity", "goal", "disease", "foodPreference", "region", "selectedCoach"]
+    },
+    "MealLog": {
+      "title": "MealLog",
+      "description": "Continuous carbohydrate, lipid, and microelement dietary logs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "calories": { "type": "integer" },
+        "protein": { "type": "number" },
+        "carbs": { "type": "number" },
+        "fats": { "type": "number" },
+        "fiber": { "type": "number" },
+        "sodium": { "type": "number" },
+        "potassium": { "type": "number" },
+        "magnesium": { "type": "number" },
+        "calcium": { "type": "number" },
+        "zinc": { "type": "number" },
+        "iron": { "type": "number" },
+        "b12": { "type": "number" },
+        "vitaminD": { "type": "number" },
+        "omega3": { "type": "number" },
+        "hydrationScore": { "type": "integer" },
+        "portion": { "type": "string" },
+        "category": { "type": "string", "enum": ["breakfast", "morning_snack", "lunch", "evening_snack", "dinner", "flexible_meal"] },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "userId", "name", "calories", "protein", "carbs", "fats"]
+    },
+    "HydrationLog": {
+      "title": "HydrationLog",
+      "description": "Active hydration daily limits and milliliters trackers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "amountMl": { "type": "integer" },
+        "containerType": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "userId", "amountMl", "timestamp"]
+    },
+    "StepsLog": {
+      "title": "StepsLog",
+      "description": "Accelerometer surveillance step metrics",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "steps": { "type": "integer" },
+        "distanceKm": { "type": "number" },
+        "caloriesBurned": { "type": "number" },
+        "sedentaryMinutes": { "type": "integer" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "userId", "steps", "timestamp"]
+    },
+    "SleepLog": {
+      "title": "SleepLog",
+      "description": "Diagnostic circadian sleep and recovery quality metrics",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "durationHours": { "type": "number" },
+        "bedtimeConsistency": { "type": "number" },
+        "recoveryQuality": { "type": "string" },
+        "sleepDebt": { "type": "number" },
+        "sleepScore": { "type": "integer" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "userId", "durationHours", "sleepScore", "timestamp"]
+    },
+    "HeartRateLog": {
+      "title": "HeartRateLog",
+      "description": "Beats per minute ticker for exercise and baseline cardios",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string" },
+        "bpm": { "type": "integer" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "userId", "bpm", "timestamp"]
+    },
+    "BpLog": {
+      "title": "BpLog",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "systolic": { "type": "integer" },
+        "diastolic": { "type": "integer" },
+        "pulse": { "type": "integer" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "userId", "systolic", "diastolic", "timestamp"],
+      "type": "object",
+      "title": "BpLog",
+      "description": "Clinical blood pressure log"
+    },
+    "StressLog": {
+      "title": "StressLog",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "level": { "type": "string" },
+        "emotionalLoad": { "type": "integer" },
+        "burnoutRisk": { "type": "boolean" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "userId", "level", "timestamp"],
+      "type": "object",
+      "description": "Vagal tone stress proxy metrics"
+    },
+    "CycleLog": {
+      "title": "CycleLog",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "cycleDate": { "type": "string" },
+        "isOvulation": { "type": "boolean" },
+        "pmsSeverity": { "type": "string" },
+        "flowIntensity": { "type": "string" },
+        "energyLevel": { "type": "integer" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "userId", "cycleDate", "timestamp"],
+      "type": "object",
+      "description": "Inviolable HIPAA-secure cycle tracking metrics"
+    },
+    "PlannerEvent": {
+      "title": "PlannerEvent",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "timeStr": { "type": "string" },
+        "type": { "type": "string" },
+        "label": { "type": "string" },
+        "subtext": { "type": "string" },
+        "completed": { "type": "boolean" },
+        "isAiOptimized": { "type": "boolean" }
+      },
+      "required": ["id", "userId", "timeStr", "type", "label"],
+      "type": "object",
+      "description": "Dynamic circadian schedule event"
+    },
+    "WorkoutLog": {
+      "title": "WorkoutLog",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string" },
+        "durationMinutes": { "type": "integer" },
+        "caloriesBurned": { "type": "integer" },
+        "intensity": { "type": "string" },
+        "recoveryScore": { "type": "integer" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "userId", "type", "durationMinutes", "caloriesBurned"],
+      "type": "object",
+      "description": "Kinetic workout metrics"
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Global user profiles"
+    },
+    "/meal_logs/{mealId}": {
+      "schema": "MealLog",
+      "description": "Direct meal calorie trackers"
+    },
+    "/hydration_logs/{hydroId}": {
+      "schema": "HydrationLog",
+      "description": "Milliliter fluids logged records"
+    },
+    "/steps_logs/{stepId}": {
+      "schema": "StepsLog",
+      "description": "Active continuous footsteps walk databases"
+    },
+    "/sleep_logs/{sleepId}": {
+      "schema": "SleepLog",
+      "description": "Polysomnography rest scores"
+    },
+    "/heart_rate_logs/{hrId}": {
+      "schema": "HeartRateLog",
+      "description": "Wearable smart heart trackers"
+    },
+    "/bp_logs/{bpId}": {
+      "schema": "BpLog",
+      "description": "Vascular clinical blood pressures"
+    },
+    "/stress_logs/{stressId}": {
+      "schema": "StressLog",
+      "description": "Vagus continuous burnout indices"
+    },
+    "/cycle_logs/{cycleId}": {
+      "schema": "CycleLog",
+      "description": "Secure luteal cycle calendar items"
+    },
+    "/planner_events/{eventId}": {
+      "schema": "PlannerEvent",
+      "description": "AI circadian life optimization blocks"
+    },
+    "/workout_logs/{workoutId}": {
+      "schema": "WorkoutLog",
+      "description": "Anaerobic hypertrophies physical records"
+    }
+  }
+}
