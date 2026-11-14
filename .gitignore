@@ -35,3 +35,8 @@ dist/
 coverage/
 .env*
 !.env.example
+
+# Firebase emulators / local secrets
+*-debug.log
+.secret.local
+.runtimeconfig.json

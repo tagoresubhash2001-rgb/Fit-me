@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "fitmeai-dev",
+    "dev": "fitmeai-dev",
+    "staging": "fitmeai-staging",
+    "prod": "fitmeai-prod"
+  }
+}

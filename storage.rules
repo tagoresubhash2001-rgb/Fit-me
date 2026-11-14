@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// FIT ME AI Storage rules: food photos and progress photos are private to the owner.
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    match /users/{uid}/{folder}/{fileName} {
+      allow read, delete: if isOwner(uid) && folder in ['foodPhotos', 'progressPhotos'];
+      allow create, update: if isOwner(uid)
+        && folder in ['foodPhotos', 'progressPhotos']
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp|heic)');
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
