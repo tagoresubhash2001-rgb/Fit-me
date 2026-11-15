@@ -1,12 +1,18 @@
 name: Deploy to Firebase
 
-# How deployments work
-# - Push to `main`               -> test, then deploy everything to fitmeai-dev automatically.
-# - Pull request into `main`     -> test, then a temporary Hosting preview link on fitmeai-dev.
-# - Actions tab -> "Run workflow" -> choose staging or production manually.
-#   Production uses the GitHub environment "production", which must require your approval.
+# How deployments work (details: docs/DEPLOY.md)
+# - Push to `main`                 -> deploy to dev (Firebase project fit-me1).
+#   Hosting deploys in its own job, so the website goes live even if a backend job fails.
+#   Backend order: Firestore rules + indexes -> Storage rules -> Cloud Functions, then smoke tests.
+# - Pull request into `main`       -> temporary Hosting preview on fit-me1 (expires after 7 days),
+#   link posted on the PR.
+# - Actions -> "Run workflow"      -> dev now; staging and production are listed but refuse to run
+#   until those Firebase projects exist (see docs/DEPLOY.md, "Not set up yet").
 #
-# One-time setup (GitHub environments, variables and the service-account secret): docs/DEPLOY.md
+# Authentication: keyless Workload Identity Federation. GitHub exchanges its OIDC token for short-lived
+# credentials of the deploy service account; only this repository is allowed. No key is stored in GitHub.
+# Fallback: if the repository or environment secret FIREBASE_SERVICE_ACCOUNT (a service-account JSON)
+# exists, it is used instead.
 
 on:
   push:
@@ -28,105 +34,180 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  # dev = fit-me1. Staging and production projects are not created yet.
+  FIREBASE_PROJECT: fit-me1
+  WIF_PROVIDER: projects/216212194424/locations/global/workloadIdentityPools/github/providers/fit-me
+  DEPLOY_SERVICE_ACCOUNT: firebase-adminsdk-fbsvc@fit-me1.iam.gserviceaccount.com
+  SITE_URL: https://fit-me1.web.app
+  HEALTH_URL: https://asia-south1-fit-me1.cloudfunctions.net/healthCheck
+  FORCE_COLOR: '0'
+
 jobs:
-  test:
+  guard:
+    name: Check target
+    runs-on: ubuntu-latest
+    steps:
+      - name: Staging and production are not set up yet
+        if: inputs.target == 'staging' || inputs.target == 'production'
+        run: |
+          echo "::error::The ${{ inputs.target }} Firebase project does not exist yet. Only dev (fit-me1) can be deployed. See docs/DEPLOY.md."
+          exit 1
+      - run: echo "Deploying to dev (fit-me1)."
+
+  verify:
     name: Lint, test and build check
+    needs: guard
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm }
-      - uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: 21 }
+        with: { node-version: 22, cache: npm, cache-dependency-path: 'package-lock.json' }
       - run: npm ci
-      - run: npm ci --prefix functions
       - run: npm run lint
       - run: npm test
-      - run: npm run lint --prefix functions
-      - run: npm test --prefix functions
-      - name: Security Rules tests
-        run: npm run test:rules
 
-  deploy:
-    name: Deploy (${{ github.event_name == 'pull_request' && 'preview' || inputs.target || 'dev' }})
-    needs: test
+  hosting:
+    name: Hosting (website)
+    needs: verify
     runs-on: ubuntu-latest
-    # Skip previews for PRs from forks: they cannot read the deploy secret.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-    environment: ${{ github.event_name == 'pull_request' && 'dev' || inputs.target || 'dev' }}
+    environment: dev
+    env:
+      HAS_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
     permissions:
       contents: read
-      pull-requests: write   # lets the preview step comment the link on the PR
-      checks: write
-    env:
-      FIREBASE_ALIAS: ${{ (inputs.target == 'production' && 'prod') || inputs.target || 'dev' }}
+      id-token: write        # Workload Identity Federation
+      pull-requests: write   # preview link comment
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci
-      - run: npm ci --prefix functions
-
-      - name: Write web config for this environment
-        # Firebase web config values are public identifiers, stored as GitHub environment variables.
+      - name: Web config for dev
+        env:
+          VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ vars.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ vars.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ vars.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_MEASUREMENT_ID: ${{ vars.VITE_FIREBASE_MEASUREMENT_ID }}
+          VITE_RECAPTCHA_ENTERPRISE_SITE_KEY: ${{ vars.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY }}
+        run: node deploy/write-web-env.mjs dev
+      - run: npm run build
+      - name: Production build must not point at the emulators
         run: |
-          cat > .env.production.local <<EOF
-          VITE_ENV=${{ env.FIREBASE_ALIAS }}
-          VITE_USE_EMULATORS=false
-          VITE_FUNCTIONS_REGION=${{ vars.VITE_FUNCTIONS_REGION || 'asia-south1' }}
-          VITE_FIREBASE_API_KEY=${{ vars.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN=${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_PROJECT_ID=${{ vars.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET=${{ vars.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID=${{ vars.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID=${{ vars.VITE_FIREBASE_APP_ID }}
-          VITE_FIREBASE_MEASUREMENT_ID=${{ vars.VITE_FIREBASE_MEASUREMENT_ID }}
-          VITE_RECAPTCHA_ENTERPRISE_SITE_KEY=${{ vars.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY }}
-          VITE_APP_VERSION=${{ github.sha }}
-          EOF
-
-      - name: Check the config is complete
-        run: |
-          missing=0
-          for v in VITE_FIREBASE_API_KEY VITE_FIREBASE_AUTH_DOMAIN VITE_FIREBASE_PROJECT_ID \
-                   VITE_FIREBASE_STORAGE_BUCKET VITE_FIREBASE_MESSAGING_SENDER_ID VITE_FIREBASE_APP_ID; do
-            if ! grep -Eq "^$v=.+" .env.production.local; then echo "::error::Missing GitHub variable $v in environment '${{ github.event_name == 'pull_request' && 'dev' || inputs.target || 'dev' }}'"; missing=1; fi
-          done
-          if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" ]; then echo "::error::Missing secret FIREBASE_SERVICE_ACCOUNT"; missing=1; fi
-          exit $missing
-
-      - name: Build web app
-        run: npm run build
-
-      # ----- Pull request: Hosting preview channel only -----
-      - name: Deploy Hosting preview
-        if: github.event_name == 'pull_request'
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
-          expires: 7d
-
-      # ----- Push to main or manual run: full deploy -----
-      - name: Authenticate to Google Cloud
-        if: github.event_name != 'pull_request'
+          if grep -q "VITE_USE_EMULATORS=true" .env.production.local; then echo "::error::Emulators enabled in a deploy build"; exit 1; fi
+      - &auth_sa
+        name: Authenticate (service-account key fallback)
+        if: env.HAS_SA_KEY == 'true'
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - &auth_wif
+        name: Authenticate (Workload Identity Federation)
+        if: env.HAS_SA_KEY != 'true'
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOY_SERVICE_ACCOUNT }}
 
-      - name: Deploy rules, indexes, storage, functions and hosting
+      - name: Deploy preview channel (pull request)
+        if: github.event_name == 'pull_request'
+        id: preview
+        run: |
+          npx firebase hosting:channel:deploy "pr-${{ github.event.number }}" \
+            --project "$FIREBASE_PROJECT" --expires 7d --json > preview.json
+          url=$(node -e "const r=require('./preview.json');const v=Object.values(r.result||{})[0];console.log(v&&v.url||'')")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+      - name: Post preview link on the PR
+        if: github.event_name == 'pull_request' && steps.preview.outputs.url != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = '${{ steps.preview.outputs.url }}';
+            const body = `Preview for this PR (expires in 7 days): ${url}\n\nCommit ${context.sha.slice(0, 7)}.`;
+            const { data: comments } = await github.rest.issues.listComments({ ...context.repo, issue_number: context.issue.number });
+            const old = comments.find((c) => c.user.type === 'Bot' && c.body.startsWith('Preview for this PR'));
+            if (old) await github.rest.issues.updateComment({ ...context.repo, comment_id: old.id, body });
+            else await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body });
+
+      - name: Deploy Hosting (live)
+        if: github.event_name != 'pull_request'
+        run: npx firebase deploy --only hosting --project "$FIREBASE_PROJECT" --non-interactive --message "GitHub ${GITHUB_SHA::7}"
+      - name: Smoke test website
         if: github.event_name != 'pull_request'
         run: |
-          npx firebase deploy \
-            --project "$FIREBASE_ALIAS" \
-            --only firestore:rules,firestore:indexes,storage,functions,hosting \
-            --non-interactive \
-            --message "GitHub ${{ github.sha }}"
+          for i in 1 2 3 4 5; do
+            code=$(curl -s -o page.html -w "%{http_code}" "$SITE_URL/?smoke=${GITHUB_SHA::7}") || true
+            if [ "$code" = "200" ] && grep -q '<div id="root">' page.html && grep -q 'FIT ME AI' page.html; then
+              echo "Website OK: $SITE_URL"; echo "### Website live: $SITE_URL" >> "$GITHUB_STEP_SUMMARY"; exit 0
+            fi
+            echo "Attempt $i: HTTP $code"; sleep 10
+          done
+          echo "::error::$SITE_URL did not return the app shell"; exit 1
 
-      - name: Summary
-        if: github.event_name != 'pull_request'
+  firestore:
+    name: Firestore rules and indexes
+    needs: verify
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      HAS_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+    permissions: { contents: read, id-token: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - *auth_sa
+      - *auth_wif
+      - run: npx firebase deploy --only firestore:rules,firestore:indexes --project "$FIREBASE_PROJECT" --non-interactive
+
+  storage:
+    name: Storage rules
+    needs: [verify, firestore]
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.verify.result == 'success' }}
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      HAS_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+    permissions: { contents: read, id-token: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - *auth_sa
+      - *auth_wif
+      - run: npx firebase deploy --only storage --project "$FIREBASE_PROJECT" --non-interactive
+
+  functions:
+    name: Cloud Functions
+    needs: [verify, storage]
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.verify.result == 'success' }}
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      HAS_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+    permissions: { contents: read, id-token: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: functions/package-lock.json }
+      - run: npm ci --prefix functions
+      - run: npm run lint --prefix functions
+      - run: npm test --prefix functions
+      - run: npm ci
+      - *auth_sa
+      - *auth_wif
+      # --force lets the CLI set the Artifact Registry clean-up policy for function images (avoids storage cost).
+      - run: npx firebase deploy --only functions --project "$FIREBASE_PROJECT" --non-interactive --force
+      - name: Smoke test healthCheck
         run: |
-          echo "### Deployed to ${{ vars.VITE_FIREBASE_PROJECT_ID }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "Web app: https://${{ vars.VITE_FIREBASE_PROJECT_ID }}.web.app" >> "$GITHUB_STEP_SUMMARY"
-          echo "Commit: ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
+          for i in 1 2 3 4 5 6; do
+            if curl -sf "$HEALTH_URL" | grep -q '"ok":true'; then echo "healthCheck OK"; exit 0; fi
+            echo "Attempt $i failed"; sleep 15
+          done
+          echo "::error::healthCheck did not respond at $HEALTH_URL"; exit 1

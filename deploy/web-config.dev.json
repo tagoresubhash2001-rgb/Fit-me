@@ -1,0 +1,12 @@
+{
+  "_comment": "Public Firebase web config for the dev environment (Firebase project fit-me1). It ships inside the website by design and is not a secret. GitHub environment variables with the same VITE_ names override these values.",
+  "VITE_ENV": "dev",
+  "VITE_FUNCTIONS_REGION": "asia-south1",
+  "VITE_FIREBASE_API_KEY": "AIzaSyBsiyt0JBQkS79jgP5jkjq9mSymiLybb5I",
+  "VITE_FIREBASE_AUTH_DOMAIN": "fit-me1.firebaseapp.com",
+  "VITE_FIREBASE_PROJECT_ID": "fit-me1",
+  "VITE_FIREBASE_STORAGE_BUCKET": "fit-me1.firebasestorage.app",
+  "VITE_FIREBASE_MESSAGING_SENDER_ID": "216212194424",
+  "VITE_FIREBASE_APP_ID": "1:216212194424:web:b17f3b1c9d64723934d98d",
+  "VITE_FIREBASE_MEASUREMENT_ID": "G-2CGDKVGHFQ"
+}

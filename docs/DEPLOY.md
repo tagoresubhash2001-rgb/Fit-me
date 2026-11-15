@@ -1,113 +1,99 @@
-# Deploying FIT ME AI from GitHub to Firebase
+# Deploying FIT ME AI
 
-Deployments run from GitHub Actions (`.github/workflows/deploy.yml`). Nobody deploys from a laptop.
+Every deploy runs in GitHub Actions (`.github/workflows/deploy.yml`). Nobody deploys from a laptop.
 
-| What you do | What happens |
-| --- | --- |
-| Push or merge into `main` | Tests run, then everything deploys to **fitmeai-dev** |
-| Open a pull request into `main` | Tests run, then a temporary preview link (7 days) is posted on the PR |
-| Actions → "Deploy to Firebase" → Run workflow → `staging` | Tests run, then everything deploys to **fitmeai-staging** |
-| Actions → "Deploy to Firebase" → Run workflow → `production` | Waits for your approval, then deploys to **fitmeai-prod** |
+## Environments
 
-"Everything" means Firestore rules and indexes, Storage rules, Cloud Functions and the web app (Hosting).
-The web app is then live at `https://<project-id>.web.app`.
+| Name | Firebase project | Status | How it deploys |
+| --- | --- | --- | --- |
+| dev | `fit-me1` | Live at https://fit-me1.web.app | Every push to `main` |
+| staging | `fitmeai-staging` | **Not created yet** | Manual run (refuses until the project exists) |
+| production | `fitmeai-prod` | **Not created yet** | Manual run + approval (refuses until the project exists) |
 
-The iOS and Android apps are not deployed by this workflow. They are built in Xcode / Android Studio and
-uploaded to the App Store and Google Play (Phase 5).
+`.firebaserc` maps the aliases `dev` → `fit-me1`, `staging` → `fitmeai-staging`, `prod` → `fitmeai-prod`.
 
----
+## What happens on a push to `main`
 
-## One-time setup
+1. **Check target**, then **Lint, test and build check** (app lint and unit tests).
+2. **Hosting (website)**: builds the web app with the dev config in `deploy/web-config.dev.json`,
+   deploys Firebase Hosting and smoke-tests https://fit-me1.web.app (HTTP 200 and the app shell).
+   This job does not depend on any backend job, so the website goes live even if a backend job fails.
+3. **Firestore rules and indexes** → **Storage rules** → **Cloud Functions** (each still runs if the
+   previous backend job failed). The functions job runs functions lint and tests, deploys, then
+   smoke-tests `healthCheck` at https://asia-south1-fit-me1.cloudfunctions.net/healthCheck.
 
-Do steps 1 to 5 for **fitmeai-dev** first. Repeat them for staging and prod when you need those.
+Two deploys never overlap: each environment has its own concurrency group.
+Pull requests into `main` get a Hosting preview channel on `fit-me1` that expires after 7 days; the link
+is posted on the PR. `ci.yml` runs on every push and PR (lint, unit tests, build, Security Rules tests and
+callable-function tests on the emulators).
 
-### 1. Firebase project
+### Web config
 
-Follow `docs/SETUP.md`, Firebase section, steps 1 to 3: create the project on the **Blaze** plan, enable
-Authentication, Firestore, Storage and App Check, and register a **Web app**. Keep the web app's config
-values open; you need them in step 4.
+The Firebase web config is public (it ships in the website). Dev values live in
+`deploy/web-config.dev.json`; `deploy/write-web-env.mjs` turns them into `.env.production.local` at build
+time. GitHub environment variables with the same `VITE_*` names override them. Production builds can never
+connect to the emulators (`src/lib/env.ts`), and the deploy job fails if the emulator flag is set.
+No seed or demo data is part of the web build.
 
-### 2. Gemini key (once per project)
+### Authentication (no keys in GitHub)
 
-On your computer, with the Firebase CLI:
+The workflow signs in to Google Cloud with **Workload Identity Federation**: GitHub's short-lived OIDC
+token is exchanged for credentials of the service account
+`firebase-adminsdk-fbsvc@fit-me1.iam.gserviceaccount.com`. Only the repository
+`tagoresubhash2001-rgb/Fit-me` is accepted (attribute condition on the provider). Nothing secret is stored
+in GitHub.
 
-```
-firebase login
-firebase functions:secrets:set GEMINI_API_KEY --project fitmeai-dev
-```
+Fallback: if a secret named `FIREBASE_SERVICE_ACCOUNT` (a service-account JSON key) is added to the `dev`
+environment, the workflow uses it instead. Minimum roles for that account are the ones granted by
+`deploy/setup-gcp.sh`.
 
-The Cloud Functions deploy fails until this secret exists.
+### Secrets
 
-### 3. Service account for GitHub
+- `GEMINI_API_KEY` lives only in Google Secret Manager in `fit-me1` and is read by Cloud Functions at run
+  time. To rotate it: `printf %s "<new key>" | firebase functions:secrets:set GEMINI_API_KEY --project dev --data-file=-`
+  and then re-run the latest deploy.
+- Never commit service-account keys, the Gemini key or any `.env` file (all are git-ignored).
 
-1. Open Google Cloud Console → select project **fitmeai-dev** → IAM & Admin → Service Accounts → **Create service account**.
-2. Name: `github-deploy`.
-3. Grant these roles:
-   - Firebase Admin
-   - Cloud Functions Admin
-   - Cloud Run Admin
-   - Service Account User
-   - Secret Manager Admin
-   - Artifact Registry Administrator
-   - API Keys Viewer
-4. Open the new account → Keys → Add key → Create new key → **JSON**. A `.json` file downloads.
-   Treat it like a password: never commit it, never send it in chat, delete the file after step 4.
+## One-time setup (owner)
 
-### 4. GitHub environment, variables and secret
+1. Open Cloud Shell for fit-me1: https://console.cloud.google.com/cloudshell?project=fit-me1 and run the
+   contents of `deploy/setup-gcp.sh` (enables APIs, grants deploy roles to the service account, creates
+   the Workload Identity Federation provider for this repository).
+2. Firebase console → Authentication → **Get started**, then Sign-in method → enable **Email/Password**
+   and **Google**: https://console.firebase.google.com/project/fit-me1/authentication/providers
+   `fit-me1.web.app` and `fit-me1.firebaseapp.com` are authorised domains by default.
+3. Budget alert: https://console.cloud.google.com/billing → your billing account → Budgets & alerts →
+   Create budget → scope: project fit-me1 → amount (for example ₹1,000 or $10 a month) → alerts at 50%,
+   90% and 100% → email billing admins.
 
-In the GitHub repo: **Settings → Environments → New environment**. Create `dev`
-(later `staging` and `production`, with exactly these names).
+## Rolling back
 
-Inside the `dev` environment:
+- **Website only, instantly:** Firebase console → Hosting → Release history → pick an earlier release →
+  **Rollback** (https://console.firebase.google.com/project/fit-me1/hosting/sites/fit-me1).
+- **Everything (website, rules, functions):** GitHub → Actions → "Deploy to Firebase" → open an earlier
+  successful run → **Re-run all jobs**. That redeploys exactly that commit.
+- **Redeploy an earlier commit permanently:** `git revert <bad commit>` on a branch, open a PR, merge.
+  The push to `main` deploys the reverted code.
+- Firestore data is never touched by deploys; rules and indexes roll back with the steps above.
 
-**Environment secret** (Add environment secret)
+## Branch protection for `main` (recommended)
 
-| Name | Value |
-| --- | --- |
-| `FIREBASE_SERVICE_ACCOUNT` | The full contents of the JSON key file from step 3 |
+GitHub → Settings → Branches → Add rule for `main`: require a pull request before merging, require status
+checks "app", "functions" and "emulator-tests" (from CI) to pass, and block force pushes.
 
-**Environment variables** (Add environment variable), copied from the Firebase web app config:
+## Cost safety in place
 
-| Name | Example value |
-| --- | --- |
-| `VITE_FIREBASE_API_KEY` | `AIza...` |
-| `VITE_FIREBASE_AUTH_DOMAIN` | `fitmeai-dev.firebaseapp.com` |
-| `VITE_FIREBASE_PROJECT_ID` | `fitmeai-dev` |
-| `VITE_FIREBASE_STORAGE_BUCKET` | `fitmeai-dev.firebasestorage.app` |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | `123456789012` |
-| `VITE_FIREBASE_APP_ID` | `1:123456789012:web:abc123` |
-| `VITE_FIREBASE_MEASUREMENT_ID` | `G-XXXXXXX` (optional) |
-| `VITE_RECAPTCHA_ENTERPRISE_SITE_KEY` | App Check site key (needed for staging and prod) |
-| `VITE_FUNCTIONS_REGION` | `asia-south1` (optional; this is the default) |
+- Every callable function is capped at 5 instances; `healthCheck` at 2 (`functions/src/lib/callable.ts`).
+- Per-user daily AI limits (`functions/src/lib/limitDefaults.ts`, override in `appConfig/limits`).
+- AI features are plan-gated on the server; free users cannot call Gemini at all.
+- Artifact Registry clean-up policy for function images is set on deploy (`--force`).
 
-These web config values are public identifiers, not secrets, which is why they are variables.
+## Not set up yet
 
-### 5. Protect production
-
-When you create the `production` environment, tick **Required reviewers** and add yourself.
-Production deploys then wait until you click **Approve** in the Actions tab. Under
-**Deployment branches**, choose "Selected branches" and allow only `main`.
-
-### 6. Make `main` the default branch
-
-Settings → General → Default branch → switch to `main`. Work then happens on feature branches that are
-merged into `main` through pull requests.
-
----
-
-## After the first deploy
-
-1. Seed the food database once per project (see `docs/SETUP.md`, Firebase step 5, the `seed.js` command).
-2. Add the deployed domain to Firebase Authentication → Settings → **Authorized domains** if it is not
-   already there (`fitmeai-dev.web.app` is added automatically; custom domains are not).
-3. Open `https://fitmeai-dev.web.app`, sign up, and log a meal to confirm Auth, Firestore and Functions work.
-
-## If a deploy fails
-
-| Error in the Actions log | Fix |
-| --- | --- |
-| `Missing GitHub variable ...` or `Missing secret FIREBASE_SERVICE_ACCOUNT` | Add it to the matching GitHub environment (step 4) |
-| `Permission denied` / `iam.serviceAccounts.actAs` | A role from step 3 is missing on the service account |
-| `Secret GEMINI_API_KEY not found` | Run step 2 for that project |
-| `Billing account not configured` | The project must be on the Blaze plan |
-| `... API has not been used in project ...` | Open the link in the error, click **Enable**, then re-run the job |
+- Staging and production Firebase projects (and the GitHub `production` environment with required reviewer).
+- Custom domain (later: Hosting → Add custom domain → `app.fitmeai.com` → add the DNS records shown, then add
+  the domain to Authentication → Settings → Authorised domains).
+- App Check enforcement (needs reCAPTCHA Enterprise for web, App Attest / Play Integrity for mobile; then set
+  `ENFORCE_APP_CHECK = true` in `functions/src/lib/callable.ts` and `VITE_RECAPTCHA_ENTERPRISE_SITE_KEY`).
+- Apple sign-in and phone sign-in (need Apple Developer account and SMS region policy).
+- Mobile app builds (Xcode / Android Studio with `GoogleService-Info.plist` and `google-services.json`).

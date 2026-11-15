@@ -10,7 +10,8 @@ const e = import.meta.env;
 
 export const env = {
   appEnv: (e.VITE_ENV as AppEnv) || 'dev',
-  useEmulators: e.VITE_USE_EMULATORS === 'true',
+  // Production builds can never talk to the emulators, even if the flag is set by mistake.
+  useEmulators: e.VITE_USE_EMULATORS === 'true' && !e.PROD,
   emulatorHost: (e.VITE_EMULATOR_HOST as string) || '127.0.0.1',
   functionsRegion: (e.VITE_FUNCTIONS_REGION as string) || 'asia-south1',
   firebase: {

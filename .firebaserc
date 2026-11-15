@@ -1,7 +1,7 @@
 {
   "projects": {
-    "default": "fitmeai-dev",
-    "dev": "fitmeai-dev",
+    "default": "fit-me1",
+    "dev": "fit-me1",
     "staging": "fitmeai-staging",
     "prod": "fitmeai-prod"
   }
