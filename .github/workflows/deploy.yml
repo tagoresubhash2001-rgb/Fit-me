@@ -1,0 +1,132 @@
+name: Deploy to Firebase
+
+# How deployments work
+# - Push to `main`               -> test, then deploy everything to fitmeai-dev automatically.
+# - Pull request into `main`     -> test, then a temporary Hosting preview link on fitmeai-dev.
+# - Actions tab -> "Run workflow" -> choose staging or production manually.
+#   Production uses the GitHub environment "production", which must require your approval.
+#
+# One-time setup (GitHub environments, variables and the service-account secret): docs/DEPLOY.md
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Where to deploy
+        type: choice
+        options: [dev, staging, production]
+        default: dev
+
+concurrency:
+  group: deploy-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || inputs.target || 'dev' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Lint, test and build check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - run: npm ci
+      - run: npm ci --prefix functions
+      - run: npm run lint
+      - run: npm test
+      - run: npm run lint --prefix functions
+      - run: npm test --prefix functions
+      - name: Security Rules tests
+        run: npm run test:rules
+
+  deploy:
+    name: Deploy (${{ github.event_name == 'pull_request' && 'preview' || inputs.target || 'dev' }})
+    needs: test
+    runs-on: ubuntu-latest
+    # Skip previews for PRs from forks: they cannot read the deploy secret.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    environment: ${{ github.event_name == 'pull_request' && 'dev' || inputs.target || 'dev' }}
+    permissions:
+      contents: read
+      pull-requests: write   # lets the preview step comment the link on the PR
+      checks: write
+    env:
+      FIREBASE_ALIAS: ${{ (inputs.target == 'production' && 'prod') || inputs.target || 'dev' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm ci --prefix functions
+
+      - name: Write web config for this environment
+        # Firebase web config values are public identifiers, stored as GitHub environment variables.
+        run: |
+          cat > .env.production.local <<EOF
+          VITE_ENV=${{ env.FIREBASE_ALIAS }}
+          VITE_USE_EMULATORS=false
+          VITE_FUNCTIONS_REGION=${{ vars.VITE_FUNCTIONS_REGION || 'asia-south1' }}
+          VITE_FIREBASE_API_KEY=${{ vars.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN=${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID=${{ vars.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET=${{ vars.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID=${{ vars.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID=${{ vars.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_MEASUREMENT_ID=${{ vars.VITE_FIREBASE_MEASUREMENT_ID }}
+          VITE_RECAPTCHA_ENTERPRISE_SITE_KEY=${{ vars.VITE_RECAPTCHA_ENTERPRISE_SITE_KEY }}
+          VITE_APP_VERSION=${{ github.sha }}
+          EOF
+
+      - name: Check the config is complete
+        run: |
+          missing=0
+          for v in VITE_FIREBASE_API_KEY VITE_FIREBASE_AUTH_DOMAIN VITE_FIREBASE_PROJECT_ID \
+                   VITE_FIREBASE_STORAGE_BUCKET VITE_FIREBASE_MESSAGING_SENDER_ID VITE_FIREBASE_APP_ID; do
+            if ! grep -Eq "^$v=.+" .env.production.local; then echo "::error::Missing GitHub variable $v in environment '${{ github.event_name == 'pull_request' && 'dev' || inputs.target || 'dev' }}'"; missing=1; fi
+          done
+          if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" ]; then echo "::error::Missing secret FIREBASE_SERVICE_ACCOUNT"; missing=1; fi
+          exit $missing
+
+      - name: Build web app
+        run: npm run build
+
+      # ----- Pull request: Hosting preview channel only -----
+      - name: Deploy Hosting preview
+        if: github.event_name == 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
+          expires: 7d
+
+      # ----- Push to main or manual run: full deploy -----
+      - name: Authenticate to Google Cloud
+        if: github.event_name != 'pull_request'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Deploy rules, indexes, storage, functions and hosting
+        if: github.event_name != 'pull_request'
+        run: |
+          npx firebase deploy \
+            --project "$FIREBASE_ALIAS" \
+            --only firestore:rules,firestore:indexes,storage,functions,hosting \
+            --non-interactive \
+            --message "GitHub ${{ github.sha }}"
+
+      - name: Summary
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "### Deployed to ${{ vars.VITE_FIREBASE_PROJECT_ID }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Web app: https://${{ vars.VITE_FIREBASE_PROJECT_ID }}.web.app" >> "$GITHUB_STEP_SUMMARY"
+          echo "Commit: ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
