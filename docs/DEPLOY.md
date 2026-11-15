@@ -2,6 +2,21 @@
 
 Every deploy runs in GitHub Actions (`.github/workflows/deploy.yml`). Nobody deploys from a laptop.
 
+## Current status (2026-11-15)
+
+| Part | State |
+| --- | --- |
+| Website (Hosting) | **Live** at https://fit-me1.web.app, deployed by GitHub Actions on every push to `main` |
+| Firestore | `(default)` database, native mode, asia-south1; rules and indexes deployed by the workflow |
+| Reference data | Seeded once into empty collections: 5,000 USDA foods (+ micronutrients), 54 curated dishes, 102 exercises, appConfig |
+| Authentication | **Not started**: Firebase console → Authentication → Get started, then enable Email/Password and Google |
+| Billing | **Not linked to fit-me1**, so these are off: Cloud Functions (AI coach, AI food text, data export, account deletion), Secret Manager (`GEMINI_API_KEY`), Cloud Build, Cloud Run, Artifact Registry, the default Storage bucket and Storage rules |
+
+When billing is linked: enable the billing-only APIs (re-run `deploy/setup-gcp.sh`), store the Gemini key
+(`printf %s "<key>" | firebase functions:secrets:set GEMINI_API_KEY --project dev --data-file=-`), create the
+default Storage bucket (Firebase console → Storage → Get started, asia-south1), then delete `false &&` from the
+`if:` lines of the `storage` and `functions` jobs in `.github/workflows/deploy.yml`.
+
 ## Environments
 
 | Name | Firebase project | Status | How it deploys |
