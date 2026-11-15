@@ -104,5 +104,7 @@ describe('nutrition', () => {
     const items = [f('a', 'Rice, white, cooked'), f('b', 'Dosa, plain', { source: 'curated', countries: ['IN'] }), f('c', 'Dosa')];
     expect(rankFoods(items, 'dosa', 'IN', 'en').map((x) => x.id)).toEqual(['b', 'c', 'a']);
     expect(rankFoods(items, 'dosa', 'US', 'en')[0].id).toBe('c');
+    const rice = [f('w', 'Wild rice, cooked'), f('r', 'Rice, white, long-grain, regular, cooked')];
+    expect(rankFoods(rice, 'rice cooked', 'US', 'en')[0].id).toBe('r');
   });
 });

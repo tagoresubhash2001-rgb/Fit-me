@@ -64,10 +64,11 @@ export function CoachSheet({ open, onClose }: { open: boolean; onClose: () => vo
           value={coach}
           onChange={setCoach}
           items={[
-            { id: 'jai', label: `${t('coach.jai')} · ${t('coach.jaiRole')}` },
-            { id: 'jaya', label: `${t('coach.jaya')} · ${t('coach.jayaRole')}` },
+            { id: 'jai', label: t('coach.jai') },
+            { id: 'jaya', label: t('coach.jaya') },
           ]}
         />
+        <p className="text-small text-muted">{coach === 'jai' ? t('coach.jaiRole') : t('coach.jayaRole')}</p>
         {!isPro ? (
           <EmptyState
             icon={<Lock className="h-6 w-6" strokeWidth={1.75} />}

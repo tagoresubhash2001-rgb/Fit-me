@@ -9,13 +9,17 @@ export async function searchFoods(q: string, extra: FoodItem[] = []): Promise<Fo
   const norm = normalize(q);
   const words = norm.split(' ').filter((w) => [...w].length >= 2);
   if (!words.length) return [];
-  const token = [...words.sort((a, b) => b.length - a.length)[0]].slice(0, 15).join('');
-  const snap = await getDocs(query(collection(db(), 'foods'), where('searchTokens', 'array-contains', token), limit(60)));
-  const remote = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<FoodItem, 'id'>) }));
-  const others = words.filter((w) => w !== token);
+  // Firestore can match only one token per query, so query the first two words in parallel and merge.
+  const tokens = [...new Set(words.slice(0, 2).map((w) => [...w].slice(0, 15).join('')))];
+  const snaps = await Promise.all(
+    tokens.map((tok) => getDocs(query(collection(db(), 'foods'), where('searchTokens', 'array-contains', tok), limit(150)))),
+  );
+  const seen = new Map<string, FoodItem>();
+  for (const snap of snaps) for (const d of snap.docs) seen.set(d.id, { id: d.id, ...(d.data() as Omit<FoodItem, 'id'>) });
+  const remote = [...seen.values()];
   const matchesAll = (f: FoodItem) => {
     const hay = normalize([f.name, ...Object.values(f.names ?? {})].join(' '));
-    return others.every((w) => hay.includes(w)) && hay.includes(token);
+    return words.every((w) => hay.includes(w));
   };
   const local = extra.filter(matchesAll);
   const { profile } = useSession.getState();

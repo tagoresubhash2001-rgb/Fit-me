@@ -15,7 +15,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "dev:emulators": "vite --mode emulators",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "e2e": "node e2e/flow.cjs"
   },
   "dependencies": {
     "@capacitor-firebase/app-check": "^8.6.0",

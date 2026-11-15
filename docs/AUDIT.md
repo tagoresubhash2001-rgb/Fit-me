@@ -188,9 +188,41 @@ Effort key: **S** (under 1 day), **M** (1–3 days), **L** (over 3 days).
 - Simulated device connections ("Fitbit connected") break ORIGINAL_SPEC §13: "Never show fake synchronisation."
 - Emojis and jargon ("Surveillance Hardware" badge, "Water matrix index", "Eco-Drive") conflict with PRD §12.
 
+
+## Status after Phase 0 and Phase 1 (2026-11-15)
+
+The AI Studio screens, localStorage stores, simulated scans, fake defaults and the Express server have been
+removed and replaced. Every item in section 5 ("Every mock / fake data location") is gone from the codebase.
+
+| Module / area | Status | Notes |
+| --- | --- | --- |
+| Auth | DONE (pending real project) | Google, Apple, email (+ reset), phone OTP; native plugin on Capacitor; sign-out; in-app deletion via `deleteAccount` function. Tested end to end with the Auth emulator (email). Google/Apple/phone need the owner's Firebase console setup. |
+| Onboarding and targets | DONE | 7 steps incl. country, language, units, allergies, equipment, work hours, sleep, coach and health-data consent. Mifflin-St Jeor / PRD formulas, unit tested; e2e checks 2164 kcal for the sample user. |
+| Dashboard | DONE | Live Firestore data only, empty states, every card opens its module. |
+| Nutrition logging (macros + fiber) | DONE | Meal slots, search (USDA 5,000 + 54 curated dishes, country-ranked), local serving units, manual foods, saved meals, recipe builder, edit, delete with undo, duplicate check, day navigation. |
+| Micronutrients | PARTIAL (Phase 3) | Stored in `foodMicros`, readable only with an active Premium/Pro entitlement (rules tested). UI shows the Premium note. |
+| Water, weight, sleep | DONE | Dated logs, history charts, 7-day weight trend, plateau note, adjustable water target, undo. |
+| Steps / devices | PARTIAL | HealthKit / Health Connect via `@capgo/capacitor-health` with source shown; manual entry on web. Not yet run on a physical device. |
+| Basic workouts | DONE | 102-exercise library from Firestore, session timer with pause, sets/reps/weight, rest timer, MET calorie estimate, history. |
+| Goals, streaks, badges | DONE | Food / water / workout streaks, 6 badges, weekly summary; no guilt messages. |
+| Store | DONE | "Coming soon" + "Notify me" waitlist (rules tested). Fake products removed. |
+| Settings | DONE | Profile edit with target recalculation, language, units, theme, country/currency, step goal, data export, account deletion, sign-out. Fake "Gemini temperature" slider removed. |
+| Localization | PARTIAL | i18next, 10 locales, RTL verified for Arabic. English complete; te/hi/ta/ar cover core flows; es/pt/fr/de/id cover navigation and sign-in; the rest falls back to English. All non-English text needs native review. |
+| Planner | MISSING (Phase 4, Pro) | Placeholder explains the Pro feature; no fake schedule. |
+| Jai and Jaya | PARTIAL (Phase 4) | `coachChat` function (Pro-gated server-side, rate limited, safety rules, real user context); chat sheet reads messages from Firestore. Not tested against Gemini yet (needs the key). No streaming or voice yet. |
+| AI food analysis | PARTIAL (Phase 3) | `analyzeFoodText` returns ranges, Premium-gated; no UI yet; photo scan and barcode not built. |
+| Subscriptions, paywall, ads | MISSING (Phase 2) | Blocked on store/RevenueCat/Cashfree accounts and PRD section 15 decisions. Entitlement reading and the server gate already exist. |
+| Security | PARTIAL | Firestore + Storage rules with 19 emulator tests; App Check wired (enforced on callables outside the emulator); Secret Manager for the Gemini key. Full review is Phase 5. |
+| Native apps | PARTIAL | Capacitor 8 iOS and Android projects generated with health permissions. Not built on a device yet (needs Xcode / Android Studio and Firebase config files). |
+| Tests / CI | DONE | 43 app unit tests, 22 functions unit tests, 19 rules tests, 6 callable integration tests, Playwright e2e (`e2e/flow.cjs`), GitHub Actions CI. |
+| Admin | MISSING (Phase 5) | |
+
+**Blocked (needs the owner):** see `docs/SETUP.md`.
+
 ## Change log
 
 | Date | Phase | Change |
 | --- | --- | --- |
 | 2026-11-14 | Audit | Initial audit of the AI Studio export. |
+| 2026-11-15 | Phase 0 + 1 | Firebase, real auth, Firestore data model, rules, functions, i18n, Capacitor, CI; core free tier rebuilt on real data. See status table above. |
 | 2026-11-14 | Redesign | PRD §12 tokens (`src/index.css`), self-hosted Inter + Noto (Telugu, Devanagari, Tamil, Arabic), shared UI kit in `src/components/ui/`, light default theme, new header/nav (Home, Planner, Health, Workouts, Store; profile from the avatar), solid green coach button, all screens remapped to tokens, emojis and jargon removed, unverifiable HIPAA claims replaced with a medical disclaimer. Screenshots in `docs/screenshots/`. Features and data unchanged: all MOCKED statuses above still apply. Also found: Settings "Gemini temperature" slider changes nothing (remove in Phase 1). |

@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'ccr-**']
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  functions:
+    runs-on: ubuntu-latest
+    defaults:
+      run: { working-directory: functions }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: functions/package-lock.json }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  emulator-tests:
+    runs-on: ubuntu-latest
+    needs: [functions]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - run: npm ci
+      - run: npm ci --prefix functions
+      - name: Security Rules tests
+        run: npm run test:rules
+      - name: Callable function integration tests
+        run: |
+          printf 'GEMINI_API_KEY=not-used-in-tests\n' > functions/.secret.local
+          npm run test:integration

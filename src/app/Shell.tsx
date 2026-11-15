@@ -90,7 +90,12 @@ export function Shell() {
                     >
                       <Icon className="h-5 w-5" strokeWidth={1.75} />
                     </span>
-                    <span className={cn('max-w-full truncate text-caption', isActive ? 'text-primary' : 'text-muted')}>
+                    <span
+                      className={cn(
+                        'line-clamp-2 max-w-full break-words text-center text-caption leading-tight',
+                        isActive ? 'text-primary' : 'text-muted',
+                      )}
+                    >
                       {t(`nav.${key}`)}
                     </span>
                   </>

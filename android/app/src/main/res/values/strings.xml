@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FIT ME AI</string>
+    <string name="title_activity_main">FIT ME AI</string>
+    <string name="package_name">com.sindulis.fitmeai</string>
+    <string name="custom_url_scheme">com.sindulis.fitmeai</string>
+</resources>

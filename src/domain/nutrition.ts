@@ -119,6 +119,9 @@ export function rankFoods(items: FoodItem[], query: string, country: string, lan
     let s = 0;
     if (names.some((n) => n === q)) s += 100;
     if (names.some((n) => n.startsWith(q))) s += 40;
+    const first = q.split(' ')[0];
+    if (first && names.some((n) => n.startsWith(first))) s += 25; // "rice cooked" → names starting with "rice"
+    if (q.split(' ').every((w) => names[0].includes(w))) s += 10;
     if (local && local.includes(q)) s += 20;
     if (f.countries?.includes(country)) s += 150; // PRD §9: the user's country ranks first
     if (f.source === 'curated') s += 10;

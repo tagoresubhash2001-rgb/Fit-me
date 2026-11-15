@@ -14,6 +14,12 @@ const shot = async (page, name) => {
   await page.screenshot({ path: path.join(OUT, `${name}.png`) });
   console.log('shot', name);
 };
+/** Real pointer tap at the element's centre (used inside bottom sheets, where the page scroll is locked). */
+const tap = async (page, locator) => {
+  await locator.waitFor();
+  const b = await locator.boundingBox();
+  await page.mouse.click(b.x + b.width / 2, b.y + b.height / 2);
+};
 const full = async (page, name) => {
   await page.waitForTimeout(500);
   await page.screenshot({ path: path.join(OUT, `${name}.png`), fullPage: true });
@@ -78,18 +84,18 @@ const full = async (page, name) => {
   await page.getByRole('searchbox').fill('idli');
   await page.getByText('Idli', { exact: true }).first().waitFor({ timeout: 15000 });
   await shot(page, 'light-11-food-search');
-  await page.getByText('Idli', { exact: true }).first().click();
+  await tap(page, page.getByText('Idli', { exact: true }).first());
   await page.getByLabel('Quantity').fill('3');
   await shot(page, 'light-12-food-quantity');
-  console.log('DBG', await page.getByRole('button', { name: 'Add food' }).evaluate((b) => { const r = b.getBoundingClientRect(); const t = document.elementFromPoint(r.x + r.width/2, r.y + r.height/2); return JSON.stringify({ r: [r.x, r.y, r.width, r.height], vh: innerHeight, sy: scrollY, top: t && t.outerHTML.slice(0, 150), dialogs: document.querySelectorAll('[role=dialog]').length }); }));
-  await page.getByRole('button', { name: 'Add food' }).click();
+  await tap(page, page.getByRole('button', { name: 'Add food' }));
+  await page.waitForTimeout(800);
   await page.locator('#slot-breakfast').getByText('Idli').waitFor();
   // Add a USDA food too
   await page.locator('#slot-lunch').getByRole('button', { name: 'Add' }).click();
   await page.getByRole('searchbox').fill('rice cooked');
-  await page.locator('ul button').first().waitFor({ timeout: 15000 });
-  await page.locator('ul button').first().click();
-  await page.getByRole('button', { name: 'Add food' }).click();
+  await page.getByRole('dialog').locator('ul button').first().waitFor({ timeout: 15000 });
+  await tap(page, page.getByRole('dialog').locator('ul button').first());
+  await tap(page, page.getByRole('button', { name: 'Add food' }));
   await page.waitForTimeout(800);
   await full(page, 'light-13-food-log');
 
@@ -114,7 +120,7 @@ const full = async (page, name) => {
   await page.getByRole('button', { name: 'Start workout' }).last().click();
   await page.getByRole('button', { name: 'Add exercise' }).click();
   await page.getByRole('searchbox', { name: 'Search exercises' }).fill('push');
-  await page.getByRole('button', { name: 'Add exercise' }).first().click();
+  await tap(page, page.getByRole('dialog').getByRole('button', { name: 'Add exercise' }).first());
   await page.getByLabel('Reps').fill('12');
   await page.getByRole('button', { name: 'Done' }).first().click();
   await full(page, 'light-18-workout-session');
@@ -174,15 +180,16 @@ const full = async (page, name) => {
   }
   await page.goto(`${BASE}/settings`);
   await page.locator('select').first().selectOption('en');
+  await page.getByRole('heading', { name: 'Settings' }).waitFor();
+  await page.waitForTimeout(800);
 
   // 11. Sign out
-  await page.goto(`${BASE}/settings`);
   await page.getByRole('button', { name: 'Sign out' }).click();
   await page.getByRole('button', { name: 'Continue with email' }).waitFor();
 
   console.log(errors.length ? `PAGE ERRORS:\n${errors.join('\n')}` : 'no page errors');
   await browser.close();
 })().catch((e) => {
-  console.error('FLOW FAILED:', e.message);
+  console.error('FLOW FAILED:', e.message.split('\n')[0], [...e.stack.matchAll(/flow.cjs:(\d+)/g)].map((m) => m[1]).join(','));
   process.exit(1);
 });

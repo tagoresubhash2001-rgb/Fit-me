@@ -16,18 +16,22 @@ export interface SheetProps {
 /** Bottom sheet on phones, centred dialog on wider screens. */
 export function Sheet({ open, onClose, title, closeLabel, children, footer, className }: SheetProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  // Keep the latest onClose without re-running the open effect on every parent render
+  // (re-running it would steal focus from inputs inside the sheet).
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onCloseRef.current();
     document.addEventListener('keydown', onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    panelRef.current?.focus();
+    panelRef.current?.focus({ preventScroll: true });
     return () => {
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = prev;
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
   return (
