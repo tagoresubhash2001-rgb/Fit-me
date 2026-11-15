@@ -22,5 +22,22 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "include": [
+    "src",
+    "tests",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "vitest.rules.config.ts",
+    "vitest.integration.config.ts",
+    "capacitor.config.ts"
+  ],
+  "exclude": [
+    "functions",
+    "dist",
+    "android",
+    "ios",
+    "node_modules",
+    "e2e"
+  ]
 }
