@@ -145,7 +145,14 @@ export async function updateProfileFields(patch: Partial<UserProfile>) {
   void setDoc(doc(db(), `users/${uid}`), { ...patch, uid, updatedAt: serverTimestamp() }, { merge: true });
 }
 
+/** True when a Cloud Function cannot be reached or is not deployed (the rest of the app keeps working). */
+export function isServerUnavailable(e: unknown): boolean {
+  const code = (e as { code?: string })?.code ?? '';
+  return ['functions/unavailable', 'functions/not-found', 'functions/internal', 'functions/deadline-exceeded', 'functions/unknown'].includes(code);
+}
+
 export function authErrorKey(e: unknown): string {
+  if (isServerUnavailable(e)) return 'common.serverUnavailable';
   const code = (e as { code?: string; message?: string })?.code ?? (e as Error)?.message ?? '';
   const map: Record<string, string> = {
     'auth/invalid-email': 'auth.errors.invalidEmail',

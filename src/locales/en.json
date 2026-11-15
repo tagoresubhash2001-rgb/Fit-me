@@ -43,7 +43,8 @@
     "finish": "Finish",
     "pause": "Pause",
     "resume": "Resume",
-    "disclaimer": "FIT ME AI is not a medical device and does not replace a doctor. For medical advice, talk to a qualified professional."
+    "disclaimer": "FIT ME AI is not a medical device and does not replace a doctor. For medical advice, talk to a qualified professional.",
+    "serverUnavailable": "This feature is temporarily unavailable. Please try again later."
   },
   "nav": {
     "home": "Home",
@@ -169,7 +170,8 @@
       "height": "Enter a height between 100 and 250 cm.",
       "weight": "Enter a weight between 25 and 350 kg.",
       "targetWeight": "Enter a target between 25 and 350 kg."
-    }
+    },
+    "saveFailed": "We could not save your profile. Check your connection and try again."
   },
   "goals": {
     "lose": "Lose weight",

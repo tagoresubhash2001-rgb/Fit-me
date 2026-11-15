@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Download, LogOut, Trash2, User, Bell, ShieldCheck } from 'lucide-react';
 import { Badge, Button, Card, CardHeader, Choice, Input, Select, Sheet, Tabs, toast } from '../../components/ui';
 import { useSession } from '../../data/session';
-import { deleteAccount, exportData, signOut, updateProfileFields, authErrorKey } from '../../data/auth';
+import { deleteAccount, exportData, signOut, updateProfileFields, authErrorKey, isServerUnavailable } from '../../data/auth';
 import { useThemeStore, type VisualTheme } from '../../stores/theme.store';
 import { LanguagePicker } from './LanguagePicker';
 import { HeightField, WeightField, UnitsToggle } from '../onboarding/BodyFields';
@@ -41,8 +41,8 @@ export default function SettingsScreen() {
       a.click();
       URL.revokeObjectURL(url);
       toast(t('settings.exported'));
-    } catch {
-      toast(t('common.error'), 'error');
+    } catch (e) {
+      toast(t(isServerUnavailable(e) ? 'common.serverUnavailable' : 'common.error'), 'error');
     } finally {
       setExporting(false);
     }

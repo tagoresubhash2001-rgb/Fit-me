@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Flame, Scale, Dumbbell, Activity, HeartPulse, Salad, TrendingUp } from 'lucide-react';
-import { Button, Card, Choice, Input, ProgressBar, Select } from '../../components/ui';
+import { Button, Card, Choice, Input, ProgressBar, Select, toast } from '../../components/ui';
 import { HeightField, WeightField, UnitsToggle, TimeField } from './BodyFields';
 import { LanguagePicker } from '../settings/LanguagePicker';
 import { useSession } from '../../data/session';
@@ -142,6 +142,8 @@ export default function Onboarding() {
     try {
       await saveProfile(profile, true);
       useThemeStore.getState().applyTheme();
+    } catch {
+      toast(t('onboarding.saveFailed'), 'error');
     } finally {
       setSaving(false);
     }
