@@ -168,6 +168,8 @@ export function authErrorKey(e: unknown): string {
     'auth/too-many-requests': 'auth.errors.tooMany',
     'auth/network-request-failed': 'auth.errors.network',
     'auth/requires-recent-login': 'auth.errors.recentLogin',
+    'auth/configuration-not-found': 'auth.notConfigured',
+    'auth/operation-not-allowed': 'auth.notConfigured',
   };
   return map[code] ?? 'auth.errors.generic';
 }
