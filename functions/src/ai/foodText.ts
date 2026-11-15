@@ -43,8 +43,14 @@ export const FOOD_JSON_SCHEMA = {
       items: {
         type: 'object',
         properties: {
-          name: { type: 'string' }, portion: { type: 'string' }, grams: range, calories: range,
-          proteinG: range, carbsG: range, fatG: range, fiberG: range,
+          name: { type: 'string' },
+          portion: { type: 'string' },
+          grams: range,
+          calories: range,
+          proteinG: range,
+          carbsG: range,
+          fatG: range,
+          fiberG: range,
           confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
         },
         required: ['name', 'portion', 'grams', 'calories', 'proteinG', 'carbsG', 'fatG', 'fiberG', 'confidence'],
@@ -65,7 +71,11 @@ export function parseEstimate(raw: string): FoodEstimate | null {
   }
 }
 
-const Input = z.object({ text: z.string().trim().min(2).max(500), country: z.string().length(2).optional(), language: z.string().min(2).max(5).optional() });
+const Input = z.object({
+  text: z.string().trim().min(2).max(500),
+  country: z.string().length(2).optional(),
+  language: z.string().min(2).max(5).optional(),
+});
 
 /**
  * Describe a meal in words → estimated items with ranges. Premium.
@@ -80,7 +90,7 @@ export const analyzeFoodText = onCall(callableOptions({ secrets: [GEMINI_API_KEY
 
   const system = [
     'You estimate the nutrition of meals described in text. Return JSON only.',
-    'Split the meal into separate items. For each, give a typical portion for the user\'s country, and ranges (min and max) for grams, calories, protein, carbs, fat and fiber that reflect real portion uncertainty.',
+    "Split the meal into separate items. For each, give a typical portion for the user's country, and ranges (min and max) for grams, calories, protein, carbs, fat and fiber that reflect real portion uncertainty.",
     'Use widely accepted food composition values. If the description is too vague, return a wider range and confidence "low". If it is not food, return an empty items list.',
     `Write item names and portions in ${languageName(parsed.data.language)}. Country: ${parsed.data.country ?? 'unknown'}.`,
     'Never add health claims. No emojis.',
@@ -88,7 +98,12 @@ export const analyzeFoodText = onCall(callableOptions({ secrets: [GEMINI_API_KEY
 
   let raw: string;
   try {
-    raw = await provider().generate({ system, turns: [{ role: 'user', text: parsed.data.text }], jsonSchema: FOOD_JSON_SCHEMA, temperature: 0.2 });
+    raw = await provider().generate({
+      system,
+      turns: [{ role: 'user', text: parsed.data.text }],
+      jsonSchema: FOOD_JSON_SCHEMA,
+      temperature: 0.2,
+    });
   } catch (e) {
     logger.warn('analyzeFoodText provider failure', { uid, error: (e as Error).message });
     if (e instanceof AIUnavailableError) throw new HttpsError('unavailable', 'ai_unavailable');
@@ -96,6 +111,8 @@ export const analyzeFoodText = onCall(callableOptions({ secrets: [GEMINI_API_KEY
   }
   const estimate = parseEstimate(raw);
   if (!estimate) throw new HttpsError('unavailable', 'ai_bad_output');
-  await db().collection('aiUsage').add({ uid, feature: 'foodTextAnalysis', plan, items: estimate.items.length, at: FieldValue.serverTimestamp() });
+  await db()
+    .collection('aiUsage')
+    .add({ uid, feature: 'foodTextAnalysis', plan, items: estimate.items.length, at: FieldValue.serverTimestamp() });
   return estimate;
 });

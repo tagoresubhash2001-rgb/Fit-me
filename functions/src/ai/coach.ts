@@ -53,7 +53,9 @@ export const coachChat = onCall(callableOptions({ secrets: [GEMINI_API_KEY], tim
       .filter((m) => m.role === 'user' || m.role === 'assistant')
       .map((m) => ({ role: m.role, text: String(m.text) }));
     try {
-      reply = stripEmojis(await provider().generate({ system: systemPrompt(coach as Coach, language, summarizeContext(ctx), SAFETY_RULES), turns }));
+      reply = stripEmojis(
+        await provider().generate({ system: systemPrompt(coach as Coach, language, summarizeContext(ctx), SAFETY_RULES), turns }),
+      );
     } catch (e) {
       logger.warn('coachChat provider failure', { uid, error: (e as Error).message });
       if (e instanceof AIUnavailableError) throw new HttpsError('unavailable', 'ai_unavailable');

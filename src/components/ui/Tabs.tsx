@@ -15,9 +15,9 @@ export function Tabs<T extends string>({
   className,
   ariaLabel,
 }: {
-  items: TabItem<T>[];
+  items: TabItem<NoInfer<T>>[];
   value: T;
-  onChange: (id: T) => void;
+  onChange: (id: NoInfer<T>) => void;
   className?: string;
   ariaLabel?: string;
 }) {

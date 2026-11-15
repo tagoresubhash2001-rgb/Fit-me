@@ -1,8 +1,16 @@
 export type Coach = 'jai' | 'jaya';
 
 const LANGUAGE_NAMES: Record<string, string> = {
-  en: 'English', hi: 'Hindi', te: 'Telugu', ta: 'Tamil', es: 'Spanish', pt: 'Portuguese',
-  fr: 'French', de: 'German', ar: 'Arabic', id: 'Indonesian',
+  en: 'English',
+  hi: 'Hindi',
+  te: 'Telugu',
+  ta: 'Tamil',
+  es: 'Spanish',
+  pt: 'Portuguese',
+  fr: 'French',
+  de: 'German',
+  ar: 'Arabic',
+  id: 'Indonesian',
 };
 
 export function languageName(code: string | undefined): string {
@@ -18,7 +26,7 @@ export function systemPrompt(coach: Coach, language: string | undefined, userDat
   return [
     PERSONAS[coach],
     `Always reply in ${languageName(language)}, in that language's normal script.`,
-    'Suggest foods and dishes common in the user\'s country when relevant.',
+    "Suggest foods and dishes common in the user's country when relevant.",
     safety,
     'User data (the only facts you may use about the user):',
     userData,

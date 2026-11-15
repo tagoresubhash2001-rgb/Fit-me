@@ -25,7 +25,7 @@ export const exportData = onCall(callableOptions({ timeoutSeconds: 120 }), async
     if (c.id === 'aiThreads') {
       for (const t of snap.docs) {
         const msgs = await t.ref.collection('messages').orderBy('createdAt').get();
-        (out[`aiThreads/${t.id}/messages`] = msgs.docs.map((m) => toPlain(m.data())));
+        out[`aiThreads/${t.id}/messages`] = msgs.docs.map((m) => toPlain(m.data()));
       }
     }
   }

@@ -16,6 +16,14 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
+    // Active paid plan, read from the server-written entitlement (PRD section 3).
+    function hasPlan(plans) {
+      let path = /databases/$(database)/documents/entitlements/$(request.auth.uid);
+      return signedIn() && exists(path)
+        && get(path).data.plan in plans
+        && (!('expiresAt' in get(path).data) || get(path).data.expiresAt == null || get(path).data.expiresAt > request.time);
+    }
+
     // Fields a client may never set on its own profile.
     function noServerFields() {
       return !request.resource.data.keys().hasAny(['role', 'roles', 'plan', 'entitlement', 'isAdmin', 'deletedAt']);
@@ -86,6 +94,11 @@ service cloud.firestore {
     // Global reference data: readable by signed-in users, writable only by the server.
     match /foods/{id} {
       allow read: if signedIn();
+      allow write: if false;
+    }
+    // Micronutrients per food: Premium and Pro only (enforced here, not just hidden in the UI).
+    match /foodMicros/{id} {
+      allow read: if hasPlan(['premium', 'pro']);
       allow write: if false;
     }
     match /exercises/{id} {

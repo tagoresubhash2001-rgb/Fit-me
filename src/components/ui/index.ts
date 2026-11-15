@@ -11,3 +11,6 @@ export { ToastViewport, useToast, toast } from './Toast';
 export { Sheet } from './Sheet';
 export { EmptyState } from './EmptyState';
 export { Skeleton } from './Skeleton';
+export { Choice } from './Choice';
+export { BarChart, LineChart } from './Chart';
+export type { ChartPoint } from './Chart';

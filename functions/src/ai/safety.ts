@@ -3,7 +3,10 @@
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F000}-\u{1F2FF}]|\u{FE0F}|\u{200D}/gu;
 
 export function stripEmojis(text: string): string {
-  return text.replace(EMOJI, '').replace(/[ \t]{2,}/g, ' ').trim();
+  return text
+    .replace(EMOJI, '')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
 }
 
 // Phrases that suggest an emergency. Matching is deliberately broad: a false positive only adds advice to seek care.

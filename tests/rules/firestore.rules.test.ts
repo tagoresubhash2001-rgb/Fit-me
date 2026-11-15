@@ -114,6 +114,21 @@ describe('server-only collections', () => {
   });
 });
 
+describe('premium micronutrients', () => {
+  it('only active Premium / Pro users can read foodMicros', async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const d = ctx.firestore();
+      await setDoc(doc(d, 'foodMicros/usda-1'), { sodiumMg: 1 });
+      await setDoc(doc(d, 'entitlements/alice'), { plan: 'premium', expiresAt: Timestamp.fromMillis(Date.now() + 86400000) });
+      await setDoc(doc(d, 'entitlements/bob'), { plan: 'pro', expiresAt: Timestamp.fromMillis(Date.now() - 1000) });
+    });
+    await assertSucceeds(getDoc(doc(alice(), 'foodMicros/usda-1')));
+    await assertFails(getDoc(doc(bob(), 'foodMicros/usda-1'))); // expired
+    await assertFails(getDoc(doc(env.authenticatedContext('carol').firestore(), 'foodMicros/usda-1'))); // free
+    await assertFails(setDoc(doc(alice(), 'foodMicros/usda-1'), { sodiumMg: 0 }));
+  });
+});
+
 describe('store waitlist', () => {
   it('owner can join once with allowed fields only', async () => {
     await assertSucceeds(setDoc(doc(alice(), 'storeWaitlist/alice'), { uid: 'alice', createdAt: now, country: 'IN', language: 'te' }));

@@ -34,8 +34,13 @@ export function summarizeContext(ctx: UserContext): string {
   if (!p) return 'No profile yet. The user has not finished onboarding.';
   const lines: string[] = [];
   const t = (p.targets ?? {}) as Record<string, unknown>;
-  lines.push(`Name: ${p.name ?? 'unknown'}. Goal: ${p.goal ?? 'unknown'}. Diet: ${p.dietType ?? 'unknown'}. Country: ${p.country ?? 'unknown'}.`);
-  if (t.calories) lines.push(`Daily targets: ${t.calories} kcal, protein ${t.proteinG} g, carbs ${t.carbsG} g, fat ${t.fatG} g, fiber ${t.fiberG} g, water ${t.waterMl} ml.`);
+  lines.push(
+    `Name: ${p.name ?? 'unknown'}. Goal: ${p.goal ?? 'unknown'}. Diet: ${p.dietType ?? 'unknown'}. Country: ${p.country ?? 'unknown'}.`,
+  );
+  if (t.calories)
+    lines.push(
+      `Daily targets: ${t.calories} kcal, protein ${t.proteinG} g, carbs ${t.carbsG} g, fat ${t.fatG} g, fiber ${t.fiberG} g, water ${t.waterMl} ml.`,
+    );
   const byDay = (c: string, field: string) => {
     const m = new Map<string, number>();
     for (const r of ctx.logs[c] ?? []) m.set(String(r.date), (m.get(String(r.date)) ?? 0) + num(r[field]));
@@ -44,18 +49,29 @@ export function summarizeContext(ctx: UserContext): string {
   const food = byDay('foodLogs', 'calories');
   const protein = byDay('foodLogs', 'proteinG');
   const water = byDay('waterLogs', 'ml');
-  lines.push(`Today (${ctx.today}): ${food.get(ctx.today) ?? 0} kcal eaten, ${protein.get(ctx.today) ?? 0} g protein, ${water.get(ctx.today) ?? 0} ml water.`);
+  lines.push(
+    `Today (${ctx.today}): ${food.get(ctx.today) ?? 0} kcal eaten, ${protein.get(ctx.today) ?? 0} g protein, ${water.get(ctx.today) ?? 0} ml water.`,
+  );
   if (food.size) {
     const days = [...food.keys()].sort();
-    lines.push(`Food logged on ${days.length} of the last 7 days. Average ${Math.round([...food.values()].reduce((a, b) => a + b, 0) / days.length)} kcal on logged days.`);
+    lines.push(
+      `Food logged on ${days.length} of the last 7 days. Average ${Math.round([...food.values()].reduce((a, b) => a + b, 0) / days.length)} kcal on logged days.`,
+    );
   } else {
     lines.push('No food logged in the last 7 days.');
   }
   const workouts = ctx.logs.workoutLogs ?? [];
-  lines.push(workouts.length ? `Workouts in the last 7 days: ${workouts.length}, total ${workouts.reduce((a, w) => a + num(w.durationMin), 0)} minutes.` : 'No workouts logged in the last 7 days.');
+  lines.push(
+    workouts.length
+      ? `Workouts in the last 7 days: ${workouts.length}, total ${workouts.reduce((a, w) => a + num(w.durationMin), 0)} minutes.`
+      : 'No workouts logged in the last 7 days.',
+  );
   const weights = [...(ctx.logs.weightLogs ?? [])].sort((a, b) => String(a.date).localeCompare(String(b.date)));
   if (weights.length) lines.push(`Latest weight: ${num(weights[weights.length - 1].kg)} kg on ${weights[weights.length - 1].date}.`);
   const sleep = ctx.logs.sleepLogs ?? [];
-  if (sleep.length) lines.push(`Average sleep over ${sleep.length} logged nights: ${(sleep.reduce((a, s) => a + num(s.durationMin), 0) / sleep.length / 60).toFixed(1)} h.`);
+  if (sleep.length)
+    lines.push(
+      `Average sleep over ${sleep.length} logged nights: ${(sleep.reduce((a, s) => a + num(s.durationMin), 0) / sleep.length / 60).toFixed(1)} h.`,
+    );
   return lines.join('\n');
 }
