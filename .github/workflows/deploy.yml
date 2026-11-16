@@ -165,12 +165,10 @@ jobs:
       - *auth_wif
       - run: npx firebase deploy --only firestore:rules,firestore:indexes --project "$FIREBASE_PROJECT" --non-interactive
 
-  # Billing is not linked to fit-me1 yet. Storage (the default bucket needs the Blaze plan) and Cloud
-  # Functions are skipped until it is: then delete `false &&` from the two `if:` lines below.
   storage:
-    name: Storage rules (needs billing)
+    name: Storage rules
     needs: [verify, firestore]
-    if: ${{ false && !cancelled() && github.event_name != 'pull_request' && needs.verify.result == 'success' }}
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.verify.result == 'success' }}
     runs-on: ubuntu-latest
     environment: dev
     env:
@@ -186,9 +184,9 @@ jobs:
       - run: npx firebase deploy --only storage --project "$FIREBASE_PROJECT" --non-interactive
 
   functions:
-    name: Cloud Functions (needs billing)
+    name: Cloud Functions
     needs: [verify, storage]
-    if: ${{ false && !cancelled() && github.event_name != 'pull_request' && needs.verify.result == 'success' }}
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.verify.result == 'success' }}
     runs-on: ubuntu-latest
     environment: dev
     env:
