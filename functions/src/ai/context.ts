@@ -41,14 +41,16 @@ export function summarizeContext(ctx: UserContext): string {
     lines.push(
       `Daily targets: ${t.calories} kcal, protein ${t.proteinG} g, carbs ${t.carbsG} g, fat ${t.fatG} g, fiber ${t.fiberG} g, water ${t.waterMl} ml.`,
     );
-  const byDay = (c: string, field: string) => {
+  // Food logs keep their values under `nutrients` (see src/domain/models.ts FoodLog).
+  const byDay = (c: string, pick: (r: Record<string, unknown>) => unknown) => {
     const m = new Map<string, number>();
-    for (const r of ctx.logs[c] ?? []) m.set(String(r.date), (m.get(String(r.date)) ?? 0) + num(r[field]));
+    for (const r of ctx.logs[c] ?? []) m.set(String(r.date), (m.get(String(r.date)) ?? 0) + num(pick(r)));
     return m;
   };
-  const food = byDay('foodLogs', 'calories');
-  const protein = byDay('foodLogs', 'proteinG');
-  const water = byDay('waterLogs', 'ml');
+  const nutrient = (key: string) => (r: Record<string, unknown>) => (r.nutrients as Record<string, unknown> | undefined)?.[key];
+  const food = byDay('foodLogs', nutrient('calories'));
+  const protein = byDay('foodLogs', nutrient('proteinG'));
+  const water = byDay('waterLogs', (r) => r.ml);
   lines.push(
     `Today (${ctx.today}): ${food.get(ctx.today) ?? 0} kcal eaten, ${protein.get(ctx.today) ?? 0} g protein, ${water.get(ctx.today) ?? 0} ml water.`,
   );

@@ -37,7 +37,7 @@ const tap = async (page, loc) => {
   let uid = null;
   try {
     // Sign up
-    await page.goto(BASE);
+    await page.goto(BASE, { waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: 'Continue with email' }).click();
     await page.getByRole('button', { name: 'New here? Create an account' }).click();
     await page.getByLabel('Your name').fill('Live Test');
@@ -73,7 +73,7 @@ const tap = async (page, loc) => {
     await shot(page, 'light-05-home-empty');
 
     // Food (curated + USDA from the live database)
-    await page.goto(`${BASE}/food`);
+    await page.goto(`${BASE}/food`, { waitUntil: 'domcontentloaded' });
     await page.locator('#slot-breakfast').getByRole('button', { name: 'Add' }).click();
     await page.getByRole('searchbox').fill('idli');
     await page.getByText('Idli', { exact: true }).first().waitFor({ timeout: 20000 });
@@ -91,22 +91,22 @@ const tap = async (page, loc) => {
     await shot(page, 'light-07-food-log', true);
 
     // Water, weight, sleep, steps
-    await page.goto(`${BASE}/health/water`);
+    await page.goto(`${BASE}/health/water`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: '250 ml' }).click();
     await page.getByRole('button', { name: '500 ml' }).click();
     await shot(page, 'light-08-health-water', true);
-    await page.goto(`${BASE}/health/weight`);
+    await page.goto(`${BASE}/health/weight`, { waitUntil: 'domcontentloaded' });
     await page.getByLabel('Weight (kg)').fill('77.6');
     await page.getByRole('button', { name: 'Save' }).click();
     await shot(page, 'light-09-health-weight', true);
-    await page.goto(`${BASE}/health/sleep`);
+    await page.goto(`${BASE}/health/sleep`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: 'Save' }).click();
     await shot(page, 'light-10-health-sleep', true);
-    await page.goto(`${BASE}/health/steps`);
+    await page.goto(`${BASE}/health/steps`, { waitUntil: 'domcontentloaded' });
     await shot(page, 'light-11-health-steps', true);
 
     // Workout
-    await page.goto(`${BASE}/workouts`);
+    await page.goto(`${BASE}/workouts`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: 'Start workout' }).last().click();
     await page.getByRole('button', { name: 'Add exercise' }).click();
     await page.getByRole('searchbox', { name: 'Search exercises' }).fill('push-up');
@@ -121,19 +121,19 @@ const tap = async (page, loc) => {
     await shot(page, 'light-14-workout-library');
 
     // Other screens
-    await page.goto(`${BASE}/store`);
+    await page.goto(`${BASE}/store`, { waitUntil: 'domcontentloaded' });
     await page.click('#store-notify');
     await page.getByText('You are on the list').first().waitFor();
     await shot(page, 'light-15-store');
-    await page.goto(`${BASE}/planner`);
+    await page.goto(`${BASE}/planner`, { waitUntil: 'domcontentloaded' });
     await shot(page, 'light-16-planner');
-    await page.goto(`${BASE}/health/progress`);
+    await page.goto(`${BASE}/health/progress`, { waitUntil: 'domcontentloaded' });
     await shot(page, 'light-17-progress', true);
-    await page.goto(`${BASE}/settings`);
+    await page.goto(`${BASE}/settings`, { waitUntil: 'domcontentloaded' });
     await shot(page, 'light-18-settings', true);
 
     // Reload and confirm saved
-    await page.goto(BASE);
+    await page.goto(BASE, { waitUntil: 'domcontentloaded' });
     await page.reload();
     await page.locator('#card-calories').waitFor();
     await page.waitForTimeout(2000);
@@ -160,23 +160,25 @@ const tap = async (page, loc) => {
     const msgs = (await db.collection(`users/${uid}/aiThreads/jaya/messages`).orderBy('createdAt').get()).docs.map((d) => d.data());
     const assistant = msgs.find((m) => m.role === 'assistant');
     console.log('COACH', assistant ? `reply (${assistant.text.length} chars): ${assistant.text.slice(0, 220).replace(/\n/g, ' ')}` : `no reply; UI says: ${reply}`);
+    assert(assistant, 'coach replied');
+    assert(!/haven't logged any food|no food logged/i.test(assistant.text), 'coach must see the logged food');
     await shot(page, 'light-21-coach-reply');
     await db.doc(`entitlements/${uid}`).delete();
     console.log('temporary Pro removed');
 
     // Dark mode screens
     await page.keyboard.press('Escape');
-    await page.goto(`${BASE}/settings`);
+    await page.goto(`${BASE}/settings`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('tab', { name: 'Dark' }).click();
     for (const [route, name] of [['/', 'home'], ['/food', 'food'], ['/health/water', 'water'], ['/health/weight', 'weight'], ['/health/sleep', 'sleep'], ['/health/progress', 'progress'], ['/workouts', 'workouts'], ['/planner', 'planner'], ['/store', 'store'], ['/settings', 'settings']]) {
-      await page.goto(BASE + route);
+      await page.goto(BASE + route, { waitUntil: 'domcontentloaded' });
       await shot(page, `dark-${name}`);
     }
-    await page.goto(BASE);
+    await page.goto(BASE, { waitUntil: 'domcontentloaded' });
     await page.click('#coach-button');
     await shot(page, 'dark-coach');
     await page.keyboard.press('Escape');
-    await page.goto(`${BASE}/settings`);
+    await page.goto(`${BASE}/settings`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('tab', { name: 'Light' }).click();
 
     // Clean up: delete the test account in the app (tests the deleteAccount function live)

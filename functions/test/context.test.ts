@@ -13,9 +13,9 @@ describe('summarizeContext', () => {
       today: '2026-11-14',
       logs: {
         foodLogs: [
-          { date: '2026-11-14', calories: 300, proteinG: 10 },
-          { date: '2026-11-14', calories: 200, proteinG: 5 },
-          { date: '2026-11-13', calories: 1500, proteinG: 70 },
+          { date: '2026-11-14', nutrients: { calories: 300, proteinG: 10 } },
+          { date: '2026-11-14', nutrients: { calories: 200, proteinG: 5 } },
+          { date: '2026-11-13', nutrients: { calories: 1500, proteinG: 70 } },
         ],
         waterLogs: [{ date: '2026-11-14', ml: 750 }],
         workoutLogs: [],
