@@ -37,7 +37,10 @@ export function CoachSheet({ open, onClose }: { open: boolean; onClose: () => vo
     const q = query(collection(db(), `users/${user.uid}/aiThreads/${coach}/messages`), orderBy('createdAt'), limit(100));
     return onSnapshot(q, (s) => setMsgs(s.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Msg, 'id'>) }))));
   }, [open, user, coach, isPro]);
-  useEffect(() => endRef.current?.scrollIntoView({ block: 'end' }), [msgs.length, sending]);
+  // Braces matter: scrollIntoView returns a Promise in recent browsers, and an effect may only return a cleanup function.
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ block: 'end' });
+  }, [msgs.length, sending]);
 
   const send = async () => {
     const m = text.trim();

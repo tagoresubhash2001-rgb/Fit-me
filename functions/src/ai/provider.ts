@@ -30,7 +30,8 @@ export class GeminiProvider implements AIProvider {
     apiKey: string,
     private model: string,
   ) {
-    this.client = new GoogleGenAI({ apiKey });
+    // v1beta: the v1 API rejects system instructions ("Developer instruction is not enabled for api version v1").
+    this.client = new GoogleGenAI({ apiKey, apiVersion: 'v1beta' });
   }
 
   async generate(opts: GenerateOptions): Promise<string> {

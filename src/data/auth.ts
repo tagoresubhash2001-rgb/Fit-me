@@ -148,7 +148,13 @@ export async function updateProfileFields(patch: Partial<UserProfile>) {
 /** True when a Cloud Function cannot be reached or is not deployed (the rest of the app keeps working). */
 export function isServerUnavailable(e: unknown): boolean {
   const code = (e as { code?: string })?.code ?? '';
-  return ['functions/unavailable', 'functions/not-found', 'functions/internal', 'functions/deadline-exceeded', 'functions/unknown'].includes(code);
+  return [
+    'functions/unavailable',
+    'functions/not-found',
+    'functions/internal',
+    'functions/deadline-exceeded',
+    'functions/unknown',
+  ].includes(code);
 }
 
 export function authErrorKey(e: unknown): string {

@@ -33,7 +33,9 @@ function Gate() {
   const applyTheme = useThemeStore((s) => s.applyTheme);
 
   useEffect(() => watchSession(), []);
-  useEffect(() => applyTheme(), [theme, applyTheme]);
+  useEffect(() => {
+    applyTheme();
+  }, [theme, applyTheme]);
   // The profile language wins over the device language once the user has chosen one.
   useEffect(() => {
     if (profile?.language) void setLanguage(profile.language);

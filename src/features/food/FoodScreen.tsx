@@ -208,7 +208,9 @@ function EditFoodSheet({ log, onClose }: { log: FoodLog | null; onClose: () => v
 function SaveMealSheet({ slot, items, onClose }: { slot: MealSlot | null; items: FoodLog[]; onClose: () => void }) {
   const { t } = useTranslation();
   const [name, setName] = useState('');
-  React.useEffect(() => setName(slot ? t(`slots.${slot}`) : ''), [slot, t]);
+  React.useEffect(() => {
+    setName(slot ? t(`slots.${slot}`) : '');
+  }, [slot, t]);
   if (!slot) return null;
   return (
     <Sheet
