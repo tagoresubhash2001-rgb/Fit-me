@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import { Check, Minus, Sparkles } from 'lucide-react';
-import { Badge, Button, Card, cn, toast } from '../../components/ui';
+import { Badge, Button, Card, PageHeader, cn, toast } from '../../components/ui';
 import { db } from '../../lib/firebase';
 import { useSession } from '../../data/session';
 import { PLAN_FEATURES, formatPrice, monthlyPrice } from '../../domain/pricing';
@@ -24,7 +24,15 @@ export default function PlansScreen() {
   const current = useSession((s) => s.plan);
   const [interest, setInterest] = useState<Plan | null>(null);
   const [busy, setBusy] = useState<Plan | null>(null);
-  useEffect(() => onSnapshot(doc(db(), `planInterest/${user.uid}`), (s) => setInterest((s.get('plan') as Plan) ?? null), () => setInterest(null)), [user.uid]);
+  useEffect(
+    () =>
+      onSnapshot(
+        doc(db(), `planInterest/${user.uid}`),
+        (s) => setInterest((s.get('plan') as Plan) ?? null),
+        () => setInterest(null),
+      ),
+    [user.uid],
+  );
 
   const price = (p: Plan) => {
     if (p === 'free') return t('plans.perMonth', { price: formatPrice(0, profile.currency, i18n.language) });
@@ -35,7 +43,13 @@ export default function PlansScreen() {
   const choose = async (p: Exclude<Plan, 'free'>) => {
     setBusy(p);
     try {
-      await setDoc(doc(db(), `planInterest/${user.uid}`), { uid: user.uid, plan: p, currency: profile.currency, country: profile.country, updatedAt: serverTimestamp() });
+      await setDoc(doc(db(), `planInterest/${user.uid}`), {
+        uid: user.uid,
+        plan: p,
+        currency: profile.currency,
+        country: profile.country,
+        updatedAt: serverTimestamp(),
+      });
       toast(t('plans.launchingSoon', { plan: t(`plans.${p}`) }), 'info');
     } catch {
       toast(t('common.error'), 'error');
@@ -46,32 +60,48 @@ export default function PlansScreen() {
 
   return (
     <div className="stagger flex flex-col gap-4">
-      <div className="card-enter">
-        <h1 className="text-display text-ink">{t('plans.title')}</h1>
-        <p className="text-body text-muted">{t('plans.subtitle')}</p>
-        <p className="mt-2 inline-flex rounded-full bg-raised px-3 py-1 text-caption text-muted">{t('plans.billedMonthly')}</p>
-      </div>
+      <PageHeader
+        title={t('plans.title')}
+        subtitle={t('plans.subtitle')}
+        actions={<span className="inline-flex rounded-full bg-raised px-3 py-1 text-caption text-muted">{t('plans.billedMonthly')}</span>}
+      />
 
-      <div className="grid gap-3 lg:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-2 md:gap-5 land:grid-cols-3 xl:grid-cols-3">
         {PLANS.map((p) => {
           const isCurrent = current === p;
           const isHighlight = highlight === p || (!highlight && p === 'pro');
           return (
-            <Card key={p} id={`plan-${p}`} className={cn('flex flex-col gap-3', isHighlight && 'ring-2 ring-primary')}>
+            <Card
+              key={p}
+              id={`plan-${p}`}
+              className={cn(
+                'flex flex-col gap-3',
+                isHighlight && 'ring-2 ring-primary',
+                p === 'pro' && 'md:col-span-2 land:col-span-1 xl:col-span-1',
+              )}
+            >
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <h2 className="text-title text-ink">{t(`plans.${p}`)}</h2>
                   <p className="text-small text-muted">{t(`plans.tagline.${p}`)}</p>
                 </div>
-                {isCurrent ? <Badge tone="primary">{t('plans.current')}</Badge> : p === 'pro' ? <Badge tone="accent">{t('plans.mostPopular')}</Badge> : null}
+                {isCurrent ? (
+                  <Badge tone="primary">{t('plans.current')}</Badge>
+                ) : p === 'pro' ? (
+                  <Badge tone="accent">{t('plans.mostPopular')}</Badge>
+                ) : null}
               </div>
               <p className="text-display text-ink tabular-nums">{price(p)}</p>
-              <ul className="flex flex-col gap-2">
+              <ul className="flex flex-col gap-2 md:hidden">
                 {PLAN_FEATURES.map((f) => {
                   const on = f.plans.includes(p);
                   return (
                     <li key={f.id} className={cn('flex items-start gap-2 text-small', on ? 'text-ink' : 'text-muted')}>
-                      {on ? <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" strokeWidth={2.25} /> : <Minus className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} />}
+                      {on ? (
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" strokeWidth={2.25} />
+                      ) : (
+                        <Minus className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} />
+                      )}
                       <span className={on ? undefined : 'line-through decoration-line'}>{t(`plans.features.${f.id}`)}</span>
                     </li>
                   );
@@ -87,7 +117,13 @@ export default function PlansScreen() {
                     {t('plans.yourPlan')}
                   </Button>
                 ) : (
-                  <Button id={`choose-${p}`} fullWidth loading={busy === p} icon={<Sparkles className="h-[18px] w-[18px]" strokeWidth={1.75} />} onClick={() => void choose(p)}>
+                  <Button
+                    id={`choose-${p}`}
+                    fullWidth
+                    loading={busy === p}
+                    icon={<Sparkles className="h-[18px] w-[18px]" strokeWidth={1.75} />}
+                    onClick={() => void choose(p)}
+                  >
                     {interest === p ? t('plans.onList') : t('plans.choose', { plan: t(`plans.${p}`) })}
                   </Button>
                 )}
@@ -96,6 +132,51 @@ export default function PlansScreen() {
           );
         })}
       </div>
+      <Card className="card-enter hidden overflow-x-auto md:block" static>
+        <table className="w-full border-collapse text-start">
+          <caption className="mb-3 text-start text-title text-ink">{t('plans.compare')}</caption>
+          <thead>
+            <tr className="border-b border-line">
+              <th scope="col" className="py-2.5 pe-4 text-start text-small font-medium text-muted">
+                {t('plans.feature')}
+              </th>
+              {PLANS.map((p) => (
+                <th
+                  key={p}
+                  scope="col"
+                  className={cn('w-[18%] py-2.5 text-center text-body font-semibold', current === p ? 'text-primary' : 'text-ink')}
+                >
+                  {t(`plans.${p}`)}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {PLAN_FEATURES.map((f) => (
+              <tr key={f.id} className="border-b border-line last:border-0 hover:bg-raised/60">
+                <th scope="row" className="py-2.5 pe-4 text-start text-body font-normal text-ink">
+                  {t(`plans.features.${f.id}`)}
+                </th>
+                {PLANS.map((p) => (
+                  <td key={p} className="py-2.5 text-center">
+                    {f.plans.includes(p) ? (
+                      <>
+                        <Check className="mx-auto h-5 w-5 text-primary" strokeWidth={2.25} aria-hidden />
+                        <span className="sr-only">{t('plans.included')}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Minus className="mx-auto h-5 w-5 text-muted" strokeWidth={2} aria-hidden />
+                        <span className="sr-only">{t('plans.notIncluded')}</span>
+                      </>
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
       <Card tone="subtle" className="card-enter">
         <p className="text-small text-ink">{t('plans.paymentsNote')}</p>
         {interest && <p className="mt-1 text-small text-primary">{t('plans.interestSaved', { plan: t(`plans.${interest}`) })}</p>}

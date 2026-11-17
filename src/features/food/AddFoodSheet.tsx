@@ -122,10 +122,17 @@ export function AddFoodSheet({
   date,
   dayLogs,
   replaceId,
+  inline,
+  initialQuery = '',
+  autoFocusSearch = true,
 }: {
   open: boolean;
   onClose: () => void;
   slot: MealSlot;
+  /** Render as the quick-add panel of the food log split view (tablet landscape and desktop). */
+  inline?: boolean;
+  initialQuery?: string;
+  autoFocusSearch?: boolean;
   date: string;
   /** When set, the new entry replaces this log (edit -> change food). */
   replaceId?: string;
@@ -135,7 +142,7 @@ export function AddFoodSheet({
   const plan = useSession((s) => s.plan);
   const premium = planAllows(plan, 'premium');
   const [mode, setMode] = useState<Mode>('search');
-  const [q, setQ] = useState('');
+  const [q, setQ] = useState(initialQuery);
   const [results, setResults] = useState<FoodItem[] | null>(null);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState(false);
@@ -217,7 +224,7 @@ export function AddFoodSheet({
   };
 
   return (
-    <Sheet open={open} onClose={onClose} closeLabel={t('common.close')} title={t('food.addTo', { slot: t(`slots.${slot}`) })}>
+    <Sheet inline={inline} open={open} onClose={onClose} closeLabel={t('common.close')} title={t('food.addTo', { slot: t(`slots.${slot}`) })} className={inline ? 'max-h-[calc(100dvh-8rem)]' : undefined}>
       <div className="flex flex-col gap-4">
         {!picked && (
           <Tabs
@@ -263,7 +270,8 @@ export function AddFoodSheet({
                 strokeWidth={1.75}
               />
               <input
-                autoFocus
+                autoFocus={autoFocusSearch}
+                id={inline ? 'quick-add-search' : undefined}
                 type="search"
                 aria-label={t('common.search')}
                 placeholder={t('food.searchPlaceholder')}

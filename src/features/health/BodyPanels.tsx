@@ -8,7 +8,9 @@ import { createRecord, restore, softDelete, updateRecord } from '../../data/reco
 import { updateProfileFields } from '../../data/auth';
 import { connectHealth, healthAvailable, healthAppName, isHealthConnected, syncSteps } from '../../data/healthSync';
 import { useToday, useFormat } from '../../lib/hooks';
-import { addDays, dateRange, formatMinutes } from '../../domain/dates';
+import { addDays, formatMinutes } from '../../domain/dates';
+import { rangeStart, seriesFor } from '../../domain/series';
+import { useBucketLabel, useHealthRange } from './RangeFilter';
 import { movingAverage, isPlateau, sleepMinutes } from '../../domain/progress';
 import { kgToLb, type WeightUnit } from '../../domain/units';
 import type { WeightLog, SleepLog, StepLog } from '../../domain/models';
@@ -40,12 +42,16 @@ export function WeightPanel() {
   const [chest, setChest] = useState('');
   const [hip, setHip] = useState('');
   const [editing, setEditing] = useState<WeightLog | null>(null);
+  const [range] = useHealthRange();
   const sorted = [...logs.rows].sort((a, b) => a.date.localeCompare(b.date));
-  const points = sorted.map((l) => ({ date: l.date, value: l.kg }));
-  const avg = movingAverage(points, 7);
+  const allPoints = sorted.map((l) => ({ date: l.date, value: l.kg }));
+  const allAvg = movingAverage(allPoints, 7);
+  const inRange = (d: string) => d >= rangeStart(range, today);
+  const points = allPoints.filter((p) => inRange(p.date));
+  const avg = allAvg.filter((p) => inRange(p.date));
   const latest = sorted.at(-1);
-  const trend = avg.at(-1)?.avg;
-  const monthAgo = avg.filter((a) => a.date <= addDays(today, -30)).at(-1)?.avg;
+  const trend = allAvg.at(-1)?.avg;
+  const monthAgo = allAvg.filter((a) => a.date <= addDays(today, -30)).at(-1)?.avg;
   const m = (v: string) => {
     const x = Number(v.replace(',', '.'));
     return v.trim() && Number.isFinite(x) && x >= 30 && x <= 250 ? Math.round(x * 10) / 10 : undefined;
@@ -123,7 +129,7 @@ export function WeightPanel() {
       {sorted.length > 0 && (
         <Card>
           <CardHeader title={t('weight.history')} />
-          <ul className="-mx-2 flex flex-col divide-y divide-line">
+          <ul className="-mx-2 flex flex-col divide-y divide-line md:max-h-[28rem] md:overflow-y-auto">
             {[...sorted].reverse().slice(0, 60).map((l) => (
               <SwipeRow key={l.id} className="px-2" onEdit={() => setEditing(l)} onDelete={() => undoDelete('weightLogs', l.id, t('common.deleted'), t('common.undo'))} editLabel={t('common.edit')} deleteLabel={t('common.delete')} menuLabel={t('common.moreActions')}>
                 <div className="flex items-center justify-between gap-2 py-2.5">
@@ -206,7 +212,9 @@ export function SleepPanel() {
   const { n, date, lang } = useFormat();
   const profile = useSession((s) => s.profile)!;
   const today = useToday();
-  const from = addDays(today, -6);
+  const [range] = useHealthRange();
+  const bucketLabel = useBucketLabel();
+  const from = rangeStart(range, today);
   const logs = useRecords<SleepLog>('sleepLogs', from, today);
   const [start, setStart] = useState(profile.sleepStartMinutes);
   const [end, setEnd] = useState(profile.wakeMinutes);
@@ -224,7 +232,7 @@ export function SleepPanel() {
         ) : logs.rows.length === 0 ? (
           <EmptyState title={t('sleep.empty')} description={t('sleep.emptyHint')} />
         ) : (
-          <BarChart ariaLabel={t('sleep.history')} target={7} colorClass="fill-sleep" points={dateRange(from, today).map((d) => ({ label: date(d, { weekday: 'narrow' }), value: (logs.rows.find((s) => s.date === d)?.durationMin ?? 0) / 60 }))} formatValue={(v) => `${n(v, 1)} ${t('common.h')}`} />
+          <BarChart ariaLabel={t('sleep.history')} target={7} targetLabel={`7 ${t('common.h')}`} colorClass="fill-sleep" points={seriesFor(range, today, (d) => (logs.rows.find((s) => s.date === d)?.durationMin ?? 0) / 60).map((b) => ({ label: bucketLabel(b, range), value: b.value }))} formatValue={(v) => `${n(v, 1)} ${t('common.h')}`} />
         )}
         <ul className="-mx-2 mt-2 flex flex-col divide-y divide-line">
           {[...logs.rows].sort((a, b) => b.date.localeCompare(a.date)).map((s) => (
@@ -328,7 +336,9 @@ export function StepsPanel() {
   const { n, date } = useFormat();
   const profile = useSession((s) => s.profile)!;
   const today = useToday();
-  const from = addDays(today, -6);
+  const [range] = useHealthRange();
+  const bucketLabel = useBucketLabel();
+  const from = rangeStart(range, today);
   const logs = useRecords<StepLog>('stepLogs', from, today);
   const [available, setAvailable] = useState<boolean | null>(null);
   const [connected, setConnected] = useState(false);
@@ -390,7 +400,7 @@ export function StepsPanel() {
       </Card>
       <Card>
         <CardHeader title={t('steps.title')} />
-        <BarChart ariaLabel={t('steps.title')} target={goal} points={dateRange(from, today).map((d) => ({ label: date(d, { weekday: 'narrow' }), value: byDay(d) }))} formatValue={(v) => n(v)} />
+        <BarChart ariaLabel={t('steps.title')} target={goal} targetLabel={`${t('steps.target')}: ${n(goal)}`} points={seriesFor(range, today, byDay).map((b) => ({ label: bucketLabel(b, range), value: b.value }))} formatValue={(v) => n(Math.round(v))} />
         <ul className="-mx-2 mt-2 flex flex-col divide-y divide-line">
           {[...logs.rows].sort((a, b) => b.date.localeCompare(a.date)).map((l) => (
             <SwipeRow key={l.id} className="px-2" onEdit={l.source === 'device' ? undefined : () => setEditing(l)} onDelete={() => undoDelete('stepLogs', l.id, t('common.deleted'), t('common.undo'))} editLabel={t('common.edit')} deleteLabel={t('common.delete')} menuLabel={t('common.moreActions')}>

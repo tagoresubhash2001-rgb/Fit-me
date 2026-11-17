@@ -1,15 +1,19 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { collection, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Droplet, Footprints, Dumbbell, Moon, Scale, CalendarDays, Flame, ChevronRight } from 'lucide-react';
-import { Button, Card, ProgressRing, ProgressBar, Skeleton, PlanBadge, CountUp } from '../../components/ui';
+import { Droplet, Footprints, Dumbbell, Moon, Scale, CalendarDays, Flame, ChevronRight, MessageCircle } from 'lucide-react';
+import { Button, Card, ProgressRing, ProgressBar, Skeleton, PlanBadge, CountUp, LineChart, cn } from '../../components/ui';
+import { db } from '../../lib/firebase';
+import { planAllows } from '../../domain/plans';
+import { useUi } from '../../stores/ui.store';
 import { useSession } from '../../data/session';
 import { useRecords } from '../../data/useRecords';
 import { useToday, useFormat, nowMinutes } from '../../lib/hooks';
 import { sumNutrients } from '../../domain/nutrition';
 import { addDays } from '../../domain/dates';
 import { useUnits } from '../common/useUnits';
-import { currentStreak } from '../../domain/progress';
+import { currentStreak, movingAverage } from '../../domain/progress';
 import type { FoodLog, WaterLog, WorkoutLog, SleepLog, WeightLog, StepLog } from '../../domain/models';
 import { addWater } from '../health/waterActions';
 
@@ -100,8 +104,8 @@ export default function HomeScreen() {
   );
 
   return (
-    <div className="stagger flex flex-col gap-4">
-      <div className="card-enter">
+    <div className="stagger grid grid-cols-1 gap-4 md:grid-cols-12 md:gap-5">
+      <div className="card-enter md:col-span-12">
         <h1 className="text-display text-ink">{t(greetingKey(nowMinutes()), { name: profile.name })}</h1>
         <p className="text-small text-muted">
           {new Intl.DateTimeFormat(lang, { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }).format(
@@ -111,12 +115,12 @@ export default function HomeScreen() {
       </div>
 
       {nothingToday && (
-        <Card tone="sage">
+        <Card tone="sage" className="md:col-span-12">
           <p className="text-small text-ink">{t('home.emptyDay')}</p>
         </Card>
       )}
 
-      <Card id="card-calories">
+      <Card id="card-calories" className="md:order-1 md:col-span-12 xl:col-span-7">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-title text-ink">{t('home.caloriesCard')}</h2>
           <Button size="sm" onClick={() => navigate('/food')}>
@@ -126,7 +130,7 @@ export default function HomeScreen() {
         {loading ? (
           <Skeleton className="h-36 w-full" />
         ) : (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 md:gap-6">
             <ProgressRing
               value={totals.calories}
               max={target + burned}
@@ -158,7 +162,7 @@ export default function HomeScreen() {
             </dl>
           </div>
         )}
-        <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3">
+        <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 md:mt-5 md:gap-x-6">
           {macro('proteinG', t('onboarding.protein'), profile.targets.proteinG, 'bg-protein')}
           {macro('carbsG', t('onboarding.carbs'), profile.targets.carbsG, 'bg-carbs')}
           {macro('fatG', t('onboarding.fat'), profile.targets.fatG, 'bg-fat')}
@@ -166,7 +170,9 @@ export default function HomeScreen() {
         </div>
       </Card>
 
-      <div className="stagger grid grid-cols-2 gap-3 lg:grid-cols-3">
+      <WeightTrendCard rows={weights.rows} className="hidden md:order-3 md:col-span-6 md:flex xl:order-2 xl:col-span-5" />
+
+      <div className="stagger grid grid-cols-2 gap-3 md:order-2 md:col-span-12 md:grid-cols-3 md:gap-4 xl:order-3 xl:grid-cols-6">
         <StatCard
           id="card-water"
           icon={<Droplet className="h-[18px] w-[18px] text-water" strokeWidth={1.75} />}
@@ -236,7 +242,7 @@ export default function HomeScreen() {
         />
       </div>
 
-      <Card onPress={() => navigate('/planner')} className="flex items-center gap-3">
+      <Card onPress={() => navigate('/planner')} className="flex items-center gap-3 md:order-5 md:col-span-12 xl:order-4 xl:col-span-6">
         <CalendarDays className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.75} />
         <div className="min-w-0 flex-1">
           <p className="text-body font-medium text-ink">{t('home.scheduleCard')}</p>
@@ -244,6 +250,97 @@ export default function HomeScreen() {
         </div>
         {plan !== 'pro' && <PlanBadge plan="pro" label={t('plans.pro')} ariaLabel={t('plans.seePlans')} />}
       </Card>
+
+      <CoachInsightCard className="hidden md:order-4 md:col-span-6 md:flex xl:order-5 xl:col-span-6" />
     </div>
+  );
+}
+
+/** Weight trend (tablet and desktop): last 90 days with the 7-day average. */
+function WeightTrendCard({ rows, className }: { rows: WeightLog[]; className?: string }) {
+  const { t } = useTranslation();
+  const { wt } = useUnits();
+  const { date } = useFormat();
+  const navigate = useNavigate();
+  const today = useToday();
+  const sorted = useMemo(
+    () => rows.filter((r) => r.date >= addDays(today, -89)).sort((a, b) => a.date.localeCompare(b.date)),
+    [rows, today],
+  );
+  const points = sorted.map((r) => ({ label: date(r.date, { day: 'numeric', month: 'short' }), value: r.kg }));
+  const avg = movingAverage(
+    sorted.map((r) => ({ date: r.date, value: r.kg })),
+    7,
+  ).map((a, i) => ({ label: points[i]?.label ?? a.date, value: a.avg }));
+  const latest = sorted.at(-1);
+  const first = sorted[0];
+  return (
+    <Card onPress={() => navigate('/health/weight')} className={cn('min-w-0 flex-col gap-2', className)}>
+      <div className="flex items-baseline justify-between gap-2">
+        <h2 className="text-title text-ink">{t('home.weightTrend')}</h2>
+        {latest && <span className="text-title text-ink tabular-nums">{wt(latest.kg)}</span>}
+      </div>
+      {sorted.length ? (
+        <>
+          <LineChart points={points} secondary={avg} ariaLabel={t('home.weightTrend')} />
+          <p className="text-small text-muted">
+            {latest && first && latest !== first
+              ? t('home.weightChange', { change: `${latest.kg - first.kg >= 0 ? '+' : '−'}${wt(Math.abs(latest.kg - first.kg))}` })
+              : t('weight.trendNote')}
+          </p>
+        </>
+      ) : (
+        <p className="text-small text-muted">{t('weight.emptyHint')}</p>
+      )}
+    </Card>
+  );
+}
+
+/** Coach insight (tablet and desktop): the latest reply from the user's coach, or how to start. */
+function CoachInsightCard({ className }: { className?: string }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const user = useSession((s) => s.user);
+  const profile = useSession((s) => s.profile)!;
+  const plan = useSession((s) => s.plan);
+  const setCoachOpen = useUi((s) => s.setCoachOpen);
+  const isPro = planAllows(plan, 'pro');
+  const coach = profile.coach;
+  const name = t(`coach.${coach}`);
+  const [last, setLast] = useState<string | null>(null);
+  useEffect(() => {
+    if (!isPro || !user) return;
+    const q = query(collection(db(), `users/${user.uid}/aiThreads/${coach}/messages`), orderBy('createdAt', 'desc'), limit(10));
+    return onSnapshot(
+      q,
+      (snap) => setLast(snap.docs.map((d) => d.data() as { role: string; text: string }).find((m) => m.role === 'assistant')?.text ?? null),
+      () => setLast(null),
+    );
+  }, [isPro, user, coach]);
+  return (
+    <Card className={cn('min-w-0 flex-col gap-3', className)} id="card-coach">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 text-title text-ink">
+          <MessageCircle className="h-5 w-5 text-primary" strokeWidth={1.75} />
+          {t('home.coachInsight')}
+        </h2>
+        {!isPro && <PlanBadge plan="pro" label={t('plans.pro')} ariaLabel={t('plans.seePlans')} />}
+      </div>
+      {isPro ? (
+        <>
+          <p className="line-clamp-4 text-body text-ink">{last ?? t('coach.empty', { name })}</p>
+          <Button size="sm" variant="secondary" className="self-start" onClick={() => setCoachOpen(true)}>
+            {t('home.coachAsk', { name })}
+          </Button>
+        </>
+      ) : (
+        <>
+          <p className="text-body text-muted">{t('coach.lockedBody')}</p>
+          <Button size="sm" variant="secondary" className="self-start" onClick={() => navigate('/plans?highlight=pro')}>
+            {t('plans.seePlans')}
+          </Button>
+        </>
+      )}
+    </Card>
   );
 }

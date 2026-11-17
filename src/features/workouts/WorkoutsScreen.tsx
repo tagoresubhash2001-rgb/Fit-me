@@ -3,8 +3,26 @@ import { useTranslation } from 'react-i18next';
 import { collection, getDocs, limit, query } from 'firebase/firestore';
 import { Play, Pause, Plus, Trash2, Timer, Search, Lock, Dumbbell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, CardHeader, EmptyState, IconButton, Input, Sheet, Skeleton, Stepper, SwipeRow, Tabs, Badge, PlanBadge, toast } from '../../components/ui';
+import {
+  Button,
+  Card,
+  CardHeader,
+  EmptyState,
+  IconButton,
+  Input,
+  Sheet,
+  Skeleton,
+  Stepper,
+  SwipeRow,
+  Tabs,
+  Badge,
+  PlanBadge,
+  ListDetail,
+  cn,
+  toast,
+} from '../../components/ui';
 import { db } from '../../lib/firebase';
+import { useMediaQuery } from '../../lib/breakpoints';
 import { useSession } from '../../data/session';
 import { useAllRecords } from '../../data/useRecords';
 import { createRecord, softDelete, restore, updateRecord } from '../../data/records';
@@ -52,21 +70,35 @@ export default function WorkoutsScreen() {
   const { t } = useTranslation();
   const [tab, setTab] = useState<'session' | 'library' | 'history'>('session');
   const active = useWorkoutSession((s) => s.active);
+  // From 1024 px the active workout panel stays beside the library or history (master-detail).
+  const split = useMediaQuery('(min-width: 1024px)');
+  const shown = split && tab === 'session' ? 'library' : tab;
+  const tabs = [
+    ...(split ? [] : [{ id: 'session' as const, label: active ? t('workouts.inProgress') : t('workouts.start') }]),
+    { id: 'library' as const, label: t('workouts.library') },
+    { id: 'history' as const, label: t('workouts.history') },
+  ];
   return (
     <div className="stagger flex flex-col gap-4">
       <h1 className="text-display text-ink">{t('workouts.title')}</h1>
-      <Tabs
-        value={tab}
-        onChange={setTab}
-        items={[
-          { id: 'session', label: active ? t('workouts.inProgress') : t('workouts.start') },
-          { id: 'library', label: t('workouts.library') },
-          { id: 'history', label: t('workouts.history') },
-        ]}
+      <ListDetail
+        detailLabel={active ? t('workouts.inProgress') : t('workouts.start')}
+        list={
+          <div className="flex flex-col gap-4">
+            <Tabs ariaLabel={t('workouts.title')} value={shown} onChange={setTab} items={tabs} className="lg:max-w-md" />
+            {shown === 'session' && <SessionPanel />}
+            {shown === 'library' && <LibraryPanel />}
+            {shown === 'history' && <HistoryPanel />}
+          </div>
+        }
+        detail={
+          split ? (
+            <div id="workout-panel" className="flex flex-col gap-4">
+              <SessionPanel />
+            </div>
+          ) : undefined
+        }
       />
-      {tab === 'session' && <SessionPanel />}
-      {tab === 'library' && <LibraryPanel />}
-      {tab === 'history' && <HistoryPanel />}
     </div>
   );
 }
@@ -85,7 +117,7 @@ function ExercisePicker({ open, onClose, onPick }: { open: boolean; onClose: () 
   );
 }
 
-function ExerciseList({ onPick }: { onPick?: (e: Exercise) => void }) {
+function ExerciseList({ onPick, grid }: { onPick?: (e: Exercise) => void; grid?: boolean }) {
   const { t, i18n } = useTranslation();
   const { rows, loading, error } = useExercises();
   const [q, setQ] = useState('');
@@ -129,9 +161,15 @@ function ExerciseList({ onPick }: { onPick?: (e: Exercise) => void }) {
           </button>
         ))}
       </div>
-      <ul className="flex flex-col divide-y divide-line">
+      <ul className={cn('flex flex-col divide-y divide-line', grid && 'md:grid md:grid-cols-2 md:gap-3 md:divide-y-0 xl:grid-cols-3')}>
         {list.map((e) => (
-          <li key={e.id} className="flex items-center gap-2 py-2.5">
+          <li
+            key={e.id}
+            className={cn(
+              'flex items-center gap-2 py-2.5',
+              grid && 'md:rounded-input md:border md:border-line md:px-3 md:transition-colors md:hover:bg-raised',
+            )}
+          >
             <button type="button" className="min-w-0 flex-1 text-start" onClick={() => setDetail(e)}>
               <span className="block truncate text-body text-ink">{e.names?.[i18n.language] ?? e.name}</span>
               <span className="block truncate text-caption text-muted">
@@ -183,7 +221,7 @@ function ExerciseList({ onPick }: { onPick?: (e: Exercise) => void }) {
 function LibraryPanel() {
   return (
     <Card>
-      <ExerciseList />
+      <ExerciseList grid />
     </Card>
   );
 }
@@ -414,7 +452,14 @@ function HistoryPanel() {
   const logs = useAllRecords<WorkoutLog & { exercises?: Array<{ name: string }> }>('workoutLogs', 100);
   const [editing, setEditing] = useState<(WorkoutLog & { exercises?: Array<{ name: string }> }) | null>(null);
   if (logs.loading) return <Skeleton className="h-32" />;
-  if (!logs.rows.length) return <EmptyState icon={<Dumbbell className="h-6 w-6" strokeWidth={1.75} />} title={t('workouts.empty')} description={t('workouts.emptyHint')} />;
+  if (!logs.rows.length)
+    return (
+      <EmptyState
+        icon={<Dumbbell className="h-6 w-6" strokeWidth={1.75} />}
+        title={t('workouts.empty')}
+        description={t('workouts.emptyHint')}
+      />
+    );
   return (
     <Card>
       <ul className="-mx-2 flex flex-col divide-y divide-line">
@@ -434,7 +479,8 @@ function HistoryPanel() {
             <div className="py-2.5">
               <p className="truncate text-body font-medium text-ink">{w.name}</p>
               <p className="truncate text-caption text-muted">
-                {date(w.date, { weekday: 'short', day: 'numeric', month: 'short' })} · {n(w.durationMin)} {t('common.min')} · ~{n(w.caloriesEst)} {t('common.kcal')}
+                {date(w.date, { weekday: 'short', day: 'numeric', month: 'short' })} · {n(w.durationMin)} {t('common.min')} · ~
+                {n(w.caloriesEst)} {t('common.kcal')}
               </p>
               {w.exercises && <p className="truncate text-caption text-muted">{w.exercises.map((e) => e.name).join(', ')}</p>}
             </div>
@@ -462,7 +508,10 @@ function EditWorkoutSheet({ entry, onClose }: { entry: WorkoutLog | null; onClos
   if (!entry) return null;
   const valid = name.trim().length > 0 && typeof minutes === 'number' && minutes > 0 && minutes <= 600;
   // Keep the calorie estimate proportional to the new duration (same activity mix).
-  const kcal = typeof minutes === 'number' && entry.durationMin > 0 ? Math.round((entry.caloriesEst * minutes) / entry.durationMin) : entry.caloriesEst;
+  const kcal =
+    typeof minutes === 'number' && entry.durationMin > 0
+      ? Math.round((entry.caloriesEst * minutes) / entry.durationMin)
+      : entry.caloriesEst;
   return (
     <Sheet
       open
@@ -485,7 +534,16 @@ function EditWorkoutSheet({ entry, onClose }: { entry: WorkoutLog | null; onClos
     >
       <div className="flex flex-col gap-4">
         <Input label={t('workouts.workoutName')} value={name} maxLength={120} onChange={(e) => setName(e.target.value)} />
-        <Stepper label={`${t('workouts.duration')} (${t('common.min')})`} value={minutes} onChange={setMinutes} step={5} min={1} max={600} decreaseLabel={t('common.decrease')} increaseLabel={t('common.increase')} />
+        <Stepper
+          label={`${t('workouts.duration')} (${t('common.min')})`}
+          value={minutes}
+          onChange={setMinutes}
+          step={5}
+          min={1}
+          max={600}
+          decreaseLabel={t('common.decrease')}
+          increaseLabel={t('common.increase')}
+        />
         <Input label={t('common.date')} type="date" value={d} max={today} onChange={(e) => e.target.value && setD(e.target.value)} />
         <p className="text-small text-muted">
           {t('workouts.caloriesEst')}: ~{kcal} {t('common.kcal')} · {t('workouts.estimateNote')}

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Award, Lock } from 'lucide-react';
 import { Card, CardHeader, Skeleton, Tabs } from '../../components/ui';
@@ -13,6 +13,7 @@ import type { WaterLog, FoodLog, WorkoutLog, SleepLog } from '../../domain/model
 import { useUnits } from '../common/useUnits';
 import { WaterPanel } from './WaterPanel';
 import { WeightPanel, SleepPanel, StepsPanel } from './BodyPanels';
+import { RangeFilter } from './RangeFilter';
 
 type Tab = 'water' | 'weight' | 'sleep' | 'steps' | 'progress';
 const TABS: Tab[] = ['water', 'weight', 'sleep', 'steps', 'progress'];
@@ -21,12 +22,16 @@ export default function HealthScreen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const params = useParams();
+  const location = useLocation();
   const tab = (TABS.includes(params.tab as Tab) ? params.tab : 'water') as Tab;
   return (
     <div className="stagger flex flex-col gap-4">
       <h1 className="card-enter text-display text-ink">{t('health.title')}</h1>
-      <Tabs className="card-enter" value={tab} onChange={(v) => navigate(`/health/${v}`, { replace: true })} items={TABS.map((id) => ({ id, label: t(`health.tabs.${id}`) }))} />
-      <div key={tab} className="stagger page-enter flex flex-col gap-4">
+      <div className="card-enter flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <Tabs className="md:min-w-0 md:flex-1 xl:max-w-xl" ariaLabel={t('health.title')} value={tab} onChange={(v) => navigate({ pathname: `/health/${v}`, search: location.search }, { replace: true })} items={TABS.map((id) => ({ id, label: t(`health.tabs.${id}`) }))} />
+        {tab !== 'progress' && <RangeFilter className="md:w-80 md:shrink-0" />}
+      </div>
+      <div key={tab} className="stagger page-enter grid grid-cols-1 items-start gap-4 md:grid-cols-2 md:gap-5">
         {tab === 'water' && <WaterPanel />}
         {tab === 'weight' && <WeightPanel />}
         {tab === 'sleep' && <SleepPanel />}

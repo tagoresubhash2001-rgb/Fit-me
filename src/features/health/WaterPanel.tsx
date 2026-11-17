@@ -7,7 +7,9 @@ import { useRecords } from '../../data/useRecords';
 import { createRecord, restore, softDelete, updateRecord } from '../../data/records';
 import { updateProfileFields } from '../../data/auth';
 import { useToday, useFormat } from '../../lib/hooks';
-import { addDays, dateRange, formatMinutes } from '../../domain/dates';
+import { formatMinutes } from '../../domain/dates';
+import { rangeStart, seriesFor } from '../../domain/series';
+import { useBucketLabel, useHealthRange } from './RangeFilter';
 import { mlToVolume, volumeToMl, type VolumeUnit } from '../../domain/units';
 import type { WaterLog } from '../../domain/models';
 import { VolumeInput } from '../common/fields';
@@ -27,11 +29,13 @@ const STEP_ML = 250;
 /** Water (owner correction 9): big − / +, presets, custom amount with units, editable history. */
 export function WaterPanel() {
   const { t } = useTranslation();
-  const { date, lang } = useFormat();
+  const { lang } = useFormat();
   const { prefs, vol } = useUnits();
   const profile = useSession((s) => s.profile)!;
   const today = useToday();
-  const from = addDays(today, -6);
+  const [range] = useHealthRange();
+  const bucketLabel = useBucketLabel();
+  const from = rangeStart(range, today);
   const logs = useRecords<Entry>('waterLogs', from, today);
   const [customMl, setCustomMl] = useState<number | ''>('');
   const [customUnit, setCustomUnit] = useState<VolumeUnit>(prefs.volume);
@@ -143,7 +147,7 @@ export function WaterPanel() {
 
       <Card>
         <CardHeader title={t('water.history')} />
-        <BarChart ariaLabel={t('water.history')} target={goal} colorClass="fill-water" points={dateRange(from, today).map((d) => ({ label: date(d, { weekday: 'narrow' }), value: logs.rows.filter((l) => l.date === d).reduce((a, l) => a + l.ml, 0) }))} formatValue={vol} />
+        <BarChart ariaLabel={t('water.history')} target={goal} targetLabel={`${t('water.target')}: ${vol(goal)}`} colorClass="fill-water" points={seriesFor(range, today, (d) => logs.rows.filter((l) => l.date === d).reduce((a, l) => a + l.ml, 0)).map((b) => ({ label: bucketLabel(b, range), value: b.value }))} formatValue={vol} />
       </Card>
 
       <EditWaterSheet entry={editing} onClose={() => setEditing(null)} unit={prefs.volume} />

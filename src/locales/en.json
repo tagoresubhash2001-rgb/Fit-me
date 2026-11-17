@@ -264,7 +264,11 @@
     "scheduleCard": "Today's schedule",
     "scheduleLocked": "Plan your day with the Pro planner.",
     "progressCard": "Streaks and badges",
-    "emptyDay": "Nothing logged today yet. Start with your first meal or a glass of water."
+    "emptyDay": "Nothing logged today yet. Start with your first meal or a glass of water.",
+    "coachAsk": "Ask {{name}}",
+    "coachInsight": "Coach insight",
+    "weightChange": "{{change}} over this period",
+    "weightTrend": "Weight trend"
   },
   "food": {
     "title": "Food log",
@@ -323,7 +327,8 @@
     "mealSlot": "Meal",
     "rename": "Rename",
     "replaceFood": "Change food",
-    "unit": "Unit"
+    "unit": "Unit",
+    "quickAdd": "Quick add"
   },
   "water": {
     "title": "Water",
@@ -418,6 +423,13 @@
       "sleep": "Sleep",
       "steps": "Steps",
       "progress": "Progress"
+    },
+    "rangeLabel": "Time range",
+    "range": {
+      "7": "7 days",
+      "30": "30 days",
+      "90": "90 days",
+      "365": "1 year"
     }
   },
   "progress": {
@@ -486,7 +498,24 @@
     "lockedBody": "Daily, weekly and monthly plans, an AI auto-planner and smart rescheduling are part of FIT ME AI Pro.",
     "daily": "Day",
     "weekly": "Week",
-    "monthly": "Month"
+    "monthly": "Month",
+    "prev": "Previous",
+    "next": "Next",
+    "dragHint": "Drag a workout to another day to move it, or select it to pick a date.",
+    "legend": "Legend",
+    "food": "Food logged",
+    "waterGoal": "Water goal met",
+    "workout": "Workout",
+    "sleep": "Sleep logged",
+    "view": "Calendar view",
+    "week": "Week",
+    "month": "Month",
+    "dayTitle": "Day details",
+    "noData": "Nothing logged on this day.",
+    "move": "Move",
+    "moveWorkout": "Move {{name}}",
+    "moveTo": "New date",
+    "moved": "{{name}} moved to {{day}}"
   },
   "store": {
     "title": "Store",
@@ -512,7 +541,8 @@
     "lockedBody": "Get personal coaching that knows your logs, in your language.",
     "unavailable": "The coach is not available right now. Please try again in a moment.",
     "limit": "You have reached today's message limit.",
-    "urgent": "Contact a doctor or emergency services"
+    "urgent": "Contact a doctor or emergency services",
+    "resize": "Resize coach panel"
   },
   "plans": {
     "free": "Free",
@@ -555,7 +585,10 @@
       "generators": "AI meal plans and workouts",
       "reports": "Advanced reports",
       "noAds": "No ads"
-    }
+    },
+    "compare": "Compare plans",
+    "feature": "Feature",
+    "notIncluded": "Not included"
   },
   "settings": {
     "title": "Settings",
@@ -733,6 +766,20 @@
       "tbsp": "tbsp",
       "tsp": "tsp",
       "slice": "slice"
+    }
+  },
+  "shell": {
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "searchFoods": "Search foods",
+    "shortcuts": "Keyboard shortcuts",
+    "skip": "Skip to content",
+    "themeNext": "Switch to {{theme}} theme",
+    "shortcut": {
+      "addFood": "Add food",
+      "addWater": "Add a glass of water",
+      "search": "Search foods",
+      "help": "Show shortcuts"
     }
   }
 }
