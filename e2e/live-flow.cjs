@@ -48,22 +48,51 @@ const tap = async (page, loc) => {
     uid = (await getAuth().getUserByEmail(email)).uid;
     console.log('signed up uid', uid);
 
-    // Onboarding
+    // Onboarding with the new controls
     await shot(page, 'light-01-onboarding-language');
     await page.click('#onboarding-next');
-    await page.getByLabel('Year of birth').fill('1994');
+    await page.getByLabel('Day', { exact: true }).selectOption('15');
+    await page.getByLabel('Month', { exact: true }).selectOption('2');
+    await page.getByLabel('Year', { exact: true }).selectOption('1994');
+    await page.getByText('Age 32').waitFor();
     await page.getByRole('radio', { name: 'Male', exact: true }).click();
+    await page.getByLabel('Height: Unit').selectOption('ftin');
+    await page.getByLabel('Height (ft)').fill('5');
+    await page.getByLabel('Height (in)').fill('9');
+    await page.getByLabel('Height: Unit').selectOption('cm');
     await page.getByLabel('Height (cm)').fill('175');
-    await page.getByLabel('Current weight (kg)').fill('78');
+    await page.getByLabel('Current weight: Unit').selectOption('lb');
+    await page.getByLabel('Current weight (lb)').fill('171.96');
+    await page.getByLabel('Current weight: Unit').selectOption('kg');
+    assert.strictEqual(await page.getByLabel('Current weight (kg)').inputValue(), '78');
     await shot(page, 'light-02-onboarding-about', true);
     await page.click('#onboarding-next');
+    await page.getByText('Recommended for you').first().waitFor();
+    const lose = page.getByRole('checkbox', { name: /^Lose weight/ });
+    if ((await lose.getAttribute('aria-checked')) !== 'true') await lose.click();
+    await page.getByRole('checkbox', { name: /^Gain weight/ }).click();
+    await page.getByText(/cannot be chosen together/).waitFor();
+    await page.getByRole('checkbox', { name: /^Sleep better/ }).click();
     await page.getByLabel('Target weight (kg)').fill('72');
     await page.getByRole('radio', { name: /Moderately active/ }).click();
     await shot(page, 'light-03-onboarding-goal', true);
     await page.click('#onboarding-next');
+    await page.getByRole('button', { name: 'Peanuts' }).click();
+    await page.getByLabel('Type another allergy').fill('Mango');
+    await page.getByLabel('Type another allergy').press('Enter');
+    await page.getByRole('button', { name: 'Remove Mango' }).waitFor();
+    await shot(page, 'light-03b-onboarding-food', true);
     await page.click('#onboarding-next');
     await page.click('#onboarding-next');
+    await page.getByRole('button', { name: 'Country' }).click();
+    await page.getByRole('combobox').fill('india');
+    await page.keyboard.press('Enter');
+    await page.getByRole('button', { name: 'State or region' }).click();
+    await page.getByRole('combobox').fill('telan');
+    await page.keyboard.press('Enter');
+    await page.getByRole('button', { name: 'State or region' }).getByText('Telangana').waitFor();
     await page.getByRole('checkbox', { name: /I agree/ }).click();
+    await shot(page, 'light-03c-onboarding-country', true);
     await page.click('#onboarding-next');
     await page.getByText('Your daily targets').waitFor();
     assert((await page.textContent('body')).includes('2164'), 'target 2164 kcal');
@@ -72,35 +101,75 @@ const tap = async (page, loc) => {
     await page.locator('#card-calories').waitFor({ timeout: 20000 });
     await shot(page, 'light-05-home-empty');
 
-    // Food (curated + USDA from the live database)
+    // Upgrade -> Plans, choose Premium (saves interest; payments not live yet)
+    await page.click('#header-upgrade');
+    await page.getByRole('heading', { name: 'Plans' }).waitFor();
+    assert((await page.textContent('main')).includes('₹199'), 'INR prices');
+    await shot(page, 'light-05b-plans', true);
+    await page.click('#choose-premium');
+    await page.getByRole('button', { name: 'You are on the list' }).waitFor();
+
+    // Food: stepper, multiplier, unit dropdown, allergen warning, edit and delete with undo
     await page.goto(`${BASE}/food`, { waitUntil: 'domcontentloaded' });
     await page.locator('#slot-breakfast').getByRole('button', { name: 'Add' }).click();
     await page.getByRole('searchbox').fill('idli');
     await page.getByText('Idli', { exact: true }).first().waitFor({ timeout: 20000 });
     await shot(page, 'light-06-food-search');
     await tap(page, page.getByText('Idli', { exact: true }).first());
-    await page.getByLabel('Quantity').fill('3');
-    await tap(page, page.getByRole('button', { name: 'Add food' }));
+    const dialog = page.getByRole('dialog');
+    await tap(page, dialog.getByRole('button', { name: 'Increase' }));
+    await tap(page, dialog.getByRole('button', { name: '2×' }));
+    await dialog.getByLabel('Unit').selectOption('g');
+    await shot(page, 'light-06b-food-quantity');
+    await tap(page, dialog.getByRole('button', { name: 'Add food' }));
     await page.locator('#slot-breakfast').getByText('Idli').waitFor();
     await page.locator('#slot-lunch').getByRole('button', { name: 'Add' }).click();
+    await page.getByRole('searchbox').fill('peanut butter');
+    await page.getByRole('dialog').getByLabel('Contains one of your allergens').first().waitFor({ timeout: 20000 });
     await page.getByRole('searchbox').fill('rice cooked');
     await page.getByRole('dialog').locator('ul button').first().waitFor({ timeout: 20000 });
     await tap(page, page.getByRole('dialog').locator('ul button').first());
     await tap(page, page.getByRole('button', { name: 'Add food' }));
     await page.waitForTimeout(1200);
     await shot(page, 'light-07-food-log', true);
+    await page.locator('#slot-breakfast').getByRole('button', { name: 'More actions' }).first().click();
+    await page.getByRole('menuitem', { name: 'Edit' }).click();
+    await page.getByRole('dialog').getByLabel('Meal').selectOption('dinner');
+    await shot(page, 'light-07b-food-edit');
+    await tap(page, page.getByRole('dialog').getByRole('button', { name: 'Save' }));
+    await page.locator('#slot-dinner').getByText('Idli').waitFor();
+    await page.locator('#slot-dinner').getByRole('button', { name: 'More actions' }).first().click();
+    await page.getByRole('menuitem', { name: 'Delete' }).click();
+    await page.getByRole('button', { name: 'Undo' }).last().click();
+    await page.locator('#slot-dinner').getByText('Idli').waitFor();
 
-    // Water, weight, sleep, steps
+    // Water: presets, +/-, custom in fl oz, edit, delete with undo
     await page.goto(`${BASE}/health/water`, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('button', { name: '250 ml' }).click();
-    await page.getByRole('button', { name: '500 ml' }).click();
+    const presets = page.getByRole('group', { name: 'Quick amounts' });
+    await presets.getByRole('button', { name: /^250 ml/ }).click();
+    await presets.getByRole('button', { name: /^500 ml/ }).click();
+    await page.click('#water-plus');
+    await page.click('#water-minus');
+    await page.getByLabel('Custom amount: Unit').selectOption('floz');
+    await page.getByLabel('Custom amount', { exact: true }).fill('8');
+    await page.getByRole('button', { name: 'Add', exact: true }).click();
+    await page.waitForTimeout(800);
+    await page.getByRole('button', { name: 'More actions' }).first().click();
+    await page.getByRole('menuitem', { name: 'Edit' }).click();
+    await page.getByRole('dialog').getByLabel('Amount', { exact: true }).fill('300');
+    await tap(page, page.getByRole('dialog').getByRole('button', { name: 'Save' }));
+    await page.getByText('300 ml').first().waitFor();
+    await page.getByRole('button', { name: 'More actions' }).first().click();
+    await page.getByRole('menuitem', { name: 'Delete' }).click();
+    await page.getByRole('button', { name: 'Undo' }).last().click();
+    await page.getByText('300 ml').first().waitFor();
     await shot(page, 'light-08-health-water', true);
     await page.goto(`${BASE}/health/weight`, { waitUntil: 'domcontentloaded' });
-    await page.getByLabel('Weight (kg)').fill('77.6');
-    await page.getByRole('button', { name: 'Save' }).click();
+    await page.getByLabel(/^Weight \(kg\)/).first().fill('77.6');
+    await page.getByRole('button', { name: 'Save' }).first().click();
     await shot(page, 'light-09-health-weight', true);
     await page.goto(`${BASE}/health/sleep`, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('button', { name: 'Save' }).click();
+    await page.getByRole('button', { name: 'Save' }).first().click();
     await shot(page, 'light-10-health-sleep', true);
     await page.goto(`${BASE}/health/steps`, { waitUntil: 'domcontentloaded' });
     await shot(page, 'light-11-health-steps', true);
@@ -141,9 +210,9 @@ const tap = async (page, loc) => {
     assert(/Eaten\s*\d{3}/.test(home), `home shows eaten calories: ${home}`);
     await shot(page, 'light-19-home-after-reload');
     const count = async (c) => (await db.collection(`users/${uid}/${c}`).where('status', '==', 'active').count().get()).data().count;
-    const saved = { profile: (await db.doc(`users/${uid}`).get()).exists, foodLogs: await count('foodLogs'), waterLogs: await count('waterLogs'), weightLogs: await count('weightLogs'), sleepLogs: await count('sleepLogs'), workoutLogs: await count('workoutLogs'), waitlist: (await db.doc(`storeWaitlist/${uid}`).get()).exists };
+    const saved = { profile: (await db.doc(`users/${uid}`).get()).exists, foodLogs: await count('foodLogs'), waterLogs: await count('waterLogs'), weightLogs: await count('weightLogs'), sleepLogs: await count('sleepLogs'), workoutLogs: await count('workoutLogs'), waitlist: (await db.doc(`storeWaitlist/${uid}`).get()).exists, planInterest: (await db.doc(`planInterest/${uid}`).get()).data()?.plan ?? null };
     console.log('FIRESTORE', JSON.stringify(saved));
-    assert(saved.profile && saved.foodLogs === 2 && saved.waterLogs === 2 && saved.weightLogs === 1 && saved.workoutLogs === 1, 'data saved in Firestore');
+    assert(saved.profile && saved.foodLogs === 2 && saved.waterLogs >= 3 && saved.planInterest === 'premium' && saved.weightLogs === 1 && saved.workoutLogs === 1, 'data saved in Firestore');
 
     // Coach with temporary Pro
     await db.doc(`entitlements/${uid}`).set({ plan: 'pro', expiresAt: Timestamp.fromMillis(Date.now() + 60 * 60 * 1000), source: 'live-test' });
@@ -172,7 +241,7 @@ const tap = async (page, loc) => {
     await page.getByRole('tab', { name: 'Dark' }).click();
     for (const [route, name] of [['/', 'home'], ['/food', 'food'], ['/health/water', 'water'], ['/health/weight', 'weight'], ['/health/sleep', 'sleep'], ['/health/progress', 'progress'], ['/workouts', 'workouts'], ['/planner', 'planner'], ['/store', 'store'], ['/settings', 'settings']]) {
       await page.goto(BASE + route, { waitUntil: 'domcontentloaded' });
-      await shot(page, `dark-${name}`);
+      await shot(page, `dark-${name}`, true);
     }
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
     await page.click('#coach-button');
