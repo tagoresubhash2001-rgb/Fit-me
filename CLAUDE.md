@@ -110,6 +110,11 @@ light mode first (cream `#F7F5EF` background, white cards, primary green `#1FA45
 (`#0F1720` background, `#17212B` cards). No navy, no purple/indigo gradients. Inter + Noto Sans Telugu,
 Devanagari, Tamil and Arabic fallbacks; 12 px minimum; tabular numbers; sentence case; no emojis; no jargon.
 All colours from tokens (`src/index.css`), shared primitives in `src/components/ui/`.
+Cards (owner decision): 1 px border `#0F1720` (dark `#3A4654`), 20 px radius, layered shadow
+`0 1px 2px rgba(15,23,32,.08), 0 6px 16px rgba(15,23,32,.10), 0 14px 32px rgba(15,23,32,.08)`, hover lift 2–3 px,
+press 0.98, staggered enter 150–250 ms — only via the shared `Card` and tokens. Header, nav, sheets, modals and toasts
+use the `.glass` finish (blur 16–20 px). Every log entry is editable and deletable with undo (swipe on touch, ⋯ menu on web).
+Full UX checklist: `docs/UX_CHECKLIST.md`.
 
 Navigation: a **white floating bottom bar with five tabs — Home, Planner, Health, Workouts, Store** —
 active tab green with a pill indicator. Profile and Settings open from the avatar in the header.

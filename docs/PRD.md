@@ -327,7 +327,8 @@ Premium, calm and friendly: green and cream, soft rounded cards and Apple-level 
 
 **Components**
 
-- **Cards:** white (dark mode #17212B), 20 px radius, 1 px border, soft shadow (0 1px 2px rgba(15,23,32,.04), 0 4px 16px rgba(15,23,32,.06)). No glow shadows.
+- **Cards (owner decision, November 2026):** white (dark mode #17212B), 20 px radius, a crisp 1 px border in #0F1720 (dark mode #3A4654) and a layered shadow `0 1px 2px rgba(15,23,32,.08), 0 6px 16px rgba(15,23,32,.10), 0 14px 32px rgba(15,23,32,.08)`. Pressable cards lift 2–3 px on hover (pointer devices only) and scale to 0.98 when pressed. Cards enter with a 150–250 ms staggered rise. Defined once in the shared `Card` component and the `--card-border` / `--shadow-card` tokens. No glow shadows.
+- **Glass surfaces:** the header, bottom navigation, sheets, modals and toasts use a frosted glass finish (translucent surface token plus 16–20 px backdrop blur and a hairline edge), with a solid fallback where blur is not supported.
 - **Buttons:** primary is solid green with white text, 48 px high, 14 px radius. Secondary is white with a border. Destructive is soft red. Every button has pressed, disabled, loading and focus states.
 - **Inputs:** 48 px high, 12 px radius, label above, error text below.
 - **Bottom navigation:** a white floating bar; the active tab is green with a pill indicator.
@@ -342,7 +343,7 @@ Premium, calm and friendly: green and cream, soft rounded cards and Apple-level 
 
 - No emojis anywhere: UI text, AI replies or notifications.
 - Plain, friendly language. No jargon such as "metabolic surveillance", "OS", "engine" or "matrix".
-- Motion is 150–250 ms ease-out; respect reduced-motion settings. No decorative glow blobs, spinning or bouncing icons, or heavy gradients.
+- Motion is 150–250 ms ease-out everywhere: page transitions, sheets, button press, card stagger, number count-up, rings and bars filling, toasts and list items. Respect reduced-motion settings (all of it switches off). Light haptics on native for key actions. No decorative glow blobs, spinning or bouncing icons, or heavy gradients.
 - All colours come from design tokens (Tailwind theme and CSS variables), never hard-coded hex values in components.
 - Layouts work from 360 px phones to tablets and desktop, with no overflow or clipped text in any language.
 
