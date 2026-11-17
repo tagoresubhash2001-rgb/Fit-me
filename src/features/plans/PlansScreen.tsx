@@ -27,7 +27,7 @@ export default function PlansScreen() {
   useEffect(() => onSnapshot(doc(db(), `planInterest/${user.uid}`), (s) => setInterest((s.get('plan') as Plan) ?? null), () => setInterest(null)), [user.uid]);
 
   const price = (p: Plan) => {
-    if (p === 'free') return t('plans.freePrice');
+    if (p === 'free') return t('plans.perMonth', { price: formatPrice(0, profile.currency, i18n.language) });
     const amount = monthlyPrice(profile.currency, p);
     return amount === null ? t('plans.localPrice') : t('plans.perMonth', { price: formatPrice(amount, profile.currency, i18n.language) });
   };

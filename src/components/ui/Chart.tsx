@@ -93,6 +93,22 @@ export function LineChart({
         {secondary && (
           <path d={path(secondary)} fill="none" className="stroke-primary" strokeWidth="2.25" vectorEffect="non-scaling-stroke" />
         )}
+        {(() => {
+          // Dot on the latest value so a single entry is still visible (round cap keeps it circular under scaling).
+          const ps = secondary?.length ? secondary : points;
+          const last = ps[ps.length - 1];
+          const cx = x(ps.length - 1, ps.length);
+          const cy = y(last.value);
+          return (
+            <path
+              d={`M${cx},${cy} L${cx},${cy}`}
+              className="stroke-primary"
+              strokeWidth="8"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+            />
+          );
+        })()}
       </svg>
       <figcaption className="sr-only">{points.map((p) => `${p.label}: ${p.value}`).join(', ')}</figcaption>
     </figure>

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { IconButton } from './Button';
 import { cn } from './cn';
@@ -34,7 +35,8 @@ export function Sheet({ open, onClose, title, closeLabel, children, footer, clas
   }, [open]);
 
   if (!open) return null;
-  return (
+  // Portal to <body> so animated (transformed) screen containers never trap the sheet under the nav.
+  return createPortal(
     <div className="fixed inset-0 z-[90] flex items-end justify-center sm:items-center">
       <div className="absolute inset-0 bg-scrim animate-[fade-in_200ms_ease-out]" onClick={onClose} aria-hidden />
       <div
@@ -62,6 +64,7 @@ export function Sheet({ open, onClose, title, closeLabel, children, footer, clas
           }
         </style>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

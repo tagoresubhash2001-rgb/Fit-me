@@ -8,7 +8,7 @@ import { cmToFtIn, ftInToCm, kgToLb, lbToKg, kgToStLb, stLbToKg, mlToVolume, vol
 const r1 = (n: number) => Math.round(n * 10) / 10;
 const num = (s: string): number | '' => (s.trim() === '' ? '' : Number(s.replace(',', '.')));
 const fieldCls = (error?: boolean) =>
-  cn('h-12 w-full min-w-0 rounded-input border bg-surface px-3 text-body tabular-nums text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20', error ? 'border-danger' : 'border-line');
+  cn('h-12 min-w-0 rounded-input border bg-surface px-3 text-body tabular-nums text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20', error ? 'border-danger' : 'border-line');
 
 // ---------- Date of birth (owner correction 1) ----------
 export interface DobValue {
@@ -145,11 +145,11 @@ export function MeasureInput({
     fields = (
       <div className="grid flex-1 grid-cols-2 gap-2">
         <div className="relative">
-          <DraftInput aria-label={`${label} (${t('units.ft')})`} inputMode="numeric" className={fieldCls(!!error)} value={p ? p.ft : ''} onText={(x) => onChange(x === '' && !p ? '' : r1(ftInToCm(Number(x) || 0, p?.inch ?? 0)))} />
+          <DraftInput aria-label={`${label} (${t('units.ft')})`} inputMode="numeric" className={cn(fieldCls(!!error), 'w-full')} value={p ? p.ft : ''} onText={(x) => onChange(x === '' && !p ? '' : r1(ftInToCm(Number(x) || 0, p?.inch ?? 0)))} />
           <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-small text-muted">{t('units.ft')}</span>
         </div>
         <div className="relative">
-          <DraftInput aria-label={`${label} (${t('units.in')})`} inputMode="numeric" className={fieldCls(!!error)} value={p ? p.inch : ''} onText={(x) => onChange(r1(ftInToCm(p?.ft ?? 0, Math.min(11.9, Number(x.replace(',', '.')) || 0))))} />
+          <DraftInput aria-label={`${label} (${t('units.in')})`} inputMode="numeric" className={cn(fieldCls(!!error), 'w-full')} value={p ? p.inch : ''} onText={(x) => onChange(r1(ftInToCm(p?.ft ?? 0, Math.min(11.9, Number(x.replace(',', '.')) || 0))))} />
           <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-small text-muted">{t('units.in')}</span>
         </div>
       </div>
@@ -159,11 +159,11 @@ export function MeasureInput({
     fields = (
       <div className="grid flex-1 grid-cols-2 gap-2">
         <div className="relative">
-          <DraftInput aria-label={`${label} (${t('units.st')})`} inputMode="numeric" className={fieldCls(!!error)} value={p ? p.st : ''} onText={(x) => onChange(r1(stLbToKg(Number(x) || 0, p?.lb ?? 0)))} />
+          <DraftInput aria-label={`${label} (${t('units.st')})`} inputMode="numeric" className={cn(fieldCls(!!error), 'w-full')} value={p ? p.st : ''} onText={(x) => onChange(r1(stLbToKg(Number(x) || 0, p?.lb ?? 0)))} />
           <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-small text-muted">{t('units.st')}</span>
         </div>
         <div className="relative">
-          <DraftInput aria-label={`${label} (${t('units.lb')})`} inputMode="decimal" className={fieldCls(!!error)} value={p ? p.lb : ''} onText={(x) => onChange(r1(stLbToKg(p?.st ?? 0, Math.min(13.9, Number(x.replace(',', '.')) || 0))))} />
+          <DraftInput aria-label={`${label} (${t('units.lb')})`} inputMode="decimal" className={cn(fieldCls(!!error), 'w-full')} value={p ? p.lb : ''} onText={(x) => onChange(r1(stLbToKg(p?.st ?? 0, Math.min(13.9, Number(x.replace(',', '.')) || 0))))} />
           <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-small text-muted">{t('units.lb')}</span>
         </div>
       </div>
@@ -172,9 +172,10 @@ export function MeasureInput({
     const shown = v === '' ? '' : unit === 'lb' ? r1(kgToLb(v)) : r1(v);
     fields = (
       <DraftInput
+        key={unit}
         aria-label={`${label} (${t(`units.${unit}`)})`}
         inputMode="decimal"
-        className={cn(fieldCls(!!error), 'flex-1')}
+        className={cn(fieldCls(!!error), 'w-full flex-1')}
         value={shown}
         onText={(x) => {
           const n = num(x);
@@ -217,9 +218,10 @@ export function VolumeInput({ label, ml, unit, onUnitChange, onChange }: { label
       <span className="text-small font-medium text-ink">{label}</span>
       <div className="flex gap-2">
         <DraftInput
+          key={unit}
           aria-label={label}
           inputMode="decimal"
-          className={cn(fieldCls(), 'flex-1')}
+          className={cn(fieldCls(), 'w-full flex-1')}
           value={shown}
           onText={(x) => {
             const n = num(x);

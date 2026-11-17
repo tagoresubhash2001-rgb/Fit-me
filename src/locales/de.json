@@ -246,7 +246,8 @@
   },
   "weight": {
     "editEntry": "Gewichtseintrag bearbeiten",
-    "emptyHint": "Erfasse dein Gewicht, um deinen Verlauf zu starten."
+    "emptyHint": "Erfasse dein Gewicht, um deinen Verlauf zu starten.",
+    "measureRange": "30–250 cm"
   },
   "sleep": {
     "checkTimes": "Prüfe Schlafens- und Aufwachzeit.",

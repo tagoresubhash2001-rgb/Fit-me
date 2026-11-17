@@ -41,7 +41,7 @@ function StatCard({
       <div className="flex items-center justify-between gap-2 text-muted">
         <span className="flex min-w-0 items-center gap-2">
           <span className="shrink-0 text-primary">{icon}</span>
-          <span className="truncate text-small font-medium text-ink">{title}</span>
+          <span className="min-w-0 text-small font-medium leading-tight text-ink">{title}</span>
         </span>
         <ChevronRight className="h-4 w-4 shrink-0 rtl:rotate-180" strokeWidth={1.75} />
       </div>

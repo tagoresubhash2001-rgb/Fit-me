@@ -246,7 +246,8 @@
   },
   "weight": {
     "editEntry": "Modifier l'entrée de poids",
-    "emptyHint": "Enregistrez votre poids pour démarrer votre tendance."
+    "emptyHint": "Enregistrez votre poids pour démarrer votre tendance.",
+    "measureRange": "30–250 cm"
   },
   "sleep": {
     "checkTimes": "Vérifiez l'heure du coucher et du réveil.",

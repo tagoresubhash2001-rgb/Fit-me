@@ -118,7 +118,7 @@ export default function FoodScreen() {
                     <button type="button" className="block w-full py-2.5 text-start" onClick={() => setEditing(l)}>
                       <span className="block truncate text-body text-ink">{l.name}</span>
                       <span className="block truncate text-caption text-muted">
-                        {n(l.servings, 2)} × {l.servingLabel} · {n(l.nutrients.calories)} {t('common.kcal')}
+                        {l.unitId === 'g' || l.unitId === 'ml' ? `${n(l.servings)} ${l.servingLabel}` : l.servings === 1 ? l.servingLabel : `${n(l.servings, 2)} × ${l.servingLabel}`} · {n(l.nutrients.calories)} {t('common.kcal')}
                         {(l as FoodLog & { timeMinutes?: number }).timeMinutes !== undefined && ` · ${formatMinutes((l as FoodLog & { timeMinutes: number }).timeMinutes, lang)}`}
                       </span>
                     </button>

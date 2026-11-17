@@ -367,7 +367,8 @@
     "empty": "Log your weight to start seeing your trend.",
     "toGoal": "{{amount}} to go",
     "editEntry": "Edit weight entry",
-    "emptyHint": "Log your weight to start your trend."
+    "emptyHint": "Log your weight to start your trend.",
+    "measureRange": "30–250 cm"
   },
   "sleep": {
     "title": "Sleep",

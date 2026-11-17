@@ -246,7 +246,8 @@
   },
   "weight": {
     "editEntry": "Ubah catatan berat",
-    "emptyHint": "Catat beratmu untuk memulai tren."
+    "emptyHint": "Catat beratmu untuk memulai tren.",
+    "measureRange": "30–250 cm"
   },
   "sleep": {
     "checkTimes": "Periksa jam tidur dan bangun.",

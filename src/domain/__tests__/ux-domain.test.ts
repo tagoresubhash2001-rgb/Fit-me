@@ -157,3 +157,12 @@ describe('pricing', () => {
     expect(formatPrice(9, 'USD', 'en-US')).toBe('$9');
   });
 });
+
+describe('unit formatting in right-to-left languages', () => {
+  it('isolates the amount so the unit stays after the number', async () => {
+    const { formatVolumePref, formatWeightPref } = await import('../units');
+    expect(formatVolumePref(250, 'ml', 'en')).toBe('250 ml');
+    expect(formatVolumePref(250, 'ml', 'ar')).toMatch(/^⁦.* ml⁩$/);
+    expect(formatWeightPref(70, 'kg', 'ar').startsWith('⁦')).toBe(true);
+  });
+});

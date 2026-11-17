@@ -36,9 +36,9 @@ export function WeightPanel() {
   const [unit, setUnit] = useState<WeightUnit>(prefs.weight);
   const [kg, setKg] = useState<number | ''>(profile.weightKg);
   const [logDate, setLogDate] = useState(today);
-  const [waist, setWaist] = useState<number | ''>('');
-  const [chest, setChest] = useState<number | ''>('');
-  const [hip, setHip] = useState<number | ''>('');
+  const [waist, setWaist] = useState('');
+  const [chest, setChest] = useState('');
+  const [hip, setHip] = useState('');
   const [editing, setEditing] = useState<WeightLog | null>(null);
   const sorted = [...logs.rows].sort((a, b) => a.date.localeCompare(b.date));
   const points = sorted.map((l) => ({ date: l.date, value: l.kg }));
@@ -46,12 +46,16 @@ export function WeightPanel() {
   const latest = sorted.at(-1);
   const trend = avg.at(-1)?.avg;
   const monthAgo = avg.filter((a) => a.date <= addDays(today, -30)).at(-1)?.avg;
-  const valid = typeof kg === 'number' && kg >= 20 && kg <= 400;
+  const m = (v: string) => {
+    const x = Number(v.replace(',', '.'));
+    return v.trim() && Number.isFinite(x) && x >= 30 && x <= 250 ? Math.round(x * 10) / 10 : undefined;
+  };
+  const badMeasure = (v: string) => v.trim() !== '' && m(v) === undefined;
+  const valid = typeof kg === 'number' && kg >= 20 && kg <= 400 && ![waist, chest, hip].some(badMeasure);
 
   const save = (e: React.FormEvent) => {
     e.preventDefault();
     if (!valid) return;
-    const m = (v: number | '') => (typeof v === 'number' && v > 0 ? v : undefined);
     void createRecord('weightLogs', { kg: Math.round((kg as number) * 10) / 10, waistCm: m(waist), chestCm: m(chest), hipCm: m(hip) }, { date: logDate });
     if (logDate === today) void updateProfileFields({ weightKg: Math.round((kg as number) * 10) / 10 });
     if (unit !== prefs.weight) void updateProfileFields({ weightUnit: unit });
@@ -107,9 +111,9 @@ export function WeightPanel() {
             {t('weight.measurements')} ({t('common.optional')}, cm)
           </p>
           <div className="grid grid-cols-3 gap-2">
-            <Stepper label={t('weight.waist')} value={waist} onChange={setWaist} step={0.5} min={0} max={250} decreaseLabel={t('common.decrease')} increaseLabel={t('common.increase')} />
-            <Stepper label={t('weight.chest')} value={chest} onChange={setChest} step={0.5} min={0} max={250} decreaseLabel={t('common.decrease')} increaseLabel={t('common.increase')} />
-            <Stepper label={t('weight.hip')} value={hip} onChange={setHip} step={0.5} min={0} max={250} decreaseLabel={t('common.decrease')} increaseLabel={t('common.increase')} />
+            <Input label={t('weight.waist')} inputMode="decimal" value={waist} error={badMeasure(waist) ? t('weight.measureRange') : undefined} onChange={(e) => setWaist(e.target.value)} />
+            <Input label={t('weight.chest')} inputMode="decimal" value={chest} error={badMeasure(chest) ? t('weight.measureRange') : undefined} onChange={(e) => setChest(e.target.value)} />
+            <Input label={t('weight.hip')} inputMode="decimal" value={hip} error={badMeasure(hip) ? t('weight.measureRange') : undefined} onChange={(e) => setHip(e.target.value)} />
           </div>
           <Button type="submit" disabled={!valid}>
             {t('common.save')}

@@ -96,7 +96,14 @@ export function formatHeightPref(cm: number, unit: HeightUnit): string {
   return `${Math.round(cm)} cm`;
 }
 
+/** Keeps "1,050 ml" in reading order inside right-to-left text (Unicode LRI ... PDI isolate). */
+const isolate = (text: string, locale: string) => (/^(ar|he|fa|ur)\b/.test(locale) ? `\u2066${text}\u2069` : text);
+
 export function formatWeightPref(kg: number, unit: WeightUnit, locale = 'en'): string {
+  return isolate(weightText(kg, unit, locale), locale);
+}
+
+function weightText(kg: number, unit: WeightUnit, locale: string): string {
   const nf = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
   if (unit === 'lb') return `${nf.format(r1(kgToLb(kg)))} lb`;
   if (unit === 'stlb') {
@@ -107,6 +114,10 @@ export function formatWeightPref(kg: number, unit: WeightUnit, locale = 'en'): s
 }
 
 export function formatVolumePref(ml: number, unit: VolumeUnit, locale = 'en'): string {
+  return isolate(volumeText(ml, unit, locale), locale);
+}
+
+function volumeText(ml: number, unit: VolumeUnit, locale: string): string {
   const nf = new Intl.NumberFormat(locale, { maximumFractionDigits: unit === 'ml' ? 0 : unit === 'l' ? 2 : 1 });
   const label = { ml: 'ml', l: 'L', floz: 'fl oz', cup: 'cups' }[unit];
   return `${nf.format(mlToVolume(ml, unit))} ${label}`;

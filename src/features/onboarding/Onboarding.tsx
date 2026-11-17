@@ -277,7 +277,7 @@ export default function Onboarding() {
               <>
                 <CountryField value={f.country} onChange={changeCountry} />
                 <RegionField country={f.country} value={f.region} onChange={(region) => up({ region })} />
-                <Input label={`${t('location.city')} (${t('common.optional')})`} autoComplete="address-level2" value={f.city} maxLength={80} onChange={(e) => up({ city: e.target.value })} />
+                <Input label={t('location.city')} autoComplete="address-level2" value={f.city} maxLength={80} onChange={(e) => up({ city: e.target.value })} />
                 <div className="flex flex-col gap-2">
                   <span className="text-small font-medium text-ink">{t('onboarding.coach')}</span>
                   <Choice selected={f.coach === 'jai'} onSelect={() => up({ coach: 'jai' })} title={t('coach.jai')} description={t('onboarding.coachJai')} />

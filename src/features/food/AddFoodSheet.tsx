@@ -539,14 +539,30 @@ function RecipeBuilder({ recipes, onPickRecipe, premium }: { recipes: Recipe[]; 
         <Button variant="secondary" icon={<Plus className="h-[18px] w-[18px]" strokeWidth={1.75} />} onClick={() => setBuilding(true)}>
           {t('food.newRecipe')}
         </Button>
-        {recipes.map((r) => (
-          <Card key={r.id} padding="sm" onPress={() => onPickRecipe(r)} className="flex items-center justify-between gap-2">
-            <span className="truncate text-body text-ink">{r.name}</span>
-            <span className="shrink-0 text-caption text-muted">
-              {r.perServing.calories} {t('common.kcal')} {t('food.perServing')}
-            </span>
-          </Card>
-        ))}
+        {recipes.length > 0 && (
+          <ul className="-mx-2 flex flex-col divide-y divide-line">
+            {recipes.map((r) => (
+              <SwipeRow
+                key={r.id}
+                className="px-2"
+                onDelete={() => {
+                  void softDelete('recipes', r.id);
+                  toast(t('common.deleted'), 'info', { label: t('common.undo'), onClick: () => void restore('recipes', r.id) });
+                }}
+                editLabel={t('common.edit')}
+                deleteLabel={t('common.delete')}
+                menuLabel={t('common.moreActions')}
+              >
+                <button type="button" onClick={() => onPickRecipe(r)} className="flex w-full items-center justify-between gap-2 py-3 text-start">
+                  <span className="truncate text-body text-ink">{r.name}</span>
+                  <span className="shrink-0 text-caption text-muted">
+                    {r.perServing.calories} {t('common.kcal')} {t('food.perServing')}
+                  </span>
+                </button>
+              </SwipeRow>
+            ))}
+          </ul>
+        )}
       </div>
     );
   }
