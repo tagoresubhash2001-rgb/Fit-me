@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, LogOut, Trash2, User, Bell, ShieldCheck } from 'lucide-react';
+import { Download, LogOut, Trash2, User, Bell, ShieldCheck, Sparkles } from 'lucide-react';
 import { Badge, Button, Card, CardHeader, Choice, Input, Select, Sheet, Tabs, toast } from '../../components/ui';
 import { useSession } from '../../data/session';
 import { deleteAccount, exportData, signOut, updateProfileFields, authErrorKey, isServerUnavailable } from '../../data/auth';
 import { useThemeStore, type VisualTheme } from '../../stores/theme.store';
 import { LanguagePicker } from './LanguagePicker';
-import { HeightField, WeightField, UnitsToggle } from '../onboarding/BodyFields';
-import { COUNTRIES } from '../../domain/countries';
+import { DobPicker, MeasureInput, dobError, dobFromIso, dobToIso } from '../common/fields';
+import { CountryField, RegionField } from '../common/location';
+import { GoalPicker } from '../common/goals';
+import { AllergyField, RestrictionField } from '../common/diet';
+import { unitPrefsOf } from '../../domain/prefs';
+import { defaultUnitPrefs, type HeightUnit, type WeightUnit } from '../../domain/units';
+import { calorieGoalFor, type GoalId } from '../../domain/goals';
+import { ageOn } from '../../domain/dob';
+import { localDate } from '../../domain/dates';
+import { useNavigate } from 'react-router-dom';
 import { currencyForCountry, weekStartForCountry } from '../../domain/locale';
-import { calculateTargets, ageFromBirthYear, type ActivityLevel, type Goal } from '../../domain/calculators';
+import { calculateTargets, bmi as bmiOf, type ActivityLevel } from '../../domain/calculators';
 import type { UserProfile } from '../../domain/models';
-import i18n from '../../lib/i18n';
 
-const GOALS: Goal[] = ['lose', 'gain', 'maintain', 'build_muscle', 'improve_fitness', 'wellness', 'eating_habits'];
 const ACTIVITIES: ActivityLevel[] = ['sedentary', 'light', 'moderate', 'very', 'extra'];
 
 export default function SettingsScreen() {
@@ -21,6 +27,8 @@ export default function SettingsScreen() {
   const user = useSession((s) => s.user)!;
   const profile = useSession((s) => s.profile)!;
   const plan = useSession((s) => s.plan);
+  const navigate = useNavigate();
+  const prefs = unitPrefsOf(profile);
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
   const [editing, setEditing] = useState(false);
@@ -61,7 +69,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="stagger flex flex-col gap-4">
       <h1 className="text-display text-ink">{t('settings.title')}</h1>
 
       <Card className="flex items-center gap-3">
@@ -71,9 +79,14 @@ export default function SettingsScreen() {
         <div className="min-w-0 flex-1">
           <p className="truncate text-body font-semibold text-ink">{profile.name}</p>
           <p className="truncate text-small text-muted">{t('settings.signedInAs', { who: user.email ?? user.phoneNumber ?? '' })}</p>
-          <Badge tone={plan === 'free' ? 'neutral' : 'primary'} className="mt-1">
-            {t('plans.currentPlan', { plan: t(`plans.${plan}`) })}
-          </Badge>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <Badge tone={plan === 'free' ? 'neutral' : 'primary'}>{t('plans.currentPlan', { plan: t(`plans.${plan}`) })}</Badge>
+            {plan !== 'pro' && (
+              <Button id="settings-upgrade" size="sm" icon={<Sparkles className="h-4 w-4" strokeWidth={1.75} />} onClick={() => navigate('/plans')}>
+                {t('plans.upgrade')}
+              </Button>
+            )}
+          </div>
         </div>
         <Button size="sm" variant="secondary" icon={<User className="h-4 w-4" strokeWidth={1.75} />} onClick={() => setEditing(true)}>
           {t('settings.editProfile')}
@@ -83,10 +96,32 @@ export default function SettingsScreen() {
       <Card className="flex flex-col gap-4">
         <CardHeader title={t('settings.preferences')} />
         <LanguagePicker onChange={(l) => void updateProfileFields({ language: l })} />
-        <div className="flex flex-col gap-1.5">
-          <span className="text-small font-medium text-ink">{t('settings.units')}</span>
-          <UnitsToggle units={profile.units} onChange={(u) => void updateProfileFields({ units: u })} />
-        </div>
+        <fieldset className="flex flex-col gap-1.5">
+          <legend className="mb-1.5 text-small font-medium text-ink">{t('settings.units')}</legend>
+          <div className="grid grid-cols-3 gap-2">
+            <Select aria-label={t('settings.heightUnit')} label={t('settings.heightUnit')} value={prefs.height} onChange={(e) => void updateProfileFields({ heightUnit: e.target.value as UserProfile['heightUnit'] })}>
+              {(['cm', 'ftin'] as const).map((u) => (
+                <option key={u} value={u}>
+                  {t(`units.${u}`)}
+                </option>
+              ))}
+            </Select>
+            <Select aria-label={t('settings.weightUnit')} label={t('settings.weightUnit')} value={prefs.weight} onChange={(e) => void updateProfileFields({ weightUnit: e.target.value as UserProfile['weightUnit'] })}>
+              {(['kg', 'lb', 'stlb'] as const).map((u) => (
+                <option key={u} value={u}>
+                  {t(`units.${u}`)}
+                </option>
+              ))}
+            </Select>
+            <Select aria-label={t('settings.volumeUnit')} label={t('settings.volumeUnit')} value={prefs.volume} onChange={(e) => void updateProfileFields({ volumeUnit: e.target.value as UserProfile['volumeUnit'] })}>
+              {(['ml', 'l', 'floz', 'cup'] as const).map((u) => (
+                <option key={u} value={u}>
+                  {t(`units.${u}`)}
+                </option>
+              ))}
+            </Select>
+          </div>
+        </fieldset>
         <div className="flex flex-col gap-1.5">
           <span className="text-small font-medium text-ink">{t('settings.theme')}</span>
           <Tabs<VisualTheme>
@@ -99,23 +134,14 @@ export default function SettingsScreen() {
             ]}
           />
         </div>
-        <Select
-          label={t('settings.country')}
+        <CountryField
           value={profile.country}
-          onChange={(e) =>
-            void updateProfileFields({
-              country: e.target.value,
-              currency: currencyForCountry(e.target.value),
-              weekStart: weekStartForCountry(e.target.value),
-            })
-          }
-        >
-          {COUNTRIES.map((c) => (
-            <option key={c} value={c}>
-              {new Intl.DisplayNames([i18n.language], { type: 'region' }).of(c) ?? c}
-            </option>
-          ))}
-        </Select>
+          onChange={(c) => {
+            const u = defaultUnitPrefs(c);
+            void updateProfileFields({ country: c, currency: currencyForCountry(c), weekStart: weekStartForCountry(c), region: '', regionCode: '', heightUnit: u.height, weightUnit: u.weight, volumeUnit: u.volume });
+            toast(t('settings.countryChanged'));
+          }}
+        />
         <dl className="grid grid-cols-2 gap-2 text-small">
           <div>
             <dt className="text-muted">{t('settings.currency')}</dt>
@@ -236,21 +262,40 @@ function StepTargetField({ profile }: { profile: UserProfile }) {
 
 function EditProfileSheet({ profile, onClose }: { profile: UserProfile; onClose: () => void }) {
   const { t } = useTranslation();
-  const [f, setF] = useState({ ...profile });
-  const up = (p: Partial<UserProfile>) => setF((s) => ({ ...s, ...p }));
+  const prefs = unitPrefsOf(profile);
+  const todayIso = localDate(Date.now(), profile.timezone);
+  const [f, setF] = useState({
+    name: profile.name,
+    dob: dobFromIso(profile.birthDate ?? `${profile.birthYear}-01-01`),
+    sex: profile.sex,
+    heightCm: profile.heightCm as number | '',
+    weightKg: profile.weightKg as number | '',
+    targetWeightKg: profile.targetWeightKg as number | '',
+    heightUnit: prefs.height,
+    weightUnit: prefs.weight,
+    goals: (profile.goals as GoalId[] | undefined) ?? [legacyGoal(profile.goal)],
+    primaryGoal: ((profile.primaryGoal as GoalId | undefined) ?? legacyGoal(profile.goal)) as GoalId | null,
+    activity: profile.activity,
+    dietType: profile.dietType,
+    allergies: profile.allergies ?? [],
+    restrictions: profile.restrictions ?? [],
+    region: profile.region ? { name: profile.region, code: profile.regionCode ?? '' } : null,
+    city: profile.city ?? '',
+  });
+  const up = (p: Partial<typeof f>) => setF((s) => ({ ...s, ...p }));
+  const dobIso = dobToIso(f.dob);
+  const dobErr = dobError(f.dob, todayIso);
   let targets: UserProfile['targets'] | null = null;
-  try {
-    targets = calculateTargets({
-      sex: f.sex,
-      ageYears: ageFromBirthYear(f.birthYear),
-      heightCm: f.heightCm,
-      weightKg: f.weightKg,
-      activity: f.activity,
-      goal: f.goal,
-    });
-  } catch {
-    targets = null;
+  if (!dobErr && dobIso && typeof f.heightCm === 'number' && typeof f.weightKg === 'number' && f.primaryGoal) {
+    try {
+      targets = calculateTargets({ sex: f.sex, ageYears: ageOn(dobIso, todayIso), heightCm: f.heightCm, weightKg: f.weightKg, activity: f.activity, goal: calorieGoalFor(f.primaryGoal) });
+    } catch {
+      targets = null;
+    }
   }
+  const bmiNow = typeof f.heightCm === 'number' && typeof f.weightKg === 'number' && f.heightCm >= 100 && f.weightKg >= 25 ? bmiOf(f.weightKg, f.heightCm) : null;
+  const target = f.targetWeightKg === '' ? f.weightKg : f.targetWeightKg;
+  const valid = !!targets && f.name.trim().length > 0 && typeof target === 'number' && target >= 25 && target <= 350 && f.goals.length > 0;
   return (
     <Sheet
       open
@@ -259,77 +304,85 @@ function EditProfileSheet({ profile, onClose }: { profile: UserProfile; onClose:
       title={t('settings.editProfile')}
       footer={
         <Button
+          id="profile-save"
           fullWidth
-          disabled={!targets || !f.name.trim()}
+          disabled={!valid}
           onClick={() => {
-            if (!targets) return;
-            const { onboardedAt: _o, ...rest } = f;
-            void updateProfileFields({ ...rest, name: f.name.trim(), targets, waterTargetMl: targets.waterMl });
+            if (!targets || !dobIso || !f.primaryGoal) return;
+            void updateProfileFields({
+              name: f.name.trim(),
+              birthDate: dobIso,
+              birthYear: Number(dobIso.slice(0, 4)),
+              sex: f.sex,
+              heightCm: f.heightCm as number,
+              weightKg: f.weightKg as number,
+              targetWeightKg: target as number,
+              heightUnit: f.heightUnit,
+              weightUnit: f.weightUnit,
+              goals: f.goals,
+              primaryGoal: f.primaryGoal,
+              goal: calorieGoalFor(f.primaryGoal),
+              activity: f.activity,
+              dietType: f.dietType,
+              allergies: f.allergies,
+              restrictions: f.restrictions,
+              region: f.region?.name ?? '',
+              regionCode: f.region?.code ?? '',
+              city: f.city.trim(),
+              targets,
+              waterTargetMl: targets.waterMl,
+            });
             toast(t('settings.targetsUpdated'));
             onClose();
           }}
         >
-          {t('settings.recalculate')}
+          {targets ? t('settings.saveWithTargets', { kcal: targets.calories }) : t('common.save')}
         </Button>
       }
     >
-      <div className="flex flex-col gap-3">
-        <Input label={t('onboarding.name')} value={f.name} onChange={(e) => up({ name: e.target.value })} />
-        <Input
-          label={t('onboarding.birthYear')}
-          inputMode="numeric"
-          value={f.birthYear}
-          onChange={(e) => up({ birthYear: Number(e.target.value) || 0 })}
-        />
+      <div className="flex flex-col gap-5">
+        <Input label={t('onboarding.name')} value={f.name} error={!f.name.trim() ? t('onboarding.errors.name') : undefined} onChange={(e) => up({ name: e.target.value })} />
+        <DobPicker value={f.dob} onChange={(dob) => up({ dob })} todayIso={todayIso} showError />
         <div className="grid grid-cols-2 gap-2">
           <Choice selected={f.sex === 'female'} onSelect={() => up({ sex: 'female' })} title={t('onboarding.female')} />
           <Choice selected={f.sex === 'male'} onSelect={() => up({ sex: 'male' })} title={t('onboarding.male')} />
         </div>
-        <UnitsToggle units={f.units} onChange={(u) => up({ units: u })} />
-        <HeightField cm={f.heightCm} units={f.units} onChange={(v) => up({ heightCm: Number(v) || 0 })} />
-        <WeightField label={t('onboarding.weight')} kg={f.weightKg} units={f.units} onChange={(v) => up({ weightKg: Number(v) || 0 })} />
-        <WeightField
-          label={t('onboarding.targetWeight')}
-          kg={f.targetWeightKg}
-          units={f.units}
-          onChange={(v) => up({ targetWeightKg: Number(v) || 0 })}
-        />
-        <Select label={t('onboarding.goalTitle')} value={f.goal} onChange={(e) => up({ goal: e.target.value as Goal })}>
-          {GOALS.map((g) => (
-            <option key={g} value={g}>
-              {t(`goals.${g}`)}
-            </option>
-          ))}
-        </Select>
-        <Select
-          label={t('onboarding.activityTitle')}
-          value={f.activity}
-          onChange={(e) => up({ activity: e.target.value as ActivityLevel })}
-        >
+        <MeasureInput kind="height" label={t('onboarding.height')} valueMetric={f.heightCm} unit={f.heightUnit} onUnitChange={(u) => up({ heightUnit: u as HeightUnit })} onChange={(v) => up({ heightCm: v })} error={typeof f.heightCm !== 'number' || f.heightCm < 100 || f.heightCm > 250 ? t('onboarding.errors.height') : undefined} />
+        <MeasureInput kind="weight" label={t('onboarding.weight')} valueMetric={f.weightKg} unit={f.weightUnit} onUnitChange={(u) => up({ weightUnit: u as WeightUnit })} onChange={(v) => up({ weightKg: v })} error={typeof f.weightKg !== 'number' || f.weightKg < 25 || f.weightKg > 350 ? t('onboarding.errors.weight') : undefined} />
+        <h3 className="text-title text-ink">{t('onboarding.goalTitle')}</h3>
+        <GoalPicker selected={f.goals} primary={f.primaryGoal} onChange={(goals, primaryGoal) => up({ goals, primaryGoal })} bmi={bmiNow} age={dobIso && !dobErr ? ageOn(dobIso, todayIso) : null} activity={f.activity} />
+        <MeasureInput kind="weight" label={t('onboarding.targetWeight')} valueMetric={target} unit={f.weightUnit} onUnitChange={(u) => up({ weightUnit: u as WeightUnit })} onChange={(v) => up({ targetWeightKg: v })} />
+        <Select label={t('onboarding.activityTitle')} value={f.activity} onChange={(e) => up({ activity: e.target.value as ActivityLevel })}>
           {ACTIVITIES.map((a) => (
             <option key={a} value={a}>
               {t(`activity.${a}`)}
             </option>
           ))}
         </Select>
-        <Select
-          label={t('onboarding.diet')}
-          value={f.dietType}
-          onChange={(e) => up({ dietType: e.target.value as UserProfile['dietType'] })}
-        >
+        <Select label={t('onboarding.diet')} value={f.dietType} onChange={(e) => up({ dietType: e.target.value as UserProfile['dietType'] })}>
           {(['vegetarian', 'non_vegetarian', 'eggetarian', 'vegan', 'pescatarian'] as const).map((d) => (
             <option key={d} value={d}>
               {t(`diet.${d}`)}
             </option>
           ))}
         </Select>
+        <AllergyField values={f.allergies} onChange={(allergies) => up({ allergies })} />
+        <RestrictionField values={f.restrictions} onChange={(restrictions) => up({ restrictions })} />
+        <RegionField country={profile.country} value={f.region} onChange={(region) => up({ region })} />
+        <Input label={`${t('location.city')} (${t('common.optional')})`} value={f.city} maxLength={80} onChange={(e) => up({ city: e.target.value })} />
         {targets && (
           <p className="rounded-input bg-sage p-3 text-small text-ink tabular-nums">
-            {targets.calories} {t('common.kcal')} · {t('onboarding.protein')} {targets.proteinG} {t('common.g')} · {t('onboarding.carbs')}{' '}
-            {targets.carbsG} {t('common.g')} · {t('onboarding.fat')} {targets.fatG} {t('common.g')}
+            {targets.calories} {t('common.kcal')} · {t('onboarding.protein')} {targets.proteinG} {t('common.g')} · {t('onboarding.carbs')} {targets.carbsG} {t('common.g')} · {t('onboarding.fat')} {targets.fatG} {t('common.g')}
           </p>
         )}
       </div>
     </Sheet>
   );
+}
+
+/** Older profiles stored one calculator goal; map it to the new goal ids. */
+function legacyGoal(g: UserProfile['goal']): GoalId {
+  if (g === 'wellness') return 'improve_energy';
+  if (g === 'eating_habits') return 'eat_healthier';
+  return g as GoalId;
 }

@@ -14,7 +14,7 @@ export default function PlannerScreen() {
   const plan = useSession((s) => s.plan);
   const navigate = useNavigate();
   return (
-    <div className="flex flex-col gap-4">
+    <div className="stagger flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-display text-ink">{t('planner.title')}</h1>
         <PlanBadge plan="pro" label={t('plans.pro')} ariaLabel={t('plans.seePlans')} />

@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { collection, getDocs, limit, query } from 'firebase/firestore';
 import { Play, Pause, Plus, Trash2, Timer, Search, Lock, Dumbbell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, CardHeader, EmptyState, IconButton, Input, Sheet, Skeleton, Tabs, Badge, PlanBadge, toast } from '../../components/ui';
+import { Button, Card, CardHeader, EmptyState, IconButton, Input, Sheet, Skeleton, Stepper, SwipeRow, Tabs, Badge, PlanBadge, toast } from '../../components/ui';
 import { db } from '../../lib/firebase';
 import { useSession } from '../../data/session';
 import { useAllRecords } from '../../data/useRecords';
-import { createRecord, softDelete, restore } from '../../data/records';
-import { useFormat } from '../../lib/hooks';
+import { createRecord, softDelete, restore, updateRecord } from '../../data/records';
+import { useFormat, useToday } from '../../lib/hooks';
 import { normalize } from '../../domain/nutrition';
 import { estimateSessionKcal } from '../../domain/workouts';
 import type { WorkoutLog } from '../../domain/models';
@@ -53,7 +53,7 @@ export default function WorkoutsScreen() {
   const [tab, setTab] = useState<'session' | 'library' | 'history'>('session');
   const active = useWorkoutSession((s) => s.active);
   return (
-    <div className="flex flex-col gap-4">
+    <div className="stagger flex flex-col gap-4">
       <h1 className="text-display text-ink">{t('workouts.title')}</h1>
       <Tabs
         value={tab}
@@ -412,33 +412,85 @@ function HistoryPanel() {
   const { t } = useTranslation();
   const { n, date } = useFormat();
   const logs = useAllRecords<WorkoutLog & { exercises?: Array<{ name: string }> }>('workoutLogs', 100);
+  const [editing, setEditing] = useState<(WorkoutLog & { exercises?: Array<{ name: string }> }) | null>(null);
   if (logs.loading) return <Skeleton className="h-32" />;
-  if (!logs.rows.length) return <EmptyState icon={<Dumbbell className="h-6 w-6" strokeWidth={1.75} />} title={t('workouts.empty')} />;
+  if (!logs.rows.length) return <EmptyState icon={<Dumbbell className="h-6 w-6" strokeWidth={1.75} />} title={t('workouts.empty')} description={t('workouts.emptyHint')} />;
   return (
-    <ul className="flex flex-col gap-2">
-      {logs.rows.map((w) => (
-        <li key={w.id}>
-          <Card padding="sm" className="flex items-center gap-3">
-            <div className="min-w-0 flex-1">
+    <Card>
+      <ul className="-mx-2 flex flex-col divide-y divide-line">
+        {logs.rows.map((w) => (
+          <SwipeRow
+            key={w.id}
+            className="px-2"
+            onEdit={() => setEditing(w)}
+            onDelete={() => {
+              void softDelete('workoutLogs', w.id);
+              toast(t('common.deleted'), 'info', { label: t('common.undo'), onClick: () => void restore('workoutLogs', w.id) });
+            }}
+            editLabel={t('common.edit')}
+            deleteLabel={t('common.delete')}
+            menuLabel={t('common.moreActions')}
+          >
+            <div className="py-2.5">
               <p className="truncate text-body font-medium text-ink">{w.name}</p>
               <p className="truncate text-caption text-muted">
-                {date(w.date, { weekday: 'short', day: 'numeric', month: 'short' })} · {n(w.durationMin)} {t('common.min')} · ~
-                {n(w.caloriesEst)} {t('common.kcal')}
+                {date(w.date, { weekday: 'short', day: 'numeric', month: 'short' })} · {n(w.durationMin)} {t('common.min')} · ~{n(w.caloriesEst)} {t('common.kcal')}
               </p>
               {w.exercises && <p className="truncate text-caption text-muted">{w.exercises.map((e) => e.name).join(', ')}</p>}
             </div>
-            <IconButton
-              label={t('common.delete')}
-              onClick={() => {
-                void softDelete('workoutLogs', w.id);
-                toast(t('common.deleted'), 'info', { label: t('common.undo'), onClick: () => void restore('workoutLogs', w.id) });
-              }}
-            >
-              <Trash2 className="h-[18px] w-[18px]" strokeWidth={1.75} />
-            </IconButton>
-          </Card>
-        </li>
-      ))}
-    </ul>
+          </SwipeRow>
+        ))}
+      </ul>
+      <EditWorkoutSheet entry={editing} onClose={() => setEditing(null)} />
+    </Card>
+  );
+}
+
+function EditWorkoutSheet({ entry, onClose }: { entry: WorkoutLog | null; onClose: () => void }) {
+  const { t } = useTranslation();
+  const today = useToday();
+  const [name, setName] = useState('');
+  const [minutes, setMinutes] = useState<number | ''>('');
+  const [d, setD] = useState(today);
+  React.useEffect(() => {
+    if (entry) {
+      setName(entry.name);
+      setMinutes(Math.round(entry.durationMin));
+      setD(entry.date);
+    }
+  }, [entry]);
+  if (!entry) return null;
+  const valid = name.trim().length > 0 && typeof minutes === 'number' && minutes > 0 && minutes <= 600;
+  // Keep the calorie estimate proportional to the new duration (same activity mix).
+  const kcal = typeof minutes === 'number' && entry.durationMin > 0 ? Math.round((entry.caloriesEst * minutes) / entry.durationMin) : entry.caloriesEst;
+  return (
+    <Sheet
+      open
+      onClose={onClose}
+      closeLabel={t('common.close')}
+      title={t('workouts.editEntry')}
+      footer={
+        <Button
+          fullWidth
+          disabled={!valid}
+          onClick={() => {
+            void updateRecord('workoutLogs', entry.id, { name: name.trim(), durationMin: minutes, caloriesEst: kcal, date: d });
+            toast(t('common.saved'));
+            onClose();
+          }}
+        >
+          {t('common.save')}
+        </Button>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <Input label={t('workouts.workoutName')} value={name} maxLength={120} onChange={(e) => setName(e.target.value)} />
+        <Stepper label={`${t('workouts.duration')} (${t('common.min')})`} value={minutes} onChange={setMinutes} step={5} min={1} max={600} decreaseLabel={t('common.decrease')} increaseLabel={t('common.increase')} />
+        <Input label={t('common.date')} type="date" value={d} max={today} onChange={(e) => e.target.value && setD(e.target.value)} />
+        <p className="text-small text-muted">
+          {t('workouts.caloriesEst')}: ~{kcal} {t('common.kcal')} · {t('workouts.estimateNote')}
+        </p>
+      </div>
+    </Sheet>
   );
 }

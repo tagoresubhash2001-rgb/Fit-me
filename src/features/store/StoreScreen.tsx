@@ -40,7 +40,7 @@ export default function StoreScreen() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="stagger flex flex-col gap-4">
       <h1 className="text-display text-ink">{t('store.title')}</h1>
       <Card>
         <EmptyState

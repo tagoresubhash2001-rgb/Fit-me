@@ -39,6 +39,8 @@ export async function createRecord<T extends object>(
   const uid = currentUid();
   const id = opts.id ?? newId(c);
   const rec = {
+    // Local time of day (minutes) so entries can show and edit their time; callers may override.
+    timeMinutes: localMinutes(Date.now(), userTz()),
     ...data,
     id,
     uid,
