@@ -67,7 +67,7 @@ export function IconButton({ label, tone = 'default', className, children, type 
     <button
       type={type}
       aria-label={label}
-      title={label}
+      data-tip={label}
       className={cn(
         'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors duration-150',
         'disabled:opacity-50',

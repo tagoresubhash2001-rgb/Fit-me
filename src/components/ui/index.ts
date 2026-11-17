@@ -23,3 +23,4 @@ export { CountUp } from './CountUp';
 export { Flag } from './Flag';
 export { PlanBadge } from './PlanBadge';
 export { haptic } from './haptics';
+export * from './Layout';

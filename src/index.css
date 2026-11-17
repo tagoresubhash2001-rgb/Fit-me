@@ -16,6 +16,10 @@
 @import "@fontsource/noto-sans-arabic/600.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
+/* Form factors (PRD section 12): mobile < 768, tablet 768-1279, desktop >= 1280 (wide >= 1536).
+   `land` = tablet held sideways (and phones in landscape): the navigation rail replaces the bottom bar. */
+@custom-variant land (@media (min-width: 768px) and (max-width: 1279.98px) and (orientation: landscape));
+@custom-variant hover-fine (@media (hover: hover) and (pointer: fine));
 
 :root {
   /* Brand */
@@ -138,17 +142,24 @@
   --shadow-card-hover: var(--shadow-card-hover);
   --shadow-float: var(--shadow-float);
 
-  /* PRD type scale (mobile) */
-  --text-display: 28px;
-  --text-display--line-height: 34px;
+  /* Breakpoints (design tokens): tablet from 768, desktop from 1280, wide from 1536. */
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+
+  /* PRD type scale: mobile sizes, growing slightly on tablet and desktop (fluid, never below 12 px). */
+  --text-display: clamp(28px, 0.5vw + 24.2px, 34px);
+  --text-display--line-height: 1.22;
   --text-display--font-weight: 600;
-  --text-title: 20px;
-  --text-title--line-height: 26px;
+  --text-title: clamp(20px, 0.25vw + 18.1px, 22px);
+  --text-title--line-height: 1.3;
   --text-title--font-weight: 600;
-  --text-body: 15px;
-  --text-body--line-height: 22px;
-  --text-small: 13px;
-  --text-small--line-height: 18px;
+  --text-body: clamp(15px, 0.1vw + 14.6px, 16px);
+  --text-body--line-height: 1.47;
+  --text-small: clamp(13px, 0.1vw + 12.6px, 14px);
+  --text-small--line-height: 1.38;
   --text-caption: 12px;
   --text-caption--line-height: 16px;
   --text-caption--font-weight: 500;
@@ -164,8 +175,8 @@
     background-color: var(--canvas);
     color: var(--ink);
     font-family: var(--font-sans);
-    font-size: 15px;
-    line-height: 22px;
+    font-size: var(--text-body);
+    line-height: 1.47;
     font-variant-numeric: tabular-nums;
     -webkit-font-smoothing: antialiased;
   }
@@ -274,4 +285,38 @@
   border-radius: 999px;
   background: var(--surface);
   border: 2px solid var(--primary);
+}
+
+@layer components {
+/* Tooltips for icon-only buttons on pointer devices: <button data-tip="Label">. */
+@media (hover: hover) and (pointer: fine) {
+  :where([data-tip]) { position: relative; }
+  [data-tip]:hover::after,
+  [data-tip]:focus-visible::after {
+    content: attr(data-tip);
+    position: absolute;
+    inset-block-start: calc(100% + 6px);
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    z-index: 120;
+    white-space: nowrap;
+    pointer-events: none;
+    border-radius: 8px;
+    background: var(--ink);
+    color: var(--canvas);
+    padding: 4px 8px;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    animation: fade-in 150ms ease-out;
+  }
+  [dir='rtl'] [data-tip]:hover::after,
+  [dir='rtl'] [data-tip]:focus-visible::after { transform: translateX(50%); }
+  [data-tip-side='end']:hover::after,
+  [data-tip-side='end']:focus-visible::after {
+    inset-block-start: 50%;
+    inset-inline-start: calc(100% + 8px);
+    transform: translateY(-50%);
+  }
+}
 }

@@ -14,6 +14,7 @@ export function BarChart({
   height = 120,
   ariaLabel,
   formatValue = (v) => String(v),
+  targetLabel,
 }: {
   points: ChartPoint[];
   target?: number;
@@ -21,12 +22,27 @@ export function BarChart({
   height?: number;
   ariaLabel: string;
   formatValue?: (v: number) => string;
+  /** Legend text for the dashed target line. */
+  targetLabel?: string;
 }) {
-  const max = Math.max(1, target ?? 0, ...points.map((p) => p.value)) * 1.1;
+  const top = Math.max(1, target ?? 0, ...points.map((p) => p.value));
+  const max = top * 1.1;
   const w = 100 / Math.max(1, points.length);
+  // Thin the x labels so they never collide (7 shown at most on phones, up to 15 on wide screens).
+  const step = points.length <= 7 ? 1 : Math.ceil(points.length / 7);
+  const stepWide = points.length <= 15 ? 1 : Math.ceil(points.length / 15);
   return (
     <figure aria-label={ariaLabel} className="w-full">
-      <svg viewBox={`0 0 100 ${height}`} preserveAspectRatio="none" className="h-32 w-full" role="img" aria-hidden>
+      <div className="mb-1 flex items-center justify-between gap-2 text-caption text-muted">
+        <span className="tabular-nums">{formatValue(Math.round(top * 10) / 10)}</span>
+        {target !== undefined && targetLabel && (
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block w-4 border-t-2 border-dashed border-muted" aria-hidden />
+            {targetLabel}
+          </span>
+        )}
+      </div>
+      <svg viewBox={`0 0 100 ${height}`} preserveAspectRatio="none" className="h-32 w-full md:h-40 xl:h-48" role="img" aria-hidden>
         {target !== undefined && (
           <line
             x1="0"
@@ -56,7 +72,7 @@ export function BarChart({
       </svg>
       <div className="mt-1 flex">
         {points.map((p, i) => (
-          <span key={i} className="flex-1 truncate text-center text-caption text-muted">
+          <span key={i} className={cn('min-w-0 flex-1 overflow-hidden text-center text-caption whitespace-nowrap text-muted', i % step !== 0 && 'invisible', i % stepWide === 0 && 'xl:visible')}>
             {p.label}
           </span>
         ))}
