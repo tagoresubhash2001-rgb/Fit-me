@@ -80,6 +80,23 @@ export function DobPicker({ value, onChange, todayIso, showError }: { value: Dob
   );
 }
 
+/** Number input that keeps the user's typed text while focused, so unit conversion never rewrites it mid-typing. */
+function DraftInput({ value, onText, ...rest }: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange'> & { value: number | ''; onText: (s: string) => void }) {
+  const [draft, setDraft] = React.useState<string | null>(null);
+  return (
+    <input
+      {...rest}
+      value={draft ?? String(value)}
+      onFocus={() => setDraft(String(value))}
+      onBlur={() => setDraft(null)}
+      onChange={(e) => {
+        setDraft(e.target.value);
+        onText(e.target.value);
+      }}
+    />
+  );
+}
+
 // ---------- Height and weight with units (owner correction 2) ----------
 const RANGES = { height: { min: 100, max: 250, step: 0.5 }, weight: { min: 25, max: 350, step: 0.1 } };
 
@@ -128,11 +145,11 @@ export function MeasureInput({
     fields = (
       <div className="grid flex-1 grid-cols-2 gap-2">
         <div className="relative">
-          <input aria-label={`${label} (${t('units.ft')})`} inputMode="numeric" className={fieldCls(!!error)} value={p ? p.ft : ''} onChange={(e) => onChange(e.target.value === '' && !p ? '' : r1(ftInToCm(Number(e.target.value) || 0, p?.inch ?? 0)))} />
+          <DraftInput aria-label={`${label} (${t('units.ft')})`} inputMode="numeric" className={fieldCls(!!error)} value={p ? p.ft : ''} onText={(x) => onChange(x === '' && !p ? '' : r1(ftInToCm(Number(x) || 0, p?.inch ?? 0)))} />
           <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-small text-muted">{t('units.ft')}</span>
         </div>
         <div className="relative">
-          <input aria-label={`${label} (${t('units.in')})`} inputMode="numeric" className={fieldCls(!!error)} value={p ? p.inch : ''} onChange={(e) => onChange(r1(ftInToCm(p?.ft ?? 0, Math.min(11, Number(e.target.value) || 0))))} />
+          <DraftInput aria-label={`${label} (${t('units.in')})`} inputMode="numeric" className={fieldCls(!!error)} value={p ? p.inch : ''} onText={(x) => onChange(r1(ftInToCm(p?.ft ?? 0, Math.min(11.9, Number(x.replace(',', '.')) || 0))))} />
           <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-small text-muted">{t('units.in')}</span>
         </div>
       </div>
@@ -142,11 +159,11 @@ export function MeasureInput({
     fields = (
       <div className="grid flex-1 grid-cols-2 gap-2">
         <div className="relative">
-          <input aria-label={`${label} (${t('units.st')})`} inputMode="numeric" className={fieldCls(!!error)} value={p ? p.st : ''} onChange={(e) => onChange(r1(stLbToKg(Number(e.target.value) || 0, p?.lb ?? 0)))} />
+          <DraftInput aria-label={`${label} (${t('units.st')})`} inputMode="numeric" className={fieldCls(!!error)} value={p ? p.st : ''} onText={(x) => onChange(r1(stLbToKg(Number(x) || 0, p?.lb ?? 0)))} />
           <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-small text-muted">{t('units.st')}</span>
         </div>
         <div className="relative">
-          <input aria-label={`${label} (${t('units.lb')})`} inputMode="decimal" className={fieldCls(!!error)} value={p ? p.lb : ''} onChange={(e) => onChange(r1(stLbToKg(p?.st ?? 0, Math.min(13.9, Number(e.target.value) || 0))))} />
+          <DraftInput aria-label={`${label} (${t('units.lb')})`} inputMode="decimal" className={fieldCls(!!error)} value={p ? p.lb : ''} onText={(x) => onChange(r1(stLbToKg(p?.st ?? 0, Math.min(13.9, Number(x.replace(',', '.')) || 0))))} />
           <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-small text-muted">{t('units.lb')}</span>
         </div>
       </div>
@@ -154,14 +171,15 @@ export function MeasureInput({
   } else {
     const shown = v === '' ? '' : unit === 'lb' ? r1(kgToLb(v)) : r1(v);
     fields = (
-      <input
+      <DraftInput
         aria-label={`${label} (${t(`units.${unit}`)})`}
         inputMode="decimal"
         className={cn(fieldCls(!!error), 'flex-1')}
         value={shown}
-        onChange={(e) => {
-          const n = num(e.target.value);
-          onChange(n === '' ? '' : unit === 'lb' ? r1(lbToKg(n)) : n);
+        onText={(x) => {
+          const n = num(x);
+          if (n !== '' && !Number.isFinite(n)) return;
+          onChange(n === '' ? '' : unit === 'lb' ? Math.round(lbToKg(n) * 100) / 100 : n);
         }}
       />
     );
@@ -198,13 +216,14 @@ export function VolumeInput({ label, ml, unit, onUnitChange, onChange }: { label
     <div className="flex flex-col gap-1.5">
       <span className="text-small font-medium text-ink">{label}</span>
       <div className="flex gap-2">
-        <input
+        <DraftInput
           aria-label={label}
           inputMode="decimal"
           className={cn(fieldCls(), 'flex-1')}
           value={shown}
-          onChange={(e) => {
-            const n = num(e.target.value);
+          onText={(x) => {
+            const n = num(x);
+            if (n !== '' && !Number.isFinite(n)) return;
             onChange(n === '' ? '' : Math.round(volumeToMl(n, unit)));
           }}
         />
