@@ -210,7 +210,13 @@ const tap = async (page, loc) => {
     assert(/Eaten\s*\d{3}/.test(home), `home shows eaten calories: ${home}`);
     await shot(page, 'light-19-home-after-reload');
     const count = async (c) => (await db.collection(`users/${uid}/${c}`).where('status', '==', 'active').count().get()).data().count;
-    const saved = { profile: (await db.doc(`users/${uid}`).get()).exists, foodLogs: await count('foodLogs'), waterLogs: await count('waterLogs'), weightLogs: await count('weightLogs'), sleepLogs: await count('sleepLogs'), workoutLogs: await count('workoutLogs'), waitlist: (await db.doc(`storeWaitlist/${uid}`).get()).exists, planInterest: (await db.doc(`planInterest/${uid}`).get()).data()?.plan ?? null };
+    let saved;
+    for (let tries = 0; tries < 10; tries++) {
+      // Writes made just before a full page load are flushed from the offline cache on the next load; give them time.
+      saved = { profile: (await db.doc(`users/${uid}`).get()).exists, foodLogs: await count('foodLogs'), waterLogs: await count('waterLogs'), weightLogs: await count('weightLogs'), sleepLogs: await count('sleepLogs'), workoutLogs: await count('workoutLogs'), waitlist: (await db.doc(`storeWaitlist/${uid}`).get()).exists, planInterest: (await db.doc(`planInterest/${uid}`).get()).data()?.plan ?? null };
+      if (saved.profile && saved.foodLogs === 2 && saved.waterLogs >= 3 && saved.planInterest === 'premium' && saved.weightLogs === 1 && saved.workoutLogs === 1) break;
+      await new Promise((r) => setTimeout(r, 2000));
+    }
     console.log('FIRESTORE', JSON.stringify(saved));
     assert(saved.profile && saved.foodLogs === 2 && saved.waterLogs >= 3 && saved.planInterest === 'premium' && saved.weightLogs === 1 && saved.workoutLogs === 1, 'data saved in Firestore');
 
