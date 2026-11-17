@@ -6,17 +6,22 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   padding?: 'none' | 'sm' | 'md';
   /** Renders the card as a button with pressed and focus states. */
   onPress?: () => void;
+  /** Skip the enter animation (for cards inside sheets or lists that re-render often). */
+  static?: boolean;
 }
 
+// Owner correction 7 (PRD section 12): 1 px brand-dark border, 20 px radius, layered raised shadow,
+// hover lift on pointer devices, press scale, and a short enter animation.
+const base = 'rounded-card border border-card-border transition-[transform,box-shadow] duration-200 ease-out motion-reduce:transition-none';
 const tones = {
-  default: 'bg-surface border border-line shadow-card',
-  sage: 'bg-sage border border-line',
-  subtle: 'bg-raised border border-line',
+  default: 'bg-surface shadow-card [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:shadow-card-hover',
+  sage: 'bg-sage shadow-card',
+  subtle: 'bg-raised',
 };
 const paddings = { none: '', sm: 'p-3', md: 'p-4' };
 
-export function Card({ tone = 'default', padding = 'md', onPress, className, children, ...rest }: CardProps) {
-  const classes = cn('rounded-card', tones[tone], paddings[padding], className);
+export function Card({ tone = 'default', padding = 'md', onPress, static: isStatic, className, children, ...rest }: CardProps) {
+  const classes = cn(base, tones[tone], paddings[padding], !isStatic && 'card-enter', className);
   if (onPress) {
     return (
       <div
@@ -29,7 +34,7 @@ export function Card({ tone = 'default', padding = 'md', onPress, className, chi
             onPress();
           }
         }}
-        className={cn(classes, 'text-start transition-transform duration-150 ease-out active:scale-[0.99]')}
+        className={cn(classes, 'cursor-pointer text-start active:scale-[0.98]')}
         {...rest}
       >
         {children}
@@ -43,17 +48,7 @@ export function Card({ tone = 'default', padding = 'md', onPress, className, chi
   );
 }
 
-export function CardHeader({
-  title,
-  subtitle,
-  action,
-  icon,
-}: {
-  title: React.ReactNode;
-  subtitle?: React.ReactNode;
-  action?: React.ReactNode;
-  icon?: React.ReactNode;
-}) {
+export function CardHeader({ title, subtitle, action, icon }: { title: React.ReactNode; subtitle?: React.ReactNode; action?: React.ReactNode; icon?: React.ReactNode }) {
   return (
     <div className="mb-3 flex items-start justify-between gap-3">
       <div className="flex min-w-0 items-start gap-2.5">

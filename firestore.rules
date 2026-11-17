@@ -119,6 +119,18 @@ service cloud.firestore {
         && request.resource.data.createdAt is timestamp;
     }
 
+    // Plan purchase interest while payments are not launched yet (owner correction 6).
+    match /planInterest/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['uid', 'plan', 'currency', 'country', 'updatedAt'])
+        && request.resource.data.uid == uid
+        && request.resource.data.plan in ['premium', 'pro']
+        && request.resource.data.currency is string && request.resource.data.currency.size() == 3
+        && request.resource.data.country is string && request.resource.data.country.size() == 2
+        && request.resource.data.updatedAt is timestamp;
+    }
+
     // Everything else is denied.
     match /{document=**} {
       allow read, write: if false;

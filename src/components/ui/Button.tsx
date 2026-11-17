@@ -1,6 +1,7 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 import { cn } from './cn';
+import { haptic } from './haptics';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'ghost';
 export type ButtonSize = 'md' | 'sm';
@@ -26,7 +27,7 @@ const sizes: Record<ButtonSize, string> = {
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'primary', size = 'md', loading = false, fullWidth, icon, className, children, disabled, type = 'button', ...rest },
+  { variant = 'primary', size = 'md', loading = false, fullWidth, icon, className, children, disabled, type = 'button', onClick, ...rest },
   ref,
 ) {
   return (
@@ -35,6 +36,10 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
+      onClick={(e) => {
+        haptic();
+        onClick?.(e);
+      }}
       className={cn(
         'inline-flex items-center justify-center gap-2 font-semibold select-none',
         'transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.98]',

@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Plus, Trash2, Lock } from 'lucide-react';
-import { Button, Card, EmptyState, Input, Select, Sheet, Skeleton, Tabs, Badge, toast } from '../../components/ui';
+import { Search, Plus, Trash2, Lock, AlertTriangle } from 'lucide-react';
+import { Button, Card, EmptyState, Input, Sheet, Skeleton, Tabs, Badge, SwipeRow, toast } from '../../components/ui';
+import { AllergyWarning, QuantityEditor, quantityResult, useUnitOptions, type QuantityState } from './QuantityEditor';
+import { matchAllergens, matchRestrictions } from '../../domain/allergens';
 import { searchFoods, customToFoodItem } from '../../data/foods';
-import { createRecord, softDelete } from '../../data/records';
+import { createRecord, softDelete, restore, updateRecord } from '../../data/records';
 import { useAllRecords } from '../../data/useRecords';
 import { useSession } from '../../data/session';
 import { displayName, isLikelyDuplicate, scaleNutrients, sumNutrients, type FoodItem } from '../../domain/nutrition';
@@ -87,60 +89,26 @@ function forPlan(n: Nutrients, premium: boolean): Nutrients {
   return rest;
 }
 
-function QuantityPanel({
-  food,
-  onAdd,
-  busy,
-}: {
-  food: FoodItem;
-  onAdd: (servingLabel: string, servings: number, grams: number, n: Nutrients) => void;
-  busy: boolean;
-}) {
+function QuantityPanel({ food, onAdd, busy }: { food: FoodItem; onAdd: (r: ReturnType<typeof quantityResult>) => void; busy: boolean }) {
   const { t, i18n } = useTranslation();
   const plan = useSession((s) => s.plan);
-  const options = useMemo(
-    () => [
-      ...food.servings.map((s) => ({ label: s.labels?.[i18n.language] ?? s.label, grams: s.grams })),
-      { label: '100 g', grams: 100 },
-      { label: '1 g', grams: 1 },
-    ],
-    [food, i18n.language],
-  );
-  const [idx, setIdx] = useState(0);
-  const [qty, setQty] = useState<number | ''>(1);
-  const grams = (typeof qty === 'number' ? qty : 0) * options[idx].grams;
-  const n = scaleNutrients(food.per100g, grams);
-  const valid = typeof qty === 'number' && qty > 0 && qty <= 100 * (options[idx].grams === 1 ? 50 : 1);
+  const options = useUnitOptions(food);
+  const [state, setState] = useState<QuantityState>({ unitId: options[0].id, quantity: 1 });
+  const r = quantityResult(food.per100g, options, state);
+  const names = [food.name, ...Object.values(food.names ?? {})];
   return (
     <div className="flex flex-col gap-3">
       <div>
         <p className="text-title text-ink">{displayName(food, i18n.language)}</p>
         <p className="text-caption text-muted">{t('food.source', { source: t(`food.sources.${food.source}`) })}</p>
       </div>
-      <div className="grid grid-cols-[1fr_1.4fr] gap-2">
-        <Input
-          label={t('food.quantity')}
-          inputMode="decimal"
-          value={qty}
-          onChange={(e) => setQty(e.target.value === '' ? '' : Math.max(0, Number(e.target.value)))}
-        />
-        <Select label={t('food.serving')} value={idx} onChange={(e) => setIdx(Number(e.target.value))}>
-          {options.map((o, i) => (
-            <option key={i} value={i}>
-              {o.label}
-              {o.grams !== 1 && o.grams !== 100 ? ` (${Math.round(o.grams)} g)` : ''}
-            </option>
-          ))}
-        </Select>
-      </div>
-      <p className="text-small font-medium text-ink">{t('food.nutrition')}</p>
-      <NutrientRows n={n} showMicros={planAllows(plan, 'premium')} />
-      <Button
-        fullWidth
-        disabled={!valid}
-        loading={busy}
-        onClick={() => onAdd(options[idx].grams === 1 ? 'g' : options[idx].label, qty as number, grams, n)}
-      >
+      <AllergyWarning names={names} />
+      <QuantityEditor options={options} state={state} onChange={setState} />
+      <p className="text-small font-medium text-ink">
+        {t('food.nutrition')} · {r.grams} g{r.option.approximate ? ` (${t('qty.approx')})` : ''}
+      </p>
+      <NutrientRows n={r.nutrients} showMicros={planAllows(plan, 'premium')} />
+      <Button id="add-food-confirm" fullWidth disabled={r.quantity <= 0} loading={busy} onClick={() => onAdd(r)}>
         {t('food.addFood')}
       </Button>
     </div>
@@ -153,11 +121,14 @@ export function AddFoodSheet({
   slot,
   date,
   dayLogs,
+  replaceId,
 }: {
   open: boolean;
   onClose: () => void;
   slot: MealSlot;
   date: string;
+  /** When set, the new entry replaces this log (edit -> change food). */
+  replaceId?: string;
   dayLogs: FoodLog[];
 }) {
   const { t, i18n } = useTranslation();
@@ -175,6 +146,11 @@ export function AddFoodSheet({
   const saved = useAllRecords<SavedMeal>('savedMeals', 100);
   const recipes = useAllRecords<Recipe>('recipes', 100);
 
+  const profile = useSession((s) => s.profile);
+  const hasAllergen = (f: FoodItem) => {
+    const names = [f.name, ...Object.values(f.names ?? {})];
+    return matchAllergens(names, profile?.allergies ?? []).length + matchRestrictions(names, profile?.restrictions ?? []).length > 0;
+  };
   const localFoods = useMemo(
     () => [
       ...custom.rows.map((c) => customToFoodItem(c)),
@@ -222,6 +198,7 @@ export function AddFoodSheet({
     const run = async () => {
       setBusy(true);
       const id = await createRecord('foodLogs', { ...entry, slot, nutrients: forPlan(entry.nutrients, premium) }, { date });
+      if (replaceId) void softDelete('foodLogs', replaceId);
       setBusy(false);
       toast(t('food.logged', { name: entry.name, slot: t(`slots.${slot}`) }), 'success', {
         label: t('common.undo'),
@@ -235,7 +212,7 @@ export function AddFoodSheet({
       slot: l.slot,
       createdAtMs: (l as unknown as { createdAt?: { toMillis?: () => number } }).createdAt?.toMillis?.(),
     }));
-    if (isLikelyDuplicate(existing, { foodId: entry.foodId, name: entry.name, slot }, Date.now())) setDup(() => run);
+    if (!replaceId && isLikelyDuplicate(existing, { foodId: entry.foodId, name: entry.name, slot }, Date.now())) setDup(() => run);
     else void run();
   };
 
@@ -333,6 +310,7 @@ export function AddFoodSheet({
                             {kcal} {t('common.kcal')}
                           </span>
                         </span>
+                        {hasAllergen(f) && <AlertTriangle aria-label={t('food.containsAllergen')} className="h-4 w-4 shrink-0 text-accent" strokeWidth={2} />}
                         {f.source === 'curated' && <Badge tone="primary">{f.countries?.[0] ?? ''}</Badge>}
                         <Plus className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.75} />
                       </button>
@@ -348,15 +326,19 @@ export function AddFoodSheet({
           <QuantityPanel
             food={picked}
             busy={busy}
-            onAdd={(servingLabel, servings, grams, nutrients) =>
+            onAdd={(r) =>
               doAdd({
                 foodId: picked.id,
                 name: displayName(picked, i18n.language),
-                servingLabel,
-                servings,
-                grams,
-                nutrients,
+                servingLabel: r.option.label,
+                servings: r.quantity,
+                grams: r.grams,
+                nutrients: r.nutrients,
                 foodSource: picked.source,
+                per100g: forPlan(picked.per100g, premium),
+                unitId: r.option.id,
+                unitGrams: r.option.grams,
+                servingsOptions: picked.servings.slice(0, 8).map(({ label, grams }) => ({ label, grams })),
               })
             }
           />
@@ -421,34 +403,59 @@ export function AddFoodSheet({
 
 function SavedMealsList({ meals, loading, onLog }: { meals: SavedMeal[]; loading: boolean; onLog: (m: SavedMeal) => void }) {
   const { t } = useTranslation();
+  const [renaming, setRenaming] = useState<SavedMeal | null>(null);
+  const [name, setName] = useState('');
   if (loading) return <Skeleton className="h-20" />;
   if (!meals.length) return <EmptyState title={t('food.noSaved')} />;
   return (
-    <ul className="flex flex-col gap-2">
-      {meals.map((m) => (
-        <li key={m.id}>
-          <Card padding="sm" className="flex items-center gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-body font-medium text-ink">{m.name}</p>
-              <p className="truncate text-caption text-muted">
-                {sumNutrients(m.items.map((i) => i.nutrients)).calories} {t('common.kcal')} · {m.items.map((i) => i.name).join(', ')}
-              </p>
+    <>
+      <ul className="-mx-2 flex flex-col divide-y divide-line">
+        {meals.map((m) => (
+          <SwipeRow
+            key={m.id}
+            className="px-2"
+            onEdit={() => {
+              setRenaming(m);
+              setName(m.name);
+            }}
+            onDelete={() => {
+              void softDelete('savedMeals', m.id);
+              toast(t('common.deleted'), 'info', { label: t('common.undo'), onClick: () => void restore('savedMeals', m.id) });
+            }}
+            editLabel={t('food.rename')}
+            deleteLabel={t('common.delete')}
+            menuLabel={t('common.moreActions')}
+          >
+            <div className="flex items-center gap-3 py-2.5">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-body font-medium text-ink">{m.name}</p>
+                <p className="truncate text-caption text-muted">
+                  {sumNutrients(m.items.map((i) => i.nutrients)).calories} {t('common.kcal')} · {m.items.map((i) => i.name).join(', ')}
+                </p>
+              </div>
+              <Button size="sm" onClick={() => onLog(m)}>
+                {t('food.logSavedMeal')}
+              </Button>
             </div>
-            <Button size="sm" onClick={() => onLog(m)}>
-              {t('food.logSavedMeal')}
-            </Button>
-            <button
-              type="button"
-              aria-label={t('common.delete')}
-              className="p-2 text-muted hover:text-danger"
-              onClick={() => void softDelete('savedMeals', m.id)}
-            >
-              <Trash2 className="h-[18px] w-[18px]" strokeWidth={1.75} />
-            </button>
-          </Card>
-        </li>
-      ))}
-    </ul>
+          </SwipeRow>
+        ))}
+      </ul>
+      {renaming && (
+        <div className="flex items-end gap-2">
+          <Input label={t('food.rename')} value={name} maxLength={60} onChange={(e) => setName(e.target.value)} />
+          <Button
+            disabled={!name.trim()}
+            onClick={() => {
+              void updateRecord('savedMeals', renaming.id, { name: name.trim() });
+              setRenaming(null);
+              toast(t('common.saved'));
+            }}
+          >
+            {t('common.save')}
+          </Button>
+        </div>
+      )}
+    </>
   );
 }
 

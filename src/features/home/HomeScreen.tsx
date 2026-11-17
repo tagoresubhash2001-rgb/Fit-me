@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Droplet, Footprints, Dumbbell, Moon, Scale, CalendarDays, Flame, Lock, ChevronRight } from 'lucide-react';
-import { Button, Card, ProgressRing, ProgressBar, Skeleton, Badge } from '../../components/ui';
+import { Droplet, Footprints, Dumbbell, Moon, Scale, CalendarDays, Flame, ChevronRight } from 'lucide-react';
+import { Button, Card, ProgressRing, ProgressBar, Skeleton, PlanBadge, CountUp } from '../../components/ui';
 import { useSession } from '../../data/session';
 import { useRecords } from '../../data/useRecords';
 import { useToday, useFormat, nowMinutes } from '../../lib/hooks';
 import { sumNutrients } from '../../domain/nutrition';
 import { addDays } from '../../domain/dates';
-import { formatVolume, formatWeight } from '../../domain/units';
+import { useUnits } from '../common/useUnits';
 import { currentStreak } from '../../domain/progress';
 import type { FoodLog, WaterLog, WorkoutLog, SleepLog, WeightLog, StepLog } from '../../domain/models';
 import { addWater } from '../health/waterActions';
@@ -55,6 +55,7 @@ function StatCard({
 export default function HomeScreen() {
   const { t } = useTranslation();
   const { n, lang } = useFormat();
+  const { vol, wt } = useUnits();
   const navigate = useNavigate();
   const profile = useSession((s) => s.profile)!;
   const plan = useSession((s) => s.plan);
@@ -99,8 +100,8 @@ export default function HomeScreen() {
   );
 
   return (
-    <div className="flex flex-col gap-4">
-      <div>
+    <div className="stagger flex flex-col gap-4">
+      <div className="card-enter">
         <h1 className="text-display text-ink">{t(greetingKey(nowMinutes()), { name: profile.name })}</h1>
         <p className="text-small text-muted">
           {new Intl.DateTimeFormat(lang, { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }).format(
@@ -134,7 +135,9 @@ export default function HomeScreen() {
               label={t('home.caloriesCard')}
               colorClass={remaining < 0 ? 'stroke-accent-fill' : 'stroke-primary'}
             >
-              <span className="text-title text-ink tabular-nums">{n(Math.abs(remaining))}</span>
+              <span className="text-title text-ink">
+                <CountUp value={Math.abs(remaining)} format={(v) => n(Math.round(v))} />
+              </span>
               <span className="text-caption text-muted">{remaining >= 0 ? t('home.remaining') : t('home.overBy')}</span>
             </ProgressRing>
             <dl className="flex min-w-0 flex-1 flex-col gap-2">
@@ -147,7 +150,9 @@ export default function HomeScreen() {
               ).map(([k, v]) => (
                 <div key={k} className="flex items-baseline justify-between gap-2">
                   <dt className="truncate text-small text-muted">{t(k)}</dt>
-                  <dd className="text-body font-semibold text-ink tabular-nums">{n(v)}</dd>
+                  <dd className="text-body font-semibold text-ink">
+                    <CountUp value={v} format={(x) => n(Math.round(x))} />
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -161,13 +166,13 @@ export default function HomeScreen() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="stagger grid grid-cols-2 gap-3 lg:grid-cols-3">
         <StatCard
           id="card-water"
           icon={<Droplet className="h-[18px] w-[18px] text-water" strokeWidth={1.75} />}
           title={t('home.waterCard')}
-          value={formatVolume(waterMl, profile.units, lang)}
-          sub={`${t('common.of')} ${formatVolume(waterTarget, profile.units, lang)}`}
+          value={vol(waterMl)}
+          sub={`${t('common.of')} ${vol(waterTarget)}`}
           onPress={() => navigate('/health/water')}
         >
           <ProgressBar value={waterMl} max={waterTarget} colorClass="bg-water" label={t('home.waterCard')} />
@@ -176,10 +181,10 @@ export default function HomeScreen() {
             variant="secondary"
             onClick={(e) => {
               e.stopPropagation();
-              void addWater(250, t, lang, profile.units);
+              void addWater(250, t, vol);
             }}
           >
-            {t('water.add', { amount: formatVolume(250, profile.units, lang) })}
+            {t('water.add', { amount: vol(250) })}
           </Button>
         </StatCard>
 
@@ -217,8 +222,8 @@ export default function HomeScreen() {
         <StatCard
           icon={<Scale className="h-[18px] w-[18px]" strokeWidth={1.75} />}
           title={t('home.weightCard')}
-          value={latestWeight ? formatWeight(latestWeight.kg, profile.units, lang) : undefined}
-          sub={latestWeight ? `${t('weight.target')}: ${formatWeight(profile.targetWeightKg, profile.units, lang)}` : t('home.noWeight')}
+          value={latestWeight ? wt(latestWeight.kg) : undefined}
+          sub={latestWeight ? `${t('weight.target')}: ${wt(profile.targetWeightKg)}` : t('home.noWeight')}
           onPress={() => navigate('/health/weight')}
         />
 
@@ -237,12 +242,7 @@ export default function HomeScreen() {
           <p className="text-body font-medium text-ink">{t('home.scheduleCard')}</p>
           <p className="text-small text-muted">{t('home.scheduleLocked')}</p>
         </div>
-        {plan !== 'pro' && (
-          <Badge tone="accent">
-            <Lock className="me-1 inline h-3 w-3" strokeWidth={2} />
-            {t('plans.pro')}
-          </Badge>
-        )}
+        {plan !== 'pro' && <PlanBadge plan="pro" label={t('plans.pro')} ariaLabel={t('plans.seePlans')} />}
       </Card>
     </div>
   );

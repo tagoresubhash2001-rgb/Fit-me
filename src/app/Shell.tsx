@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Home, CalendarDays, HeartPulse, Dumbbell, ShoppingBag, MessageCircle, WifiOff } from 'lucide-react';
+import { Home, CalendarDays, HeartPulse, Dumbbell, ShoppingBag, MessageCircle, WifiOff, Sparkles } from 'lucide-react';
 import { cn } from '../components/ui';
 import { useSession } from '../data/session';
 import { useOnline } from '../lib/hooks';
@@ -20,16 +20,30 @@ export function Shell() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const profile = useSession((s) => s.profile);
+  const plan = useSession((s) => s.plan);
+  const location = useLocation();
   const online = useOnline();
   const [coachOpen, setCoachOpen] = useState(false);
 
   return (
     <div className="relative min-h-dvh bg-canvas pb-36 text-ink">
-      <header className="sticky top-0 z-40 border-b border-line bg-canvas/90 px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] backdrop-blur-md">
+      <header className="glass sticky top-0 z-40 border-b px-4 pb-3 pt-[max(12px,env(safe-area-inset-top))] shadow-[0_1px_0_var(--glass-edge)]">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-3">
           <span className="text-title font-semibold text-ink">
             FIT ME <span className="text-primary">AI</span>
           </span>
+          <div className="flex items-center gap-2">
+          {plan !== 'pro' && (
+            <button
+              id="header-upgrade"
+              type="button"
+              onClick={() => navigate('/plans')}
+              className="flex h-9 items-center gap-1.5 rounded-full bg-accent-subtle px-3 text-small font-semibold text-accent transition-transform duration-150 active:scale-95"
+            >
+              <Sparkles className="h-4 w-4" strokeWidth={1.75} />
+              {t('plans.upgrade')}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => navigate('/settings')}
@@ -38,6 +52,7 @@ export function Shell() {
           >
             {profile?.name?.[0]?.toUpperCase() ?? '?'}
           </button>
+          </div>
         </div>
         {!online && (
           <p
@@ -52,8 +67,10 @@ export function Shell() {
 
       <NovaBar />
 
-      <main className="mx-auto max-w-2xl px-4 pt-4">
-        <Outlet />
+      <main className="mx-auto max-w-2xl px-4 pt-4 lg:max-w-4xl">
+        <div key={location.pathname.split('/')[1]} className="page-enter">
+          <Outlet />
+        </div>
       </main>
 
       <button
@@ -69,7 +86,7 @@ export function Shell() {
 
       <nav
         aria-label={t('nav.main')}
-        className="fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-50 mx-auto max-w-lg rounded-card border border-line bg-nav p-1.5 shadow-float"
+        className="glass fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-50 mx-auto max-w-lg rounded-card border p-1.5 shadow-float"
       >
         <ul className="flex items-stretch justify-between gap-1">
           {TABS.map(({ to, key, icon: Icon, ...rest }) => (

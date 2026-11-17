@@ -17,6 +17,7 @@ const WorkoutsScreen = lazy(() => import('../features/workouts/WorkoutsScreen'))
 const PlannerScreen = lazy(() => import('../features/planner/PlannerScreen'));
 const StoreScreen = lazy(() => import('../features/store/StoreScreen'));
 const SettingsScreen = lazy(() => import('../features/settings/SettingsScreen'));
+const PlansScreen = lazy(() => import('../features/plans/PlansScreen'));
 
 export function FullScreenLoader() {
   const { t } = useTranslation();
@@ -58,6 +59,7 @@ function Gate() {
           <Route path="workouts" element={<WorkoutsScreen />} />
           <Route path="store" element={<StoreScreen />} />
           <Route path="settings" element={<SettingsScreen />} />
+          <Route path="plans" element={<PlansScreen />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

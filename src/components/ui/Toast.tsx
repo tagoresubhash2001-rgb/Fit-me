@@ -51,7 +51,7 @@ export function ToastViewport() {
           <div
             key={item.id}
             role={item.tone === 'error' ? 'alert' : 'status'}
-            className="pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-card border border-line bg-surface p-3.5 shadow-float animate-[toast-in_200ms_ease-out]"
+            className="glass pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-card border p-3.5 shadow-float animate-[sheet-in_200ms_ease-out]"
           >
             <Icon className={cn('h-[18px] w-[18px] shrink-0', toneClass[item.tone])} strokeWidth={1.75} />
             <p className="min-w-0 flex-1 text-small text-ink">{item.message}</p>
@@ -70,7 +70,6 @@ export function ToastViewport() {
           </div>
         );
       })}
-      <style>{'@keyframes toast-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}'}</style>
     </div>
   );
 }

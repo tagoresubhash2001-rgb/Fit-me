@@ -43,8 +43,8 @@ export function Sheet({ open, onClose, title, closeLabel, children, footer, clas
         aria-modal="true"
         tabIndex={-1}
         className={cn(
-          'relative flex max-h-[92dvh] w-full flex-col rounded-t-[24px] border border-line bg-surface shadow-float outline-none',
-          'sm:max-w-lg sm:rounded-card animate-[sheet-in_220ms_ease-out]',
+          'glass relative flex max-h-[92dvh] w-full flex-col rounded-t-[24px] border shadow-float outline-none',
+          'sm:max-w-lg sm:rounded-card animate-[sheet-in_220ms_ease-out] sm:animate-[pop-in_200ms_ease-out]',
           className,
         )}
       >

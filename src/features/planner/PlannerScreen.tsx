@@ -1,7 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { CalendarDays, Lock } from 'lucide-react';
-import { Card, EmptyState, Badge } from '../../components/ui';
+import { useNavigate } from 'react-router-dom';
+import { Button, Card, EmptyState, PlanBadge } from '../../components/ui';
 import { useSession } from '../../data/session';
 
 /**
@@ -11,11 +12,12 @@ import { useSession } from '../../data/session';
 export default function PlannerScreen() {
   const { t } = useTranslation();
   const plan = useSession((s) => s.plan);
+  const navigate = useNavigate();
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-display text-ink">{t('planner.title')}</h1>
-        <Badge tone="accent">{t('plans.pro')}</Badge>
+        <PlanBadge plan="pro" label={t('plans.pro')} ariaLabel={t('plans.seePlans')} />
       </div>
       <Card>
         <EmptyState
@@ -23,7 +25,11 @@ export default function PlannerScreen() {
           title={t('planner.lockedTitle')}
           description={t('planner.lockedBody')}
         />
-        <p className="text-center text-caption text-muted">{t('plans.paywallSoon')}</p>
+        <div className="flex justify-center">
+          <Button id="planner-upgrade" onClick={() => navigate('/plans?highlight=pro')}>
+            {t('plans.seePlans')}
+          </Button>
+        </div>
       </Card>
     </div>
   );

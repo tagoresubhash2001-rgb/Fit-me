@@ -13,7 +13,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { localDate } from '../domain/dates';
+import { localDate, localMinutes } from '../domain/dates';
 import type { LogCollection } from '../domain/models';
 import { currentUid, useSession } from './session';
 

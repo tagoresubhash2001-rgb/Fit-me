@@ -135,8 +135,8 @@ const tap = async (page, loc) => {
     // Reload and confirm saved
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
     await page.reload();
-    await page.locator('#card-calories').waitFor();
-    await page.waitForTimeout(2000);
+    await page.locator('#card-calories').getByText('Eaten').waitFor({ timeout: 20000 });
+    await page.waitForTimeout(1000);
     const home = (await page.locator('#card-calories').textContent()).replace(/,/g, '');
     assert(/Eaten\s*\d{3}/.test(home), `home shows eaten calories: ${home}`);
     await shot(page, 'light-19-home-after-reload');

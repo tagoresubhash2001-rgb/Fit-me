@@ -85,7 +85,7 @@ export function tdee(bmr: number, activity: ActivityLevel): number {
 export function calorieMode(goal: Goal): 'lose' | 'gain' | 'maintain' {
   if (goal === 'lose') return 'lose';
   if (goal === 'gain' || goal === 'build_muscle') return 'gain';
-  return 'maintain';
+  return 'maintain'; // maintain, fitness, wellness, eating habits, sleep, stress, energy
 }
 
 export function goalCalories(tdeeKcal: number, goal: Goal, sex: CalcSex, cfg: TargetConfig = DEFAULT_TARGET_CONFIG): number {

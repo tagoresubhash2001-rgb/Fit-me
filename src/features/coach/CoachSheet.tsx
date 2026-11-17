@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { collection, onSnapshot, orderBy, query, limit } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { Send, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button, EmptyState, Sheet, Tabs, cn } from '../../components/ui';
 import { db, functions } from '../../lib/firebase';
 import { useSession } from '../../data/session';
@@ -31,6 +32,7 @@ export function CoachSheet({ open, onClose }: { open: boolean; onClose: () => vo
   const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const isPro = planAllows(plan, 'pro');
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!open || !user || !isPro) return;
@@ -77,7 +79,7 @@ export function CoachSheet({ open, onClose }: { open: boolean; onClose: () => vo
             icon={<Lock className="h-6 w-6" strokeWidth={1.75} />}
             title={t('coach.lockedTitle')}
             description={t('coach.lockedBody')}
-            action={<p className="text-caption text-muted">{t('plans.paywallSoon')}</p>}
+            action={<Button onClick={() => { onClose(); navigate('/plans?highlight=pro'); }}>{t('plans.seePlans')}</Button>}
           />
         ) : (
           <>

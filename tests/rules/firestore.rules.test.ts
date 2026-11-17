@@ -129,6 +129,18 @@ describe('premium micronutrients', () => {
   });
 });
 
+describe('plan interest', () => {
+  it('owner records interest in a paid plan only, with allowed fields', async () => {
+    const ok = { uid: 'alice', plan: 'pro', currency: 'INR', country: 'IN', updatedAt: now };
+    await assertSucceeds(setDoc(doc(alice(), 'planInterest/alice'), ok));
+    await assertSucceeds(setDoc(doc(alice(), 'planInterest/alice'), { ...ok, plan: 'premium' }));
+    await assertFails(setDoc(doc(alice(), 'planInterest/alice'), { ...ok, plan: 'free' }));
+    await assertFails(setDoc(doc(alice(), 'planInterest/alice'), { ...ok, paid: true }));
+    await assertFails(setDoc(doc(bob(), 'planInterest/alice'), ok));
+    await assertFails(getDoc(doc(bob(), 'planInterest/alice')));
+  });
+});
+
 describe('store waitlist', () => {
   it('owner can join once with allowed fields only', async () => {
     await assertSucceeds(setDoc(doc(alice(), 'storeWaitlist/alice'), { uid: 'alice', createdAt: now, country: 'IN', language: 'te' }));

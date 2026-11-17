@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, limit, query } from 'firebase/firestore';
 import { Play, Pause, Plus, Trash2, Timer, Search, Lock, Dumbbell } from 'lucide-react';
-import { Button, Card, CardHeader, EmptyState, IconButton, Input, Sheet, Skeleton, Tabs, Badge, toast } from '../../components/ui';
+import { useNavigate } from 'react-router-dom';
+import { Button, Card, CardHeader, EmptyState, IconButton, Input, Sheet, Skeleton, Tabs, Badge, PlanBadge, toast } from '../../components/ui';
 import { db } from '../../lib/firebase';
 import { useSession } from '../../data/session';
 import { useAllRecords } from '../../data/useRecords';
@@ -224,6 +225,7 @@ function SessionPanel() {
   const profile = useSession((s) => s.profile)!;
   const plan = useSession((s) => s.plan);
   const s = useWorkoutSession();
+  const navigate = useNavigate();
   const [picker, setPicker] = useState(false);
   const [name, setName] = useState('');
   const [, tick] = useState(0);
@@ -250,12 +252,13 @@ function SessionPanel() {
             {t('workouts.start')}
           </Button>
         </Card>
-        <Card tone="subtle" className="flex items-center gap-3">
+        <Card onPress={() => navigate('/plans?highlight=pro')} className="flex items-center gap-3">
           <Lock className="h-5 w-5 shrink-0 text-muted" strokeWidth={1.75} />
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-body font-medium text-ink">{t('workouts.generator')}</p>
-            <p className="text-small text-muted">{plan === 'pro' ? t('plans.paywallSoon') : t('workouts.generatorLocked')}</p>
+            <p className="text-small text-muted">{plan === 'pro' ? t('workouts.generatorSoon') : t('workouts.generatorLocked')}</p>
           </div>
+          {plan !== 'pro' && <PlanBadge plan="pro" label={t('plans.pro')} ariaLabel={t('plans.seePlans')} />}
         </Card>
         <p className="text-center text-caption text-muted">{t('workouts.trainers')}</p>
       </>

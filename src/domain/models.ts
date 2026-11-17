@@ -44,6 +44,12 @@ export const FoodLog = BaseRecord.extend({
   grams: z.number().min(0).max(5000).nullable(),
   nutrients: Nutrients,
   foodSource: z.string().max(40).optional(), // usda | off | curated | custom | ai
+  /** Kept so an entry can be edited exactly later (owner corrections 8 and 10). */
+  per100g: Nutrients.optional(),
+  unitId: z.string().max(20).optional(),
+  unitGrams: z.number().positive().max(5000).optional(),
+  servingsOptions: z.array(z.object({ label: z.string(), grams: z.number() })).max(8).optional(),
+  timeMinutes: z.number().int().min(0).max(1439).optional(),
 });
 export type FoodLog = z.infer<typeof FoodLog>;
 
@@ -92,15 +98,22 @@ export const Sex = z.enum(['male', 'female']);
 export const UserProfile = z.object({
   uid: z.string(),
   name: z.string().trim().min(1).max(60),
-  birthYear: z.number().int().min(1920).max(2015),
+  birthYear: z.number().int().min(1900).max(2100),
+  /** ISO yyyy-mm-dd (owner correction 1). birthYear is kept for older profiles and server summaries. */
+  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   sex: Sex,
   heightCm: z.number().min(100).max(250),
   weightKg: z.number().min(25).max(350),
   targetWeightKg: z.number().min(25).max(350),
   activity: z.enum(['sedentary', 'light', 'moderate', 'very', 'extra']),
+  /** Calorie goal derived from the primary goal. */
   goal: z.enum(['lose', 'gain', 'maintain', 'build_muscle', 'improve_fitness', 'wellness', 'eating_habits']),
+  /** All selected goals (owner correction 3); primaryGoal drives the calorie target. */
+  goals: z.array(z.string()).max(9).optional(),
+  primaryGoal: z.string().optional(),
   dietType: z.enum(['vegetarian', 'non_vegetarian', 'eggetarian', 'vegan', 'pescatarian']),
-  allergies: z.array(z.string().max(40)).max(20),
+  allergies: z.array(z.string().max(40)).max(30),
+  restrictions: z.array(z.string().max(40)).max(10).optional(),
   equipment: z.enum(['none', 'home_basic', 'gym']),
   experience: z.enum(['beginner', 'intermediate', 'advanced']),
   workStartMinutes: z.number().int().min(0).max(1439).nullable(),
@@ -108,10 +121,16 @@ export const UserProfile = z.object({
   sleepStartMinutes: z.number().int().min(0).max(1439),
   wakeMinutes: z.number().int().min(0).max(1439),
   country: z.string().length(2),
-  region: z.string().max(60).optional(),
+  region: z.string().max(80).optional(),
+  regionCode: z.string().max(10).optional(),
+  city: z.string().max(80).optional(),
   language: z.enum(SUPPORTED_LANGUAGES),
   currency: z.string().length(3),
   units: z.enum(['metric', 'imperial']),
+  /** Display units per measure (owner correction 2). Firestore always stores metric. */
+  heightUnit: z.enum(['cm', 'ftin']).optional(),
+  weightUnit: z.enum(['kg', 'lb', 'stlb']).optional(),
+  volumeUnit: z.enum(['ml', 'l', 'floz', 'cup']).optional(),
   timezone: z.string().min(1),
   weekStart: z.union([z.literal(0), z.literal(1), z.literal(6)]),
   coach: z.enum(['jai', 'jaya']),
