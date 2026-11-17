@@ -15,7 +15,12 @@
     "done": "Concluído",
     "today": "Hoje",
     "search": "Pesquisar",
-    "loading": "Carregando…"
+    "loading": "Carregando…",
+    "date": "Data",
+    "decrease": "Diminuir",
+    "increase": "Aumentar",
+    "moreActions": "Mais ações",
+    "time": "Hora"
   },
   "nav": {
     "home": "Início",
@@ -43,5 +48,227 @@
     "morning": "Bom dia, {{name}}",
     "afternoon": "Boa tarde, {{name}}",
     "evening": "Boa noite, {{name}}"
+  },
+  "dob": {
+    "label": "Data de nascimento",
+    "day": "Dia",
+    "month": "Mês",
+    "year": "Ano",
+    "age": "Idade {{count}}",
+    "errors": {
+      "incomplete": "Escolha dia, mês e ano.",
+      "invalid": "Esta data não existe.",
+      "future": "A data de nascimento não pode estar no futuro.",
+      "tooYoung": "Você precisa ter pelo menos 13 anos para usar o FIT ME AI.",
+      "tooOld": "Verifique o ano."
+    }
+  },
+  "units": {
+    "cm": "cm",
+    "ftin": "pés + pol",
+    "kg": "kg",
+    "lb": "lb",
+    "stlb": "st + lb",
+    "ml": "ml",
+    "l": "L",
+    "floz": "fl oz",
+    "cup": "xícaras",
+    "ft": "pés",
+    "in": "pol",
+    "st": "st",
+    "unit": "Unidade",
+    "slider": "Ajustar com o controle deslizante"
+  },
+  "location": {
+    "country": "País",
+    "searchCountry": "Buscar países",
+    "noMatch": "Nenhum resultado",
+    "region": "Estado ou região",
+    "chooseRegion": "Escolha o estado ou região",
+    "searchRegion": "Buscar estados ou regiões",
+    "useTyped": "Usar \"{{value}}\"",
+    "city": "Cidade (opcional)"
+  },
+  "goals": {
+    "eat_healthier": "Comer melhor",
+    "sleep_better": "Dormir melhor",
+    "reduce_stress": "Reduzir o estresse",
+    "improve_energy": "Ter mais energia"
+  },
+  "goalPicker": {
+    "hint": "Escolha todas as que se aplicam. Seu objetivo principal define suas calorias.",
+    "recommended": "Recomendado para você",
+    "primary": "Objetivo principal",
+    "makePrimary": "Tornar principal",
+    "conflict": "{{a}} e {{b}} não podem ser escolhidos juntos. Remova um primeiro.",
+    "maintainNote": "Sua meta de calorias mantém seu peso atual.",
+    "required": "Escolha pelo menos um objetivo.",
+    "basedOn": "Calorias com base no seu objetivo principal: {{goal}}",
+    "reasons": {
+      "bmiHigh": "Seu IMC está acima de 25, então perder um pouco de peso pode ajudar.",
+      "bmiLow": "Seu IMC está abaixo de 18,5, então ganhar um pouco de peso pode ajudar.",
+      "bmiHealthy": "Seu IMC está na faixa saudável.",
+      "lowActivity": "Você ainda não é muito ativo, então se mexer mais vai ajudar.",
+      "ageStrength": "Treino de força ajuda a manter os músculos com a idade.",
+      "activeMuscle": "Você é ativo, então ganhar músculo é um bom próximo passo."
+    }
+  },
+  "diet": {
+    "allergiesLabel": "Alergias e intolerâncias",
+    "customAllergy": "Digite outra alergia",
+    "moreAllergens": "Mais alérgenos",
+    "searchAllergens": "Buscar alérgenos",
+    "remove": "Remover {{item}}",
+    "restrictionsLabel": "Restrições alimentares",
+    "customRestriction": "Digite outra restrição",
+    "searchRestrictionsLabel": "Mais restrições",
+    "searchRestrictions": "Buscar restrições"
+  },
+  "allergen": {
+    "peanuts": "Amendoim",
+    "tree_nuts": "Castanhas",
+    "dairy": "Leite e laticínios",
+    "eggs": "Ovos",
+    "gluten": "Trigo e glúten",
+    "soy": "Soja",
+    "fish": "Peixe",
+    "shellfish": "Frutos do mar",
+    "sesame": "Gergelim",
+    "mustard": "Mostarda",
+    "celery": "Aipo",
+    "sulphites": "Sulfitos",
+    "lactose": "Intolerância à lactose",
+    "corn": "Milho",
+    "lupin": "Tremoço",
+    "molluscs": "Moluscos",
+    "coconut": "Coco",
+    "banana": "Banana",
+    "kiwi": "Kiwi",
+    "strawberry": "Morango",
+    "tomato": "Tomate",
+    "chickpea": "Grão-de-bico",
+    "lentils": "Lentilhas",
+    "oats": "Aveia",
+    "rice": "Arroz",
+    "chocolate": "Chocolate",
+    "caffeine": "Cafeína",
+    "alcohol": "Álcool",
+    "garlic": "Alho",
+    "onion": "Cebola",
+    "citrus": "Frutas cítricas"
+  },
+  "restriction": {
+    "vegetarian": "Vegetariano",
+    "vegan": "Vegano",
+    "jain": "Jainista",
+    "halal": "Halal",
+    "kosher": "Kosher",
+    "no_beef": "Sem carne bovina",
+    "no_pork": "Sem carne de porco",
+    "eggetarian": "Ovovegetariano"
+  },
+  "qty": {
+    "approx": "Peso aproximado desta unidade",
+    "quick": "Quantidades rápidas",
+    "units": {
+      "g": "g",
+      "ml": "ml",
+      "serving": "porção",
+      "piece": "unidade",
+      "katori": "katori (tigela)",
+      "cup": "xícara",
+      "tbsp": "colher de sopa",
+      "tsp": "colher de chá",
+      "slice": "fatia"
+    }
+  },
+  "plans": {
+    "upgrade": "Fazer upgrade",
+    "seePlans": "Ver planos",
+    "title": "Planos",
+    "subtitle": "Compare o que cada plano inclui.",
+    "billedMonthly": "Preços mensais",
+    "freePrice": "Grátis",
+    "localPrice": "Preço local na sua loja",
+    "perMonth": "{{price}} / mês",
+    "current": "Atual",
+    "mostPopular": "Mais popular",
+    "yourPlan": "Seu plano",
+    "included": "Incluído",
+    "onList": "Você está na lista",
+    "choose": "Escolher {{plan}}",
+    "launchingSoon": "Os pagamentos chegam em breve. Salvamos seu interesse no {{plan}}.",
+    "paymentsNote": "Os pagamentos chegam em breve. Escolha um plano para saber primeiro.",
+    "interestSaved": "Avisaremos quando o {{plan}} estiver disponível.",
+    "tagline": {
+      "free": "Registre comida, água, peso, sono, passos e treinos.",
+      "premium": "Tudo do Free, mais micronutrientes, escaneamento de fotos de comida com IA e sem anúncios.",
+      "pro": "Tudo do Premium, mais os coaches de IA Jai e Jaya e planejamento."
+    },
+    "features": {
+      "macros": "Registro de comida com macros",
+      "steps": "Passos e conexão com app de saúde",
+      "trackers": "Água, peso e sono",
+      "workouts": "Treinos básicos e histórico",
+      "micros": "Vitaminas e minerais",
+      "photoScan": "Escaneamento de fotos de comida com IA",
+      "coach": "Coaches de IA Jai e Jaya",
+      "reminders": "Lembretes inteligentes",
+      "planner": "Planejador e planejamento automático com IA",
+      "generators": "Planos de refeição e treinos com IA",
+      "reports": "Relatórios avançados",
+      "noAds": "Sem anúncios"
+    }
+  },
+  "food": {
+    "allergyWarning": "Contém {{items}}, que você indicou como alergia ou restrição.",
+    "containsAllergen": "Contém um dos seus alérgenos",
+    "editEntry": "Editar alimento",
+    "mealSlot": "Refeição",
+    "rename": "Renomear",
+    "replaceFood": "Trocar alimento",
+    "unit": "Unidade"
+  },
+  "water": {
+    "amount": "Quantidade",
+    "decrease": "Remover {{amount}}",
+    "editEntry": "Editar registro de água",
+    "emptyHint": "Toque em uma quantidade para registrar sua primeira bebida.",
+    "presets": "Quantidades rápidas",
+    "reducedToast": "{{amount}} removidos",
+    "removedToast": "Registro de {{amount}} excluído",
+    "targetRange": "Escolha entre {{min}} e {{max}}.",
+    "today": "Hoje",
+    "useSuggested": "Usar sugerido: {{amount}}",
+    "small": "Pequeno",
+    "large": "Grande",
+    "litre": "Litro"
+  },
+  "weight": {
+    "editEntry": "Editar registro de peso",
+    "emptyHint": "Registre seu peso para começar sua tendência."
+  },
+  "sleep": {
+    "checkTimes": "Verifique a hora de dormir e de acordar.",
+    "editEntry": "Editar registro de sono",
+    "emptyHint": "Registre a noite passada para ver seu padrão de sono.",
+    "morningOf": "Manhã de"
+  },
+  "steps": {
+    "count": "Passos",
+    "editEntry": "Editar registro de passos",
+    "manualSource": "Inserido por você"
+  },
+  "workouts": {
+    "editEntry": "Editar treino",
+    "emptyHint": "Comece um treino ou registre um que você já fez.",
+    "generatorSoon": "O gerador de treinos com IA chega com o Pro."
+  },
+  "settings": {
+    "countryChanged": "País atualizado. Estado e unidades foram redefinidos.",
+    "heightUnit": "Unidade de altura",
+    "weightUnit": "Unidade de peso",
+    "volumeUnit": "Unidade de volume",
+    "saveWithTargets": "Salvar. Nova meta: {{kcal}} kcal"
   }
 }

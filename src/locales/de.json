@@ -15,7 +15,12 @@
     "done": "Fertig",
     "today": "Heute",
     "search": "Suchen",
-    "loading": "Wird geladen…"
+    "loading": "Wird geladen…",
+    "date": "Datum",
+    "decrease": "Verringern",
+    "increase": "Erhöhen",
+    "moreActions": "Weitere Aktionen",
+    "time": "Uhrzeit"
   },
   "nav": {
     "home": "Start",
@@ -43,5 +48,227 @@
     "morning": "Guten Morgen, {{name}}",
     "afternoon": "Guten Tag, {{name}}",
     "evening": "Guten Abend, {{name}}"
+  },
+  "dob": {
+    "label": "Geburtsdatum",
+    "day": "Tag",
+    "month": "Monat",
+    "year": "Jahr",
+    "age": "Alter {{count}}",
+    "errors": {
+      "incomplete": "Wähle Tag, Monat und Jahr.",
+      "invalid": "Dieses Datum gibt es nicht.",
+      "future": "Das Geburtsdatum darf nicht in der Zukunft liegen.",
+      "tooYoung": "Du musst mindestens 13 Jahre alt sein, um FIT ME AI zu nutzen.",
+      "tooOld": "Bitte prüfe das Jahr."
+    }
+  },
+  "units": {
+    "cm": "cm",
+    "ftin": "ft + in",
+    "kg": "kg",
+    "lb": "lb",
+    "stlb": "st + lb",
+    "ml": "ml",
+    "l": "L",
+    "floz": "fl oz",
+    "cup": "Tassen",
+    "ft": "ft",
+    "in": "in",
+    "st": "st",
+    "unit": "Einheit",
+    "slider": "Mit Schieberegler einstellen"
+  },
+  "location": {
+    "country": "Land",
+    "searchCountry": "Länder suchen",
+    "noMatch": "Keine Treffer",
+    "region": "Bundesland oder Region",
+    "chooseRegion": "Bundesland oder Region wählen",
+    "searchRegion": "Bundesländer oder Regionen suchen",
+    "useTyped": "„{{value}}“ verwenden",
+    "city": "Stadt (optional)"
+  },
+  "goals": {
+    "eat_healthier": "Gesünder essen",
+    "sleep_better": "Besser schlafen",
+    "reduce_stress": "Stress reduzieren",
+    "improve_energy": "Mehr Energie"
+  },
+  "goalPicker": {
+    "hint": "Wähle alles, was passt. Dein Hauptziel bestimmt dein Kalorienziel.",
+    "recommended": "Für dich empfohlen",
+    "primary": "Hauptziel",
+    "makePrimary": "Als Hauptziel festlegen",
+    "conflict": "{{a}} und {{b}} können nicht zusammen gewählt werden. Entferne zuerst eins.",
+    "maintainNote": "Dein Kalorienziel hält dein aktuelles Gewicht.",
+    "required": "Wähle mindestens ein Ziel.",
+    "basedOn": "Kalorienziel nach deinem Hauptziel: {{goal}}",
+    "reasons": {
+      "bmiHigh": "Dein BMI liegt über 25, etwas abzunehmen kann helfen.",
+      "bmiLow": "Dein BMI liegt unter 18,5, etwas zuzunehmen kann helfen.",
+      "bmiHealthy": "Dein BMI liegt im gesunden Bereich.",
+      "lowActivity": "Du bist noch wenig aktiv, mehr Bewegung hilft dir.",
+      "ageStrength": "Krafttraining hilft, Muskeln im Alter zu erhalten.",
+      "activeMuscle": "Du bist aktiv, Muskelaufbau ist ein guter nächster Schritt."
+    }
+  },
+  "diet": {
+    "allergiesLabel": "Allergien und Unverträglichkeiten",
+    "customAllergy": "Weitere Allergie eingeben",
+    "moreAllergens": "Weitere Allergene",
+    "searchAllergens": "Allergene suchen",
+    "remove": "{{item}} entfernen",
+    "restrictionsLabel": "Ernährungseinschränkungen",
+    "customRestriction": "Weitere Einschränkung eingeben",
+    "searchRestrictionsLabel": "Weitere Einschränkungen",
+    "searchRestrictions": "Einschränkungen suchen"
+  },
+  "allergen": {
+    "peanuts": "Erdnüsse",
+    "tree_nuts": "Schalenfrüchte",
+    "dairy": "Milch und Milchprodukte",
+    "eggs": "Eier",
+    "gluten": "Weizen und Gluten",
+    "soy": "Soja",
+    "fish": "Fisch",
+    "shellfish": "Krebstiere",
+    "sesame": "Sesam",
+    "mustard": "Senf",
+    "celery": "Sellerie",
+    "sulphites": "Sulfite",
+    "lactose": "Laktoseintoleranz",
+    "corn": "Mais",
+    "lupin": "Lupinen",
+    "molluscs": "Weichtiere",
+    "coconut": "Kokosnuss",
+    "banana": "Banane",
+    "kiwi": "Kiwi",
+    "strawberry": "Erdbeere",
+    "tomato": "Tomate",
+    "chickpea": "Kichererbse",
+    "lentils": "Linsen",
+    "oats": "Hafer",
+    "rice": "Reis",
+    "chocolate": "Schokolade",
+    "caffeine": "Koffein",
+    "alcohol": "Alkohol",
+    "garlic": "Knoblauch",
+    "onion": "Zwiebel",
+    "citrus": "Zitrusfrüchte"
+  },
+  "restriction": {
+    "vegetarian": "Vegetarisch",
+    "vegan": "Vegan",
+    "jain": "Jain",
+    "halal": "Halal",
+    "kosher": "Koscher",
+    "no_beef": "Kein Rind",
+    "no_pork": "Kein Schwein",
+    "eggetarian": "Ovo-vegetarisch"
+  },
+  "qty": {
+    "approx": "Ungefähres Gewicht dieser Einheit",
+    "quick": "Schnelle Mengen",
+    "units": {
+      "g": "g",
+      "ml": "ml",
+      "serving": "Portion",
+      "piece": "Stück",
+      "katori": "Katori (Schale)",
+      "cup": "Tasse",
+      "tbsp": "EL",
+      "tsp": "TL",
+      "slice": "Scheibe"
+    }
+  },
+  "plans": {
+    "upgrade": "Upgrade",
+    "seePlans": "Pläne ansehen",
+    "title": "Pläne",
+    "subtitle": "Vergleiche, was jeder Plan enthält.",
+    "billedMonthly": "Monatspreise",
+    "freePrice": "Kostenlos",
+    "localPrice": "Lokaler Preis in deinem Store",
+    "perMonth": "{{price}} / Monat",
+    "current": "Aktuell",
+    "mostPopular": "Am beliebtesten",
+    "yourPlan": "Dein Plan",
+    "included": "Enthalten",
+    "onList": "Du stehst auf der Liste",
+    "choose": "{{plan}} wählen",
+    "launchingSoon": "Zahlungen starten bald. Wir haben dein Interesse an {{plan}} gespeichert.",
+    "paymentsNote": "Zahlungen starten bald. Wähle einen Plan, um es als Erstes zu erfahren.",
+    "interestSaved": "Wir sagen dir Bescheid, sobald {{plan}} verfügbar ist.",
+    "tagline": {
+      "free": "Erfasse Essen, Wasser, Gewicht, Schlaf, Schritte und Workouts.",
+      "premium": "Alles aus Free, dazu Mikronährstoffe, KI-Fotoerkennung für Essen und keine Werbung.",
+      "pro": "Alles aus Premium, dazu die KI-Coaches Jai und Jaya und Planung."
+    },
+    "features": {
+      "macros": "Essen erfassen mit Makros",
+      "steps": "Schritte und Gesundheits-App",
+      "trackers": "Wasser, Gewicht und Schlaf",
+      "workouts": "Basis-Workouts und Verlauf",
+      "micros": "Vitamine und Mineralstoffe",
+      "photoScan": "KI-Fotoerkennung für Essen",
+      "coach": "KI-Coaches Jai und Jaya",
+      "reminders": "Intelligente Erinnerungen",
+      "planner": "Planer und KI-Autoplaner",
+      "generators": "KI-Essenspläne und Workouts",
+      "reports": "Erweiterte Berichte",
+      "noAds": "Keine Werbung"
+    }
+  },
+  "food": {
+    "allergyWarning": "Enthält {{items}}, das du als Allergie oder Einschränkung angegeben hast.",
+    "containsAllergen": "Enthält eines deiner Allergene",
+    "editEntry": "Eintrag bearbeiten",
+    "mealSlot": "Mahlzeit",
+    "rename": "Umbenennen",
+    "replaceFood": "Lebensmittel ändern",
+    "unit": "Einheit"
+  },
+  "water": {
+    "amount": "Menge",
+    "decrease": "{{amount}} entfernen",
+    "editEntry": "Wassereintrag bearbeiten",
+    "emptyHint": "Tippe auf eine Menge, um dein erstes Getränk zu erfassen.",
+    "presets": "Schnelle Mengen",
+    "reducedToast": "{{amount}} entfernt",
+    "removedToast": "Eintrag über {{amount}} gelöscht",
+    "targetRange": "Wähle zwischen {{min}} und {{max}}.",
+    "today": "Heute",
+    "useSuggested": "Vorschlag verwenden: {{amount}}",
+    "small": "Klein",
+    "large": "Groß",
+    "litre": "Liter"
+  },
+  "weight": {
+    "editEntry": "Gewichtseintrag bearbeiten",
+    "emptyHint": "Erfasse dein Gewicht, um deinen Verlauf zu starten."
+  },
+  "sleep": {
+    "checkTimes": "Prüfe Schlafens- und Aufwachzeit.",
+    "editEntry": "Schlafeintrag bearbeiten",
+    "emptyHint": "Erfasse die letzte Nacht, um dein Schlafmuster zu sehen.",
+    "morningOf": "Morgen des"
+  },
+  "steps": {
+    "count": "Schritte",
+    "editEntry": "Schritteintrag bearbeiten",
+    "manualSource": "Von dir eingegeben"
+  },
+  "workouts": {
+    "editEntry": "Workout bearbeiten",
+    "emptyHint": "Starte ein Workout oder erfasse eines, das du schon gemacht hast.",
+    "generatorSoon": "Der KI-Workout-Generator kommt mit Pro."
+  },
+  "settings": {
+    "countryChanged": "Land aktualisiert. Bundesland und Einheiten wurden zurückgesetzt.",
+    "heightUnit": "Einheit für Größe",
+    "weightUnit": "Einheit für Gewicht",
+    "volumeUnit": "Einheit für Volumen",
+    "saveWithTargets": "Speichern. Neues Kalorienziel: {{kcal}} kcal"
   }
 }

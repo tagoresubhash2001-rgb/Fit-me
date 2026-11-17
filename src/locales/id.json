@@ -15,7 +15,12 @@
     "done": "Selesai",
     "today": "Hari ini",
     "search": "Cari",
-    "loading": "Memuat…"
+    "loading": "Memuat…",
+    "date": "Tanggal",
+    "decrease": "Kurangi",
+    "increase": "Tambah",
+    "moreActions": "Tindakan lain",
+    "time": "Waktu"
   },
   "nav": {
     "home": "Beranda",
@@ -43,5 +48,227 @@
     "morning": "Selamat pagi, {{name}}",
     "afternoon": "Selamat siang, {{name}}",
     "evening": "Selamat malam, {{name}}"
+  },
+  "dob": {
+    "label": "Tanggal lahir",
+    "day": "Hari",
+    "month": "Bulan",
+    "year": "Tahun",
+    "age": "Usia {{count}}",
+    "errors": {
+      "incomplete": "Pilih hari, bulan, dan tahun.",
+      "invalid": "Tanggal ini tidak ada.",
+      "future": "Tanggal lahir tidak boleh di masa depan.",
+      "tooYoung": "Kamu harus berusia minimal 13 tahun untuk memakai FIT ME AI.",
+      "tooOld": "Periksa tahunnya."
+    }
+  },
+  "units": {
+    "cm": "cm",
+    "ftin": "kaki + inci",
+    "kg": "kg",
+    "lb": "lb",
+    "stlb": "st + lb",
+    "ml": "ml",
+    "l": "L",
+    "floz": "fl oz",
+    "cup": "cangkir",
+    "ft": "kaki",
+    "in": "inci",
+    "st": "st",
+    "unit": "Satuan",
+    "slider": "Atur dengan penggeser"
+  },
+  "location": {
+    "country": "Negara",
+    "searchCountry": "Cari negara",
+    "noMatch": "Tidak ada hasil",
+    "region": "Provinsi atau wilayah",
+    "chooseRegion": "Pilih provinsi atau wilayah",
+    "searchRegion": "Cari provinsi atau wilayah",
+    "useTyped": "Gunakan \"{{value}}\"",
+    "city": "Kota (opsional)"
+  },
+  "goals": {
+    "eat_healthier": "Makan lebih sehat",
+    "sleep_better": "Tidur lebih baik",
+    "reduce_stress": "Kurangi stres",
+    "improve_energy": "Tingkatkan energi"
+  },
+  "goalPicker": {
+    "hint": "Pilih semua yang sesuai. Tujuan utamamu menentukan target kalori.",
+    "recommended": "Disarankan untukmu",
+    "primary": "Tujuan utama",
+    "makePrimary": "Jadikan utama",
+    "conflict": "{{a}} dan {{b}} tidak bisa dipilih bersamaan. Hapus salah satu dulu.",
+    "maintainNote": "Target kalorimu menjaga berat badan saat ini.",
+    "required": "Pilih minimal satu tujuan.",
+    "basedOn": "Target kalori berdasarkan tujuan utamamu: {{goal}}",
+    "reasons": {
+      "bmiHigh": "BMI kamu di atas 25, jadi menurunkan sedikit berat bisa membantu.",
+      "bmiLow": "BMI kamu di bawah 18,5, jadi menaikkan sedikit berat bisa membantu.",
+      "bmiHealthy": "BMI kamu dalam rentang sehat.",
+      "lowActivity": "Kamu belum terlalu aktif, jadi lebih banyak bergerak akan membantu.",
+      "ageStrength": "Latihan kekuatan membantu menjaga otot seiring usia.",
+      "activeMuscle": "Kamu aktif, jadi membangun otot adalah langkah berikutnya yang baik."
+    }
+  },
+  "diet": {
+    "allergiesLabel": "Alergi dan intoleransi",
+    "customAllergy": "Ketik alergi lain",
+    "moreAllergens": "Alergen lain",
+    "searchAllergens": "Cari alergen",
+    "remove": "Hapus {{item}}",
+    "restrictionsLabel": "Pantangan makanan",
+    "customRestriction": "Ketik pantangan lain",
+    "searchRestrictionsLabel": "Pantangan lain",
+    "searchRestrictions": "Cari pantangan"
+  },
+  "allergen": {
+    "peanuts": "Kacang tanah",
+    "tree_nuts": "Kacang pohon",
+    "dairy": "Susu dan olahannya",
+    "eggs": "Telur",
+    "gluten": "Gandum dan gluten",
+    "soy": "Kedelai",
+    "fish": "Ikan",
+    "shellfish": "Kerang dan udang",
+    "sesame": "Wijen",
+    "mustard": "Mustard",
+    "celery": "Seledri",
+    "sulphites": "Sulfit",
+    "lactose": "Intoleransi laktosa",
+    "corn": "Jagung",
+    "lupin": "Lupin",
+    "molluscs": "Moluska",
+    "coconut": "Kelapa",
+    "banana": "Pisang",
+    "kiwi": "Kiwi",
+    "strawberry": "Stroberi",
+    "tomato": "Tomat",
+    "chickpea": "Kacang arab",
+    "lentils": "Lentil",
+    "oats": "Oat",
+    "rice": "Nasi",
+    "chocolate": "Cokelat",
+    "caffeine": "Kafein",
+    "alcohol": "Alkohol",
+    "garlic": "Bawang putih",
+    "onion": "Bawang merah",
+    "citrus": "Buah jeruk"
+  },
+  "restriction": {
+    "vegetarian": "Vegetarian",
+    "vegan": "Vegan",
+    "jain": "Jain",
+    "halal": "Halal",
+    "kosher": "Kosher",
+    "no_beef": "Tanpa daging sapi",
+    "no_pork": "Tanpa babi",
+    "eggetarian": "Vegetarian dengan telur"
+  },
+  "qty": {
+    "approx": "Perkiraan berat satuan ini",
+    "quick": "Jumlah cepat",
+    "units": {
+      "g": "g",
+      "ml": "ml",
+      "serving": "porsi",
+      "piece": "buah",
+      "katori": "mangkuk kecil",
+      "cup": "cangkir",
+      "tbsp": "sdm",
+      "tsp": "sdt",
+      "slice": "iris"
+    }
+  },
+  "plans": {
+    "upgrade": "Tingkatkan",
+    "seePlans": "Lihat paket",
+    "title": "Paket",
+    "subtitle": "Bandingkan isi setiap paket.",
+    "billedMonthly": "Harga bulanan",
+    "freePrice": "Gratis",
+    "localPrice": "Harga lokal di toko aplikasimu",
+    "perMonth": "{{price}} / bulan",
+    "current": "Saat ini",
+    "mostPopular": "Paling populer",
+    "yourPlan": "Paketmu",
+    "included": "Termasuk",
+    "onList": "Kamu sudah masuk daftar",
+    "choose": "Pilih {{plan}}",
+    "launchingSoon": "Pembayaran segera hadir. Minatmu pada {{plan}} sudah kami simpan.",
+    "paymentsNote": "Pembayaran segera hadir. Pilih paket agar kamu tahu lebih dulu.",
+    "interestSaved": "Kami akan memberitahumu saat {{plan}} tersedia.",
+    "tagline": {
+      "free": "Catat makanan, air, berat, tidur, langkah, dan latihan.",
+      "premium": "Semua di Free, plus mikronutrien, pindai foto makanan dengan AI, dan tanpa iklan.",
+      "pro": "Semua di Premium, plus pelatih AI Jai dan Jaya serta perencanaan."
+    },
+    "features": {
+      "macros": "Catatan makanan dengan makro",
+      "steps": "Langkah dan koneksi aplikasi kesehatan",
+      "trackers": "Air, berat, dan tidur",
+      "workouts": "Latihan dasar dan riwayat",
+      "micros": "Vitamin dan mineral",
+      "photoScan": "Pindai foto makanan dengan AI",
+      "coach": "Pelatih AI Jai dan Jaya",
+      "reminders": "Pengingat pintar",
+      "planner": "Perencana dan perencana otomatis AI",
+      "generators": "Rencana makan dan latihan dari AI",
+      "reports": "Laporan lanjutan",
+      "noAds": "Tanpa iklan"
+    }
+  },
+  "food": {
+    "allergyWarning": "Mengandung {{items}}, yang kamu catat sebagai alergi atau pantangan.",
+    "containsAllergen": "Mengandung salah satu alergenmu",
+    "editEntry": "Ubah catatan makanan",
+    "mealSlot": "Waktu makan",
+    "rename": "Ganti nama",
+    "replaceFood": "Ganti makanan",
+    "unit": "Satuan"
+  },
+  "water": {
+    "amount": "Jumlah",
+    "decrease": "Kurangi {{amount}}",
+    "editEntry": "Ubah catatan air",
+    "emptyHint": "Ketuk jumlah untuk mencatat minuman pertamamu.",
+    "presets": "Jumlah cepat",
+    "reducedToast": "{{amount}} dikurangi",
+    "removedToast": "Catatan {{amount}} dihapus",
+    "targetRange": "Pilih antara {{min}} dan {{max}}.",
+    "today": "Hari ini",
+    "useSuggested": "Pakai saran {{amount}}",
+    "small": "Kecil",
+    "large": "Besar",
+    "litre": "Liter"
+  },
+  "weight": {
+    "editEntry": "Ubah catatan berat",
+    "emptyHint": "Catat beratmu untuk memulai tren."
+  },
+  "sleep": {
+    "checkTimes": "Periksa jam tidur dan bangun.",
+    "editEntry": "Ubah catatan tidur",
+    "emptyHint": "Catat tidur semalam untuk melihat pola tidurmu.",
+    "morningOf": "Pagi tanggal"
+  },
+  "steps": {
+    "count": "Langkah",
+    "editEntry": "Ubah catatan langkah",
+    "manualSource": "Dimasukkan olehmu"
+  },
+  "workouts": {
+    "editEntry": "Ubah latihan",
+    "emptyHint": "Mulai latihan atau catat latihan yang sudah dilakukan.",
+    "generatorSoon": "Pembuat latihan AI hadir bersama Pro."
+  },
+  "settings": {
+    "countryChanged": "Negara diperbarui. Provinsi dan satuan diatur ulang.",
+    "heightUnit": "Satuan tinggi",
+    "weightUnit": "Satuan berat",
+    "volumeUnit": "Satuan volume",
+    "saveWithTargets": "Simpan. Target kalori baru: {{kcal}} kcal"
   }
 }

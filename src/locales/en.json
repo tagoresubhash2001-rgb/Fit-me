@@ -44,7 +44,12 @@
     "pause": "Pause",
     "resume": "Resume",
     "disclaimer": "FIT ME AI is not a medical device and does not replace a doctor. For medical advice, talk to a qualified professional.",
-    "serverUnavailable": "This feature is temporarily unavailable. Please try again later."
+    "serverUnavailable": "This feature is temporarily unavailable. Please try again later.",
+    "date": "Date",
+    "decrease": "Decrease",
+    "increase": "Increase",
+    "moreActions": "More actions",
+    "time": "Time"
   },
   "nav": {
     "home": "Home",
@@ -180,7 +185,11 @@
     "build_muscle": "Build muscle",
     "improve_fitness": "Improve fitness",
     "wellness": "General wellness",
-    "eating_habits": "Eat better"
+    "eating_habits": "Eat better",
+    "eat_healthier": "Eat healthier",
+    "sleep_better": "Sleep better",
+    "reduce_stress": "Reduce stress",
+    "improve_energy": "Improve energy"
   },
   "activity": {
     "sedentary": "Mostly sitting",
@@ -199,7 +208,16 @@
     "non_vegetarian": "Non-vegetarian",
     "eggetarian": "Eggetarian",
     "vegan": "Vegan",
-    "pescatarian": "Pescatarian"
+    "pescatarian": "Pescatarian",
+    "allergiesLabel": "Allergies and intolerances",
+    "customAllergy": "Type another allergy",
+    "moreAllergens": "More allergens",
+    "searchAllergens": "Search allergens",
+    "remove": "Remove {{item}}",
+    "restrictionsLabel": "Dietary restrictions",
+    "customRestriction": "Type another restriction",
+    "searchRestrictionsLabel": "More restrictions",
+    "searchRestrictions": "Search restrictions"
   },
   "equipment": {
     "none": "No equipment",
@@ -298,7 +316,14 @@
     "sodium": "Sodium",
     "mealSaved": "Meal saved",
     "logSavedMeal": "Add meal",
-    "noSaved": "No saved meals yet. Log foods, then tap Save as meal."
+    "noSaved": "No saved meals yet. Log foods, then tap Save as meal.",
+    "allergyWarning": "Contains {{items}}, which you listed as an allergy or restriction.",
+    "containsAllergen": "Contains one of your allergens",
+    "editEntry": "Edit food entry",
+    "mealSlot": "Meal",
+    "rename": "Rename",
+    "replaceFood": "Change food",
+    "unit": "Unit"
   },
   "water": {
     "title": "Water",
@@ -310,7 +335,20 @@
     "bottle": "Bottle",
     "addedToast": "{{amount}} added",
     "editTarget": "Change target",
-    "empty": "No water logged today."
+    "empty": "No water logged today.",
+    "amount": "Amount",
+    "decrease": "Remove {{amount}}",
+    "editEntry": "Edit water entry",
+    "emptyHint": "Tap a preset to log your first drink.",
+    "presets": "Quick amounts",
+    "reducedToast": "{{amount}} removed",
+    "removedToast": "{{amount}} entry deleted",
+    "targetRange": "Choose between {{min}} and {{max}}.",
+    "today": "Today",
+    "useSuggested": "Use suggested {{amount}}",
+    "small": "Small",
+    "large": "Large",
+    "litre": "Litre"
   },
   "weight": {
     "title": "Weight",
@@ -327,7 +365,9 @@
     "trendNote": "Daily weight moves up and down with water and food. The 7-day average shows the real trend.",
     "plateau": "Your average has been steady for two weeks. That is normal; small changes to food or activity can help.",
     "empty": "Log your weight to start seeing your trend.",
-    "toGoal": "{{amount}} to go"
+    "toGoal": "{{amount}} to go",
+    "editEntry": "Edit weight entry",
+    "emptyHint": "Log your weight to start your trend."
   },
   "sleep": {
     "title": "Sleep",
@@ -344,7 +384,11 @@
     "average": "7-night average",
     "history": "History",
     "empty": "Log last night's sleep to see your pattern.",
-    "fromDevice": "From {{device}}"
+    "fromDevice": "From {{device}}",
+    "checkTimes": "Check bedtime and wake time.",
+    "editEntry": "Edit sleep entry",
+    "emptyHint": "Log last night to see your sleep pattern.",
+    "morningOf": "Morning of"
   },
   "steps": {
     "title": "Steps",
@@ -360,7 +404,10 @@
     "notAvailable": "Health data is not available on this device.",
     "source": "Source: {{source}}",
     "empty": "No steps for today yet.",
-    "synced": "Steps synced"
+    "synced": "Steps synced",
+    "count": "Steps",
+    "editEntry": "Edit steps entry",
+    "manualSource": "Entered by you"
   },
   "health": {
     "title": "Health",
@@ -427,7 +474,10 @@
     "muscles": "Muscles",
     "generator": "AI workout generator",
     "generatorLocked": "Personal AI workout plans are part of Pro.",
-    "trainers": "Trainers are coming after launch."
+    "trainers": "Trainers are coming after launch.",
+    "editEntry": "Edit workout",
+    "emptyHint": "Start a workout or log one you already did.",
+    "generatorSoon": "The AI workout generator arrives with Pro."
   },
   "planner": {
     "title": "Planner",
@@ -468,7 +518,43 @@
     "premium": "Premium",
     "pro": "Pro",
     "currentPlan": "Current plan: {{plan}}",
-    "paywallSoon": "Subscriptions open soon. You will be able to upgrade from this screen."
+    "paywallSoon": "Subscriptions open soon. You will be able to upgrade from this screen.",
+    "upgrade": "Upgrade",
+    "seePlans": "See plans",
+    "title": "Plans",
+    "subtitle": "Compare what each plan includes.",
+    "billedMonthly": "Monthly prices",
+    "freePrice": "Free",
+    "localPrice": "Local price in your store",
+    "perMonth": "{{price}} / month",
+    "current": "Current",
+    "mostPopular": "Most popular",
+    "yourPlan": "Your plan",
+    "included": "Included",
+    "onList": "You are on the list",
+    "choose": "Choose {{plan}}",
+    "launchingSoon": "Payments are launching soon. We saved your interest in {{plan}}.",
+    "paymentsNote": "Payments are launching soon. Choose a plan to be told first when it opens.",
+    "interestSaved": "We will tell you when {{plan}} opens.",
+    "tagline": {
+      "free": "Track food, water, weight, sleep, steps and workouts.",
+      "premium": "Everything in Free, plus micronutrients, AI food photo scan and no ads.",
+      "pro": "Everything in Premium, plus Jai and Jaya AI coaches and planning."
+    },
+    "features": {
+      "macros": "Food logging with macros",
+      "steps": "Steps and health app connection",
+      "trackers": "Water, weight and sleep",
+      "workouts": "Basic workouts and history",
+      "micros": "Vitamins and minerals",
+      "photoScan": "AI food photo scan",
+      "coach": "Jai and Jaya AI coaches",
+      "reminders": "Smart reminders",
+      "planner": "Planner and AI auto-planner",
+      "generators": "AI meal plans and workouts",
+      "reports": "Advanced reports",
+      "noAds": "No ads"
+    }
   },
   "settings": {
     "title": "Settings",
@@ -505,11 +591,30 @@
     "waterTarget": "Daily water target",
     "stepTarget": "Daily step goal",
     "recalculate": "Recalculate targets",
-    "targetsUpdated": "Targets updated"
+    "targetsUpdated": "Targets updated",
+    "countryChanged": "Country updated. State and units were reset.",
+    "heightUnit": "Height unit",
+    "weightUnit": "Weight unit",
+    "volumeUnit": "Volume unit",
+    "saveWithTargets": "Save. New calorie target: {{kcal}} kcal"
   },
   "units": {
     "metric": "Metric",
-    "imperial": "Imperial"
+    "imperial": "Imperial",
+    "cm": "cm",
+    "ftin": "ft + in",
+    "kg": "kg",
+    "lb": "lb",
+    "stlb": "st + lb",
+    "ml": "ml",
+    "l": "L",
+    "floz": "fl oz",
+    "cup": "cups",
+    "ft": "ft",
+    "in": "in",
+    "st": "st",
+    "unit": "Unit",
+    "slider": "Adjust with slider"
   },
   "errors": {
     "loadFailed": "We could not load this. Check your connection and try again.",
@@ -528,5 +633,105 @@
     "yoga": "Yoga",
     "stretching": "Stretching",
     "other": "Other"
+  },
+  "dob": {
+    "label": "Date of birth",
+    "day": "Day",
+    "month": "Month",
+    "year": "Year",
+    "age": "Age {{count}}",
+    "errors": {
+      "incomplete": "Choose day, month and year.",
+      "invalid": "This date does not exist.",
+      "future": "Date of birth cannot be in the future.",
+      "tooYoung": "You need to be at least 13 to use FIT ME AI.",
+      "tooOld": "Please check the year."
+    }
+  },
+  "location": {
+    "country": "Country",
+    "searchCountry": "Search countries",
+    "noMatch": "No matches",
+    "region": "State or region",
+    "chooseRegion": "Choose state or region",
+    "searchRegion": "Search states or regions",
+    "useTyped": "Use \"{{value}}\"",
+    "city": "City (optional)"
+  },
+  "goalPicker": {
+    "hint": "Pick all that apply. Your main goal sets your calorie target.",
+    "recommended": "Recommended for you",
+    "primary": "Main goal",
+    "makePrimary": "Make main goal",
+    "conflict": "{{a}} and {{b}} cannot be chosen together. Remove one first.",
+    "maintainNote": "Your calorie target keeps your current weight.",
+    "required": "Choose at least one goal.",
+    "basedOn": "Calorie target based on your main goal: {{goal}}",
+    "reasons": {
+      "bmiHigh": "Your BMI is above 25, so losing some weight may help.",
+      "bmiLow": "Your BMI is below 18.5, so gaining some weight may help.",
+      "bmiHealthy": "Your BMI is in the healthy range.",
+      "lowActivity": "You are not very active yet, so more movement will help.",
+      "ageStrength": "Strength training helps keep muscle as we age.",
+      "activeMuscle": "You are active, so building muscle is a good next step."
+    }
+  },
+  "allergen": {
+    "peanuts": "Peanuts",
+    "tree_nuts": "Tree nuts",
+    "dairy": "Milk and dairy",
+    "eggs": "Eggs",
+    "gluten": "Wheat and gluten",
+    "soy": "Soy",
+    "fish": "Fish",
+    "shellfish": "Shellfish",
+    "sesame": "Sesame",
+    "mustard": "Mustard",
+    "celery": "Celery",
+    "sulphites": "Sulphites",
+    "lactose": "Lactose intolerance",
+    "corn": "Corn",
+    "lupin": "Lupin",
+    "molluscs": "Molluscs",
+    "coconut": "Coconut",
+    "banana": "Banana",
+    "kiwi": "Kiwi",
+    "strawberry": "Strawberry",
+    "tomato": "Tomato",
+    "chickpea": "Chickpea",
+    "lentils": "Lentils",
+    "oats": "Oats",
+    "rice": "Rice",
+    "chocolate": "Chocolate",
+    "caffeine": "Caffeine",
+    "alcohol": "Alcohol",
+    "garlic": "Garlic",
+    "onion": "Onion",
+    "citrus": "Citrus fruits"
+  },
+  "restriction": {
+    "vegetarian": "Vegetarian",
+    "vegan": "Vegan",
+    "jain": "Jain",
+    "halal": "Halal",
+    "kosher": "Kosher",
+    "no_beef": "No beef",
+    "no_pork": "No pork",
+    "eggetarian": "Eggetarian"
+  },
+  "qty": {
+    "approx": "Approximate weight for this unit",
+    "quick": "Quick amounts",
+    "units": {
+      "g": "g",
+      "ml": "ml",
+      "serving": "serving",
+      "piece": "piece",
+      "katori": "katori (bowl)",
+      "cup": "cup",
+      "tbsp": "tbsp",
+      "tsp": "tsp",
+      "slice": "slice"
+    }
   }
 }
