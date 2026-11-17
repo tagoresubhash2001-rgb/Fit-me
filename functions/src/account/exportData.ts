@@ -31,5 +31,9 @@ export const exportData = onCall(callableOptions({ timeoutSeconds: 120 }), async
   }
   const ent = await db().doc(`entitlements/${uid}`).get();
   out.entitlement = ent.exists ? toPlain(ent.data()) : null;
+  for (const c of ['storeWaitlist', 'planInterest']) {
+    const d = await db().doc(`${c}/${uid}`).get();
+    out[c] = d.exists ? toPlain(d.data()) : null;
+  }
   return out;
 });
