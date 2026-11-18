@@ -218,7 +218,10 @@
       "generators": "KI-Essenspläne und Workouts",
       "reports": "Erweiterte Berichte",
       "noAds": "Keine Werbung"
-    }
+    },
+    "compare": "Pläne vergleichen",
+    "feature": "Funktion",
+    "notIncluded": "Nicht enthalten"
   },
   "food": {
     "allergyWarning": "Enthält {{items}}, das du als Allergie oder Einschränkung angegeben hast.",
@@ -227,7 +230,8 @@
     "mealSlot": "Mahlzeit",
     "rename": "Umbenennen",
     "replaceFood": "Lebensmittel ändern",
-    "unit": "Einheit"
+    "unit": "Einheit",
+    "quickAdd": "Schnell hinzufügen"
   },
   "water": {
     "amount": "Menge",
@@ -271,5 +275,63 @@
     "weightUnit": "Einheit für Gewicht",
     "volumeUnit": "Einheit für Volumen",
     "saveWithTargets": "Speichern. Neues Kalorienziel: {{kcal}} kcal"
+  },
+  "shell": {
+    "collapse": "Seitenleiste einklappen",
+    "expand": "Seitenleiste ausklappen",
+    "searchFoods": "Lebensmittel suchen",
+    "shortcuts": "Tastenkürzel",
+    "skip": "Zum Inhalt springen",
+    "themeNext": "Zum Design {{theme}} wechseln",
+    "shortcut": {
+      "addFood": "Essen hinzufügen",
+      "addWater": "Ein Glas Wasser hinzufügen",
+      "search": "Lebensmittel suchen",
+      "help": "Kürzel anzeigen"
+    }
+  },
+  "coach": {
+    "resize": "Größe des Coach-Bereichs ändern"
+  },
+  "home": {
+    "coachAsk": "{{name}} fragen",
+    "coachInsight": "Coach-Tipp",
+    "weightChange": "{{change}} in diesem Zeitraum",
+    "weightTrend": "Gewichtsverlauf"
+  },
+  "health": {
+    "rangeLabel": "Zeitraum",
+    "range": {
+      "7": "7 Tage",
+      "30": "30 Tage",
+      "90": "90 Tage",
+      "365": "1 Jahr"
+    }
+  },
+  "planner": {
+    "prev": "Zurück",
+    "next": "Weiter",
+    "dragHint": "Ziehe ein Workout auf einen anderen Tag, um es zu verschieben, oder wähle es aus, um ein Datum festzulegen.",
+    "legend": "Legende",
+    "food": "Essen erfasst",
+    "waterGoal": "Wasserziel erreicht",
+    "workout": "Workout",
+    "sleep": "Schlaf erfasst",
+    "view": "Kalenderansicht",
+    "week": "Woche",
+    "month": "Monat",
+    "dayTitle": "Tagesdetails",
+    "noData": "An diesem Tag ist nichts erfasst.",
+    "move": "Verschieben",
+    "moveWorkout": "{{name}} verschieben",
+    "moveTo": "Neues Datum",
+    "moved": "{{name}} auf {{day}} verschoben"
+  },
+  "pwa": {
+    "updateAvailable": "Eine neue Version von FIT ME AI ist bereit.",
+    "refresh": "Aktualisieren"
+  },
+  "app": {
+    "splash": "Essen, Wasser, Schlaf, Schritte und Workouts, mit Jai und Jaya, deinen KI-Coaches."
   }
 }

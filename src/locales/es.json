@@ -218,7 +218,10 @@
       "generators": "Planes de comida y entrenamientos con IA",
       "reports": "Informes avanzados",
       "noAds": "Sin anuncios"
-    }
+    },
+    "compare": "Comparar planes",
+    "feature": "Función",
+    "notIncluded": "No incluido"
   },
   "food": {
     "allergyWarning": "Contiene {{items}}, que indicaste como alergia o restricción.",
@@ -227,7 +230,8 @@
     "mealSlot": "Comida",
     "rename": "Renombrar",
     "replaceFood": "Cambiar alimento",
-    "unit": "Unidad"
+    "unit": "Unidad",
+    "quickAdd": "Añadir rápido"
   },
   "water": {
     "amount": "Cantidad",
@@ -271,5 +275,63 @@
     "weightUnit": "Unidad de peso",
     "volumeUnit": "Unidad de volumen",
     "saveWithTargets": "Guardar. Nuevo objetivo: {{kcal}} kcal"
+  },
+  "shell": {
+    "collapse": "Contraer barra lateral",
+    "expand": "Expandir barra lateral",
+    "searchFoods": "Buscar alimentos",
+    "shortcuts": "Atajos de teclado",
+    "skip": "Ir al contenido",
+    "themeNext": "Cambiar al tema {{theme}}",
+    "shortcut": {
+      "addFood": "Añadir comida",
+      "addWater": "Añadir un vaso de agua",
+      "search": "Buscar alimentos",
+      "help": "Mostrar atajos"
+    }
+  },
+  "coach": {
+    "resize": "Cambiar tamaño del panel del coach"
+  },
+  "home": {
+    "coachAsk": "Pregunta a {{name}}",
+    "coachInsight": "Consejo del coach",
+    "weightChange": "{{change}} en este periodo",
+    "weightTrend": "Tendencia de peso"
+  },
+  "health": {
+    "rangeLabel": "Periodo",
+    "range": {
+      "7": "7 días",
+      "30": "30 días",
+      "90": "90 días",
+      "365": "1 año"
+    }
+  },
+  "planner": {
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "dragHint": "Arrastra un entrenamiento a otro día para moverlo, o selecciónalo para elegir una fecha.",
+    "legend": "Leyenda",
+    "food": "Comida registrada",
+    "waterGoal": "Meta de agua cumplida",
+    "workout": "Entrenamiento",
+    "sleep": "Sueño registrado",
+    "view": "Vista de calendario",
+    "week": "Semana",
+    "month": "Mes",
+    "dayTitle": "Detalles del día",
+    "noData": "No hay nada registrado este día.",
+    "move": "Mover",
+    "moveWorkout": "Mover {{name}}",
+    "moveTo": "Nueva fecha",
+    "moved": "{{name}} movido al {{day}}"
+  },
+  "pwa": {
+    "updateAvailable": "Hay una nueva versión de FIT ME AI.",
+    "refresh": "Actualizar"
+  },
+  "app": {
+    "splash": "Comida, agua, sueño, pasos y entrenamientos, con Jai y Jaya, tus coaches de IA."
   }
 }
