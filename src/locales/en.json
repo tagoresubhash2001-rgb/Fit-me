@@ -1,7 +1,8 @@
 {
   "app": {
     "name": "FIT ME AI",
-    "tagline": "Your personal health and wellness coach"
+    "tagline": "Your personal health and wellness coach",
+    "splash": "Food, water, sleep, steps and workouts, with Jai and Jaya, your AI coaches."
   },
   "common": {
     "continue": "Continue",
@@ -781,5 +782,9 @@
       "search": "Search foods",
       "help": "Show shortcuts"
     }
+  },
+  "pwa": {
+    "updateAvailable": "A new version of FIT ME AI is ready.",
+    "refresh": "Refresh"
   }
 }

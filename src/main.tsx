@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './app/App';
+import { UpdatePrompt } from './app/UpdatePrompt';
 import './index.css';
 import { useThemeStore } from './stores/theme.store';
 import { ToastViewport } from './components/ui';
@@ -16,6 +17,7 @@ void initI18n().then(() => {
     <StrictMode>
       <App />
       <ToastViewport />
+      <UpdatePrompt />
     </StrictMode>,
   );
 });

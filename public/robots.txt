@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /$
+Disallow: /food
+Disallow: /planner
+Disallow: /health
+Disallow: /workouts
+Disallow: /store
+Disallow: /settings
+Disallow: /plans
+Disallow: /__/

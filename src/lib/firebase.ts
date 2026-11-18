@@ -17,7 +17,7 @@ import {
   type Firestore,
 } from 'firebase/firestore';
 import { getFunctions, connectFunctionsEmulator, type Functions } from 'firebase/functions';
-import { getStorage, connectStorageEmulator, type FirebaseStorage } from 'firebase/storage';
+import type { FirebaseStorage } from 'firebase/storage';
 import { initializeAppCheck, ReCaptchaEnterpriseProvider, CustomProvider } from 'firebase/app-check';
 import { env } from './env';
 import { isNative } from './platform';
@@ -26,7 +26,6 @@ let app: FirebaseApp | null = null;
 let _auth: Auth;
 let _db: Firestore;
 let _functions: Functions;
-let _storage: FirebaseStorage;
 
 function setupAppCheck(a: FirebaseApp) {
   if (env.useEmulators) return;
@@ -54,7 +53,7 @@ function setupAppCheck(a: FirebaseApp) {
 }
 
 export function firebase() {
-  if (app) return { app, auth: _auth, db: _db, functions: _functions, storage: _storage };
+  if (app) return { app, auth: _auth, db: _db, functions: _functions };
   app = initializeApp(env.firebase);
   setupAppCheck(app);
 
@@ -74,20 +73,25 @@ export function firebase() {
   }
   _db = initializeFirestore(app, { localCache: cache, ignoreUndefinedProperties: true });
   _functions = getFunctions(app, env.functionsRegion);
-  _storage = getStorage(app);
 
   if (env.useEmulators) {
     const h = env.emulatorHost;
     connectAuthEmulator(_auth, `http://${h}:9099`, { disableWarnings: true });
     connectFirestoreEmulator(_db, h, 8080);
     connectFunctionsEmulator(_functions, h, 5001);
-    connectStorageEmulator(_storage, h, 9199);
   }
-  return { app, auth: _auth, db: _db, functions: _functions, storage: _storage };
+  return { app, auth: _auth, db: _db, functions: _functions };
 }
 
 export const auth = () => firebase().auth;
 export const db = () => firebase().db;
 export const functions = () => firebase().functions;
-export const storage = () => firebase().storage;
+/** Storage is loaded on first use (photo uploads) so it is not part of the start-up bundle. */
+let _storage: Promise<FirebaseStorage> | null = null;
+export const storage = () =>
+  (_storage ??= import('firebase/storage').then(({ getStorage, connectStorageEmulator }) => {
+    const s = getStorage(firebase().app);
+    if (env.useEmulators) connectStorageEmulator(s, env.emulatorHost, 9199);
+    return s;
+  }));
 export { getAuth };

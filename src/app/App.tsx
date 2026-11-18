@@ -1,16 +1,16 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Loader2 } from 'lucide-react';
 import { useSession } from '../data/session';
 import { watchSession } from '../data/auth';
 import { setLanguage } from '../lib/i18n';
 import { useThemeStore } from '../stores/theme.store';
-import { Shell } from './Shell';
-import SignInScreen from '../features/auth/SignInScreen';
-import Onboarding from '../features/onboarding/Onboarding';
-import HomeScreen from '../features/home/HomeScreen';
 
+// Every screen is its own chunk: signed-out visitors download only the sign-in screen, signed-in users only the app.
+const Shell = lazy(() => import('./Shell').then((m) => ({ default: m.Shell })));
+const SignInScreen = lazy(() => import('../features/auth/SignInScreen'));
+const HomeScreen = lazy(() => import('../features/home/HomeScreen'));
+const Onboarding = lazy(() => import('../features/onboarding/Onboarding'));
 const FoodScreen = lazy(() => import('../features/food/FoodScreen'));
 const HealthScreen = lazy(() => import('../features/health/HealthScreen'));
 const WorkoutsScreen = lazy(() => import('../features/workouts/WorkoutsScreen'));
@@ -19,11 +19,16 @@ const StoreScreen = lazy(() => import('../features/store/StoreScreen'));
 const SettingsScreen = lazy(() => import('../features/settings/SettingsScreen'));
 const PlansScreen = lazy(() => import('../features/plans/PlansScreen'));
 
+/** Same look as the static splash in index.html, so the hand-over from HTML to React does not flash. */
 export function FullScreenLoader() {
   const { t } = useTranslation();
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-canvas" role="status" aria-label={t('common.loading')}>
-      <Loader2 className="h-6 w-6 animate-spin text-primary" strokeWidth={1.75} />
+    <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-canvas p-6 text-center" role="status" aria-label={t('common.loading')}>
+      <img src="/favicon.svg" alt="" width={72} height={72} className="h-[72px] w-[72px] motion-safe:animate-pulse" />
+      <p className="text-[34px] leading-tight font-semibold text-ink">
+        FIT ME <span className="text-primary-text">AI</span>
+      </p>
+      <p className="max-w-md text-body text-muted">{t('app.splash')}</p>
     </div>
   );
 }
@@ -34,6 +39,16 @@ function Gate() {
   const applyTheme = useThemeStore((s) => s.applyTheme);
 
   useEffect(() => watchSession(), []);
+  // Only the public sign-in page may be indexed; everything behind sign-in is noindex.
+  useEffect(() => {
+    let tag = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (!tag) {
+      tag = document.createElement('meta');
+      tag.name = 'robots';
+      document.head.appendChild(tag);
+    }
+    tag.content = user ? 'noindex, nofollow' : 'index, follow';
+  }, [user]);
   useEffect(() => {
     applyTheme();
   }, [theme, applyTheme]);
@@ -43,9 +58,19 @@ function Gate() {
   }, [profile?.language]);
 
   if (!authReady) return <FullScreenLoader />;
-  if (!user) return <SignInScreen />;
+  if (!user)
+    return (
+      <Suspense fallback={<FullScreenLoader />}>
+        <SignInScreen />
+      </Suspense>
+    );
   if (!profileReady) return <FullScreenLoader />;
-  if (!profile) return <Onboarding />;
+  if (!profile)
+    return (
+      <Suspense fallback={<FullScreenLoader />}>
+        <Onboarding />
+      </Suspense>
+    );
 
   return (
     <Suspense fallback={<FullScreenLoader />}>
