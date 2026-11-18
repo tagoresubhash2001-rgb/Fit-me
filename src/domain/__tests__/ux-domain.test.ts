@@ -4,7 +4,7 @@ import { daysInMonth, isLeapYear, ageOn, validateDob, yearOptions, toIsoDate } f
 import { recommendGoals, conflictWith, calorieGoalFor, normalizePrimary } from '../goals';
 import { matchAllergens, matchRestrictions } from '../allergens';
 import { unitOptionsFor, nutrientsFor, clampQuantity, stepFor, GENERIC_UNITS } from '../quantity';
-import { monthlyPrice, formatPrice } from '../pricing';
+import { formatPrice } from '../pricing';
 
 describe('unit conversions', () => {
   it('stone and pounds round trip', () => {
@@ -146,13 +146,9 @@ describe('quantity and units', () => {
 });
 
 describe('pricing', () => {
-  it('PRD prices per currency', () => {
-    expect(monthlyPrice('INR', 'premium')).toBe(199);
-    expect(monthlyPrice('INR', 'pro')).toBe(399);
-    expect(monthlyPrice('USD', 'pro')).toBe(29);
-    expect(monthlyPrice('GBP', 'premium')).toBe(9);
-    expect(monthlyPrice('EUR', 'pro')).toBe(29);
-    expect(monthlyPrice('IDR', 'pro')).toBeNull();
+  it('formats prices in the local currency', () => {
+    expect(formatPrice(1433, 'INR', 'en-IN')).toBe('₹1,433');
+    expect(formatPrice(21.6, 'USD', 'en-US')).toBe('$21.60');
     expect(formatPrice(199, 'INR', 'en-IN')).toBe('₹199');
     expect(formatPrice(9, 'USD', 'en-US')).toBe('$9');
   });

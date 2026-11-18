@@ -121,6 +121,11 @@ export default function SettingsScreen() {
                   {t('plans.upgrade')}
                 </Button>
               )}
+              {plan !== 'free' && (
+                <Button id="settings-manage-plan" size="sm" variant="secondary" onClick={() => navigate('/plans')}>
+                  {t('plans.manage')}
+                </Button>
+              )}
             </div>
           </div>
           <Button size="sm" variant="secondary" icon={<User className="h-4 w-4" strokeWidth={1.75} />} onClick={() => setEditing(true)}>

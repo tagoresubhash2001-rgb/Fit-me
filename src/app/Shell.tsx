@@ -30,6 +30,7 @@ import { useThemeStore, type VisualTheme } from '../stores/theme.store';
 import { useUi } from '../stores/ui.store';
 import { CoachDock, CoachSheet } from '../features/coach/CoachSheet';
 import { NovaBar } from './NovaBar';
+import { TrialEndingBanner } from '../features/plans/PlanPrompts';
 import { useShortcuts, SHORTCUTS } from './shortcuts';
 
 const TABS = [
@@ -71,6 +72,7 @@ export function Shell() {
             {t('common.offline')}
           </p>
         )}
+        <TrialEndingBanner />
         <NovaBar />
         <main id="main" tabIndex={-1} className="mx-auto w-full max-w-2xl flex-1 px-4 pt-4 pb-36 outline-none md:max-w-3xl md:px-6 land:max-w-5xl land:pb-10 xl:max-w-[1360px] xl:px-8 xl:pb-12 2xl:max-w-[1440px]">
           <div key={location.pathname.split('/')[1]} className="page-enter">

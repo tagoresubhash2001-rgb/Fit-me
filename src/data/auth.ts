@@ -44,8 +44,16 @@ export function watchSession() {
     );
     entUnsub = onSnapshot(
       doc(db(), `entitlements/${user.uid}`),
-      (snap) => set({ plan: effectivePlan(snap.data() as never, Date.now()) }),
-      () => set({ plan: 'free' }),
+      (snap) => {
+        const d = snap.data();
+        const ms = (v: unknown) => (v && typeof (v as { toMillis?: unknown }).toMillis === 'function' ? (v as { toMillis(): number }).toMillis() : null);
+        const entitlement =
+          d && (d.plan === 'premium' || d.plan === 'pro')
+            ? { plan: d.plan, status: d.status ?? 'active', period: d.period ?? null, source: d.source ?? 'admin', expiresAt: ms(d.expiresAt), trialEndsAt: ms(d.trialEndsAt), willRenew: !!d.willRenew, trialUsed: !!d.trialUsed }
+            : null;
+        set({ plan: effectivePlan(d as never, Date.now()), entitlement });
+      },
+      () => set({ plan: 'free', entitlement: null }),
     );
   });
 }

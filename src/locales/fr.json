@@ -185,8 +185,8 @@
   "plans": {
     "upgrade": "Passer à un plan supérieur",
     "seePlans": "Voir les offres",
-    "title": "Offres",
-    "subtitle": "Comparez le contenu de chaque offre.",
+    "title": "Choisissez votre offre",
+    "subtitle": "Commencez avec {{days}} jours gratuits. Résiliez quand vous voulez.",
     "billedMonthly": "Prix mensuels",
     "freePrice": "Gratuit",
     "localPrice": "Prix local dans votre store",
@@ -221,7 +221,88 @@
     },
     "compare": "Comparer les offres",
     "feature": "Fonction",
-    "notIncluded": "Non inclus"
+    "notIncluded": "Non inclus",
+    "period": {
+      "label": "Période de facturation",
+      "monthly": "Mensuel",
+      "quarterly": "3 mois",
+      "yearly": "Annuel",
+      "save": "économisez {{pct}} %"
+    },
+    "perMonthShort": "par mois",
+    "billed": {
+      "monthly": "{{total}} facturé chaque mois",
+      "quarterly": "{{total}} tous les 3 mois, environ {{perMonth}} par mois",
+      "yearly": "{{total}} par an, environ {{perMonth}} par mois"
+    },
+    "every": {
+      "monthly": "chaque mois",
+      "quarterly": "tous les 3 mois",
+      "yearly": "chaque année"
+    },
+    "trialBadge": "{{days}} jours gratuits",
+    "launchOffer": "Offre de lancement, jusqu'au {{date}}",
+    "regularPrice": "Prix normal {{price}}",
+    "lowest30d": "Prix le plus bas des 30 derniers jours : {{price}}",
+    "startTrial": "Démarrer l'essai gratuit de {{days}} jours",
+    "switchTo": "Passer à {{plan}}",
+    "useChange": "Utilisez Changer d'offre ci-dessus",
+    "seeAll": "Voir toutes les fonctions",
+    "seeLess": "Voir moins de fonctions",
+    "continueFree": "Continuer avec Free",
+    "freeLine": "Free comprend repas, eau, poids, sommeil, pas et séances de base, avec publicités.",
+    "trust": {
+      "label": "Bon à savoir",
+      "cancel": "Résiliez quand vous voulez",
+      "reminder": "Rappel 3 jours avant la fin de l'essai",
+      "secure": "Paiement sécurisé via l'App Store, Google Play ou Cashfree"
+    },
+    "summary": {
+      "title": "Votre essai gratuit",
+      "titleNoTrial": "Votre offre",
+      "plan": "Offre",
+      "period": "Facturation",
+      "trial": "Essai gratuit",
+      "trialValue": "{{days}} jours, dès aujourd'hui",
+      "noTrial": "Déjà utilisé",
+      "after": "Prix après l'essai",
+      "firstCharge": "Premier prélèvement",
+      "today": "Aujourd'hui",
+      "cancelHow": "Résiliez avant le {{date}} et vous ne payez rien. Réglages, Offre, Résilier, ou via votre store.",
+      "confirm": "Démarrer l'essai gratuit"
+    },
+    "trialStarted": "Votre essai {{plan}} a commencé. Gratuit jusqu'au {{date}}.",
+    "error": {
+      "trialUsed": "Vous avez déjà utilisé votre essai gratuit.",
+      "alreadySubscribed": "Vous avez déjà une offre. Utilisez Changer d'offre."
+    },
+    "yourPlanTitle": "Votre offre",
+    "status": {
+      "trialing": "Essai gratuit jusqu'au {{date}}",
+      "active": "Renouvellement le {{date}}",
+      "cancelled": "Résiliée. Accès jusqu'au {{date}}",
+      "grace": "Problème de paiement. Mettez à jour votre moyen de paiement avant le {{date}}",
+      "expired": "Terminée le {{date}}",
+      "noEnd": "Sans date de fin"
+    },
+    "manage": "Gérer",
+    "changePlan": "Changer d'offre",
+    "cancel": "Résilier l'abonnement",
+    "resume": "Garder mon offre",
+    "cancelSheet": {
+      "title": "Résilier {{plan}} ?",
+      "body": "Vous gardez {{plan}} jusqu'au {{date}}. Ensuite vous passez à Free et rien n'est prélevé.",
+      "confirm": "Résilier l'abonnement",
+      "keep": "Garder {{plan}}"
+    },
+    "cancelled": "Résilié. Vous gardez {{plan}} jusqu'au {{date}}.",
+    "resumed": "Votre offre continue.",
+    "changed": "Offre changée pour {{plan}}.",
+    "trialEnding": "Votre essai gratuit se termine le {{date}}. Vous pouvez résilier à tout moment.",
+    "nudgeTitle": "Essayez Pro gratuitement 30 jours",
+    "nudgeBody": "Coaching de Jai et Jaya, planificateur et rapports. Résiliez quand vous voulez.",
+    "nudgeCta": "Voir les offres",
+    "nudgeDismiss": "Plus tard"
   },
   "food": {
     "allergyWarning": "Contient {{items}}, que vous avez indiqué comme allergie ou restriction.",

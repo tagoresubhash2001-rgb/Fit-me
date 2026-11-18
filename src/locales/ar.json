@@ -377,8 +377,8 @@
   "plans": {
     "upgrade": "ترقية",
     "seePlans": "عرض الخطط",
-    "title": "الخطط",
-    "subtitle": "قارن ما تتضمنه كل خطة.",
+    "title": "اختر خطتك",
+    "subtitle": "ابدأ مجانًا لمدة {{days}} يومًا. ألغِ في أي وقت.",
     "billedMonthly": "الأسعار الشهرية",
     "freePrice": "مجاني",
     "localPrice": "السعر المحلي في متجرك",
@@ -413,7 +413,88 @@
     },
     "compare": "قارن الخطط",
     "feature": "الميزة",
-    "notIncluded": "غير مشمول"
+    "notIncluded": "غير مشمول",
+    "period": {
+      "label": "فترة الفوترة",
+      "monthly": "شهري",
+      "quarterly": "3 أشهر",
+      "yearly": "سنوي",
+      "save": "وفّر {{pct}}%"
+    },
+    "perMonthShort": "شهريًا",
+    "billed": {
+      "monthly": "{{total}} تُدفع شهريًا",
+      "quarterly": "{{total}} كل 3 أشهر، حوالي {{perMonth}} شهريًا",
+      "yearly": "{{total}} سنويًا، حوالي {{perMonth}} شهريًا"
+    },
+    "every": {
+      "monthly": "كل شهر",
+      "quarterly": "كل 3 أشهر",
+      "yearly": "كل سنة"
+    },
+    "trialBadge": "{{days}} يومًا مجانًا",
+    "launchOffer": "عرض الإطلاق، ينتهي في {{date}}",
+    "regularPrice": "السعر العادي {{price}}",
+    "lowest30d": "أدنى سعر خلال آخر 30 يومًا: {{price}}",
+    "startTrial": "ابدأ تجربة مجانية لمدة {{days}} يومًا",
+    "switchTo": "التبديل إلى {{plan}}",
+    "useChange": "استخدم تغيير الخطة في الأعلى",
+    "seeAll": "عرض كل الميزات",
+    "seeLess": "عرض ميزات أقل",
+    "continueFree": "المتابعة مع Free",
+    "freeLine": "تتضمن Free الطعام والماء والوزن والنوم والخطوات والتمارين الأساسية، مع إعلانات.",
+    "trust": {
+      "label": "معلومات مهمة",
+      "cancel": "ألغِ في أي وقت",
+      "reminder": "نذكّرك قبل 3 أيام من انتهاء التجربة",
+      "secure": "دفع آمن عبر App Store أو Google Play أو Cashfree"
+    },
+    "summary": {
+      "title": "تجربتك المجانية",
+      "titleNoTrial": "خطتك",
+      "plan": "الخطة",
+      "period": "الفوترة",
+      "trial": "تجربة مجانية",
+      "trialValue": "{{days}} يومًا، تبدأ اليوم",
+      "noTrial": "استُخدمت من قبل",
+      "after": "السعر بعد التجربة",
+      "firstCharge": "أول دفعة",
+      "today": "اليوم",
+      "cancelHow": "ألغِ في أي وقت قبل {{date}} ولن يتم خصم أي مبلغ. من الإعدادات ثم الخطة ثم إلغاء، أو من متجر التطبيقات.",
+      "confirm": "ابدأ التجربة المجانية"
+    },
+    "trialStarted": "بدأت تجربة {{plan}}. مجانية حتى {{date}}.",
+    "error": {
+      "trialUsed": "لقد استخدمت التجربة المجانية من قبل.",
+      "alreadySubscribed": "لديك خطة بالفعل. استخدم تغيير الخطة."
+    },
+    "yourPlanTitle": "خطتك",
+    "status": {
+      "trialing": "تجربة مجانية حتى {{date}}",
+      "active": "تتجدد في {{date}}",
+      "cancelled": "أُلغيت. متاحة حتى {{date}}",
+      "grace": "مشكلة في الدفع. يرجى تحديث طريقة الدفع قبل {{date}}",
+      "expired": "انتهت في {{date}}",
+      "noEnd": "بدون تاريخ انتهاء"
+    },
+    "manage": "إدارة",
+    "changePlan": "تغيير الخطة",
+    "cancel": "إلغاء الاشتراك",
+    "resume": "الإبقاء على خطتي",
+    "cancelSheet": {
+      "title": "إلغاء {{plan}}؟",
+      "body": "ستبقى {{plan}} متاحة حتى {{date}}. بعد ذلك تنتقل إلى Free ولن يتم خصم أي مبلغ.",
+      "confirm": "إلغاء الاشتراك",
+      "keep": "الإبقاء على {{plan}}"
+    },
+    "cancelled": "أُلغيت. ستبقى {{plan}} متاحة حتى {{date}}.",
+    "resumed": "ستستمر خطتك.",
+    "changed": "تم تغيير الخطة إلى {{plan}}.",
+    "trialEnding": "تنتهي تجربتك المجانية في {{date}}. يمكنك الإلغاء في أي وقت.",
+    "nudgeTitle": "جرّب Pro مجانًا لمدة 30 يومًا",
+    "nudgeBody": "تدريب Jai وJaya والمخطط والتقارير. ألغِ في أي وقت.",
+    "nudgeCta": "عرض الخطط",
+    "nudgeDismiss": "ليس الآن"
   },
   "weight": {
     "editEntry": "تعديل إدخال الوزن",

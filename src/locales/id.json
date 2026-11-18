@@ -185,8 +185,8 @@
   "plans": {
     "upgrade": "Tingkatkan",
     "seePlans": "Lihat paket",
-    "title": "Paket",
-    "subtitle": "Bandingkan isi setiap paket.",
+    "title": "Pilih paketmu",
+    "subtitle": "Mulai dengan {{days}} hari gratis. Batalkan kapan saja.",
     "billedMonthly": "Harga bulanan",
     "freePrice": "Gratis",
     "localPrice": "Harga lokal di toko aplikasimu",
@@ -221,7 +221,88 @@
     },
     "compare": "Bandingkan paket",
     "feature": "Fitur",
-    "notIncluded": "Tidak termasuk"
+    "notIncluded": "Tidak termasuk",
+    "period": {
+      "label": "Periode tagihan",
+      "monthly": "Bulanan",
+      "quarterly": "3 bulan",
+      "yearly": "Tahunan",
+      "save": "hemat {{pct}}%"
+    },
+    "perMonthShort": "per bulan",
+    "billed": {
+      "monthly": "{{total}} ditagih bulanan",
+      "quarterly": "{{total}} setiap 3 bulan, sekitar {{perMonth}} per bulan",
+      "yearly": "{{total}} per tahun, sekitar {{perMonth}} per bulan"
+    },
+    "every": {
+      "monthly": "setiap bulan",
+      "quarterly": "setiap 3 bulan",
+      "yearly": "setiap tahun"
+    },
+    "trialBadge": "{{days}} hari gratis",
+    "launchOffer": "Promo peluncuran, berakhir {{date}}",
+    "regularPrice": "Harga normal {{price}}",
+    "lowest30d": "Harga terendah 30 hari terakhir: {{price}}",
+    "startTrial": "Mulai uji coba gratis {{days}} hari",
+    "switchTo": "Pindah ke {{plan}}",
+    "useChange": "Gunakan Ganti paket di atas",
+    "seeAll": "Lihat semua fitur",
+    "seeLess": "Lihat lebih sedikit",
+    "continueFree": "Lanjut dengan Free",
+    "freeLine": "Free mencakup makanan, air, berat, tidur, langkah, dan latihan dasar, dengan iklan.",
+    "trust": {
+      "label": "Perlu diketahui",
+      "cancel": "Batalkan kapan saja",
+      "reminder": "Kami ingatkan 3 hari sebelum uji coba berakhir",
+      "secure": "Pembayaran aman lewat App Store, Google Play, atau Cashfree"
+    },
+    "summary": {
+      "title": "Uji coba gratismu",
+      "titleNoTrial": "Paketmu",
+      "plan": "Paket",
+      "period": "Tagihan",
+      "trial": "Uji coba gratis",
+      "trialValue": "{{days}} hari, mulai hari ini",
+      "noTrial": "Sudah dipakai",
+      "after": "Harga setelah uji coba",
+      "firstCharge": "Tagihan pertama",
+      "today": "Hari ini",
+      "cancelHow": "Batalkan sebelum {{date}} dan kamu tidak ditagih. Buka Setelan, Paket, Batalkan, atau lewat toko aplikasi.",
+      "confirm": "Mulai uji coba gratis"
+    },
+    "trialStarted": "Uji coba {{plan}} dimulai. Gratis sampai {{date}}.",
+    "error": {
+      "trialUsed": "Kamu sudah memakai uji coba gratis.",
+      "alreadySubscribed": "Kamu sudah punya paket. Gunakan Ganti paket."
+    },
+    "yourPlanTitle": "Paketmu",
+    "status": {
+      "trialing": "Uji coba gratis sampai {{date}}",
+      "active": "Diperpanjang {{date}}",
+      "cancelled": "Dibatalkan. Akses sampai {{date}}",
+      "grace": "Masalah pembayaran. Perbarui metode pembayaran sebelum {{date}}",
+      "expired": "Berakhir {{date}}",
+      "noEnd": "Tanpa tanggal akhir"
+    },
+    "manage": "Kelola",
+    "changePlan": "Ganti paket",
+    "cancel": "Batalkan langganan",
+    "resume": "Tetap pakai paket",
+    "cancelSheet": {
+      "title": "Batalkan {{plan}}?",
+      "body": "Kamu tetap punya {{plan}} sampai {{date}}. Setelah itu kamu pindah ke Free dan tidak ada tagihan lagi.",
+      "confirm": "Batalkan langganan",
+      "keep": "Tetap pakai {{plan}}"
+    },
+    "cancelled": "Dibatalkan. Kamu tetap punya {{plan}} sampai {{date}}.",
+    "resumed": "Paketmu akan berlanjut.",
+    "changed": "Paket diganti ke {{plan}}.",
+    "trialEnding": "Uji coba gratismu berakhir {{date}}. Kamu bisa membatalkan kapan saja.",
+    "nudgeTitle": "Coba Pro gratis 30 hari",
+    "nudgeBody": "Pelatihan Jai dan Jaya, perencana, dan laporan. Batalkan kapan saja.",
+    "nudgeCta": "Lihat paket",
+    "nudgeDismiss": "Nanti saja"
   },
   "food": {
     "allergyWarning": "Mengandung {{items}}, yang kamu catat sebagai alergi atau pantangan.",

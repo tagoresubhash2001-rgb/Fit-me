@@ -553,8 +553,8 @@
     "paywallSoon": "Subscriptions open soon. You will be able to upgrade from this screen.",
     "upgrade": "Upgrade",
     "seePlans": "See plans",
-    "title": "Plans",
-    "subtitle": "Compare what each plan includes.",
+    "title": "Choose your plan",
+    "subtitle": "Start with {{days}} days free. Cancel anytime.",
     "billedMonthly": "Monthly prices",
     "freePrice": "Free",
     "localPrice": "Local price in your store",
@@ -589,7 +589,88 @@
     },
     "compare": "Compare plans",
     "feature": "Feature",
-    "notIncluded": "Not included"
+    "notIncluded": "Not included",
+    "period": {
+      "label": "Billing period",
+      "monthly": "Monthly",
+      "quarterly": "3 months",
+      "yearly": "Yearly",
+      "save": "save {{pct}}%"
+    },
+    "perMonthShort": "per month",
+    "billed": {
+      "monthly": "{{total}} billed monthly",
+      "quarterly": "{{total}} billed every 3 months, about {{perMonth}} a month",
+      "yearly": "{{total}} billed yearly, about {{perMonth}} a month"
+    },
+    "every": {
+      "monthly": "every month",
+      "quarterly": "every 3 months",
+      "yearly": "every year"
+    },
+    "trialBadge": "{{days}} days free",
+    "launchOffer": "Launch offer, ends {{date}}",
+    "regularPrice": "Regular price {{price}}",
+    "lowest30d": "Lowest price in the last 30 days: {{price}}",
+    "startTrial": "Start {{days}}-day free trial",
+    "switchTo": "Switch to {{plan}}",
+    "useChange": "Use Change plan above",
+    "seeAll": "See all features",
+    "seeLess": "Show fewer features",
+    "continueFree": "Continue with Free",
+    "freeLine": "Free keeps food, water, weight, sleep, steps and basic workouts, with ads.",
+    "trust": {
+      "label": "Good to know",
+      "cancel": "Cancel anytime",
+      "reminder": "We remind you 3 days before your trial ends",
+      "secure": "Secure payment through the App Store, Google Play or Cashfree"
+    },
+    "summary": {
+      "title": "Your free trial",
+      "titleNoTrial": "Your plan",
+      "plan": "Plan",
+      "period": "Billing",
+      "trial": "Free trial",
+      "trialValue": "{{days}} days, starting today",
+      "noTrial": "Already used",
+      "after": "Price after the trial",
+      "firstCharge": "First charge",
+      "today": "Today",
+      "cancelHow": "Cancel anytime before {{date}} and you will not be charged. Go to Settings, then Plan, then Cancel, or use your app store.",
+      "confirm": "Start free trial"
+    },
+    "trialStarted": "Your {{plan}} trial has started. It is free until {{date}}.",
+    "error": {
+      "trialUsed": "You have already used your free trial.",
+      "alreadySubscribed": "You already have a plan. Use Change plan instead."
+    },
+    "yourPlanTitle": "Your plan",
+    "status": {
+      "trialing": "Free trial until {{date}}",
+      "active": "Renews on {{date}}",
+      "cancelled": "Cancelled. Access until {{date}}",
+      "grace": "Payment problem. Please update your payment method by {{date}}",
+      "expired": "Ended on {{date}}",
+      "noEnd": "No end date"
+    },
+    "manage": "Manage",
+    "changePlan": "Change plan",
+    "cancel": "Cancel subscription",
+    "resume": "Keep my plan",
+    "cancelSheet": {
+      "title": "Cancel {{plan}}?",
+      "body": "You keep {{plan}} until {{date}}. After that you move to Free and nothing more is charged.",
+      "confirm": "Cancel subscription",
+      "keep": "Keep {{plan}}"
+    },
+    "cancelled": "Cancelled. You keep {{plan}} until {{date}}.",
+    "resumed": "Your plan will continue.",
+    "changed": "Plan changed to {{plan}}.",
+    "trialEnding": "Your free trial ends on {{date}}. You can cancel anytime.",
+    "nudgeTitle": "Try Pro free for 30 days",
+    "nudgeBody": "Jai and Jaya coaching, the planner and reports. Cancel anytime.",
+    "nudgeCta": "See plans",
+    "nudgeDismiss": "Not now"
   },
   "settings": {
     "title": "Settings",

@@ -185,8 +185,8 @@
   "plans": {
     "upgrade": "Upgrade",
     "seePlans": "Pläne ansehen",
-    "title": "Pläne",
-    "subtitle": "Vergleiche, was jeder Plan enthält.",
+    "title": "Wähle deinen Plan",
+    "subtitle": "Starte mit {{days}} Tagen gratis. Jederzeit kündbar.",
     "billedMonthly": "Monatspreise",
     "freePrice": "Kostenlos",
     "localPrice": "Lokaler Preis in deinem Store",
@@ -221,7 +221,88 @@
     },
     "compare": "Pläne vergleichen",
     "feature": "Funktion",
-    "notIncluded": "Nicht enthalten"
+    "notIncluded": "Nicht enthalten",
+    "period": {
+      "label": "Abrechnungszeitraum",
+      "monthly": "Monatlich",
+      "quarterly": "3 Monate",
+      "yearly": "Jährlich",
+      "save": "spare {{pct}} %"
+    },
+    "perMonthShort": "pro Monat",
+    "billed": {
+      "monthly": "{{total}} monatlich",
+      "quarterly": "{{total}} alle 3 Monate, etwa {{perMonth}} pro Monat",
+      "yearly": "{{total}} jährlich, etwa {{perMonth}} pro Monat"
+    },
+    "every": {
+      "monthly": "jeden Monat",
+      "quarterly": "alle 3 Monate",
+      "yearly": "jedes Jahr"
+    },
+    "trialBadge": "{{days}} Tage gratis",
+    "launchOffer": "Startangebot, endet am {{date}}",
+    "regularPrice": "Normaler Preis {{price}}",
+    "lowest30d": "Niedrigster Preis der letzten 30 Tage: {{price}}",
+    "startTrial": "{{days}} Tage gratis testen",
+    "switchTo": "Zu {{plan}} wechseln",
+    "useChange": "Nutze oben Plan ändern",
+    "seeAll": "Alle Funktionen ansehen",
+    "seeLess": "Weniger Funktionen zeigen",
+    "continueFree": "Mit Free weitermachen",
+    "freeLine": "Free enthält Essen, Wasser, Gewicht, Schlaf, Schritte und Basis-Workouts, mit Werbung.",
+    "trust": {
+      "label": "Gut zu wissen",
+      "cancel": "Jederzeit kündbar",
+      "reminder": "Wir erinnern dich 3 Tage vor Ende des Tests",
+      "secure": "Sichere Zahlung über App Store, Google Play oder Cashfree"
+    },
+    "summary": {
+      "title": "Dein Gratis-Test",
+      "titleNoTrial": "Dein Plan",
+      "plan": "Plan",
+      "period": "Abrechnung",
+      "trial": "Gratis-Test",
+      "trialValue": "{{days}} Tage, ab heute",
+      "noTrial": "Bereits genutzt",
+      "after": "Preis nach dem Test",
+      "firstCharge": "Erste Abbuchung",
+      "today": "Heute",
+      "cancelHow": "Kündige vor dem {{date}} und es wird nichts berechnet. Einstellungen, Plan, Kündigen, oder im App-Store.",
+      "confirm": "Gratis-Test starten"
+    },
+    "trialStarted": "Dein {{plan}}-Test hat begonnen. Gratis bis {{date}}.",
+    "error": {
+      "trialUsed": "Du hast deinen Gratis-Test schon genutzt.",
+      "alreadySubscribed": "Du hast schon einen Plan. Nutze Plan ändern."
+    },
+    "yourPlanTitle": "Dein Plan",
+    "status": {
+      "trialing": "Gratis-Test bis {{date}}",
+      "active": "Verlängert sich am {{date}}",
+      "cancelled": "Gekündigt. Zugang bis {{date}}",
+      "grace": "Zahlungsproblem. Bitte aktualisiere deine Zahlungsart bis {{date}}",
+      "expired": "Beendet am {{date}}",
+      "noEnd": "Kein Enddatum"
+    },
+    "manage": "Verwalten",
+    "changePlan": "Plan ändern",
+    "cancel": "Abo kündigen",
+    "resume": "Plan behalten",
+    "cancelSheet": {
+      "title": "{{plan}} kündigen?",
+      "body": "Du behältst {{plan}} bis {{date}}. Danach wechselst du zu Free und es wird nichts mehr berechnet.",
+      "confirm": "Abo kündigen",
+      "keep": "{{plan}} behalten"
+    },
+    "cancelled": "Gekündigt. Du behältst {{plan}} bis {{date}}.",
+    "resumed": "Dein Plan läuft weiter.",
+    "changed": "Plan zu {{plan}} geändert.",
+    "trialEnding": "Dein Gratis-Test endet am {{date}}. Du kannst jederzeit kündigen.",
+    "nudgeTitle": "Teste Pro 30 Tage gratis",
+    "nudgeBody": "Coaching von Jai und Jaya, Planer und Berichte. Jederzeit kündbar.",
+    "nudgeCta": "Pläne ansehen",
+    "nudgeDismiss": "Nicht jetzt"
   },
   "food": {
     "allergyWarning": "Enthält {{items}}, das du als Allergie oder Einschränkung angegeben hast.",

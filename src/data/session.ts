@@ -2,6 +2,19 @@ import { create } from 'zustand';
 import type { User } from 'firebase/auth';
 import type { UserProfile } from '../domain/models';
 import type { Plan } from '../domain/plans';
+import type { EntitlementStatus, PaidPlan, Period } from '../domain/billing';
+
+/** Client view of entitlements/{uid} (written only by Cloud Functions). Times in epoch ms. */
+export interface EntitlementView {
+  plan: PaidPlan;
+  status: EntitlementStatus;
+  period: Period | null;
+  source: string;
+  expiresAt: number | null;
+  trialEndsAt: number | null;
+  willRenew: boolean;
+  trialUsed: boolean;
+}
 
 interface SessionState {
   authReady: boolean;
@@ -9,6 +22,7 @@ interface SessionState {
   profileReady: boolean;
   profile: UserProfile | null;
   plan: Plan;
+  entitlement: EntitlementView | null;
   set: (s: Partial<Omit<SessionState, 'set'>>) => void;
 }
 
@@ -19,6 +33,7 @@ export const useSession = create<SessionState>((set) => ({
   profileReady: false,
   profile: null,
   plan: 'free',
+  entitlement: null,
   set: (s) => set(s),
 }));
 
