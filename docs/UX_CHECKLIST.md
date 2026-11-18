@@ -73,3 +73,38 @@ Checks that apply to every screen:
 - Strings: `src/locales/locales.test.ts`, `src/locales/keys.test.ts`.
 - Functions: `functions/test/provider.test.ts` (retry and fallback).
 - End to end: `e2e/flow.cjs` (emulators; also writes the 390 / 1280, light / dark sweep to `docs/screenshots/sweep/`) and `e2e/live-flow.cjs` (live on fit-me1).
+
+## Form factors (responsive pass, November 2026)
+
+One screen per feature; the shell and shared layout pieces decide the layout. Mobile < 768 px, tablet
+768–1279 px (portrait and landscape), desktop ≥ 1280 px (wide ≥ 1536 px). Status per form factor.
+
+| Area | Rule | Mobile | Tablet | Desktop |
+| --- | --- | --- | --- | --- |
+| Source | One screen per feature from shared pieces (Shell, PageHeader, ResponsiveGrid, ListDetail, Sheet, Card); guard test forbids layout px widths and per-device files | Done | Done | Done |
+| Navigation | Glass bottom bar (mobile, tablet portrait); rail with icons and labels (tablet landscape); collapsible glass sidebar with Profile, Settings, Upgrade (desktop) | Done | Done | Done |
+| Top bar | Logo, Upgrade, avatar (phone: avatar opens Settings); theme toggle from tablet; desktop adds food search (/), log date on Food, avatar menu | Done | Done | Done |
+| Forms | Bottom sheets on phones; centred dialogs up to 560 px with dimmed glass backdrop, Esc, focus trap and focus return from 768 px | Done | Done | Done |
+| Master-detail | Food log (quick add / edit panel), Workouts (active workout panel), Planner (day panel) side by side from 1024 px; panels scroll inside the viewport | n/a | Landscape | Done |
+| Home | Single column; 12-column grid with calories hero, weight trend, stat cards (3 / 6 per row), schedule and coach insight | Done | Done | Done |
+| Health | Tabs plus 7 d / 30 d / 90 d / 1 y range shared by every chart (daily, weekly, monthly buckets); panels in two columns; charts show value scale and target legend | Done | Done | Done |
+| Workouts | Tabs; library as a card grid with category filters; active workout panel beside it from 1024 px | Done | Done | Done |
+| Planner | Week and month calendars of real logged days; drag a workout to another day (or pick a date: keyboard and touch); day details | Done | Done | Done |
+| Planner | Planned activities, habits and the AI auto-planner | Later (Phase 4, Pro) | Later | Later |
+| Plans | Cards with feature lists; two columns plus full-width Pro (portrait) or three side by side with a comparison table | Done | Done | Done |
+| Settings | Single column; section menu on the left from 1280 px; /settings#profile deep link | Done | Done | Done |
+| Coach | Bottom sheet; docked, resizable right panel that stays open across screens on desktop (Esc closes) | Done | Done | Done |
+| Interactions | Hover states and tooltips on icon buttons (pointer devices); ⋯ menus for edit and delete; shortcuts N, W, /, ? with a help dialog; skip link and visible focus rings | Swipe + ⋯ | Swipe + ⋯ | Done |
+| Type | Fluid type scale (display 28–34 px, title 20–22, body 15–16, small 13–14, caption 12) | Done | Done | Done |
+| Touch | Targets ≥ 44 px on touch devices | Done | Done | n/a |
+| Contrast | WCAG AA text shades (green #168247 / #157A43, orange #A65006, red #C62828; dark text #3DBE77, #FF7B7F); axe: 0 violations on phone, tablet and desktop, light and dark | Done | Done | Done |
+| Languages | te, hi, ta, ar at every size; Arabic mirrors the sidebar, rail, panels and charts | Done | Done | Done |
+| Languages | Older Phase 1 strings still in English in some languages (see "Languages" above) | Partial | Partial | Partial |
+| No scroll | No horizontal page scroll on any screen at 360, 768, 1024, 1280 and 1920 px (e2e sweep) | Done | Done | Done |
+| PWA | Installable (manifest, maskable icons, screenshots, shortcuts), offline app shell and offline page, "update available" prompt; never caches API or auth | Done | Done | Done |
+| Fixed in review | Coach button rendered at the top on desktop (tooltip CSS); weight history rows collapsed in the scroll list; edit panel unreachable below the fold; unit dropdown widths (class merge) | Fixed | Fixed | Fixed |
+
+Tests: `e2e/devices-flow.cjs` (full flow on iPhone 13, Pixel 7, iPad portrait and landscape, laptop 1366×768,
+desktop 1920×1080, plus the five-width sweep), `e2e/a11y-keyboard.cjs` (keyboard-only run and axe audit),
+`e2e/review.cjs` (screenshots of every screen per device, theme and language), `e2e/pwa-check.cjs`,
+`e2e/render-check.cjs` (deploy gate), `src/test/layout-guard.test.ts`.

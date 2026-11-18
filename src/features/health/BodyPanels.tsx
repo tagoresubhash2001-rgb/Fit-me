@@ -129,7 +129,7 @@ export function WeightPanel() {
       {sorted.length > 0 && (
         <Card>
           <CardHeader title={t('weight.history')} />
-          <ul className="-mx-2 flex flex-col divide-y divide-line md:max-h-[28rem] md:overflow-y-auto">
+          <ul className="-mx-2 flex flex-col divide-y divide-line md:max-h-[28rem] md:overflow-y-auto *:shrink-0">
             {[...sorted].reverse().slice(0, 60).map((l) => (
               <SwipeRow key={l.id} className="px-2" onEdit={() => setEditing(l)} onDelete={() => undoDelete('weightLogs', l.id, t('common.deleted'), t('common.undo'))} editLabel={t('common.edit')} deleteLabel={t('common.delete')} menuLabel={t('common.moreActions')}>
                 <div className="flex items-center justify-between gap-2 py-2.5">
