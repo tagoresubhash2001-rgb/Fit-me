@@ -91,6 +91,8 @@ export default defineConfig(() => {
           manualChunks(id: string) {
             if (!id.includes('node_modules')) return undefined;
             if (/node_modules\/re2js\//.test(id)) return 're2js';
+            // React, React DOM, the scheduler and the router reference each other: one chunk, no init cycle.
+            if (/node_modules\/(react|react-dom|scheduler|react-router|react-router-dom)\//.test(id)) return 'react';
             // The `firebase/<x>` wrappers re-export `@firebase/<x>`: keep each pair together.
             if (/node_modules\/(@firebase|firebase)\/firestore\//.test(id)) return 'firebase-firestore';
             if (/node_modules\/(@firebase|firebase)\/auth\//.test(id)) return 'firebase-auth';
