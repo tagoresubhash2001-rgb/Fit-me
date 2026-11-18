@@ -72,10 +72,10 @@ describe('free trial and entitlements (emulator, test mode)', () => {
     await setConfig('billing', { mode: 'test' });
   });
 
-  it('rejects unsigned store webhooks', async () => {
+  it('rejects store webhooks until billing secrets are configured, and unsigned calls always', async () => {
     for (const name of ['revenuecatWebhook', 'cashfreeWebhook']) {
       const r = await fetch(`http://127.0.0.1:5001/demo-fitmeai/asia-south1/${name}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"event":{"id":"x","type":"INITIAL_PURCHASE","app_user_id":"someone"}}' });
-      expect(r.status).toBe(401);
+      expect([401, 503]).toContain(r.status);
     }
   });
 });
