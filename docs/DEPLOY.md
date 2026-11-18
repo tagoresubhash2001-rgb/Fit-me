@@ -133,6 +133,23 @@ scroll at 360, 768, 1024, 1280 and 1920 px. `e2e/a11y-keyboard.cjs` (emulators) 
 and an axe accessibility audit; `e2e/review.cjs` writes screenshots of every screen per device, theme and
 language.
 
+## Scheduled functions (trial reminders)
+
+`trialReminders` runs daily at 10:00 Asia/Kolkata and sends the "trial ends in 3 days" push and in-app
+notification. Deploying it creates a Cloud Scheduler job, which the deploy account
+(`firebase-adminsdk-fbsvc@fit-me1.iam.gserviceaccount.com`) is not yet allowed to do, so the workflow skips it
+(`SCHEDULED_FUNCTIONS=off` written to `functions/.env.<project>`). The in-app trial-ending banner does not
+depend on it. To turn it on (owner, once):
+
+```
+gcloud projects add-iam-policy-binding fit-me1 \
+  --member=serviceAccount:firebase-adminsdk-fbsvc@fit-me1.iam.gserviceaccount.com \
+  --role=roles/cloudscheduler.admin
+```
+
+Then in GitHub: Settings, Secrets and variables, Actions, Variables: add `ENABLE_SCHEDULED_FUNCTIONS` = `true`,
+and re-run "Deploy to Firebase".
+
 ## Branch protection for `main` (recommended)
 
 GitHub → Settings → Branches → Add rule for `main`: require a pull request before merging, require status

@@ -215,6 +215,12 @@ jobs:
       - *auth_sa
       - *auth_wif
       # --force lets the CLI set the Artifact Registry clean-up policy for function images (avoids storage cost).
+      # Scheduled functions (trial reminders) deploy only once the repository variable ENABLE_SCHEDULED_FUNCTIONS
+      # is "true", i.e. after the deploy account has roles/cloudscheduler.admin (docs/DEPLOY.md).
+      # The CLI reads functions/.env.<project> when it analyses the code (plain settings only, never secrets).
+      - run: echo "SCHEDULED_FUNCTIONS=$SCHEDULED_FUNCTIONS" > "functions/.env.$FIREBASE_PROJECT"
+        env:
+          SCHEDULED_FUNCTIONS: ${{ vars.ENABLE_SCHEDULED_FUNCTIONS == 'true' && 'on' || 'off' }}
       - run: npx firebase deploy --only functions --project "$FIREBASE_PROJECT" --non-interactive --force
       - name: Smoke test healthCheck
         run: |
