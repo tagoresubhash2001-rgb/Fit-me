@@ -123,7 +123,7 @@ export default function FoodScreen() {
               </p>
             </Card>
 
-            {logs.error && <p className="text-small text-danger">{t('errors.loadFailed')}</p>}
+            {logs.error && <p className="text-small text-danger-text">{t('errors.loadFailed')}</p>}
 
             {MEAL_SLOTS.map((slot) => {
               const items = logs.rows.filter((l) => l.slot === slot);

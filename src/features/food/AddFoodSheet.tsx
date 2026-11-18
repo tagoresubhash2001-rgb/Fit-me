@@ -287,7 +287,7 @@ export function AddFoodSheet({
                 <Skeleton className="h-14" />
               </div>
             )}
-            {!searching && searchError && <p className="text-small text-danger">{t('errors.loadFailed')}</p>}
+            {!searching && searchError && <p className="text-small text-danger-text">{t('errors.loadFailed')}</p>}
             {!searching && results === null && !searchError && <p className="text-small text-muted">{t('food.searchHint')}</p>}
             {!searching && results?.length === 0 && (
               <EmptyState
@@ -607,7 +607,7 @@ function RecipeBuilder({ recipes, onPickRecipe, premium }: { recipes: Recipe[]; 
           <button
             type="button"
             aria-label={t('common.delete')}
-            className="text-muted hover:text-danger"
+            className="text-muted hover:text-danger-text"
             onClick={() => setIngredients((list) => list.filter((_, j) => j !== idx))}
           >
             <Trash2 className="h-4 w-4" strokeWidth={1.75} />

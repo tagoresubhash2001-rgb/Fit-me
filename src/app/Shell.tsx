@@ -402,7 +402,7 @@ function AvatarMenu({ initial }: { initial: string }) {
             {t('shell.shortcuts')}
           </button>
           <div className="my-1 border-t border-line" />
-          <button role="menuitem" type="button" className={cn(itemCls, 'text-danger')} onClick={() => void signOut()}>
+          <button role="menuitem" type="button" className={cn(itemCls, 'text-danger-text')} onClick={() => void signOut()}>
             <LogOut className="h-4 w-4" strokeWidth={1.75} />
             {t('settings.signOut')}
           </button>

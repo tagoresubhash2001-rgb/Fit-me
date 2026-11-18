@@ -167,7 +167,7 @@ export function Combobox({
         </div>
       )}
       {error ? (
-        <p role="alert" className="text-caption text-danger">
+        <p role="alert" className="text-caption text-danger-text">
           {error}
         </p>
       ) : (

@@ -22,7 +22,7 @@ function FieldWrap({ id, label, hint, error, children }: FieldProps & { id: stri
       )}
       {children}
       {error?.trim() ? (
-        <p id={`${id}-error`} role="alert" className="text-caption text-danger">
+        <p id={`${id}-error`} role="alert" className="text-caption text-danger-text">
           {error}
         </p>
       ) : hint ? (

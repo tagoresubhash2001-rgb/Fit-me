@@ -9,7 +9,7 @@ const merge = extendTailwindMerge({
     theme: {
       text: ['display', 'title', 'body', 'small', 'caption'],
       radius: ['card', 'button', 'input'],
-      color: ['primary-text'],
+      color: ['primary-text', 'danger-text'],
       shadow: ['card', 'card-hover', 'float'],
     },
   },

@@ -115,6 +115,12 @@ Cards (owner decision): 1 px border `#0F1720` (dark `#3A4654`), 20 px radius, la
 press 0.98, staggered enter 150–250 ms — only via the shared `Card` and tokens. Header, nav, sheets, modals and toasts
 use the `.glass` finish (blur 16–20 px). Every log entry is editable and deletable with undo (swipe on touch, ⋯ menu on web).
 Full UX checklist: `docs/UX_CHECKLIST.md`.
+Text contrast (AA): green fills behind text `#168247`, green text `#157A43` (dark `#3DBE77`), orange text `#A65006`,
+error red `#C62828` (dark text `#FF7B7F`) via tokens `primary`, `primary-text`, `accent`, `danger`, `danger-text`.
+Form factors: ONE screen per feature built from shared pieces (`app/Shell.tsx`, `components/ui/Layout.tsx`:
+PageHeader, ResponsiveGrid, ListDetail; `Sheet` = bottom sheet / centred dialog / inline panel). Breakpoints:
+mobile < 768, tablet 768–1279 (`land:` variant = landscape rail), desktop ≥ 1280, wide ≥ 1536. No hard-coded
+layout widths in `features/` and no per-device screen files (enforced by `src/test/layout-guard.test.ts`).
 
 Navigation: a **white floating bottom bar with five tabs — Home, Planner, Health, Workouts, Store** —
 active tab green with a pill indicator. Profile and Settings open from the avatar in the header.

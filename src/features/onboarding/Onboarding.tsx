@@ -218,7 +218,7 @@ export default function Onboarding() {
             {step === 3 && (
               <>
                 <GoalPicker selected={f.goals} primary={f.primaryGoal} onChange={(goals, primaryGoal) => up({ goals, primaryGoal })} bmi={bmiNow} age={age} activity={f.activity} />
-                {err('goals') && <p role="alert" className="text-small text-danger">{err('goals')}</p>}
+                {err('goals') && <p role="alert" className="text-small text-danger-text">{err('goals')}</p>}
                 <MeasureInput kind="weight" label={t('onboarding.targetWeight')} valueMetric={f.targetWeightKg === '' ? f.weightKg : f.targetWeightKg} unit={f.weightUnit} onUnitChange={(u) => up({ weightUnit: u as WeightUnit })} onChange={(v) => up({ targetWeightKg: v })} error={err('targetWeight')} />
                 <h2 className="pt-1 text-title text-ink">{t('onboarding.activityTitle')}</h2>
                 <div role="radiogroup" className="flex flex-col gap-2">
@@ -286,7 +286,7 @@ export default function Onboarding() {
                 <div className="flex flex-col gap-2 border-t border-line pt-4">
                   <span className="text-small font-medium text-ink">{t('onboarding.consentTitle')}</span>
                   <Choice multi selected={f.consent} onSelect={() => up({ consent: !f.consent })} title={t('onboarding.consentHealth')} />
-                  {err('consent') && <p role="alert" className="text-caption text-danger">{err('consent')}</p>}
+                  {err('consent') && <p role="alert" className="text-caption text-danger-text">{err('consent')}</p>}
                   <p className="text-caption text-muted">{t('common.disclaimer')}</p>
                 </div>
               </>

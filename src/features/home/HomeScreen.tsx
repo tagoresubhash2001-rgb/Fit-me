@@ -41,7 +41,7 @@ function StatCard({
   id?: string;
 }) {
   return (
-    <Card onPress={onPress} className="flex min-w-0 flex-col gap-2" id={id}>
+    <Card onPress={onPress} pressLabel={title} className="flex min-w-0 flex-col gap-2" id={id}>
       <div className="flex items-center justify-between gap-2 text-muted">
         <span className="flex min-w-0 items-center gap-2">
           <span className="shrink-0 text-primary-text">{icon}</span>
@@ -242,7 +242,7 @@ export default function HomeScreen() {
         />
       </div>
 
-      <Card onPress={() => navigate('/planner')} className="flex items-center gap-3 md:order-5 md:col-span-12 xl:order-4 xl:col-span-6">
+      <Card onPress={() => navigate('/planner')} pressLabel={t('home.scheduleCard')} className="flex items-center gap-3 md:order-5 md:col-span-12 xl:order-4 xl:col-span-6">
         <CalendarDays className="h-5 w-5 shrink-0 text-primary-text" strokeWidth={1.75} />
         <div className="min-w-0 flex-1">
           <p className="text-body font-medium text-ink">{t('home.scheduleCard')}</p>
@@ -275,7 +275,7 @@ function WeightTrendCard({ rows, className }: { rows: WeightLog[]; className?: s
   const latest = sorted.at(-1);
   const first = sorted[0];
   return (
-    <Card onPress={() => navigate('/health/weight')} className={cn('min-w-0 flex-col gap-2', className)}>
+    <Card onPress={() => navigate('/health/weight')} pressLabel={t('home.weightTrend')} className={cn('min-w-0 flex-col gap-2', className)}>
       <div className="flex items-baseline justify-between gap-2">
         <h2 className="text-title text-ink">{t('home.weightTrend')}</h2>
         {latest && <span className="text-title text-ink tabular-nums">{wt(latest.kg)}</span>}

@@ -280,7 +280,7 @@ export default function SettingsScreen() {
               autoComplete="off"
             />
             {deleteError && (
-              <p role="alert" className="text-small text-danger">
+              <p role="alert" className="text-small text-danger-text">
                 {deleteError}
               </p>
             )}

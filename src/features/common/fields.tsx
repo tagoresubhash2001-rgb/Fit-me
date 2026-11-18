@@ -74,7 +74,7 @@ export function DobPicker({ value, onChange, todayIso, showError }: { value: Dob
           {t('dob.age', { count: age })}
         </p>
       ) : (
-        showError && err && <p role="alert" className="text-caption text-danger">{t(`dob.errors.${err}`)}</p>
+        showError && err && <p role="alert" className="text-caption text-danger-text">{t(`dob.errors.${err}`)}</p>
       )}
     </fieldset>
   );
@@ -201,7 +201,7 @@ export function MeasureInput({
       </div>
       <Slider label={`${label} ${t('units.slider')}`} min={range.min} max={range.max} step={range.step} value={v === '' ? (kind === 'height' ? 165 : 65) : Math.min(range.max, Math.max(range.min, v))} onChange={(m) => onChange(kind === 'height' ? Math.round(m * 2) / 2 : r1(m))} />
       {error && (
-        <p role="alert" className="text-caption text-danger">
+        <p role="alert" className="text-caption text-danger-text">
           {error}
         </p>
       )}

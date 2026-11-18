@@ -186,7 +186,7 @@ function EditWaterSheet({ entry, onClose, unit }: { entry: Entry | null; onClose
     >
       <div className="flex flex-col gap-4">
         <VolumeInput label={t('water.amount')} ml={ml} unit={u} onUnitChange={setU} onChange={setMl} />
-        {!valid && ml !== '' && <p className="text-caption text-danger">{t('errors.number', { min: 1, max: 5000 })}</p>}
+        {!valid && ml !== '' && <p className="text-caption text-danger-text">{t('errors.number', { min: 1, max: 5000 })}</p>}
         <TimeField label={t('common.time')} minutes={time} onChange={setTime} />
       </div>
     </Sheet>

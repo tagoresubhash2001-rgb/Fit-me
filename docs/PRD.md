@@ -306,6 +306,17 @@ Premium, calm and friendly: green and cream, soft rounded cards and Apple-level 
 
 **Dark mode:** background #0F1720, cards #17212B, raised surfaces #1F2A35, borders #26323E. Same green and orange.
 
+**Accessible shades (decision, November 2026):** to meet WCAG 2.1 AA (4.5:1 for normal text), colour behind or as text uses slightly deeper shades of the brand colours; the brand values above stay for the logo, icons and charts.
+
+| Use | Light | Dark |
+| --- | --- | --- |
+| Green fill behind white text (buttons, badges, today pill) | #168247 (pressed #136B3B) | #168247 |
+| Green text and icons on surfaces | #157A43 | #3DBE77 |
+| Orange text (Upgrade, highlights) | #A65006 | #FF8A24 |
+| Error red (fills and text) | #C62828 | text #FF7B7F |
+
+**Form factors (decision, November 2026):** one screen per feature, adapting by breakpoint tokens: mobile < 768 px (floating glass bottom bar), tablet 768–1279 px (bottom bar in portrait, navigation rail in landscape, forms as centred dialogs up to 560 px, list and detail side by side from 1024 px), desktop ≥ 1280 px (collapsible glass sidebar, top bar with search, date, theme and avatar menu, 12-column content up to 1360–1440 px, Jai and Jaya docked on the right, keyboard shortcuts N / W / / / ?). Type grows slightly with the screen (fluid, never below 12 px). Full rules: docs/UX_CHECKLIST.md.
+
 **Data colours** (for example blue for water and violet for sleep) may be used inside charts and small icons only, never as page or card backgrounds.
 
 **Typography**

@@ -73,7 +73,7 @@ export function GoalPicker({ selected, primary, onChange, bmi, age, activity }: 
         })}
       </ul>
       {conflict && (
-        <p role="alert" className="text-small text-danger">
+        <p role="alert" className="text-small text-danger-text">
           {conflict}
         </p>
       )}

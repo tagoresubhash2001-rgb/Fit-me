@@ -130,7 +130,7 @@ function ExerciseList({ onPick, grid }: { onPick?: (e: Exercise) => void; grid?:
     );
   }, [rows, q, cat]);
   if (loading) return <Skeleton className="h-40" />;
-  if (error) return <p className="text-small text-danger">{t('errors.loadFailed')}</p>;
+  if (error) return <p className="text-small text-danger-text">{t('errors.loadFailed')}</p>;
   if (!rows.length) return <EmptyState title={t('workouts.libraryEmpty')} />;
   return (
     <div className="flex flex-col gap-3">
@@ -290,7 +290,7 @@ function SessionPanel() {
             {t('workouts.start')}
           </Button>
         </Card>
-        <Card onPress={() => navigate('/plans?highlight=pro')} className="flex items-center gap-3">
+        <Card onPress={() => navigate('/plans?highlight=pro')} pressLabel={t('workouts.generator')} className="flex items-center gap-3">
           <Lock className="h-5 w-5 shrink-0 text-muted" strokeWidth={1.75} />
           <div className="min-w-0 flex-1">
             <p className="text-body font-medium text-ink">{t('workouts.generator')}</p>

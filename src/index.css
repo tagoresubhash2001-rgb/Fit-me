@@ -41,17 +41,20 @@
   --muted: #5b616b;
   --line: #e6e3d8;
   --track: #eceae2;
-  --primary: var(--brand-green);
-  --primary-pressed: var(--brand-green-pressed);
+  /* UI green behind text: #168247 keeps white text at 4.9:1 (WCAG AA). The brand #1FA45B stays for the logo. */
+  --primary: #168247;
+  --primary-pressed: #136b3b;
   --primary-subtle: var(--brand-green-subtle);
   /* Green for text and icons on light surfaces: #157A43 reaches 4.8:1 on white, cream and green-subtle (WCAG AA). */
   --primary-text: #157a43;
   --on-primary: var(--brand-white);
-  --accent: #c25e0a; /* orange darkened for text contrast on light surfaces */
+  --accent: #a65006; /* orange darkened for text: 5:1 on white and on the orange-subtle pill */
   --accent-fill: var(--brand-orange);
   --accent-subtle: var(--brand-orange-subtle);
   --sage: var(--brand-sage);
-  --danger: #e5484d;
+  /* Error red: #C62828 behind white text and as text on light surfaces (AA); dark mode text uses #FF7B7F. */
+  --danger: #c62828;
+  --danger-text: #c62828;
   --danger-subtle: #fdecec;
   --nav: var(--brand-white);
   --scrim: rgba(15, 23, 32, 0.4);
@@ -90,6 +93,7 @@
   --accent-subtle: rgba(255, 138, 36, 0.14);
   --sage: #1e2c26;
   --danger-subtle: rgba(229, 72, 77, 0.16);
+  --danger-text: #ff7b7f;
   --nav: #17212b;
   --scrim: rgba(0, 0, 0, 0.6);
   --data-water: #5aa2ff;
@@ -102,7 +106,7 @@
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-edge: rgba(0, 0, 0, 0.3);
   color-scheme: dark;
-  --primary-text: var(--brand-green);
+  --primary-text: #3dbe77;
 }
 
 @theme inline {
@@ -127,6 +131,7 @@
   --color-sage: var(--sage);
   --color-danger: var(--danger);
   --color-danger-subtle: var(--danger-subtle);
+  --color-danger-text: var(--danger-text);
   --color-nav: var(--nav);
   --color-scrim: var(--scrim);
   --color-card-border: var(--card-border);

@@ -49,7 +49,7 @@ export function HeightField({
           onChange={(e) => onChange(r1(ftInToCm(ft || 0, Number(e.target.value) || 0)))}
         />
       </div>
-      {error && <p className="text-caption text-danger">{error}</p>}
+      {error && <p className="text-caption text-danger-text">{error}</p>}
     </div>
   );
 }

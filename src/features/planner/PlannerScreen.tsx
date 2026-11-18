@@ -139,85 +139,89 @@ export default function PlannerScreen() {
             </div>
           ))}
         </div>
-        {days.map((d) => {
-          const s = byDay.get(d)!;
-          const out = view === 'month' && d.slice(0, 7) !== anchor.slice(0, 7);
-          const future = d > today;
-          const waterGoal = profile.waterTargetMl ?? profile.targets.waterMl;
-          return (
-            <div
-              key={d}
-              role="gridcell"
-              aria-selected={selected === d}
-              onDragOver={(e) => !future && e.preventDefault()}
-              onDrop={(e) => {
-                const id = e.dataTransfer.getData('text/workout');
-                const w = workouts.rows.find((x) => x.id === id);
-                if (w && !future) void move(w, d);
-              }}
-              className={cn(
-                'flex min-w-0 flex-col rounded-input border p-1 transition-colors md:p-2',
-                view === 'week' ? 'min-h-28 md:min-h-44' : 'min-h-14 md:min-h-24',
-                selected === d ? 'border-primary bg-primary-subtle/60' : 'border-line hover:bg-raised',
-                (out || future) && 'opacity-50',
-              )}
-            >
-              <button
-                type="button"
-                disabled={future}
-                onClick={() => setSelected(d)}
-                aria-label={date(d, { weekday: 'long', day: 'numeric', month: 'long' })}
-                className={cn(
-                  'self-start rounded-full px-1.5 text-small font-semibold tabular-nums',
-                  d === today ? 'bg-primary text-on-primary' : 'text-ink',
-                )}
-              >
-                {date(d, { day: 'numeric' })}
-              </button>
-              {!future && !loading && (
-                <div className="mt-1 flex min-w-0 flex-col gap-1">
-                  {view === 'week' ? (
-                    <>
-                      {s.kcal > 0 && (
-                        <span className="flex items-center gap-1 truncate text-caption text-muted">
-                          <Utensils className="hidden h-3 w-3 shrink-0 md:block" strokeWidth={2} />
-                          {Math.round(s.kcal)}
-                        </span>
+        {Array.from({ length: days.length / 7 }, (_, w) => days.slice(w * 7, w * 7 + 7)).map((week) => (
+          <div key={week[0]} role="row" className="contents">
+            {week.map((d) => {
+              const s = byDay.get(d)!;
+              const out = view === 'month' && d.slice(0, 7) !== anchor.slice(0, 7);
+              const future = d > today;
+              const waterGoal = profile.waterTargetMl ?? profile.targets.waterMl;
+              return (
+                <div
+                  key={d}
+                  role="gridcell"
+                  aria-selected={selected === d}
+                  onDragOver={(e) => !future && e.preventDefault()}
+                  onDrop={(e) => {
+                    const id = e.dataTransfer.getData('text/workout');
+                    const w = workouts.rows.find((x) => x.id === id);
+                    if (w && !future) void move(w, d);
+                  }}
+                  className={cn(
+                    'flex min-w-0 flex-col rounded-input border p-1 transition-colors md:p-2',
+                    view === 'week' ? 'min-h-28 md:min-h-44' : 'min-h-14 md:min-h-24',
+                    selected === d ? 'border-primary bg-primary-subtle/60' : 'border-line hover:bg-raised',
+                    (out || future) && 'opacity-50',
+                  )}
+                >
+                  <button
+                    type="button"
+                    disabled={future}
+                    onClick={() => setSelected(d)}
+                    aria-label={date(d, { weekday: 'long', day: 'numeric', month: 'long' })}
+                    className={cn(
+                      'self-start rounded-full px-1.5 text-small font-semibold tabular-nums',
+                      d === today ? 'bg-primary text-on-primary' : 'text-ink',
+                    )}
+                  >
+                    {date(d, { day: 'numeric' })}
+                  </button>
+                  {!future && !loading && (
+                    <div className="mt-1 flex min-w-0 flex-col gap-1">
+                      {view === 'week' ? (
+                        <>
+                          {s.kcal > 0 && (
+                            <span className="flex items-center gap-1 truncate text-caption text-muted">
+                              <Utensils className="hidden h-3 w-3 shrink-0 md:block" strokeWidth={2} />
+                              {Math.round(s.kcal)}
+                            </span>
+                          )}
+                          {s.waterMl > 0 && (
+                            <span
+                              className={cn('h-1.5 rounded-full bg-water', s.waterMl < waterGoal && 'opacity-50')}
+                              style={{ width: `${Math.min(100, (s.waterMl / waterGoal) * 100)}%` }}
+                              aria-hidden
+                            />
+                          )}
+                          {s.workouts.map((w) => (
+                            <button
+                              key={w.id}
+                              type="button"
+                              draggable
+                              onDragStart={(e) => e.dataTransfer.setData('text/workout', w.id)}
+                              onClick={() => setMoving(w)}
+                              title={t('planner.dragHint')}
+                              className="truncate rounded-[8px] bg-primary px-1.5 py-0.5 text-start text-caption font-medium text-on-primary hover:bg-primary-pressed"
+                            >
+                              {w.name}
+                            </button>
+                          ))}
+                        </>
+                      ) : (
+                        <div className="flex flex-wrap gap-1" aria-hidden>
+                          {s.kcal > 0 && <span className="h-2 w-2 rounded-full bg-primary" />}
+                          {s.waterMl >= waterGoal && <span className="h-2 w-2 rounded-full bg-water" />}
+                          {s.workouts.length > 0 && <span className="h-2 w-2 rounded-full bg-accent-fill" />}
+                          {s.sleepMin > 0 && <span className="h-2 w-2 rounded-full bg-sleep" />}
+                        </div>
                       )}
-                      {s.waterMl > 0 && (
-                        <span
-                          className={cn('h-1.5 rounded-full bg-water', s.waterMl < waterGoal && 'opacity-50')}
-                          style={{ width: `${Math.min(100, (s.waterMl / waterGoal) * 100)}%` }}
-                          aria-hidden
-                        />
-                      )}
-                      {s.workouts.map((w) => (
-                        <button
-                          key={w.id}
-                          type="button"
-                          draggable
-                          onDragStart={(e) => e.dataTransfer.setData('text/workout', w.id)}
-                          onClick={() => setMoving(w)}
-                          title={t('planner.dragHint')}
-                          className="truncate rounded-[8px] bg-primary px-1.5 py-0.5 text-start text-caption font-medium text-on-primary hover:bg-primary-pressed"
-                        >
-                          {w.name}
-                        </button>
-                      ))}
-                    </>
-                  ) : (
-                    <div className="flex flex-wrap gap-1" aria-hidden>
-                      {s.kcal > 0 && <span className="h-2 w-2 rounded-full bg-primary" />}
-                      {s.waterMl >= waterGoal && <span className="h-2 w-2 rounded-full bg-water" />}
-                      {s.workouts.length > 0 && <span className="h-2 w-2 rounded-full bg-accent-fill" />}
-                      {s.sleepMin > 0 && <span className="h-2 w-2 rounded-full bg-sleep" />}
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        ))}
       </div>
       <ul className="flex flex-wrap gap-x-4 gap-y-1 text-caption text-muted" aria-label={t('planner.legend')}>
         <li className="flex items-center gap-1.5">

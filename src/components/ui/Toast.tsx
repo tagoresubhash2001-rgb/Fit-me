@@ -35,7 +35,7 @@ export const useToast = create<ToastState>((set, get) => ({
 export const toast = (message: string, tone?: ToastTone, action?: ToastAction) => useToast.getState().show(message, tone, action);
 
 const icons = { success: CheckCircle2, error: AlertCircle, info: Info };
-const toneClass = { success: 'text-primary-text', error: 'text-danger', info: 'text-muted' };
+const toneClass = { success: 'text-primary-text', error: 'text-danger-text', info: 'text-muted' };
 
 export function ToastViewport() {
   const toasts = useToast((s) => s.toasts);

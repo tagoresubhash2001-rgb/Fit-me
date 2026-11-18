@@ -67,7 +67,7 @@ export function RowMenu({
           <button
             type="button"
             role="menuitem"
-            className={cn(item, 'text-danger')}
+            className={cn(item, 'text-danger-text')}
             onClick={() => {
               setOpen(false);
               onDelete();

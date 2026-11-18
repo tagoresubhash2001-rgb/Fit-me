@@ -4,8 +4,10 @@ import { cn } from './cn';
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   tone?: 'default' | 'sage' | 'subtle';
   padding?: 'none' | 'sm' | 'md';
-  /** Renders the card as a button with pressed and focus states. */
+  /** Makes the whole card pressable (a full-size button behind the content). */
   onPress?: () => void;
+  /** Accessible name of the card's press action (required with onPress). */
+  pressLabel?: string;
   /** Skip the enter animation (for cards inside sheets or lists that re-render often). */
   static?: boolean;
 }
@@ -20,23 +22,28 @@ const tones = {
 };
 const paddings = { none: '', sm: 'p-3', md: 'p-4' };
 
-export function Card({ tone = 'default', padding = 'md', onPress, static: isStatic, className, children, ...rest }: CardProps) {
+export function Card({ tone = 'default', padding = 'md', onPress, pressLabel, static: isStatic, className, children, ...rest }: CardProps) {
   const classes = cn(base, tones[tone], paddings[padding], !isStatic && 'card-enter', className);
   if (onPress) {
+    // Stretched button: one real <button> covers the card (keyboard, screen readers, focus ring), the
+    // content sits above it without catching clicks, and inner controls stay separately clickable and
+    // focusable (no interactive element nested inside another).
     return (
       <div
-        role="button"
-        tabIndex={0}
-        onClick={onPress}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onPress();
-          }
-        }}
-        className={cn(classes, 'cursor-pointer text-start active:scale-[0.98]')}
+        className={cn(
+          classes,
+          'relative cursor-pointer text-start has-[.card-press:active]:scale-[0.98]',
+          '[&>*:not(.card-press)]:pointer-events-none [&>*:not(.card-press)]:relative',
+          '[&_a]:pointer-events-auto [&_button:not(.card-press)]:pointer-events-auto [&_input]:pointer-events-auto [&_select]:pointer-events-auto',
+        )}
         {...rest}
       >
+        <button
+          type="button"
+          aria-label={pressLabel}
+          onClick={onPress}
+          className="card-press absolute inset-0 rounded-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        />
         {children}
       </div>
     );
@@ -47,8 +54,17 @@ export function Card({ tone = 'default', padding = 'md', onPress, static: isStat
     </div>
   );
 }
-
-export function CardHeader({ title, subtitle, action, icon }: { title: React.ReactNode; subtitle?: React.ReactNode; action?: React.ReactNode; icon?: React.ReactNode }) {
+export function CardHeader({
+  title,
+  subtitle,
+  action,
+  icon,
+}: {
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
+  action?: React.ReactNode;
+  icon?: React.ReactNode;
+}) {
   return (
     <div className="mb-3 flex items-start justify-between gap-3">
       <div className="flex min-w-0 items-start gap-2.5">

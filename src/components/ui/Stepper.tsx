@@ -73,7 +73,7 @@ export function Stepper({ value, onChange, step = 1, min = 0, max = 100000, labe
         </button>
       </div>
       {error && (
-        <p role="alert" className="text-caption text-danger">
+        <p role="alert" className="text-caption text-danger-text">
           {error}
         </p>
       )}
