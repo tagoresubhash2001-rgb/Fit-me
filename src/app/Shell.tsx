@@ -168,7 +168,7 @@ function BottomBar() {
   return (
     <nav
       aria-label={t('nav.main')}
-      className="glass fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-50 mx-auto max-w-lg rounded-card border p-1.5 shadow-float land:hidden xl:hidden"
+      className="glass glass-strong fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-50 mx-auto max-w-lg rounded-card border p-1.5 shadow-float land:hidden xl:hidden"
     >
       <ul ref={list} className="relative flex items-stretch justify-between gap-1">
         <SlidingPill container={list} selector='[aria-current="page"] [data-pill]' watch={pathname} className="rounded-full bg-primary-subtle" />
@@ -198,7 +198,7 @@ function Rail() {
   const list = useRef<HTMLUListElement>(null);
   const profile = useSession((s) => s.profile);
   return (
-    <nav aria-label={t('nav.main')} className="glass fixed inset-y-0 start-0 z-50 hidden w-[88px] flex-col items-center gap-1 border-e py-4 shadow-float land:flex">
+    <nav aria-label={t('nav.main')} className="glass glass-strong fixed inset-y-0 start-0 z-50 hidden w-[88px] flex-col items-center gap-1 border-e py-4 shadow-float land:flex">
       <Logo compact />
       <ul ref={list} className="relative mt-4 flex w-full flex-1 flex-col gap-1 px-2">
         <SlidingPill container={list} selector='[aria-current="page"] [data-pill]' watch={pathname} className="rounded-full bg-primary-subtle" />
@@ -319,7 +319,7 @@ function TopBar() {
   const [q, setQ] = useState('');
 
   return (
-    <header className="glass sticky top-0 z-40 border-b px-4 pt-[max(12px,env(safe-area-inset-top))] pb-3 shadow-[0_1px_0_var(--glass-edge)] md:px-6 xl:px-8">
+    <header className="glass glass-strong sticky top-0 z-40 border-b px-4 pt-[max(12px,env(safe-area-inset-top))] pb-3 shadow-[0_1px_0_var(--glass-edge)] md:px-6 xl:px-8">
       <div className="mx-auto flex max-w-2xl items-center justify-between gap-3 md:max-w-3xl land:max-w-5xl xl:max-w-[1360px] 2xl:max-w-[1440px]">
         <span className="xl:hidden">
           <Logo />

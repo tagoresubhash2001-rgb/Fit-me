@@ -1,5 +1,6 @@
 import { env } from './env';
 import { isNative } from './platform';
+import { firebase } from './firebase';
 
 /**
  * Error reporting. Web: Firebase Analytics `app_exception` events (loaded only when the first error happens,
@@ -13,7 +14,7 @@ function loader() {
   if (pending) return pending;
   pending = (async () => {
     if (env.useEmulators || !env.firebase.measurementId) return null;
-    const [{ getAnalytics, isSupported, logEvent }, { firebase }] = await Promise.all([import('firebase/analytics'), import('./firebase')]);
+    const { getAnalytics, isSupported, logEvent } = await import('firebase/analytics');
     if (!(await isSupported())) return null;
     const analytics = getAnalytics(firebase().app);
     return (e: { description: string; fatal: boolean }) => logEvent(analytics, 'exception', { ...e, platform: isNative() ? 'native' : 'web' });

@@ -74,6 +74,7 @@
 
   /* Frosted glass for header, navigation, sheets and modals. */
   --glass: rgba(255, 255, 255, 0.72);
+  --glass-strong: rgba(255, 255, 255, 0.9);
   --glass-border: rgba(255, 255, 255, 0.7);
   --glass-edge: rgba(15, 23, 32, 0.08);
 
@@ -103,6 +104,7 @@
   --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.34), 0 10px 24px rgba(0, 0, 0, 0.4), 0 22px 44px rgba(0, 0, 0, 0.34);
   --shadow-float: 0 2px 4px rgba(0, 0, 0, 0.24), 0 8px 24px rgba(0, 0, 0, 0.32);
   --glass: rgba(23, 33, 43, 0.72);
+  --glass-strong: rgba(23, 33, 43, 0.92);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-edge: rgba(0, 0, 0, 0.3);
   color-scheme: dark;
@@ -247,6 +249,11 @@
     -webkit-backdrop-filter: blur(18px) saturate(160%);
     backdrop-filter: blur(18px) saturate(160%);
     border-color: var(--glass-border);
+  }
+  /* Navigation that floats over any content (bottom bar, rail, header): denser glass so its labels keep
+     WCAG AA contrast whatever scrolls underneath. */
+  .glass-strong {
+    background-color: var(--glass-strong);
   }
 }
 

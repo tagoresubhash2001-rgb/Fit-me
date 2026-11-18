@@ -66,6 +66,11 @@ export function Sheet({ open, onClose, title, closeLabel, children, footer, clas
       if (e.key !== 'Tab' || !panelRef.current) return;
       const items = [...panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((el) => el.offsetParent !== null);
       if (!items.length) return;
+      if (!panelRef.current.contains(document.activeElement)) {
+        e.preventDefault();
+        items[0].focus();
+        return;
+      }
       const first = items[0];
       const last = items[items.length - 1];
       if (e.shiftKey && (document.activeElement === first || document.activeElement === panelRef.current)) {
@@ -87,7 +92,7 @@ export function Sheet({ open, onClose, title, closeLabel, children, footer, clas
     };
   }, [open, inline]);
 
-  if (inline ? !open : !mounted) return null;
+  if (inline ? !open : !(open || mounted)) return null;
 
   const header = (
     <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-2 md:px-5">
