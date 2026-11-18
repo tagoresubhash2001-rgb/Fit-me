@@ -5,6 +5,7 @@
  * Live: uses real accounts; delete them afterwards with e2e/_cleanup-user.cjs (the script prints the emails).
  */
 const path = require('path');
+const os = require('os');
 const fs = require('fs');
 const assert = require('assert');
 const { chromium } = require('playwright');
@@ -79,6 +80,7 @@ async function flow(browser, name) {
     // New ID token with the tester claim: sign out and in again.
     await page.goto(`${BASE}/settings`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: 'Sign out' }).last().click();
+    await page.getByRole('button', { name: 'Continue with email' }).waitFor({ timeout: 20000 });
     await signIn(page, BASE, email);
     await page.goto(`${BASE}/plans?period=yearly`, { waitUntil: 'domcontentloaded' });
   }
@@ -241,6 +243,8 @@ async function widthSweep(browser) {
     } catch (e) {
       failed = true;
       console.log(`${d}: FAIL ${e.message.split('\n').slice(0, 3).join(' | ')}`);
+      // Keep what the page looked like when it failed (scratch folder, not committed).
+      for (const c of browser.contexts()) for (const pg of c.pages()) await pg.screenshot({ path: path.join(os.tmpdir(), `fitme-fail-${d}.png`) }).catch(() => {});
     }
   }
   if (only.length > 1) {
