@@ -147,7 +147,7 @@ export function Combobox({
                 {o.icon}
                 <span className="min-w-0 flex-1 truncate">{o.label}</span>
                 {o.hint && <span className="shrink-0 text-caption text-muted">{o.hint}</span>}
-                {o.value === value && <Check className="h-4 w-4 shrink-0 text-primary" strokeWidth={2} />}
+                {o.value === value && <Check className="h-4 w-4 shrink-0 text-primary-text" strokeWidth={2} />}
               </li>
             ))}
             {showCustom && (
@@ -157,7 +157,7 @@ export function Combobox({
                 aria-selected={false}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => pick(q.trim())}
-                className={cn('flex min-h-11 cursor-pointer items-center px-3 text-body font-medium text-primary', active === filtered.length && 'bg-primary-subtle')}
+                className={cn('flex min-h-11 cursor-pointer items-center px-3 text-body font-medium text-primary-text', active === filtered.length && 'bg-primary-subtle')}
               >
                 {addCustomLabel ? addCustomLabel(q.trim()) : q.trim()}
               </li>

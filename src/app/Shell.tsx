@@ -109,7 +109,7 @@ function Logo({ compact }: { compact?: boolean }) {
         </span>
       ) : (
         <>
-          FIT ME <span className="text-primary">AI</span>
+          FIT ME <span className="text-primary-text">AI</span>
         </>
       )}
     </span>
@@ -129,10 +129,10 @@ function BottomBar() {
             <NavLink to={to} end={'end' in rest} id={`nav-${key}`} className="group flex w-full flex-col items-center gap-0.5 rounded-button py-1">
               {({ isActive }) => (
                 <>
-                  <span className={cn('flex h-8 w-14 max-w-full items-center justify-center rounded-full transition-colors duration-150', isActive ? 'bg-primary-subtle text-primary' : 'text-muted group-hover:text-ink')}>
+                  <span className={cn('flex h-8 w-14 max-w-full items-center justify-center rounded-full transition-colors duration-150', isActive ? 'bg-primary-subtle text-primary-text' : 'text-muted group-hover:text-ink')}>
                     <Icon className="h-5 w-5" strokeWidth={1.75} />
                   </span>
-                  <span className={cn('line-clamp-2 max-w-full text-center text-caption leading-tight break-words', isActive ? 'text-primary' : 'text-muted')}>{t(`nav.${key}`)}</span>
+                  <span className={cn('line-clamp-2 max-w-full text-center text-caption leading-tight break-words', isActive ? 'text-primary-text' : 'text-muted')}>{t(`nav.${key}`)}</span>
                 </>
               )}
             </NavLink>
@@ -156,10 +156,10 @@ function Rail() {
             <NavLink to={to} end={'end' in rest} id={`rail-${key}`} className="group flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-button py-1.5">
               {({ isActive }) => (
                 <>
-                  <span className={cn('flex h-8 w-12 items-center justify-center rounded-full transition-colors duration-150', isActive ? 'bg-primary-subtle text-primary' : 'text-muted group-hover:text-ink')}>
+                  <span className={cn('flex h-8 w-12 items-center justify-center rounded-full transition-colors duration-150', isActive ? 'bg-primary-subtle text-primary-text' : 'text-muted group-hover:text-ink')}>
                     <Icon className="h-5 w-5" strokeWidth={1.75} />
                   </span>
-                  <span className={cn('line-clamp-2 max-w-full text-center text-caption leading-tight', isActive ? 'text-primary' : 'text-muted')}>{t(`nav.${key}`)}</span>
+                  <span className={cn('line-clamp-2 max-w-full text-center text-caption leading-tight', isActive ? 'text-primary-text' : 'text-muted')}>{t(`nav.${key}`)}</span>
                 </>
               )}
             </NavLink>
@@ -184,7 +184,7 @@ function Sidebar() {
     cn(
       'flex min-h-11 items-center gap-3 rounded-button px-3 text-body transition-colors duration-150',
       collapsed && 'justify-center px-0',
-      active ? 'bg-primary-subtle font-semibold text-primary' : 'text-ink hover:bg-raised',
+      active ? 'bg-primary-subtle font-semibold text-primary-text' : 'text-ink hover:bg-raised',
     );
   const label = (text: string) => <span className={cn('truncate', collapsed && 'sr-only')}>{text}</span>;
   const extra = [

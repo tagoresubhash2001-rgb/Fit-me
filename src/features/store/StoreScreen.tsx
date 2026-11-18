@@ -52,7 +52,7 @@ export default function StoreScreen() {
           <Skeleton className="mx-auto h-12 w-48" />
         ) : joined ? (
           <div className="flex flex-col items-center gap-2">
-            <p className="flex items-center gap-2 text-center text-small text-primary">
+            <p className="flex items-center gap-2 text-center text-small text-primary-text">
               <Check className="h-4 w-4" strokeWidth={2} />
               {t('store.notified')}
             </p>

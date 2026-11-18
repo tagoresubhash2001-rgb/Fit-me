@@ -32,7 +32,7 @@ export function Choice({
         className,
       )}
     >
-      {icon && <span className={cn('shrink-0', selected ? 'text-primary' : 'text-muted')}>{icon}</span>}
+      {icon && <span className={cn('shrink-0', selected ? 'text-primary-text' : 'text-muted')}>{icon}</span>}
       <span className="min-w-0 flex-1">
         <span className="block text-body font-medium text-ink">{title}</span>
         {description && <span className="block text-small text-muted">{description}</span>}

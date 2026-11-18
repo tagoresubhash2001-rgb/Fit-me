@@ -147,7 +147,7 @@ function ProgressPanel() {
                 className={`flex items-center gap-2 rounded-input border p-3 ${earned ? 'border-primary/30 bg-primary-subtle' : 'border-line'}`}
               >
                 {earned ? (
-                  <Award className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.75} />
+                  <Award className="h-5 w-5 shrink-0 text-primary-text" strokeWidth={1.75} />
                 ) : (
                   <Lock className="h-5 w-5 shrink-0 text-muted" strokeWidth={1.75} />
                 )}

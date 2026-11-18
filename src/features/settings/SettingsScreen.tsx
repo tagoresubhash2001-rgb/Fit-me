@@ -92,7 +92,7 @@ export default function SettingsScreen() {
             href={`#${id}`}
             className={cn(
               'flex min-h-11 items-center rounded-button px-3 text-body transition-colors hover:bg-raised',
-              hash === `#${id}` ? 'bg-primary-subtle font-semibold text-primary' : 'text-ink',
+              hash === `#${id}` ? 'bg-primary-subtle font-semibold text-primary-text' : 'text-ink',
             )}
           >
             {label}
@@ -215,7 +215,7 @@ export default function SettingsScreen() {
         </Card>
 
         <Card id="reminders" className="flex scroll-mt-24 items-start gap-3">
-          <Bell className="mt-0.5 h-5 w-5 shrink-0 text-primary" strokeWidth={1.75} />
+          <Bell className="mt-0.5 h-5 w-5 shrink-0 text-primary-text" strokeWidth={1.75} />
           <div>
             <p className="text-body font-medium text-ink">{t('settings.notifications')}</p>
             <p className="text-small text-muted">{t('settings.notificationsBody')}</p>

@@ -47,7 +47,7 @@ export function GoalPicker({ selected, primary, onChange, bmi, age, activity }: 
             <li key={g}>
               <div className={cn('flex min-h-14 items-center gap-3 rounded-input border p-3 transition-colors duration-150', on ? 'border-primary bg-primary-subtle' : 'border-line bg-surface')}>
                 <button type="button" role="checkbox" aria-checked={on} onClick={() => toggle(g)} className="flex min-w-0 flex-1 items-center gap-3 text-start">
-                  <Icon className={cn('h-5 w-5 shrink-0', on ? 'text-primary' : 'text-muted')} strokeWidth={1.75} />
+                  <Icon className={cn('h-5 w-5 shrink-0', on ? 'text-primary-text' : 'text-muted')} strokeWidth={1.75} />
                   <span className="min-w-0">
                     <span className="flex flex-wrap items-center gap-1.5">
                       <span className="text-body font-medium text-ink">{t(`goals.${g}`)}</span>

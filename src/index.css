@@ -44,6 +44,8 @@
   --primary: var(--brand-green);
   --primary-pressed: var(--brand-green-pressed);
   --primary-subtle: var(--brand-green-subtle);
+  /* Green for text and icons on light surfaces: #157A43 reaches 4.8:1 on white, cream and green-subtle (WCAG AA). */
+  --primary-text: #157a43;
   --on-primary: var(--brand-white);
   --accent: #c25e0a; /* orange darkened for text contrast on light surfaces */
   --accent-fill: var(--brand-orange);
@@ -100,6 +102,7 @@
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-edge: rgba(0, 0, 0, 0.3);
   color-scheme: dark;
+  --primary-text: var(--brand-green);
 }
 
 @theme inline {
@@ -116,6 +119,7 @@
   --color-primary: var(--primary);
   --color-primary-pressed: var(--primary-pressed);
   --color-primary-subtle: var(--primary-subtle);
+  --color-primary-text: var(--primary-text);
   --color-on-primary: var(--on-primary);
   --color-accent: var(--accent);
   --color-accent-fill: var(--accent-fill);

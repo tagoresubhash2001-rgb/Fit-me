@@ -266,7 +266,7 @@ export default function PlannerScreen() {
             {!split && dayPanel}
             <Card className="flex items-center gap-3">
               {planAllows(plan, 'pro') ? (
-                <CalendarDays className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.75} />
+                <CalendarDays className="h-5 w-5 shrink-0 text-primary-text" strokeWidth={1.75} />
               ) : (
                 <Lock className="h-5 w-5 shrink-0 text-muted" strokeWidth={1.75} />
               )}
@@ -322,7 +322,7 @@ function DayPanel({
             className="flex items-center justify-between gap-3 py-2.5 text-start hover:bg-raised"
           >
             <dt className="flex items-center gap-2 text-body text-ink">
-              <Utensils className="h-4 w-4 text-primary" strokeWidth={1.75} />
+              <Utensils className="h-4 w-4 text-primary-text" strokeWidth={1.75} />
               {t('planner.food')}
             </dt>
             <dd className="text-body font-semibold text-ink tabular-nums">

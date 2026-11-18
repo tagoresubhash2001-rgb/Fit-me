@@ -70,7 +70,7 @@ export function DobPicker({ value, onChange, todayIso, showError }: { value: Dob
         </Select>
       </div>
       {age !== null ? (
-        <p className="text-small text-primary" aria-live="polite">
+        <p className="text-small text-primary-text" aria-live="polite">
           {t('dob.age', { count: age })}
         </p>
       ) : (

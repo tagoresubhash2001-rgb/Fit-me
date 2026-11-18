@@ -155,7 +155,7 @@ function ExerciseList({ onPick, grid }: { onPick?: (e: Exercise) => void; grid?:
             type="button"
             aria-pressed={cat === c}
             onClick={() => setCat(c)}
-            className={`h-9 shrink-0 rounded-full border px-3 text-small ${cat === c ? 'border-primary bg-primary-subtle text-primary' : 'border-line text-muted'}`}
+            className={`h-9 shrink-0 rounded-full border px-3 text-small ${cat === c ? 'border-primary bg-primary-subtle text-primary-text' : 'border-line text-muted'}`}
           >
             {c === 'all' ? t('workouts.all') : t(`workoutCategory.${c}`, { defaultValue: c })}
           </button>
@@ -178,7 +178,7 @@ function ExerciseList({ onPick, grid }: { onPick?: (e: Exercise) => void; grid?:
             </button>
             {onPick && (
               <IconButton label={t('workouts.addExercise')} onClick={() => onPick(e)}>
-                <Plus className="h-5 w-5 text-primary" strokeWidth={1.75} />
+                <Plus className="h-5 w-5 text-primary-text" strokeWidth={1.75} />
               </IconButton>
             )}
           </li>

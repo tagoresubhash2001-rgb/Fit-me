@@ -98,7 +98,7 @@ export default function PlansScreen() {
                   return (
                     <li key={f.id} className={cn('flex items-start gap-2 text-small', on ? 'text-ink' : 'text-muted')}>
                       {on ? (
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" strokeWidth={2.25} />
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary-text" strokeWidth={2.25} />
                       ) : (
                         <Minus className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} />
                       )}
@@ -144,7 +144,7 @@ export default function PlansScreen() {
                 <th
                   key={p}
                   scope="col"
-                  className={cn('w-[18%] py-2.5 text-center text-body font-semibold', current === p ? 'text-primary' : 'text-ink')}
+                  className={cn('w-[18%] py-2.5 text-center text-body font-semibold', current === p ? 'text-primary-text' : 'text-ink')}
                 >
                   {t(`plans.${p}`)}
                 </th>
@@ -161,7 +161,7 @@ export default function PlansScreen() {
                   <td key={p} className="py-2.5 text-center">
                     {f.plans.includes(p) ? (
                       <>
-                        <Check className="mx-auto h-5 w-5 text-primary" strokeWidth={2.25} aria-hidden />
+                        <Check className="mx-auto h-5 w-5 text-primary-text" strokeWidth={2.25} aria-hidden />
                         <span className="sr-only">{t('plans.included')}</span>
                       </>
                     ) : (
@@ -179,7 +179,7 @@ export default function PlansScreen() {
       </Card>
       <Card tone="subtle" className="card-enter">
         <p className="text-small text-ink">{t('plans.paymentsNote')}</p>
-        {interest && <p className="mt-1 text-small text-primary">{t('plans.interestSaved', { plan: t(`plans.${interest}`) })}</p>}
+        {interest && <p className="mt-1 text-small text-primary-text">{t('plans.interestSaved', { plan: t(`plans.${interest}`) })}</p>}
       </Card>
     </div>
   );

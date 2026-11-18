@@ -82,7 +82,7 @@ export function QuantityEditor({ options, state, onChange }: { options: UnitOpti
               type="button"
               aria-pressed={state.quantity === m}
               onClick={() => onChange({ ...state, quantity: m })}
-              className={cn('h-9 rounded-full border px-3.5 text-small font-medium transition-colors duration-150 active:scale-95', state.quantity === m ? 'border-primary bg-primary-subtle text-primary' : 'border-line bg-surface text-ink hover:bg-raised')}
+              className={cn('h-9 rounded-full border px-3.5 text-small font-medium transition-colors duration-150 active:scale-95', state.quantity === m ? 'border-primary bg-primary-subtle text-primary-text' : 'border-line bg-surface text-ink hover:bg-raised')}
             >
               {m}×
             </button>

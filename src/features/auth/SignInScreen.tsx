@@ -73,7 +73,7 @@ export default function SignInScreen() {
         </div>
         <div className="mt-8 mb-6">
           <p className="text-display text-ink">
-            FIT ME <span className="text-primary">AI</span>
+            FIT ME <span className="text-primary-text">AI</span>
           </p>
           <h1 className="mt-4 text-title text-ink">{t('auth.welcomeTitle')}</h1>
           <p className="mt-1 text-body text-muted">{t('auth.welcomeBody')}</p>
@@ -252,7 +252,7 @@ export default function SignInScreen() {
             </p>
           )}
           {info && (
-            <p role="status" className="text-small text-primary">
+            <p role="status" className="text-small text-primary-text">
               {info}
             </p>
           )}

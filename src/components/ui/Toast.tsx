@@ -35,7 +35,7 @@ export const useToast = create<ToastState>((set, get) => ({
 export const toast = (message: string, tone?: ToastTone, action?: ToastAction) => useToast.getState().show(message, tone, action);
 
 const icons = { success: CheckCircle2, error: AlertCircle, info: Info };
-const toneClass = { success: 'text-primary', error: 'text-danger', info: 'text-muted' };
+const toneClass = { success: 'text-primary-text', error: 'text-danger', info: 'text-muted' };
 
 export function ToastViewport() {
   const toasts = useToast((s) => s.toasts);
@@ -58,7 +58,7 @@ export function ToastViewport() {
             {item.action && (
               <button
                 type="button"
-                className="shrink-0 rounded-[10px] px-2.5 py-1.5 text-small font-semibold text-primary hover:bg-primary-subtle"
+                className="shrink-0 rounded-[10px] px-2.5 py-1.5 text-small font-semibold text-primary-text hover:bg-primary-subtle"
                 onClick={() => {
                   item.action!.onClick();
                   dismiss(item.id);

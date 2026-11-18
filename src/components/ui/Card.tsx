@@ -52,7 +52,7 @@ export function CardHeader({ title, subtitle, action, icon }: { title: React.Rea
   return (
     <div className="mb-3 flex items-start justify-between gap-3">
       <div className="flex min-w-0 items-start gap-2.5">
-        {icon && <span className="mt-0.5 shrink-0 text-primary">{icon}</span>}
+        {icon && <span className="mt-0.5 shrink-0 text-primary-text">{icon}</span>}
         <div className="min-w-0">
           <h3 className="text-title text-ink">{title}</h3>
           {subtitle && <p className="text-small text-muted">{subtitle}</p>}

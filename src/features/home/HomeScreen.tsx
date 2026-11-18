@@ -44,7 +44,7 @@ function StatCard({
     <Card onPress={onPress} className="flex min-w-0 flex-col gap-2" id={id}>
       <div className="flex items-center justify-between gap-2 text-muted">
         <span className="flex min-w-0 items-center gap-2">
-          <span className="shrink-0 text-primary">{icon}</span>
+          <span className="shrink-0 text-primary-text">{icon}</span>
           <span className="min-w-0 text-small font-medium leading-tight text-ink">{title}</span>
         </span>
         <ChevronRight className="h-4 w-4 shrink-0 rtl:rotate-180" strokeWidth={1.75} />
@@ -243,7 +243,7 @@ export default function HomeScreen() {
       </div>
 
       <Card onPress={() => navigate('/planner')} className="flex items-center gap-3 md:order-5 md:col-span-12 xl:order-4 xl:col-span-6">
-        <CalendarDays className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.75} />
+        <CalendarDays className="h-5 w-5 shrink-0 text-primary-text" strokeWidth={1.75} />
         <div className="min-w-0 flex-1">
           <p className="text-body font-medium text-ink">{t('home.scheduleCard')}</p>
           <p className="text-small text-muted">{t('home.scheduleLocked')}</p>
@@ -321,7 +321,7 @@ function CoachInsightCard({ className }: { className?: string }) {
     <Card className={cn('min-w-0 flex-col gap-3', className)} id="card-coach">
       <div className="flex items-center justify-between gap-2">
         <h2 className="flex items-center gap-2 text-title text-ink">
-          <MessageCircle className="h-5 w-5 text-primary" strokeWidth={1.75} />
+          <MessageCircle className="h-5 w-5 text-primary-text" strokeWidth={1.75} />
           {t('home.coachInsight')}
         </h2>
         {!isPro && <PlanBadge plan="pro" label={t('plans.pro')} ariaLabel={t('plans.seePlans')} />}

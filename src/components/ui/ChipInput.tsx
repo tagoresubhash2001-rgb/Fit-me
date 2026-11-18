@@ -68,7 +68,7 @@ export function ChipInput({
               onClick={() => toggle(v)}
               className={cn(
                 'flex h-9 items-center gap-1.5 rounded-full border px-3 text-small transition-colors duration-150 active:scale-95',
-                on ? 'border-primary bg-primary-subtle text-primary' : 'border-line bg-surface text-ink hover:bg-raised',
+                on ? 'border-primary bg-primary-subtle text-primary-text' : 'border-line bg-surface text-ink hover:bg-raised',
               )}
             >
               {on ? <Check className="h-3.5 w-3.5" strokeWidth={2} /> : <Plus className="h-3.5 w-3.5" strokeWidth={2} />}

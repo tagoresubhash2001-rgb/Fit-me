@@ -180,7 +180,7 @@ export default function Onboarding() {
       <div className="mx-auto w-full max-w-md">
         <div className="mb-2 flex items-center justify-between">
           <span className="text-title font-semibold text-ink">
-            FIT ME <span className="text-primary">AI</span>
+            FIT ME <span className="text-primary-text">AI</span>
           </span>
           <span className="text-caption text-muted">{t('onboarding.stepOf', { step, total: TOTAL })}</span>
         </div>

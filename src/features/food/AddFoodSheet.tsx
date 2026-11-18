@@ -320,7 +320,7 @@ export function AddFoodSheet({
                         </span>
                         {hasAllergen(f) && <AlertTriangle aria-label={t('food.containsAllergen')} className="h-4 w-4 shrink-0 text-accent" strokeWidth={2} />}
                         {f.source === 'curated' && <Badge tone="primary">{f.countries?.[0] ?? ''}</Badge>}
-                        <Plus className="h-5 w-5 shrink-0 text-primary" strokeWidth={1.75} />
+                        <Plus className="h-5 w-5 shrink-0 text-primary-text" strokeWidth={1.75} />
                       </button>
                     </li>
                   );
@@ -643,7 +643,7 @@ function RecipeBuilder({ recipes, onPickRecipe, premium }: { recipes: Recipe[]; 
           }}
         >
           <span className="truncate text-small text-ink">{displayName(f, i18n.language)}</span>
-          <Plus className="h-4 w-4 shrink-0 text-primary" strokeWidth={1.75} />
+          <Plus className="h-4 w-4 shrink-0 text-primary-text" strokeWidth={1.75} />
         </button>
       ))}
       {ingredients.length > 0 && (
