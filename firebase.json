@@ -41,6 +41,14 @@
         "source": "**",
         "headers": [
           {
+            "key": "Content-Security-Policy",
+            "value": "default-src 'self'; script-src 'self' https://apis.google.com https://www.gstatic.com https://www.google.com https://www.recaptcha.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.googleusercontent.com https://firebasestorage.googleapis.com https://images.openfoodfacts.org https://www.gstatic.com https://www.google.com; font-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.cloudfunctions.net https://*.run.app https://fit-me1.firebaseapp.com https://www.google.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.firebaseio.com wss://*.firebaseio.com; frame-src https://fit-me1.firebaseapp.com https://accounts.google.com https://www.google.com https://recaptcha.google.com https://www.recaptcha.net https://appleid.apple.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+          },
+          {
+            "key": "Strict-Transport-Security",
+            "value": "max-age=31536000; includeSubDomains"
+          },
+          {
             "key": "X-Content-Type-Options",
             "value": "nosniff"
           },
@@ -51,6 +59,14 @@
           {
             "key": "X-Frame-Options",
             "value": "DENY"
+          },
+          {
+            "key": "Permissions-Policy",
+            "value": "camera=(self), microphone=(self), geolocation=(), payment=(self), usb=(), browsing-topics=()"
+          },
+          {
+            "key": "Cross-Origin-Opener-Policy",
+            "value": "same-origin-allow-popups"
           },
           {
             "key": "Cache-Control",
@@ -66,8 +82,55 @@
             "value": "public, max-age=31536000, immutable"
           }
         ]
+      },
+      {
+        "source": "/@(icons|screenshots)/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=86400"
+          }
+        ]
+      },
+      {
+        "source": "/@(favicon.svg|og-image.png|robots.txt)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=86400"
+          }
+        ]
+      },
+      {
+        "source": "/@(sw.js|manifest.webmanifest|index.html|offline.html)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, no-store, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/@(food|planner|health|workouts|store|settings|plans)",
+        "headers": [
+          {
+            "key": "X-Robots-Tag",
+            "value": "noindex, nofollow"
+          }
+        ]
+      },
+      {
+        "source": "/@(food|planner|health|workouts|store|settings|plans)/**",
+        "headers": [
+          {
+            "key": "X-Robots-Tag",
+            "value": "noindex, nofollow"
+          }
+        ]
       }
-    ]
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false
   },
   "emulators": {
     "auth": {
