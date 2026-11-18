@@ -12,7 +12,7 @@ export const deleteAccount = onCall(callableOptions({ timeoutSeconds: 300 }), as
   const uid = requireAuth(req);
   const firestore = db();
   await firestore.recursiveDelete(firestore.doc(`users/${uid}`));
-  await Promise.all([firestore.doc(`entitlements/${uid}`).delete(), firestore.doc(`storeWaitlist/${uid}`).delete(), firestore.doc(`planInterest/${uid}`).delete()]);
+  await Promise.all([firestore.doc(`entitlements/${uid}`).delete(), firestore.doc(`storeWaitlist/${uid}`).delete(), firestore.doc(`planInterest/${uid}`).delete(), firestore.recursiveDelete(firestore.doc(`billing/${uid}`))]);
   const usage = await firestore.collection('usage').where('uid', '==', uid).get();
   await Promise.all(usage.docs.map((d) => d.ref.delete()));
   try {

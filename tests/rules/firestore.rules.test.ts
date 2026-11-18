@@ -127,6 +127,29 @@ describe('premium micronutrients', () => {
     await assertFails(getDoc(doc(env.authenticatedContext('carol').firestore(), 'foodMicros/usda-1'))); // free
     await assertFails(setDoc(doc(alice(), 'foodMicros/usda-1'), { sodiumMg: 0 }));
   });
+  it('trial and cancelled entitlements keep access until they end; expired never does', async () => {
+    const soon = Timestamp.fromMillis(Date.now() + 86400000);
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const d = ctx.firestore();
+      await setDoc(doc(d, 'foodMicros/usda-2'), { sodiumMg: 1 });
+      await setDoc(doc(d, 'entitlements/dan'), { plan: 'pro', status: 'trialing', expiresAt: soon });
+      await setDoc(doc(d, 'entitlements/eve'), { plan: 'premium', status: 'cancelled', expiresAt: soon });
+      await setDoc(doc(d, 'entitlements/fay'), { plan: 'premium', status: 'expired', expiresAt: soon });
+    });
+    const as = (u: string) => env.authenticatedContext(u).firestore();
+    await assertSucceeds(getDoc(doc(as('dan'), 'foodMicros/usda-2')));
+    await assertSucceeds(getDoc(doc(as('eve'), 'foodMicros/usda-2')));
+    await assertFails(getDoc(doc(as('fay'), 'foodMicros/usda-2')));
+  });
+});
+
+describe('billing records', () => {
+  it('billing/{uid} (trial history, store events) is server-only', async () => {
+    await env.withSecurityRulesDisabled((ctx) => setDoc(doc(ctx.firestore(), 'billing/alice'), { trialUsedAt: now }));
+    await assertFails(getDoc(doc(alice(), 'billing/alice')));
+    await assertFails(setDoc(doc(alice(), 'billing/alice'), { trialUsedAt: null }));
+    await assertFails(setDoc(doc(alice(), 'entitlements/alice'), { plan: 'pro', status: 'trialing' }));
+  });
 });
 
 describe('plan interest', () => {
@@ -134,6 +157,8 @@ describe('plan interest', () => {
     const ok = { uid: 'alice', plan: 'pro', currency: 'INR', country: 'IN', updatedAt: now };
     await assertSucceeds(setDoc(doc(alice(), 'planInterest/alice'), ok));
     await assertSucceeds(setDoc(doc(alice(), 'planInterest/alice'), { ...ok, plan: 'premium' }));
+    await assertSucceeds(setDoc(doc(alice(), 'planInterest/alice'), { ...ok, period: 'yearly' }));
+    await assertFails(setDoc(doc(alice(), 'planInterest/alice'), { ...ok, period: 'weekly' }));
     await assertFails(setDoc(doc(alice(), 'planInterest/alice'), { ...ok, plan: 'free' }));
     await assertFails(setDoc(doc(alice(), 'planInterest/alice'), { ...ok, paid: true }));
     await assertFails(setDoc(doc(bob(), 'planInterest/alice'), ok));

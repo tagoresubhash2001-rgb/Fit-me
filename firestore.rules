@@ -21,6 +21,7 @@ service cloud.firestore {
       let path = /databases/$(database)/documents/entitlements/$(request.auth.uid);
       return signedIn() && exists(path)
         && get(path).data.plan in plans
+        && get(path).data.get('status', 'active') != 'expired'
         && (!('expiresAt' in get(path).data) || get(path).data.expiresAt == null || get(path).data.expiresAt > request.time);
     }
 
@@ -123,9 +124,10 @@ service cloud.firestore {
     match /planInterest/{uid} {
       allow read, delete: if isOwner(uid);
       allow create, update: if isOwner(uid)
-        && request.resource.data.keys().hasOnly(['uid', 'plan', 'currency', 'country', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'plan', 'period', 'currency', 'country', 'updatedAt'])
         && request.resource.data.uid == uid
         && request.resource.data.plan in ['premium', 'pro']
+        && request.resource.data.get('period', 'monthly') in ['monthly', 'quarterly', 'yearly']
         && request.resource.data.currency is string && request.resource.data.currency.size() == 3
         && request.resource.data.country is string && request.resource.data.country.size() == 2
         && request.resource.data.updatedAt is timestamp;

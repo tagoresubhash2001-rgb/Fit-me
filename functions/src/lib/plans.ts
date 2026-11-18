@@ -5,6 +5,8 @@ const RANK: Record<Plan, number> = { free: 0, premium: 1, pro: 2 };
 
 export interface EntitlementDoc {
   plan?: string;
+  /** trialing | active | grace | cancelled | expired (see billing/billing.ts). Missing = legacy grant. */
+  status?: string;
   expiresAt?: { toMillis(): number } | number | null;
   source?: string;
 }
@@ -16,7 +18,7 @@ export function isPlan(v: unknown): v is Plan {
 /** Resolves the effective plan: an expired or malformed entitlement is treated as free. */
 export function effectivePlan(doc: EntitlementDoc | undefined | null, nowMs: number): Plan {
   if (!doc || !isPlan(doc.plan)) return 'free';
-  if (doc.plan === 'free') return 'free';
+  if (doc.plan === 'free' || doc.status === 'expired') return 'free';
   const exp = doc.expiresAt;
   if (exp === null || exp === undefined) return doc.plan; // non-expiring grant (e.g. lifetime / admin)
   const expMs = typeof exp === 'number' ? exp : exp.toMillis();
