@@ -98,6 +98,15 @@ jobs:
       - name: Production build must not point at the emulators
         run: |
           if grep -q "VITE_USE_EMULATORS=true" .env.production.local; then echo "::error::Emulators enabled in a deploy build"; exit 1; fi
+          if grep -rq "127.0.0.1:9099\|127.0.0.1:8080" dist/assets/; then echo "::error::Emulator hosts found in the deploy bundle"; exit 1; fi
+          grep -q '"fit-me1"\|fit-me1.firebaseapp.com' -r dist/assets/ || { echo "::error::fit-me1 web config missing from the bundle"; exit 1; }
+      - name: Install browser for render checks
+        run: npx playwright install --with-deps chromium
+      - name: Render check (built site, before deploy)
+        run: |
+          npx vite preview --port 4173 --strictPort &
+          for i in $(seq 1 30); do curl -sf http://localhost:4173 >/dev/null && break; sleep 1; done
+          node e2e/render-check.cjs http://localhost:4173
       - &auth_sa
         name: Authenticate (service-account key fallback)
         if: env.HAS_SA_KEY == 'true'
@@ -146,6 +155,9 @@ jobs:
             echo "Attempt $i: HTTP $code"; sleep 10
           done
           echo "::error::$SITE_URL did not return the app shell"; exit 1
+      - name: Render check (live site, real browser, CSP and service worker)
+        if: github.event_name != 'pull_request'
+        run: node e2e/render-check.cjs "$SITE_URL"
 
   firestore:
     name: Firestore rules and indexes
