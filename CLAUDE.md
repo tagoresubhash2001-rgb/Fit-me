@@ -75,8 +75,10 @@ Keep features modular. Business logic in `src/domain/` and Functions, not in com
   **Premium** = Free + micronutrients (vitamins, minerals, sodium, sugar), AI food photo scan, no ads.
   **Pro** = Premium + Jai & Jaya AI coaches (chat and voice), smart reminders, weekly/monthly planner and
   AI auto-planner, AI meal plans and workout generator, advanced analytics and reports.
-- **Monthly prices** (PRD §2): India ₹199 / ₹399; US $9 / $29; UK £9 / £29; Eurozone €9 / €29
-  (Premium / Pro); other countries via store local price tiers. Always shown in local currency.
+- **Prices** (PRD §2): config in `appConfig/pricing`, logic in `src/domain/billing.ts` (mirrored to
+  `functions/src/billing/billing.ts`). India Premium ₹299 regular / ₹199 offer, Pro ₹599 / ₹399; US $9 / $29;
+  UK £9 / £29; Eurozone €9 / €29. 30-day trial once per account; periods monthly, 3 months (20% off), yearly
+  (40% off). Strike-through only with a regular price and an offer end date. Always in local currency.
 - **Revenue streams**: subscriptions, AdMob ads for free users (mobile only; no web ads until decided),
   trainer commission (post-launch), store commission (Store is "Coming soon" at launch).
 - **Payments** (PRD §3): mobile = Apple IAP / Google Play Billing in every country; web = Cashfree.

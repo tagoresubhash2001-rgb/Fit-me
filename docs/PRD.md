@@ -59,15 +59,27 @@ FIT ME AI earns from four revenue streams, with subscriptions at the core. A gen
 | Advanced analytics and reports | No | No | Yes |
 | Ads | Shown | None | None |
 
-**Monthly prices**
+**Prices, free trial and billing periods (owner rules, November 2026)**
 
-| Market | Premium | Pro |
-| --- | --- | --- |
-| India | ₹199 | ₹399 |
-| United States | $9 | $29 |
-| United Kingdom | £9 | £29 |
-| Eurozone | €9 | €29 |
-| Other countries | Local equivalent via store price tiers | Local equivalent via store price tiers |
+> Written from the owner's instructions of 18 November 2026 (the updated PRD file attached to that message did not reach the repository; replace this section with the owner's text when it is available).
+
+All prices live in Firestore `appConfig/pricing` (server-write only) and are read by the app and by Cloud Functions; no price is hard-coded in a screen.
+
+| Market | Plan | Regular monthly | Launch offer monthly | 3 months (20% off) | Yearly (40% off) |
+| --- | --- | --- | --- | --- | --- |
+| India | Premium | ₹299 | ₹199 | ₹478 | ₹1,433 |
+| India | Pro | ₹599 | ₹399 | ₹958 | ₹2,873 |
+| United States | Premium / Pro | not set | $9 / $29 | 20% off | 40% off |
+| United Kingdom | Premium / Pro | not set | £9 / £29 | 20% off | 40% off |
+| Eurozone | Premium / Pro | not set | €9 / €29 | 20% off | 40% off |
+| Other countries | Premium / Pro | | Local equivalent via store price tiers | | |
+
+- **Free trial:** 30 days on Premium and Pro, once per account (and only if the app store also says the account is eligible).
+- **Billing periods:** Monthly, 3 months (20% off) and Yearly (40% off); discounts apply to the monthly offer price. Totals snap to the store price step; the India totals above are rounded to the nearest rupee (config `rounding: nearest`; `down` gives ₹477 / ₹1,432 / ₹957 / ₹2,872 so the saving is never below the advertised percentage).
+- **Pricing honesty:** a regular price is struck through only when the config has a real regular price and an offer end date ("Launch offer, ends <date>"); it disappears automatically after that date. In EU markets a reduction is shown with "Lowest price in the last 30 days". Markets without a regular price never show a reduction. No countdown timers or scarcity claims.
+- **Before a trial starts** the user sees a summary: plan, period, price after the trial, the date of the first charge and how to cancel. A reminder is sent 3 days before the trial ends.
+- **Entitlement states:** trialing, active, grace, cancelled (access until the end of the trial or paid period) and expired, enforced by Cloud Functions.
+- **Products:** `premium_monthly`, `premium_quarterly`, `premium_yearly`, `pro_monthly`, `pro_quarterly`, `pro_yearly` on the App Store, Google Play (with a one-month free introductory offer) and Cashfree (web, UPI Autopay or card mandate). Setup: `docs/BILLING_SETUP.md`.
 
 Prices are always shown in the user's local currency.
 
