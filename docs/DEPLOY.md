@@ -31,7 +31,11 @@ default Storage bucket (Firebase console → Storage → Get started, asia-south
 
 1. **Check target**, then **Lint, test and build check** (app lint and unit tests).
 2. **Hosting (website)**: builds the web app with the dev config in `deploy/web-config.dev.json`,
-   deploys Firebase Hosting and smoke-tests https://fit-me1.web.app (HTTP 200 and the app shell).
+   checks the bundle has the fit-me1 config and no emulator hosts, serves the build locally and runs a
+   real-browser render check at phone, tablet and desktop sizes (`e2e/render-check.cjs`: sign-in screen
+   renders, no page errors, no CSP violations, no horizontal scroll). Only then it deploys Firebase Hosting,
+   smoke-tests https://fit-me1.web.app (HTTP 200 and the app shell) and repeats the render check on the
+   live site, which also confirms the service worker registers.
    This job does not depend on any backend job, so the website goes live even if a backend job fails.
 3. **Firestore rules and indexes** → **Storage rules** → **Cloud Functions** (each still runs if the
    previous backend job failed). The functions job runs functions lint and tests, deploys, then
@@ -90,6 +94,44 @@ environment, the workflow uses it instead. Minimum roles for that account are th
 - **Redeploy an earlier commit permanently:** `git revert <bad commit>` on a branch, open a PR, merge.
   The push to `main` deploys the reverted code.
 - Firestore data is never touched by deploys; rules and indexes roll back with the steps above.
+- **Service worker and rollbacks:** `sw.js`, `index.html` and the manifest are served with `no-cache`, so
+  every visit checks for a new release. Open tabs see "A new version of FIT ME AI is ready" and switch on
+  **Refresh**; old cached files are cleaned up by the new worker. A Hosting rollback is picked up the same way
+  (the rolled-back `sw.js` differs from the current one). If a release ever ships a broken worker, deploy a
+  fix: the browser re-checks `sw.js` on every navigation and at least once an hour while the app is open.
+
+## Web app (PWA)
+
+- Manifest `manifest.webmanifest` (name, short name, colours, standalone, start URL, maskable icons, install
+  screenshots, shortcuts) and icons in `public/icons/` (regenerate with `node scripts/build-icons.mjs` from
+  `public/favicon.svg`; install screenshots with `node scripts/capture-pwa-screenshots.cjs`).
+- Service worker `src/sw.ts` (Workbox injectManifest): precaches the app shell, caches fonts and images at
+  runtime, serves the app for in-app links offline and `/offline` if nothing is cached. It never caches API,
+  auth or Firestore traffic and skips Firebase's reserved `/__/` paths.
+- `firebase.json`: SPA rewrite, clean URLs, immutable cache for hashed `/assets/**`, `no-cache` for
+  `index.html`, `sw.js` and the manifest, CSP (Firebase, Google sign-in, App Check), HSTS, nosniff,
+  Referrer-Policy, Permissions-Policy, frame denial, and `X-Robots-Tag: noindex` on in-app routes. Only the
+  sign-in page is indexable (`robots.txt`, canonical, Open Graph and Twitter cards).
+- iOS: Safari → Share → Add to Home Screen (apple-touch-icon and status-bar meta tags are set).
+
+## Checking a release on every form factor
+
+After "Deploy to Firebase" is green:
+
+```
+node e2e/render-check.cjs https://fit-me1.web.app            # phone, tablet, desktop render + CSP + service worker
+node e2e/pwa-check.cjs https://fit-me1.web.app               # installable (Chrome's own checks) + offline
+node e2e/devices-flow.cjs https://fit-me1.web.app            # full flow on six devices (creates test accounts)
+GOOGLE_APPLICATION_CREDENTIALS=<admin key> node e2e/_cleanup-user.cjs <uid>   # remove each test account
+npx lighthouse https://fit-me1.web.app/ [--preset=desktop]   # performance, accessibility, best practices, SEO
+```
+
+Devices: iPhone 13 (390×844), Pixel 7, iPad portrait (820×1180), iPad landscape (1180×820), laptop
+(1366×768), desktop (1920×1080). The flow covers sign-up, onboarding, food and water add/edit/delete,
+planner week and month, Jai and Jaya, Upgrade → Plans, settings and sign-out, then checks for horizontal
+scroll at 360, 768, 1024, 1280 and 1920 px. `e2e/a11y-keyboard.cjs` (emulators) adds a keyboard-only run
+and an axe accessibility audit; `e2e/review.cjs` writes screenshots of every screen per device, theme and
+language.
 
 ## Branch protection for `main` (recommended)
 
