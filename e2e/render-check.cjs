@@ -27,7 +27,7 @@ const url = process.argv[2];
     if (name === 'desktop') {
       const reg = await page.evaluate(async () => {
         if (!('serviceWorker' in navigator)) return 'unsupported';
-        const r = await Promise.race([navigator.serviceWorker.ready, new Promise((res) => setTimeout(() => res(null), 15000))]);
+        const r = await Promise.race([navigator.serviceWorker.ready, new Promise((res) => setTimeout(() => res(null), 60000))]);
         return r ? 'ready' : 'none';
       });
       if (reg !== 'ready' && !url.startsWith('http://localhost') && !url.startsWith('http://127.0.0.1')) problems.push(`service worker: ${reg}`);

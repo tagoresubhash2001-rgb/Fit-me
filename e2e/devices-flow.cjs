@@ -8,7 +8,18 @@ const path = require('path');
 const fs = require('fs');
 const assert = require('assert');
 const { chromium } = require('playwright');
-const { DEVICES, tap, signUp, onboard, assertNoHorizontalScroll } = require('./helpers.cjs');
+const { DEVICES, tap, signUp, onboard, signIn, assertNoHorizontalScroll } = require('./helpers.cjs');
+
+/** Live runs: make the fresh test account a billing tester (admin key required), so test-mode trials work. */
+async function makeTester(email) {
+  if (!live) return;
+  const req = require('module').createRequire(path.join(__dirname, '..', 'functions', 'package.json'));
+  const { initializeApp, getApps } = req('firebase-admin/app');
+  const { getAuth } = req('firebase-admin/auth');
+  if (!getApps().length) initializeApp({ projectId: 'fit-me1' });
+  const u = await getAuth().getUserByEmail(email);
+  await getAuth().setCustomUserClaims(u.uid, { billingTester: true });
+}
 
 const BASE = process.argv[2] && !process.argv[2].startsWith('-') ? process.argv[2] : 'http://127.0.0.1:5173';
 const only = (process.argv[3] && !process.argv[3].startsWith('-') ? process.argv[3] : Object.keys(DEVICES).join(',')).split(',');
@@ -26,7 +37,14 @@ async function flow(browser, name) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   if (process.env.DBG) page.on('console', (m) => m.text().startsWith('DBG') && console.log('   ', name, m.text()));
-  page.on('console', (m) => /Content Security Policy|Refused to/i.test(m.text()) && errors.push(m.text().slice(0, 160)));
+  // Production builds must log no errors and no warnings at all; dev builds: errors only (React dev notices aside).
+  page.on('console', (m) => {
+    const type = m.type();
+    // The browser's own network-failure logs while the test has switched the network off on purpose.
+    if (/ERR_INTERNET_DISCONNECTED/.test(m.text())) return;
+    if (type === 'error' || (live && type === 'warning')) errors.push(`${type}: ${m.text().slice(0, 160)}`);
+    else if (/Content Security Policy|Refused to/i.test(m.text())) errors.push(m.text().slice(0, 160));
+  });
   const shot = async (n) => SHOTS && page.screenshot({ path: path.join(OUT, `${name}-${n}.png`), fullPage: true });
   const email = `fitme-${live ? 'live' : 'e2e'}-${name}-${Date.now()}@example.com`;
   const width = page.viewportSize().width;
@@ -37,11 +55,57 @@ async function flow(browser, name) {
   await onboard(page);
   await shot('01-home');
 
-  // Upgrade -> Plans (header button; sidebar entry on desktop)
+  // Upgrade -> Plans -> billing periods with the India prices from PRD section 2
   await page.click(desktop ? '#side-upgrade' : '#header-upgrade');
-  await page.getByRole('heading', { name: 'Plans' }).waitFor();
-  assert((await page.textContent('main')).includes('₹199'), 'INR prices');
+  await page.getByRole('heading', { name: 'Choose your plan' }).waitFor();
+  const billed = async (plan) => (await page.locator(`#billed-${plan}`).textContent()).trim();
+  const settle = () => page.waitForTimeout(500);
+  assert.strictEqual(await billed('premium'), '₹199 billed monthly');
+  assert.strictEqual(await billed('pro'), '₹399 billed monthly');
+  await page.getByRole('tab', { name: /3 months/ }).click();
+  await settle();
+  assert.strictEqual(await billed('premium'), '₹478 billed every 3 months, about ₹159 a month');
+  assert.strictEqual(await billed('pro'), '₹958 billed every 3 months, about ₹319 a month');
+  await page.getByRole('tab', { name: /Yearly/ }).click();
+  await settle();
+  assert.strictEqual(await billed('premium'), '₹1,433 billed yearly, about ₹119 a month');
+  assert.strictEqual(await billed('pro'), '₹2,873 billed yearly, about ₹239 a month');
+  assert.strictEqual((await page.locator('#price-pro').textContent()).trim(), '₹239');
   await shot('02-plans');
+
+  // Start the 30-day trial (test mode) -> entitlement trialing
+  if (live) {
+    await makeTester(email);
+    // New ID token with the tester claim: sign out and in again.
+    await page.goto(`${BASE}/settings`, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('button', { name: 'Sign out' }).last().click();
+    await signIn(page, BASE, email);
+    await page.goto(`${BASE}/plans?period=yearly`, { waitUntil: 'domcontentloaded' });
+  }
+  await page.locator('#plan-pro').getByRole('button', { name: 'Start 30-day free trial' }).click();
+  const sheet = page.getByRole('dialog');
+  await sheet.getByText('Your free trial').waitFor();
+  await sheet.getByText('₹2,873 every year').waitFor();
+  await shot('02b-trial-summary');
+  await sheet.locator('#confirm-trial').click();
+  await page.locator('#plan-status').getByText(/Free trial until/).waitFor({ timeout: 30000 });
+
+  // Pro features unlock: the coach chat is available (not the locked card)
+  await page.click('#coach-button');
+  const coachBox = desktop ? page.locator('#coach-dock') : page.getByRole('dialog');
+  await coachBox.getByRole('textbox').waitFor({ timeout: 20000 });
+  if (desktop) await page.locator('#coach-dock').getByRole('button', { name: 'Close coach' }).click();
+  else await page.keyboard.press('Escape');
+
+  // Cancel: stays active until the trial ends
+  await page.locator('#cancel-plan').click();
+  await page.locator('#confirm-cancel').click();
+  await page.locator('#plan-status').getByText(/Cancelled\. Access until/).waitFor({ timeout: 20000 });
+  await page.click('#coach-button');
+  await coachBox.getByRole('textbox').waitFor({ timeout: 20000 });
+  if (desktop) await page.locator('#coach-dock').getByRole('button', { name: 'Close coach' }).click();
+  else await page.keyboard.press('Escape');
+  await shot('02c-cancelled');
 
   // Food: add with stepper, multiplier and unit; edit meal slot; delete with undo
   await page.goto(`${BASE}/food`, { waitUntil: 'domcontentloaded' });
@@ -97,6 +161,21 @@ async function flow(browser, name) {
   await page.getByRole('tab', { name: '30 days' }).click();
   await shot('04-water');
 
+  // Offline (phone): screens still open from cache, a write queues and syncs, the banner says so
+  if (name === 'iphone-13') {
+    await ctx.setOffline(true);
+    await page.locator('[role="status"]').getByText(/offline/i).first().waitFor({ timeout: 10000 });
+    await page.click('#nav-workouts');
+    await page.getByRole('heading', { name: 'Workouts', level: 1 }).waitFor();
+    await page.click('#nav-health');
+    await page.getByRole('group', { name: 'Quick amounts' }).getByRole('button', { name: /^100 ml/ }).click();
+    await page.getByText('100 ml').first().waitFor();
+    await ctx.setOffline(false);
+    await page.waitForTimeout(2500);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.getByText('100 ml').first().waitFor({ timeout: 20000 });
+  }
+
   // Planner: week and month views
   await page.goto(`${BASE}/planner`, { waitUntil: 'domcontentloaded' });
   await page.getByRole('grid').waitFor();
@@ -113,6 +192,7 @@ async function flow(browser, name) {
   await page.click('#coach-button');
   if (desktop) await page.locator('#coach-dock').waitFor();
   else await page.getByRole('dialog').getByRole('tab', { name: 'Jaya' }).waitFor();
+  await page.waitForTimeout(400);
   await shot('06-coach');
   await page.keyboard.press('Escape');
   if (desktop) await page.locator('#coach-dock').getByRole('button', { name: 'Close coach' }).click();
