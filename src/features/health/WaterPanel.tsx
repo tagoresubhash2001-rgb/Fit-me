@@ -1,7 +1,22 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Minus, Plus } from 'lucide-react';
-import { BarChart, Button, Card, CardHeader, CountUp, EmptyState, ProgressRing, Sheet, Skeleton, Stepper, SwipeRow, cn, haptic, toast } from '../../components/ui';
+import {
+  BarChart,
+  Button,
+  Card,
+  CardHeader,
+  CountUp,
+  EmptyState,
+  ProgressRing,
+  Sheet,
+  Skeleton,
+  Stepper,
+  SwipeRow,
+  cn,
+  haptic,
+  toast,
+} from '../../components/ui';
 import { useSession } from '../../data/session';
 import { useRecords } from '../../data/useRecords';
 import { createRecord, restore, softDelete, updateRecord } from '../../data/records';
@@ -48,12 +63,18 @@ export function WaterPanel() {
   const add = (ml: number) => {
     haptic();
     void createRecord('waterLogs', { ml: Math.round(ml) }).then((id) =>
-      toast(t('water.addedToast', { amount: vol(ml) }), 'success', { label: t('common.undo'), onClick: () => void softDelete('waterLogs', id) }),
+      toast(t('water.addedToast', { amount: vol(ml) }), 'success', {
+        label: t('common.undo'),
+        onClick: () => void softDelete('waterLogs', id),
+      }),
     );
   };
   const remove = (l: Entry) => {
     void softDelete('waterLogs', l.id);
-    toast(t('water.removedToast', { amount: vol(l.ml) }), 'info', { label: t('common.undo'), onClick: () => void restore('waterLogs', l.id) });
+    toast(t('water.removedToast', { amount: vol(l.ml) }), 'info', {
+      label: t('common.undo'),
+      onClick: () => void restore('waterLogs', l.id),
+    });
   };
   /** − takes one glass off the most recent entry (or removes it), with undo. */
   const decrease = () => {
@@ -63,18 +84,28 @@ export function WaterPanel() {
     if (last.ml > STEP_ML) {
       const before = last.ml;
       void updateRecord('waterLogs', last.id, { ml: before - STEP_ML });
-      toast(t('water.reducedToast', { amount: vol(STEP_ML) }), 'info', { label: t('common.undo'), onClick: () => void updateRecord('waterLogs', last.id, { ml: before }) });
+      toast(t('water.reducedToast', { amount: vol(STEP_ML) }), 'info', {
+        label: t('common.undo'),
+        onClick: () => void updateRecord('waterLogs', last.id, { ml: before }),
+      });
     } else remove(last);
   };
 
   return (
     <>
-      <Card className="flex flex-col items-center gap-4">
+      <Card style={{ viewTransitionName: 'tile-water' }} className="flex flex-col items-center gap-4">
         {logs.loading ? (
           <Skeleton className="h-44 w-full" />
         ) : (
           <div className="flex w-full items-center justify-center gap-4">
-            <button type="button" id="water-minus" aria-label={t('water.decrease', { amount: vol(STEP_ML) })} disabled={!todayLogs.length} onClick={decrease} className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card transition-transform duration-150 active:scale-90 disabled:opacity-40">
+            <button
+              type="button"
+              id="water-minus"
+              aria-label={t('water.decrease', { amount: vol(STEP_ML) })}
+              disabled={!todayLogs.length}
+              onClick={decrease}
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-ink shadow-card transition-transform duration-150 active:scale-90 disabled:opacity-40"
+            >
               <Minus className="h-6 w-6" strokeWidth={1.75} />
             </button>
             <ProgressRing value={total} max={goal} size={168} stroke={13} colorClass="stroke-water" label={t('water.title')}>
@@ -85,14 +116,25 @@ export function WaterPanel() {
                 {t('common.of')} {vol(goal)}
               </span>
             </ProgressRing>
-            <button type="button" id="water-plus" aria-label={t('water.add', { amount: vol(STEP_ML) })} onClick={() => add(STEP_ML)} className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary shadow-card transition-transform duration-150 hover:bg-primary-pressed active:scale-90">
+            <button
+              type="button"
+              id="water-plus"
+              aria-label={t('water.add', { amount: vol(STEP_ML) })}
+              onClick={() => add(STEP_ML)}
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary shadow-card transition-transform duration-150 hover:bg-primary-pressed active:scale-90"
+            >
               <Plus className="h-6 w-6" strokeWidth={1.75} />
             </button>
           </div>
         )}
         <div className="flex w-full flex-wrap justify-center gap-2" role="group" aria-label={t('water.presets')}>
           {PRESETS.map((p) => (
-            <button key={p.ml} type="button" onClick={() => add(p.ml)} className="flex h-10 items-center gap-1 rounded-full border border-line bg-surface px-3.5 text-small text-ink transition-[background-color,transform] duration-150 hover:bg-raised active:scale-95">
+            <button
+              key={p.ml}
+              type="button"
+              onClick={() => add(p.ml)}
+              className="flex h-10 items-center gap-1 rounded-full border border-line bg-surface px-3.5 text-small text-ink transition-[background-color,transform] duration-150 hover:bg-raised active:scale-95"
+            >
               <span className="font-semibold">{vol(p.ml)}</span>
               {p.key !== 'small' && p.key !== 'litre' && p.key !== 'large' && <span className="text-muted">· {t(`water.${p.key}`)}</span>}
             </button>
@@ -134,7 +176,15 @@ export function WaterPanel() {
         ) : (
           <ul className="-mx-2 flex flex-col divide-y divide-line">
             {todayLogs.map((l) => (
-              <SwipeRow key={l.id} className="px-2" onEdit={() => setEditing(l)} onDelete={() => remove(l)} editLabel={t('common.edit')} deleteLabel={t('common.delete')} menuLabel={t('common.moreActions')}>
+              <SwipeRow
+                key={l.id}
+                className="px-2"
+                onEdit={() => setEditing(l)}
+                onDelete={() => remove(l)}
+                editLabel={t('common.edit')}
+                deleteLabel={t('common.delete')}
+                menuLabel={t('common.moreActions')}
+              >
                 <div className="flex items-center justify-between gap-3 py-2.5">
                   <span className="text-body font-medium text-ink tabular-nums">{vol(l.ml)}</span>
                   {l.timeMinutes !== undefined && <span className="text-small text-muted">{formatMinutes(l.timeMinutes, lang)}</span>}
@@ -147,11 +197,27 @@ export function WaterPanel() {
 
       <Card>
         <CardHeader title={t('water.history')} />
-        <BarChart ariaLabel={t('water.history')} target={goal} targetLabel={`${t('water.target')}: ${vol(goal)}`} colorClass="fill-water" points={seriesFor(range, today, (d) => logs.rows.filter((l) => l.date === d).reduce((a, l) => a + l.ml, 0)).map((b) => ({ label: bucketLabel(b, range), value: b.value }))} formatValue={vol} />
+        <BarChart
+          ariaLabel={t('water.history')}
+          target={goal}
+          targetLabel={`${t('water.target')}: ${vol(goal)}`}
+          colorClass="fill-water"
+          points={seriesFor(range, today, (d) => logs.rows.filter((l) => l.date === d).reduce((a, l) => a + l.ml, 0)).map((b) => ({
+            label: bucketLabel(b, range),
+            value: b.value,
+          }))}
+          formatValue={vol}
+        />
       </Card>
 
       <EditWaterSheet key={editing?.id ?? 'none'} entry={editing} onClose={() => setEditing(null)} unit={prefs.volume} />
-      <WaterTargetSheet open={editTarget} onClose={() => setEditTarget(false)} goalMl={goal} unit={prefs.volume} suggestedMl={profile.targets.waterMl} />
+      <WaterTargetSheet
+        open={editTarget}
+        onClose={() => setEditTarget(false)}
+        goalMl={goal}
+        unit={prefs.volume}
+        suggestedMl={profile.targets.waterMl}
+      />
     </>
   );
 }
@@ -193,7 +259,19 @@ function EditWaterSheet({ entry, onClose, unit }: { entry: Entry | null; onClose
   );
 }
 
-function WaterTargetSheet({ open, onClose, goalMl, unit, suggestedMl }: { open: boolean; onClose: () => void; goalMl: number; unit: VolumeUnit; suggestedMl: number }) {
+function WaterTargetSheet({
+  open,
+  onClose,
+  goalMl,
+  unit,
+  suggestedMl,
+}: {
+  open: boolean;
+  onClose: () => void;
+  goalMl: number;
+  unit: VolumeUnit;
+  suggestedMl: number;
+}) {
   const { t } = useTranslation();
   const { vol } = useUnits();
   const [v, setV] = useState<number | ''>(Math.round(mlToVolume(goalMl, unit) * 10) / 10);
@@ -224,8 +302,22 @@ function WaterTargetSheet({ open, onClose, goalMl, unit, suggestedMl }: { open: 
       }
     >
       <div className="flex flex-col gap-3">
-        <Stepper label={`${t('water.target')} (${t(`units.${unit}`)})`} value={v} onChange={setV} step={step} min={0} max={unit === 'ml' ? 8000 : 300} decreaseLabel={t('common.decrease')} increaseLabel={t('common.increase')} error={!valid && v !== '' ? t('water.targetRange', { min: vol(500), max: vol(8000) }) : undefined} />
-        <button type="button" onClick={() => setV(Math.round(mlToVolume(suggestedMl, unit) * 10) / 10)} className={cn('self-start rounded-full border border-line px-3 py-1.5 text-small text-ink hover:bg-raised')}>
+        <Stepper
+          label={`${t('water.target')} (${t(`units.${unit}`)})`}
+          value={v}
+          onChange={setV}
+          step={step}
+          min={0}
+          max={unit === 'ml' ? 8000 : 300}
+          decreaseLabel={t('common.decrease')}
+          increaseLabel={t('common.increase')}
+          error={!valid && v !== '' ? t('water.targetRange', { min: vol(500), max: vol(8000) }) : undefined}
+        />
+        <button
+          type="button"
+          onClick={() => setV(Math.round(mlToVolume(suggestedMl, unit) * 10) / 10)}
+          className={cn('self-start rounded-full border border-line px-3 py-1.5 text-small text-ink hover:bg-raised')}
+        >
           {t('water.useSuggested', { amount: vol(suggestedMl) })}
         </button>
       </div>

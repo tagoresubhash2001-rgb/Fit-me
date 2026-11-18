@@ -414,5 +414,13 @@
   },
   "app": {
     "splash": "Essen, Wasser, Schlaf, Schritte und Workouts, mit Jai und Jaya, deinen KI-Coaches."
+  },
+  "errors": {
+    "newVersionTitle": "Eine neue Version ist bereit",
+    "newVersionBody": "FIT ME AI wurde aktualisiert, während diese Seite offen war. Lade neu, um fortzufahren.",
+    "reload": "Neu laden",
+    "screenTitle": "Dieser Bildschirm wurde nicht geladen",
+    "screenBody": "Bei uns ist etwas schiefgelaufen. Deine Daten sind sicher. Versuche es erneut.",
+    "slowBody": "Das dauert länger als üblich. Prüfe deine Verbindung und versuche es erneut."
   }
 }

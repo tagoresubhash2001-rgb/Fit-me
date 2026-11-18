@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -21,7 +21,9 @@ import {
   LogOut,
   Keyboard,
 } from 'lucide-react';
-import { Sheet, cn } from '../components/ui';
+import { Sheet, Skeleton, SlidingPill, cn } from '../components/ui';
+import { prefetchRoute, prefetchWhenIdle, type RouteKey } from './routes';
+import { RouteErrorBoundary } from './RouteErrorBoundary';
 import { useSession } from '../data/session';
 import { signOut } from '../data/auth';
 import { useOnline, useToday } from '../lib/hooks';
@@ -56,6 +58,10 @@ export function Shell() {
   const coachOpen = useUi((s) => s.coachOpen);
   const setCoachOpen = useUi((s) => s.setCoachOpen);
   useShortcuts();
+  useEffect(() => {
+    prefetchWhenIdle();
+  }, []);
+  const transition = useRouteTransition(location.pathname, desktop);
 
   return (
     <div className="relative flex min-h-dvh bg-canvas text-ink">
@@ -75,8 +81,12 @@ export function Shell() {
         <TrialEndingBanner />
         <NovaBar />
         <main id="main" tabIndex={-1} className="mx-auto w-full max-w-2xl flex-1 px-4 pt-4 pb-36 outline-none md:max-w-3xl md:px-6 land:max-w-5xl land:pb-10 xl:max-w-[1360px] xl:px-8 xl:pb-12 2xl:max-w-[1440px]">
-          <div key={location.pathname.split('/')[1]} className="page-enter">
-            <Outlet />
+          <div key={location.pathname.split('/')[1]} className={transition}>
+            <RouteErrorBoundary resetKey={location.pathname}>
+              <Suspense fallback={<PageSkeleton />}>
+                <Outlet />
+              </Suspense>
+            </RouteErrorBoundary>
           </div>
         </main>
       </div>
@@ -102,6 +112,39 @@ export function Shell() {
   );
 }
 
+/** Order of the main screens: moving right slides in from the right, moving left from the left (mobile). */
+const ROUTE_ORDER = ['', 'food', 'planner', 'health', 'workouts', 'store'];
+function useRouteTransition(pathname: string, desktop: boolean) {
+  const seg = pathname.split('/')[1] ?? '';
+  const last = useRef<{ seg: string; cls: string }>({ seg, cls: 'route-up' });
+  if (last.current.seg !== seg) {
+    const from = ROUTE_ORDER.indexOf(last.current.seg);
+    const to = ROUTE_ORDER.indexOf(seg);
+    const cls = desktop || from < 0 || to < 0 ? 'route-up' : to > from ? 'route-forward' : 'route-back';
+    last.current = { seg, cls };
+  }
+  return last.current.cls;
+}
+
+function PageSkeleton() {
+  return (
+    <div className="flex flex-col gap-4" aria-hidden>
+      <Skeleton className="h-9 w-48" />
+      <Skeleton className="h-40" />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+        <Skeleton className="h-28" />
+        <Skeleton className="h-28" />
+        <Skeleton className="h-28" />
+      </div>
+    </div>
+  );
+}
+
+const prefetchProps = (key: string) => {
+  const go = () => prefetchRoute(key as RouteKey);
+  return { onPointerEnter: go, onFocus: go, onTouchStart: go };
+};
+
 function Logo({ compact }: { compact?: boolean }) {
   return (
     <span className="text-title font-semibold whitespace-nowrap text-ink">
@@ -120,18 +163,21 @@ function Logo({ compact }: { compact?: boolean }) {
 
 function BottomBar() {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const list = useRef<HTMLUListElement>(null);
   return (
     <nav
       aria-label={t('nav.main')}
       className="glass fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-50 mx-auto max-w-lg rounded-card border p-1.5 shadow-float land:hidden xl:hidden"
     >
-      <ul className="flex items-stretch justify-between gap-1">
+      <ul ref={list} className="relative flex items-stretch justify-between gap-1">
+        <SlidingPill container={list} selector='[aria-current="page"] [data-pill]' watch={pathname} className="rounded-full bg-primary-subtle" />
         {TABS.map(({ to, key, icon: Icon, ...rest }) => (
-          <li key={key} className="min-w-0 flex-1">
-            <NavLink to={to} end={'end' in rest} id={`nav-${key}`} className="group flex w-full flex-col items-center gap-0.5 rounded-button py-1">
+          <li key={key} className="relative z-10 min-w-0 flex-1">
+            <NavLink to={to} end={'end' in rest} id={`nav-${key}`} {...prefetchProps(key)} className="group flex w-full flex-col items-center gap-0.5 rounded-button py-1 active:scale-95 transition-transform duration-150">
               {({ isActive }) => (
                 <>
-                  <span className={cn('flex h-8 w-14 max-w-full items-center justify-center rounded-full transition-colors duration-150', isActive ? 'bg-primary-subtle text-primary-text' : 'text-muted group-hover:text-ink')}>
+                  <span data-pill className={cn('flex h-8 w-14 max-w-full items-center justify-center rounded-full transition-colors duration-200', isActive ? 'text-primary-text' : 'text-muted group-hover:text-ink')}>
                     <Icon className="h-5 w-5" strokeWidth={1.75} />
                   </span>
                   <span className={cn('line-clamp-2 max-w-full text-center text-caption leading-tight break-words', isActive ? 'text-primary-text' : 'text-muted')}>{t(`nav.${key}`)}</span>
@@ -148,17 +194,20 @@ function BottomBar() {
 /** Tablet landscape: compact rail with icons and labels. */
 function Rail() {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const list = useRef<HTMLUListElement>(null);
   const profile = useSession((s) => s.profile);
   return (
     <nav aria-label={t('nav.main')} className="glass fixed inset-y-0 start-0 z-50 hidden w-[88px] flex-col items-center gap-1 border-e py-4 shadow-float land:flex">
       <Logo compact />
-      <ul className="mt-4 flex w-full flex-1 flex-col gap-1 px-2">
+      <ul ref={list} className="relative mt-4 flex w-full flex-1 flex-col gap-1 px-2">
+        <SlidingPill container={list} selector='[aria-current="page"] [data-pill]' watch={pathname} className="rounded-full bg-primary-subtle" />
         {TABS.map(({ to, key, icon: Icon, ...rest }) => (
-          <li key={key}>
-            <NavLink to={to} end={'end' in rest} id={`rail-${key}`} className="group flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-button py-1.5">
+          <li key={key} className="relative z-10">
+            <NavLink to={to} end={'end' in rest} id={`rail-${key}`} {...prefetchProps(key)} className="group flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-button py-1.5 transition-transform duration-150 active:scale-95">
               {({ isActive }) => (
                 <>
-                  <span className={cn('flex h-8 w-12 items-center justify-center rounded-full transition-colors duration-150', isActive ? 'bg-primary-subtle text-primary-text' : 'text-muted group-hover:text-ink')}>
+                  <span data-pill className={cn('flex h-8 w-12 items-center justify-center rounded-full transition-colors duration-200', isActive ? 'text-primary-text' : 'text-muted group-hover:text-ink')}>
                     <Icon className="h-5 w-5" strokeWidth={1.75} />
                   </span>
                   <span className={cn('line-clamp-2 max-w-full text-center text-caption leading-tight', isActive ? 'text-primary-text' : 'text-muted')}>{t(`nav.${key}`)}</span>
@@ -179,14 +228,15 @@ function Rail() {
 function Sidebar() {
   const { t } = useTranslation();
   const { pathname, hash } = useLocation();
+  const list = useRef<HTMLUListElement>(null);
   const plan = useSession((s) => s.plan);
   const collapsed = useUi((s) => s.sidebarCollapsed);
   const toggle = useUi((s) => s.toggleSidebar);
-  const item = (active: boolean) =>
+  const item = (active: boolean, pill = false) =>
     cn(
-      'flex min-h-11 items-center gap-3 rounded-button px-3 text-body transition-colors duration-150',
+      'relative z-10 flex min-h-11 items-center gap-3 rounded-button px-3 text-body transition-colors duration-200',
       collapsed && 'justify-center px-0',
-      active ? 'bg-primary-subtle font-semibold text-primary-text' : 'text-ink hover:bg-raised',
+      active ? cn('font-semibold text-primary-text', !pill && 'bg-primary-subtle') : 'text-ink hover:bg-raised',
     );
   const label = (text: string) => <span className={cn('truncate', collapsed && 'sr-only')}>{text}</span>;
   const extra = [
@@ -201,10 +251,11 @@ function Sidebar() {
       <div className={cn('flex h-10 items-center px-2', collapsed && 'justify-center px-0')}>
         <Logo compact={collapsed} />
       </div>
-      <ul className="mt-6 flex flex-col gap-1">
+      <ul ref={list} className="relative mt-6 flex flex-col gap-1">
+        <SlidingPill container={list} selector='[aria-current="page"]' watch={`${pathname}-${collapsed}`} className="rounded-button bg-primary-subtle" />
         {TABS.map(({ to, key, icon: Icon, ...rest }) => (
           <li key={key}>
-            <NavLink to={to} end={'end' in rest} id={`side-${key}`} data-tip={collapsed ? t(`nav.${key}`) : undefined} data-tip-side="end" className={({ isActive }) => item(isActive)}>
+            <NavLink to={to} end={'end' in rest} id={`side-${key}`} {...prefetchProps(key)} data-tip={collapsed ? t(`nav.${key}`) : undefined} data-tip-side="end" className={({ isActive }) => item(isActive, true)}>
               <Icon className="h-5 w-5 shrink-0" strokeWidth={1.75} />
               {label(t(`nav.${key}`))}
             </NavLink>

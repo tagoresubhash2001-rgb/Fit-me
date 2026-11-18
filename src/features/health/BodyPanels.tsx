@@ -1,7 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Smartphone, RefreshCw } from 'lucide-react';
-import { Badge, BarChart, Button, Card, CardHeader, EmptyState, Input, LineChart, ProgressRing, Sheet, Skeleton, Stepper, SwipeRow, cn, toast } from '../../components/ui';
+import {
+  Badge,
+  BarChart,
+  Button,
+  Card,
+  CardHeader,
+  EmptyState,
+  Input,
+  LineChart,
+  ProgressRing,
+  Sheet,
+  Skeleton,
+  Stepper,
+  SwipeRow,
+  cn,
+  toast,
+} from '../../components/ui';
 import { useSession } from '../../data/session';
 import { useRecords } from '../../data/useRecords';
 import { createRecord, restore, softDelete, updateRecord } from '../../data/records';
@@ -62,7 +78,11 @@ export function WeightPanel() {
   const save = (e: React.FormEvent) => {
     e.preventDefault();
     if (!valid) return;
-    void createRecord('weightLogs', { kg: Math.round((kg as number) * 10) / 10, waistCm: m(waist), chestCm: m(chest), hipCm: m(hip) }, { date: logDate });
+    void createRecord(
+      'weightLogs',
+      { kg: Math.round((kg as number) * 10) / 10, waistCm: m(waist), chestCm: m(chest), hipCm: m(hip) },
+      { date: logDate },
+    );
     if (logDate === today) void updateProfileFields({ weightKg: Math.round((kg as number) * 10) / 10 });
     if (unit !== prefs.weight) void updateProfileFields({ weightUnit: unit });
     toast(t('common.saved'));
@@ -74,7 +94,7 @@ export function WeightPanel() {
 
   return (
     <>
-      <Card>
+      <Card style={{ viewTransitionName: 'tile-weight' }}>
         <CardHeader title={t('weight.title')} subtitle={t('weight.trendNote')} />
         {logs.loading ? (
           <Skeleton className="h-32" />
@@ -87,7 +107,12 @@ export function WeightPanel() {
                 [
                   ['weight.current', wt(latest.kg)],
                   ['weight.trend', trend !== undefined ? wt(trend) : '—'],
-                  ['weight.change30', change30 !== null ? `${change30 > 0 ? '+' : ''}${n(prefs.weight === 'kg' ? change30 : kgToLb(change30), 1)} ${prefs.weight === 'kg' ? 'kg' : 'lb'}` : '—'],
+                  [
+                    'weight.change30',
+                    change30 !== null
+                      ? `${change30 > 0 ? '+' : ''}${n(prefs.weight === 'kg' ? change30 : kgToLb(change30), 1)} ${prefs.weight === 'kg' ? 'kg' : 'lb'}`
+                      : '—',
+                  ],
                 ] as const
               ).map(([k, v]) => (
                 <div key={k} className="rounded-input bg-raised p-3">
@@ -97,11 +122,16 @@ export function WeightPanel() {
               ))}
             </dl>
             <div className="mt-3">
-              <LineChart ariaLabel={t('weight.history')} points={points.map((p) => ({ label: date(p.date), value: p.value }))} secondary={avg.map((p) => ({ label: date(p.date), value: p.avg }))} />
+              <LineChart
+                ariaLabel={t('weight.history')}
+                points={points.map((p) => ({ label: date(p.date), value: p.value }))}
+                secondary={avg.map((p) => ({ label: date(p.date), value: p.avg }))}
+              />
             </div>
             {trend !== undefined && (
               <p className="mt-2 text-small text-muted">
-                {t('weight.target')}: {wt(profile.targetWeightKg)} · {t('weight.toGoal', { amount: wt(Math.abs(trend - profile.targetWeightKg)) })}
+                {t('weight.target')}: {wt(profile.targetWeightKg)} ·{' '}
+                {t('weight.toGoal', { amount: wt(Math.abs(trend - profile.targetWeightKg)) })}
               </p>
             )}
             {isPlateau(points, today) && <p className="mt-2 rounded-input bg-sage p-3 text-small text-ink">{t('weight.plateau')}</p>}
@@ -111,15 +141,41 @@ export function WeightPanel() {
       <Card>
         <CardHeader title={t('weight.log')} />
         <form className="flex flex-col gap-4" onSubmit={save}>
-          <MeasureInput kind="weight" label={t('weight.title')} valueMetric={kg} unit={unit} onUnitChange={(u) => setUnit(u as WeightUnit)} onChange={setKg} error={!valid && kg !== '' ? t('onboarding.errors.weight') : undefined} />
+          <MeasureInput
+            kind="weight"
+            label={t('weight.title')}
+            valueMetric={kg}
+            unit={unit}
+            onUnitChange={(u) => setUnit(u as WeightUnit)}
+            onChange={setKg}
+            error={!valid && kg !== '' ? t('onboarding.errors.weight') : undefined}
+          />
           <DateField label={t('common.date')} value={logDate} max={today} onChange={setLogDate} />
           <p className="text-small font-medium text-ink">
             {t('weight.measurements')} ({t('common.optional')}, cm)
           </p>
           <div className="grid grid-cols-3 gap-2">
-            <Input label={t('weight.waist')} inputMode="decimal" value={waist} error={badMeasure(waist) ? t('weight.measureRange') : undefined} onChange={(e) => setWaist(e.target.value)} />
-            <Input label={t('weight.chest')} inputMode="decimal" value={chest} error={badMeasure(chest) ? t('weight.measureRange') : undefined} onChange={(e) => setChest(e.target.value)} />
-            <Input label={t('weight.hip')} inputMode="decimal" value={hip} error={badMeasure(hip) ? t('weight.measureRange') : undefined} onChange={(e) => setHip(e.target.value)} />
+            <Input
+              label={t('weight.waist')}
+              inputMode="decimal"
+              value={waist}
+              error={badMeasure(waist) ? t('weight.measureRange') : undefined}
+              onChange={(e) => setWaist(e.target.value)}
+            />
+            <Input
+              label={t('weight.chest')}
+              inputMode="decimal"
+              value={chest}
+              error={badMeasure(chest) ? t('weight.measureRange') : undefined}
+              onChange={(e) => setChest(e.target.value)}
+            />
+            <Input
+              label={t('weight.hip')}
+              inputMode="decimal"
+              value={hip}
+              error={badMeasure(hip) ? t('weight.measureRange') : undefined}
+              onChange={(e) => setHip(e.target.value)}
+            />
           </div>
           <Button type="submit" disabled={!valid}>
             {t('common.save')}
@@ -129,15 +185,26 @@ export function WeightPanel() {
       {sorted.length > 0 && (
         <Card>
           <CardHeader title={t('weight.history')} />
-          <ul className="-mx-2 flex flex-col divide-y divide-line md:max-h-[28rem] md:overflow-y-auto *:shrink-0">
-            {[...sorted].reverse().slice(0, 60).map((l) => (
-              <SwipeRow key={l.id} className="px-2" onEdit={() => setEditing(l)} onDelete={() => undoDelete('weightLogs', l.id, t('common.deleted'), t('common.undo'))} editLabel={t('common.edit')} deleteLabel={t('common.delete')} menuLabel={t('common.moreActions')}>
-                <div className="flex items-center justify-between gap-2 py-2.5">
-                  <span className="text-small text-muted">{date(l.date, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                  <span className="text-body font-medium text-ink tabular-nums">{wt(l.kg)}</span>
-                </div>
-              </SwipeRow>
-            ))}
+          <ul className="list-lazy -mx-2 flex flex-col divide-y divide-line md:max-h-[28rem] md:overflow-y-auto *:shrink-0">
+            {[...sorted]
+              .reverse()
+              .slice(0, 60)
+              .map((l) => (
+                <SwipeRow
+                  key={l.id}
+                  className="px-2"
+                  onEdit={() => setEditing(l)}
+                  onDelete={() => undoDelete('weightLogs', l.id, t('common.deleted'), t('common.undo'))}
+                  editLabel={t('common.edit')}
+                  deleteLabel={t('common.delete')}
+                  menuLabel={t('common.moreActions')}
+                >
+                  <div className="flex items-center justify-between gap-2 py-2.5">
+                    <span className="text-small text-muted">{date(l.date, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    <span className="text-body font-medium text-ink tabular-nums">{wt(l.kg)}</span>
+                  </div>
+                </SwipeRow>
+              ))}
           </ul>
         </Card>
       )}
@@ -176,7 +243,15 @@ function EditWeightSheet({ entry, onClose }: { entry: WeightLog | null; onClose:
       }
     >
       <div className="flex flex-col gap-4">
-        <MeasureInput kind="weight" label={t('weight.title')} valueMetric={kg} unit={unit} onUnitChange={(u) => setUnit(u as WeightUnit)} onChange={setKg} error={!valid ? t('onboarding.errors.weight') : undefined} />
+        <MeasureInput
+          kind="weight"
+          label={t('weight.title')}
+          valueMetric={kg}
+          unit={unit}
+          onUnitChange={(u) => setUnit(u as WeightUnit)}
+          onChange={setKg}
+          error={!valid ? t('onboarding.errors.weight') : undefined}
+        />
         <DateField label={t('common.date')} value={d} max={today} onChange={setD} />
       </div>
     </Sheet>
@@ -192,7 +267,16 @@ function QualityPicker({ value, onChange }: { value: number; onChange: (q: numbe
       <legend className="mb-1 text-small font-medium text-ink">{t('sleep.quality')}</legend>
       <div className="grid grid-cols-5 gap-1">
         {QUALITIES.map((q) => (
-          <button key={q} type="button" aria-pressed={value === q} onClick={() => onChange(q)} className={cn('min-h-12 rounded-input border px-1 text-caption transition-colors', value === q ? 'border-primary bg-primary-subtle text-ink' : 'border-line text-muted hover:bg-raised')}>
+          <button
+            key={q}
+            type="button"
+            aria-pressed={value === q}
+            onClick={() => onChange(q)}
+            className={cn(
+              'min-h-12 rounded-input border px-1 text-caption transition-colors',
+              value === q ? 'border-primary bg-primary-subtle text-ink' : 'border-line text-muted hover:bg-raised',
+            )}
+          >
             {t(`sleep.quality${q}`)}
           </button>
         ))}
@@ -219,26 +303,46 @@ export function SleepPanel() {
   const duration = sleepMinutes(start, end);
   return (
     <>
-      <Card>
+      <Card style={{ viewTransitionName: 'tile-sleep' }}>
         <CardHeader title={t('sleep.title')} subtitle={avg !== null ? `${t('sleep.average')}: ${n(avg, 1)} ${t('common.h')}` : undefined} />
         {logs.loading ? (
           <Skeleton className="h-32" />
         ) : logs.rows.length === 0 ? (
           <EmptyState title={t('sleep.empty')} description={t('sleep.emptyHint')} />
         ) : (
-          <BarChart ariaLabel={t('sleep.history')} target={7} targetLabel={`7 ${t('common.h')}`} colorClass="fill-sleep" points={seriesFor(range, today, (d) => (logs.rows.find((s) => s.date === d)?.durationMin ?? 0) / 60).map((b) => ({ label: bucketLabel(b, range), value: b.value }))} formatValue={(v) => `${n(v, 1)} ${t('common.h')}`} />
+          <BarChart
+            ariaLabel={t('sleep.history')}
+            target={7}
+            targetLabel={`7 ${t('common.h')}`}
+            colorClass="fill-sleep"
+            points={seriesFor(range, today, (d) => (logs.rows.find((s) => s.date === d)?.durationMin ?? 0) / 60).map((b) => ({
+              label: bucketLabel(b, range),
+              value: b.value,
+            }))}
+            formatValue={(v) => `${n(v, 1)} ${t('common.h')}`}
+          />
         )}
-        <ul className="-mx-2 mt-2 flex flex-col divide-y divide-line">
-          {[...logs.rows].sort((a, b) => b.date.localeCompare(a.date)).map((s) => (
-            <SwipeRow key={s.id} className="px-2" onEdit={s.source === 'device' ? undefined : () => setEditing(s)} onDelete={() => undoDelete('sleepLogs', s.id, t('common.deleted'), t('common.undo'))} editLabel={t('common.edit')} deleteLabel={t('common.delete')} menuLabel={t('common.moreActions')}>
-              <div className="flex items-center justify-between gap-2 py-2.5">
-                <span className="text-small text-muted">{date(s.date, { weekday: 'short', day: 'numeric', month: 'short' })}</span>
-                <span className="text-end text-body text-ink tabular-nums">
-                  {n(s.durationMin / 60, 1)} {t('common.h')} · {formatMinutes(s.startMinutes, lang)}–{formatMinutes(s.endMinutes, lang)}
-                </span>
-              </div>
-            </SwipeRow>
-          ))}
+        <ul className="list-lazy -mx-2 mt-2 flex flex-col divide-y divide-line">
+          {[...logs.rows]
+            .sort((a, b) => b.date.localeCompare(a.date))
+            .map((s) => (
+              <SwipeRow
+                key={s.id}
+                className="px-2"
+                onEdit={s.source === 'device' ? undefined : () => setEditing(s)}
+                onDelete={() => undoDelete('sleepLogs', s.id, t('common.deleted'), t('common.undo'))}
+                editLabel={t('common.edit')}
+                deleteLabel={t('common.delete')}
+                menuLabel={t('common.moreActions')}
+              >
+                <div className="flex items-center justify-between gap-2 py-2.5">
+                  <span className="text-small text-muted">{date(s.date, { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                  <span className="text-end text-body text-ink tabular-nums">
+                    {n(s.durationMin / 60, 1)} {t('common.h')} · {formatMinutes(s.startMinutes, lang)}–{formatMinutes(s.endMinutes, lang)}
+                  </span>
+                </div>
+              </SwipeRow>
+            ))}
         </ul>
       </Card>
       <Card>
@@ -336,7 +440,9 @@ export function StepsPanel() {
   const app = t(`steps.${healthAppName()}`);
   useEffect(() => {
     void healthAvailable().then(setAvailable);
-    void isHealthConnected().then(setConnected).catch(() => setConnected(false));
+    void isHealthConnected()
+      .then(setConnected)
+      .catch(() => setConnected(false));
   }, []);
   const byDay = (d: string) => logs.rows.filter((l) => l.date === d).reduce((a, l) => Math.max(a, l.steps), 0);
   const todaySteps = byDay(today);
@@ -364,7 +470,7 @@ export function StepsPanel() {
 
   return (
     <>
-      <Card className="flex flex-col items-center gap-3">
+      <Card style={{ viewTransitionName: 'tile-steps' }} className="flex flex-col items-center gap-3">
         {logs.loading ? (
           <Skeleton className="h-40 w-40 rounded-full" />
         ) : (
@@ -379,25 +485,52 @@ export function StepsPanel() {
         {available === false ? (
           <p className="text-center text-small text-muted">{t('steps.webOnly')}</p>
         ) : (
-          <Button variant="secondary" loading={busy} icon={connected ? <RefreshCw className="h-[18px] w-[18px]" strokeWidth={1.75} /> : <Smartphone className="h-[18px] w-[18px]" strokeWidth={1.75} />} onClick={() => void sync()}>
+          <Button
+            variant="secondary"
+            loading={busy}
+            icon={
+              connected ? (
+                <RefreshCw className="h-[18px] w-[18px]" strokeWidth={1.75} />
+              ) : (
+                <Smartphone className="h-[18px] w-[18px]" strokeWidth={1.75} />
+              )
+            }
+            onClick={() => void sync()}
+          >
             {connected ? t('steps.sync') : t('steps.connect', { app })}
           </Button>
         )}
       </Card>
       <Card>
         <CardHeader title={t('steps.title')} />
-        <BarChart ariaLabel={t('steps.title')} target={goal} targetLabel={`${t('steps.target')}: ${n(goal)}`} points={seriesFor(range, today, byDay).map((b) => ({ label: bucketLabel(b, range), value: b.value }))} formatValue={(v) => n(Math.round(v))} />
-        <ul className="-mx-2 mt-2 flex flex-col divide-y divide-line">
-          {[...logs.rows].sort((a, b) => b.date.localeCompare(a.date)).map((l) => (
-            <SwipeRow key={l.id} className="px-2" onEdit={l.source === 'device' ? undefined : () => setEditing(l)} onDelete={() => undoDelete('stepLogs', l.id, t('common.deleted'), t('common.undo'))} editLabel={t('common.edit')} deleteLabel={t('common.delete')} menuLabel={t('common.moreActions')}>
-              <div className="flex items-center justify-between gap-2 py-2.5">
-                <span className="text-small text-muted">{date(l.date, { weekday: 'short', day: 'numeric', month: 'short' })}</span>
-                <span className="text-end text-body text-ink tabular-nums">
-                  {n(l.steps)} <span className="text-caption text-muted">· {l.deviceName ?? t('steps.manualSource')}</span>
-                </span>
-              </div>
-            </SwipeRow>
-          ))}
+        <BarChart
+          ariaLabel={t('steps.title')}
+          target={goal}
+          targetLabel={`${t('steps.target')}: ${n(goal)}`}
+          points={seriesFor(range, today, byDay).map((b) => ({ label: bucketLabel(b, range), value: b.value }))}
+          formatValue={(v) => n(Math.round(v))}
+        />
+        <ul className="list-lazy -mx-2 mt-2 flex flex-col divide-y divide-line">
+          {[...logs.rows]
+            .sort((a, b) => b.date.localeCompare(a.date))
+            .map((l) => (
+              <SwipeRow
+                key={l.id}
+                className="px-2"
+                onEdit={l.source === 'device' ? undefined : () => setEditing(l)}
+                onDelete={() => undoDelete('stepLogs', l.id, t('common.deleted'), t('common.undo'))}
+                editLabel={t('common.edit')}
+                deleteLabel={t('common.delete')}
+                menuLabel={t('common.moreActions')}
+              >
+                <div className="flex items-center justify-between gap-2 py-2.5">
+                  <span className="text-small text-muted">{date(l.date, { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                  <span className="text-end text-body text-ink tabular-nums">
+                    {n(l.steps)} <span className="text-caption text-muted">· {l.deviceName ?? t('steps.manualSource')}</span>
+                  </span>
+                </div>
+              </SwipeRow>
+            ))}
         </ul>
       </Card>
       <Card>
@@ -412,7 +545,16 @@ export function StepsPanel() {
             setManual('');
           }}
         >
-          <Stepper label={t('steps.count')} value={manual} onChange={setManual} step={500} min={0} max={200000} decreaseLabel={t('common.decrease')} increaseLabel={t('common.increase')} />
+          <Stepper
+            label={t('steps.count')}
+            value={manual}
+            onChange={setManual}
+            step={500}
+            min={0}
+            max={200000}
+            decreaseLabel={t('common.decrease')}
+            increaseLabel={t('common.increase')}
+          />
           <DateField label={t('common.date')} value={manualDate} max={today} onChange={setManualDate} />
           <Button type="submit" disabled={typeof manual !== 'number' || manual <= 0}>
             {t('common.save')}
@@ -449,7 +591,16 @@ function EditStepsSheet({ entry, onClose }: { entry: StepLog | null; onClose: ()
         </Button>
       }
     >
-      <Stepper label={t('steps.count')} value={v} onChange={setV} step={500} min={0} max={200000} decreaseLabel={t('common.decrease')} increaseLabel={t('common.increase')} />
+      <Stepper
+        label={t('steps.count')}
+        value={v}
+        onChange={setV}
+        step={500}
+        min={0}
+        max={200000}
+        decreaseLabel={t('common.decrease')}
+        increaseLabel={t('common.increase')}
+      />
     </Sheet>
   );
 }

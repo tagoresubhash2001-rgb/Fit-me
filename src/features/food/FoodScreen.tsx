@@ -103,7 +103,7 @@ export default function FoodScreen() {
               </IconButton>
             </div>
 
-            <Card>
+            <Card style={{ viewTransitionName: 'tile-calories' }}>
               <div className="flex items-baseline justify-between">
                 <span className="text-small text-muted">{t('food.dayTotal')}</span>
                 <span className="text-title text-ink tabular-nums">

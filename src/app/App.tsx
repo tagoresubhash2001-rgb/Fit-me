@@ -1,34 +1,46 @@
-import React, { Suspense, lazy, useEffect } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '../data/session';
 import { watchSession } from '../data/auth';
 import { setLanguage } from '../lib/i18n';
 import { useThemeStore } from '../stores/theme.store';
+import { routeLoaders } from './routes';
 
 // Every screen is its own chunk: signed-out visitors download only the sign-in screen, signed-in users only the app.
 const Shell = lazy(() => import('./Shell').then((m) => ({ default: m.Shell })));
 const SignInScreen = lazy(() => import('../features/auth/SignInScreen'));
-const HomeScreen = lazy(() => import('../features/home/HomeScreen'));
 const Onboarding = lazy(() => import('../features/onboarding/Onboarding'));
-const FoodScreen = lazy(() => import('../features/food/FoodScreen'));
-const HealthScreen = lazy(() => import('../features/health/HealthScreen'));
-const WorkoutsScreen = lazy(() => import('../features/workouts/WorkoutsScreen'));
-const PlannerScreen = lazy(() => import('../features/planner/PlannerScreen'));
-const StoreScreen = lazy(() => import('../features/store/StoreScreen'));
-const SettingsScreen = lazy(() => import('../features/settings/SettingsScreen'));
-const PlansScreen = lazy(() => import('../features/plans/PlansScreen'));
+const HomeScreen = lazy(routeLoaders.home);
+const FoodScreen = lazy(routeLoaders.food);
+const HealthScreen = lazy(routeLoaders.health);
+const WorkoutsScreen = lazy(routeLoaders.workouts);
+const PlannerScreen = lazy(routeLoaders.planner);
+const StoreScreen = lazy(routeLoaders.store);
+const SettingsScreen = lazy(routeLoaders.settings);
+const PlansScreen = lazy(routeLoaders.plans);
 
 /** Same look as the static splash in index.html, so the hand-over from HTML to React does not flash. */
 export function FullScreenLoader() {
   const { t } = useTranslation();
+  // Never a stuck spinner: after 12 s offer a retry (slow network, blocked storage, offline first visit).
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(() => setSlow(true), 12000);
+    return () => clearTimeout(id);
+  }, []);
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-canvas p-6 text-center" role="status" aria-label={t('common.loading')}>
       <img src="/favicon.svg" alt="" width={72} height={72} className="h-[72px] w-[72px] motion-safe:animate-pulse" />
       <p className="text-[34px] leading-tight font-semibold text-ink">
         FIT ME <span className="text-primary-text">AI</span>
       </p>
-      <p className="max-w-md text-body text-muted">{t('app.splash')}</p>
+      <p className="max-w-md text-body text-muted">{slow ? t('errors.slowBody') : t('app.splash')}</p>
+      {slow && (
+        <button type="button" onClick={() => window.location.reload()} className="h-12 rounded-button bg-primary px-5 text-body font-semibold text-on-primary">
+          {t('common.retry')}
+        </button>
+      )}
     </div>
   );
 }

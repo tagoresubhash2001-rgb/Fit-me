@@ -19,6 +19,7 @@ import { httpsCallable } from 'firebase/functions';
 import { auth, db, functions } from '../lib/firebase';
 import { isNative, platform } from '../lib/platform';
 import { useSession } from './session';
+import { closeSharedListeners } from './useRecords';
 import { effectivePlan } from '../domain/plans';
 import type { UserProfile } from '../domain/models';
 
@@ -118,6 +119,8 @@ export async function startPhoneSignIn(phoneE164: string, recaptchaContainerId: 
 }
 
 export async function signOut() {
+  // Stop live listeners first so none of them fires a permission error after the user is gone.
+  closeSharedListeners();
   if (isNative()) {
     try {
       (await nativeAuth()).signOut();

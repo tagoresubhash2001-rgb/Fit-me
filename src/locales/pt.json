@@ -414,5 +414,13 @@
   },
   "app": {
     "splash": "Alimentação, água, sono, passos e treinos, com Jai e Jaya, seus coaches de IA."
+  },
+  "errors": {
+    "newVersionTitle": "Há uma nova versão",
+    "newVersionBody": "O FIT ME AI foi atualizado enquanto esta página estava aberta. Recarregue para continuar.",
+    "reload": "Recarregar",
+    "screenTitle": "Esta tela não carregou",
+    "screenBody": "Algo deu errado do nosso lado. Seus dados estão seguros. Tente de novo.",
+    "slowBody": "Está demorando mais que o normal. Verifique sua conexão e tente de novo."
   }
 }

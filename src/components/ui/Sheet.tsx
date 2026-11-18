@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useRef } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { IconButton } from './Button';
@@ -21,7 +21,8 @@ export interface SheetProps {
   size?: 'md' | 'lg';
 }
 
-const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+const FOCUSABLE =
+  'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
 /**
  * Bottom sheet on phones; centred dialog (max 560 px) with a dimmed glass backdrop from 768 px.
@@ -29,6 +30,25 @@ const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:n
  */
 export function Sheet({ open, onClose, title, closeLabel, children, footer, className, inline, size = 'md' }: SheetProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  // Stay mounted for the exit animation (slide down on phones, scale out on wider screens).
+  const [mounted, setMounted] = useState(open);
+  const [closing, setClosing] = useState(false);
+  const lastChildren = useRef(children);
+  if (open) lastChildren.current = children;
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      setClosing(false);
+      return;
+    }
+    if (!mounted) return;
+    setClosing(true);
+    const id = setTimeout(() => {
+      setMounted(false);
+      setClosing(false);
+    }, 190);
+    return () => clearTimeout(id);
+  }, [open, mounted]);
   const titleId = useId();
   // Keep the latest onClose without re-running the open effect on every parent render
   // (re-running it would steal focus from inputs inside the sheet).
@@ -67,7 +87,7 @@ export function Sheet({ open, onClose, title, closeLabel, children, footer, clas
     };
   }, [open, inline]);
 
-  if (!open) return null;
+  if (inline ? !open : !mounted) return null;
 
   const header = (
     <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-2 md:px-5">
@@ -82,7 +102,10 @@ export function Sheet({ open, onClose, title, closeLabel, children, footer, clas
 
   if (inline) {
     return (
-      <section aria-labelledby={titleId} className={cn('card-enter flex min-h-0 flex-col rounded-card border border-card-border bg-surface shadow-card', className)}>
+      <section
+        aria-labelledby={titleId}
+        className={cn('card-enter flex min-h-0 flex-col rounded-card border border-card-border bg-surface shadow-card', className)}
+      >
         {header}
         <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 md:px-5">{children}</div>
         {footer && <div className="border-t border-line p-4 md:px-5">{footer}</div>}
@@ -93,28 +116,34 @@ export function Sheet({ open, onClose, title, closeLabel, children, footer, clas
   // Portal to <body> so animated (transformed) screen containers never trap the sheet under the nav.
   return createPortal(
     <div className="fixed inset-0 z-[90] flex items-end justify-center md:items-center md:p-6">
-      <div className="absolute inset-0 bg-scrim backdrop-blur-[2px] animate-[fade-in_200ms_ease-out]" onClick={onClose} aria-hidden />
+      <div
+        className={cn(
+          'absolute inset-0 bg-scrim backdrop-blur-[2px]',
+          closing ? 'animate-[fade-out_190ms_ease-in_forwards]' : 'animate-[fade-in_220ms_ease-out]',
+        )}
+        onClick={onClose}
+        aria-hidden
+      />
       <div
         ref={panelRef}
-        role="dialog"
-        aria-modal="true"
+        role={closing ? undefined : 'dialog'}
+        aria-modal={closing ? undefined : true}
+        inert={closing || undefined}
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cn(
           'glass relative flex max-h-[92dvh] w-full flex-col rounded-t-[24px] border shadow-float outline-none',
-          'md:max-h-[86dvh] md:rounded-card animate-[sheet-in_220ms_ease-out] md:animate-[pop-in_200ms_ease-out]',
+          'will-change-transform md:max-h-[86dvh] md:rounded-card',
+          closing
+            ? 'animate-[sheet-down_190ms_ease-in_forwards] md:animate-[dialog-out_170ms_ease-in_forwards]'
+            : 'animate-[sheet-up_320ms_var(--ease-spring)] md:animate-[dialog-in_240ms_var(--ease-spring)]',
           size === 'lg' ? 'md:max-w-[720px]' : 'md:max-w-[560px]',
           className,
         )}
       >
         {header}
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 md:px-5">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 md:px-5">{open ? children : lastChildren.current}</div>
         {footer && <div className="border-t border-line p-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:px-5 md:pb-4">{footer}</div>}
-        <style>
-          {
-            '@keyframes sheet-in{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}@keyframes fade-in{from{opacity:0}to{opacity:1}}'
-          }
-        </style>
       </div>
     </div>,
     document.body,

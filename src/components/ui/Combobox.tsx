@@ -97,8 +97,13 @@ export function Combobox({
         )}
       >
         {selected?.icon}
-        <span className={cn('min-w-0 flex-1 truncate', !selected && !value && 'text-muted')}>{selected?.label ?? value ?? placeholder}</span>
-        <ChevronDown className={cn('h-4 w-4 shrink-0 text-muted transition-transform duration-200', open && 'rotate-180')} strokeWidth={1.75} />
+        <span className={cn('min-w-0 flex-1 truncate', !selected && !value && 'text-muted')}>
+          {selected?.label ?? value ?? placeholder}
+        </span>
+        <ChevronDown
+          className={cn('h-4 w-4 shrink-0 text-muted transition-transform duration-200', open && 'rotate-180')}
+          strokeWidth={1.75}
+        />
       </button>
       {open && (
         <div className="glass absolute inset-x-0 top-full z-50 mt-1 overflow-hidden rounded-input border shadow-float animate-[pop-in_150ms_ease-out]">
@@ -142,7 +147,10 @@ export function Combobox({
                 onMouseEnter={() => setActive(i)}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => pick(o.value)}
-                className={cn('flex min-h-11 cursor-pointer items-center gap-2.5 px-3 text-body text-ink', i === active && 'bg-primary-subtle')}
+                className={cn(
+                  'flex min-h-11 cursor-pointer items-center gap-2.5 px-3 text-body text-ink',
+                  i === active && 'bg-primary-subtle',
+                )}
               >
                 {o.icon}
                 <span className="min-w-0 flex-1 truncate">{o.label}</span>
@@ -157,7 +165,10 @@ export function Combobox({
                 aria-selected={false}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => pick(q.trim())}
-                className={cn('flex min-h-11 cursor-pointer items-center px-3 text-body font-medium text-primary-text', active === filtered.length && 'bg-primary-subtle')}
+                className={cn(
+                  'flex min-h-11 cursor-pointer items-center px-3 text-body font-medium text-primary-text',
+                  active === filtered.length && 'bg-primary-subtle',
+                )}
               >
                 {addCustomLabel ? addCustomLabel(q.trim()) : q.trim()}
               </li>

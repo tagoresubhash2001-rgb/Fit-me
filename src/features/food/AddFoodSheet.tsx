@@ -300,7 +300,7 @@ export function AddFoodSheet({
               />
             )}
             {!searching && !!results?.length && (
-              <ul className="flex flex-col divide-y divide-line">
+              <ul className="list-lazy flex flex-col divide-y divide-line">
                 {results.map((f) => {
                   const s = f.servings[0];
                   const kcal = s ? Math.round((f.per100g.calories * s.grams) / 100) : Math.round(f.per100g.calories);

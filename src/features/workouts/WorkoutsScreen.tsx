@@ -161,7 +161,7 @@ function ExerciseList({ onPick, grid }: { onPick?: (e: Exercise) => void; grid?:
           </button>
         ))}
       </div>
-      <ul className={cn('flex flex-col divide-y divide-line', grid && 'md:grid md:grid-cols-2 md:gap-3 md:divide-y-0 xl:grid-cols-3')}>
+      <ul className={cn('list-lazy flex flex-col divide-y divide-line', grid && 'md:grid md:grid-cols-2 md:gap-3 md:divide-y-0 xl:grid-cols-3')}>
         {list.map((e) => (
           <li
             key={e.id}
@@ -462,7 +462,7 @@ function HistoryPanel() {
     );
   return (
     <Card>
-      <ul className="-mx-2 flex flex-col divide-y divide-line">
+      <ul className="list-lazy -mx-2 flex flex-col divide-y divide-line">
         {logs.rows.map((w) => (
           <SwipeRow
             key={w.id}

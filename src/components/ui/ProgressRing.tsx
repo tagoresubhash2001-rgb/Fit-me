@@ -1,4 +1,14 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+
+/** Starts at 0 and moves to the real value on the next frame, so rings and bars fill in when they appear. */
+function useFillIn(target: number) {
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setV(target));
+    return () => cancelAnimationFrame(id);
+  }, [target]);
+  return v;
+}
 import { cn } from './cn';
 
 export interface ProgressRingProps {
@@ -23,7 +33,7 @@ export function ProgressRing({
   children,
   className,
 }: ProgressRingProps) {
-  const ratio = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
+  const ratio = useFillIn(max > 0 ? Math.min(1, Math.max(0, value / max)) : 0);
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   return (
@@ -47,7 +57,7 @@ export function ProgressRing({
           strokeLinecap="round"
           strokeDasharray={c}
           strokeDashoffset={c * (1 - ratio)}
-          className={cn(colorClass, 'transition-[stroke-dashoffset] duration-250 ease-out')}
+          className={cn(colorClass, 'transition-[stroke-dashoffset] duration-700 ease-[var(--ease-emphasized)]')}
         />
       </svg>
       {children && <div className="absolute inset-0 flex flex-col items-center justify-center text-center">{children}</div>}
@@ -68,7 +78,7 @@ export function ProgressBar({
   label?: string;
   className?: string;
 }) {
-  const pct = max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 0;
+  const pct = useFillIn(max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 0);
   return (
     <div
       role="progressbar"
@@ -78,7 +88,13 @@ export function ProgressBar({
       aria-valuenow={Math.round(value)}
       className={cn('h-2 w-full overflow-hidden rounded-full bg-track', className)}
     >
-      <div className={cn('h-full rounded-full transition-[width] duration-250 ease-out', colorClass)} style={{ width: `${pct}%` }} />
+      <div
+        className={cn(
+          'h-full w-full rounded-full transition-transform duration-500 ease-[var(--ease-emphasized)] rtl:[transform:translateX(var(--fill-rtl))]',
+          colorClass,
+        )}
+        style={{ transform: `translateX(${pct - 100}%)`, ['--fill-rtl' as string]: `${100 - pct}%` }}
+      />
     </div>
   );
 }

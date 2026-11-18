@@ -28,7 +28,10 @@ export function Tabs<T extends string>({
 }) {
   const wrap = useRef<HTMLDivElement>(null);
   const [pill, setPill] = useState<{ x: number; w: number } | null>(null);
-  const index = Math.max(0, items.findIndex((i) => i.id === value));
+  const index = Math.max(
+    0,
+    items.findIndex((i) => i.id === value),
+  );
 
   useLayoutEffect(() => {
     const el = wrap.current;

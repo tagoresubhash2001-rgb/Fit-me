@@ -105,12 +105,18 @@ export function SwipeRow({
 }) {
   const [dx, setDx] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  // Slide the row out before the delete lands; Undo brings it back via the live list.
+  const remove = () => {
+    setLeaving(true);
+    setTimeout(onDelete, 190);
+  };
   const start = useRef<{ x: number; y: number; base: number } | null>(null);
   const rtl = typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
   const width = onEdit ? 144 : 72;
   const snap = (open: boolean) => setDx(open ? -width : 0);
   return (
-    <li className={cn('list-enter relative overflow-hidden', className)}>
+    <li className={cn('list-enter relative overflow-hidden', leaving && 'row-leaving', className)}>
       {(dx !== 0 || dragging) && (
         <div className="absolute inset-y-0 end-0 flex">
           {onEdit && (
@@ -131,7 +137,7 @@ export function SwipeRow({
             tabIndex={dx ? 0 : -1}
             onClick={() => {
               snap(false);
-              onDelete();
+              remove();
             }}
             className="flex w-[72px] items-center justify-center bg-danger text-small font-medium text-on-primary"
           >
@@ -164,7 +170,7 @@ export function SwipeRow({
         }}
       >
         <div className="min-w-0 flex-1">{children}</div>
-        <RowMenu onEdit={onEdit} onDelete={onDelete} editLabel={editLabel} deleteLabel={deleteLabel} menuLabel={menuLabel} />
+        <RowMenu onEdit={onEdit} onDelete={remove} editLabel={editLabel} deleteLabel={deleteLabel} menuLabel={menuLabel} />
       </div>
     </li>
   );

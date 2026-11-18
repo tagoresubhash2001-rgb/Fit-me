@@ -7,7 +7,7 @@ export interface ChartPoint {
 }
 
 /** Simple accessible bar chart (SVG). Colours come from token classes. */
-export function BarChart({
+export const BarChart = React.memo(function BarChart({
   points,
   target,
   colorClass = 'fill-primary',
@@ -65,14 +65,22 @@ export function BarChart({
               y={height - h}
               height={Math.max(h, p.value > 0 ? 1.5 : 0)}
               rx="1.2"
-              className={cn(colorClass, target !== undefined && p.value >= target ? '' : 'opacity-70')}
+              className={cn('anim-grow-y', colorClass, target !== undefined && p.value >= target ? '' : 'opacity-70')}
+              style={{ animationDelay: `${Math.min(i * 22, 400)}ms` }}
             />
           );
         })}
       </svg>
       <div className="mt-1 flex">
         {points.map((p, i) => (
-          <span key={i} className={cn('min-w-0 flex-1 overflow-hidden text-center text-caption whitespace-nowrap text-muted', i % step !== 0 && 'invisible', i % stepWide === 0 && 'xl:visible')}>
+          <span
+            key={i}
+            className={cn(
+              'min-w-0 flex-1 overflow-hidden text-center text-caption whitespace-nowrap text-muted',
+              i % step !== 0 && 'invisible',
+              i % stepWide === 0 && 'xl:visible',
+            )}
+          >
             {p.label}
           </span>
         ))}
@@ -80,7 +88,7 @@ export function BarChart({
       <figcaption className="sr-only">{points.map((p) => `${p.label}: ${formatValue(p.value)}`).join(', ')}</figcaption>
     </figure>
   );
-}
+});
 
 /** Line chart for trends such as weight; `secondary` draws a second (e.g. moving average) line. */
 export function LineChart({
@@ -105,10 +113,12 @@ export function LineChart({
   return (
     <figure aria-label={ariaLabel} className="w-full">
       <svg viewBox={`0 0 100 ${height}`} preserveAspectRatio="none" className="h-32 w-full" aria-hidden>
-        <path d={path(points)} fill="none" className="stroke-muted" strokeWidth="1.2" vectorEffect="non-scaling-stroke" opacity="0.5" />
-        {secondary && (
-          <path d={path(secondary)} fill="none" className="stroke-primary" strokeWidth="2.25" vectorEffect="non-scaling-stroke" />
-        )}
+        <g className="anim-grow-x [transform-box:fill-box]">
+          <path d={path(points)} fill="none" className="stroke-muted" strokeWidth="1.2" vectorEffect="non-scaling-stroke" opacity="0.5" />
+          {secondary && (
+            <path d={path(secondary)} fill="none" className="stroke-primary" strokeWidth="2.25" vectorEffect="non-scaling-stroke" />
+          )}
+        </g>
         {(() => {
           // Dot on the latest value so a single entry is still visible (round cap keeps it circular under scaling).
           const ps = secondary?.length ? secondary : points;

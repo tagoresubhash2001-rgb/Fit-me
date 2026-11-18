@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { httpsCallable } from 'firebase/functions';
 import { BellRing, Check, ChevronDown, Lock, Minus, ShieldCheck, Sparkles, XCircle } from 'lucide-react';
-import { Badge, Button, Card, CountUp, PageHeader, Select, Sheet, Tabs, cn, toast } from '../../components/ui';
+import { Badge, Button, Card, CountUp, PageHeader, Select, Sheet, Tabs, cn, toast, useTilt } from '../../components/ui';
 import { functions } from '../../lib/firebase';
 import { useSession, type EntitlementView } from '../../data/session';
 import { usePricing } from '../../data/pricing';
@@ -286,6 +286,7 @@ function PlanCard({
 }) {
   const { t } = useTranslation();
   const [all, setAll] = useState(false);
+  const tilt = useTilt();
   const included = PLAN_FEATURES.filter((f) => f.plans.includes(plan)).map((f) => f.id);
   const features = all ? included : KEY_FEATURES[plan];
   const big = q ? (q.months === 1 ? q.total : q.perMonth) : null;
@@ -301,6 +302,7 @@ function PlanCard({
   return (
     <Card
       id={`plan-${plan}`}
+      {...tilt}
       className={cn(
         'flex flex-col gap-4',
         (highlighted || current) && 'ring-2 ring-primary',

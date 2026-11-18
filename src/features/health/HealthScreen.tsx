@@ -28,7 +28,13 @@ export default function HealthScreen() {
     <div className="stagger flex flex-col gap-4">
       <h1 className="card-enter text-display text-ink">{t('health.title')}</h1>
       <div className="card-enter flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <Tabs className="md:min-w-0 md:flex-1 xl:max-w-xl" ariaLabel={t('health.title')} value={tab} onChange={(v) => navigate({ pathname: `/health/${v}`, search: location.search }, { replace: true })} items={TABS.map((id) => ({ id, label: t(`health.tabs.${id}`) }))} />
+        <Tabs
+          className="md:min-w-0 md:flex-1 xl:max-w-xl"
+          ariaLabel={t('health.title')}
+          value={tab}
+          onChange={(v) => navigate({ pathname: `/health/${v}`, search: location.search }, { replace: true })}
+          items={TABS.map((id) => ({ id, label: t(`health.tabs.${id}`) }))}
+        />
         {tab !== 'progress' && <RangeFilter className="md:w-80 md:shrink-0" />}
       </div>
       <div key={tab} className="stagger page-enter grid grid-cols-1 items-start gap-4 md:grid-cols-2 md:gap-5">

@@ -414,5 +414,13 @@
   },
   "app": {
     "splash": "Makanan, air, tidur, langkah, dan latihan, bersama Jai dan Jaya, pelatih AI kamu."
+  },
+  "errors": {
+    "newVersionTitle": "Versi baru sudah siap",
+    "newVersionBody": "FIT ME AI diperbarui saat halaman ini terbuka. Muat ulang untuk melanjutkan.",
+    "reload": "Muat ulang",
+    "screenTitle": "Layar ini tidak termuat",
+    "screenBody": "Ada masalah di pihak kami. Datamu aman. Coba lagi.",
+    "slowBody": "Ini lebih lama dari biasanya. Periksa koneksimu dan coba lagi."
   }
 }

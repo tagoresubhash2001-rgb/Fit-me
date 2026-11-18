@@ -3,7 +3,19 @@ import { collection, limit, onSnapshot, orderBy, query } from 'firebase/firestor
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Droplet, Footprints, Dumbbell, Moon, Scale, CalendarDays, Flame, ChevronRight, MessageCircle } from 'lucide-react';
-import { Button, Card, ProgressRing, ProgressBar, Skeleton, PlanBadge, CountUp, LineChart, cn } from '../../components/ui';
+import {
+  Button,
+  Card,
+  ProgressRing,
+  ProgressBar,
+  Skeleton,
+  PlanBadge,
+  CountUp,
+  LineChart,
+  cn,
+  navigateWithTransition,
+  useTilt,
+} from '../../components/ui';
 import { db } from '../../lib/firebase';
 import { planAllows } from '../../domain/plans';
 import { useUi } from '../../stores/ui.store';
@@ -32,6 +44,7 @@ function StatCard({
   onPress,
   children,
   id,
+  vt,
 }: {
   icon: React.ReactNode;
   title: string;
@@ -40,9 +53,17 @@ function StatCard({
   onPress: () => void;
   children?: React.ReactNode;
   id?: string;
+  /** Shared-element name: the tile morphs into the matching card on its screen. */
+  vt?: string;
 }) {
   return (
-    <Card onPress={onPress} pressLabel={title} className="flex min-w-0 flex-col gap-2" id={id}>
+    <Card
+      onPress={onPress}
+      pressLabel={title}
+      className="flex min-w-0 flex-col gap-2"
+      id={id}
+      style={vt ? { viewTransitionName: vt } : undefined}
+    >
       <div className="flex items-center justify-between gap-2 text-muted">
         <span className="flex min-w-0 items-center gap-2">
           <span className="shrink-0 text-primary-text">{icon}</span>
@@ -66,6 +87,7 @@ export default function HomeScreen() {
   const plan = useSession((s) => s.plan);
   const today = useToday();
   const weekAgo = addDays(today, -29);
+  const tilt = useTilt();
 
   const food = useRecords<FoodLog>('foodLogs', weekAgo, today);
   const water = useRecords<WaterLog>('waterLogs', today, today);
@@ -123,10 +145,15 @@ export default function HomeScreen() {
         </Card>
       )}
 
-      <Card id="card-calories" className="md:order-1 md:col-span-12 xl:col-span-7">
+      <Card
+        id="card-calories"
+        {...tilt}
+        style={{ viewTransitionName: 'tile-calories' }}
+        className="md:order-1 md:col-span-12 xl:col-span-7"
+      >
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-title text-ink">{t('home.caloriesCard')}</h2>
-          <Button size="sm" onClick={() => navigate('/food')}>
+          <Button size="sm" onClick={() => navigateWithTransition(() => navigate('/food'))}>
             {t('home.logFood')}
           </Button>
         </div>
@@ -182,7 +209,8 @@ export default function HomeScreen() {
           title={t('home.waterCard')}
           value={vol(waterMl)}
           sub={`${t('common.of')} ${vol(waterTarget)}`}
-          onPress={() => navigate('/health/water')}
+          onPress={() => navigateWithTransition(() => navigate('/health/water'))}
+          vt="tile-water"
         >
           <ProgressBar value={waterMl} max={waterTarget} colorClass="bg-water" label={t('home.waterCard')} />
           <Button
@@ -203,7 +231,8 @@ export default function HomeScreen() {
           title={t('home.stepsCard')}
           value={stepCount ? n(stepCount) : '—'}
           sub={stepCount ? `${t('common.of')} ${n(stepTarget)}` : t('home.noSteps')}
-          onPress={() => navigate('/health/steps')}
+          onPress={() => navigateWithTransition(() => navigate('/health/steps'))}
+          vt="tile-steps"
         >
           {stepCount > 0 && <ProgressBar value={stepCount} max={stepTarget} label={t('home.stepsCard')} />}
         </StatCard>
@@ -217,7 +246,7 @@ export default function HomeScreen() {
               : undefined
           }
           sub={workouts.rows.length ? `${n(burned)} ${t('common.kcal')}` : t('home.noWorkout')}
-          onPress={() => navigate('/workouts')}
+          onPress={() => navigateWithTransition(() => navigate('/workouts'))}
         />
 
         <StatCard
@@ -225,7 +254,8 @@ export default function HomeScreen() {
           title={t('home.sleepCard')}
           value={lastSleep ? `${n(lastSleep.durationMin / 60, 1)} ${t('common.h')}` : undefined}
           sub={lastSleep ? undefined : t('home.noSleep')}
-          onPress={() => navigate('/health/sleep')}
+          onPress={() => navigateWithTransition(() => navigate('/health/sleep'))}
+          vt="tile-sleep"
         />
 
         <StatCard
@@ -233,7 +263,8 @@ export default function HomeScreen() {
           title={t('home.weightCard')}
           value={latestWeight ? wt(latestWeight.kg) : undefined}
           sub={latestWeight ? `${t('weight.target')}: ${wt(profile.targetWeightKg)}` : t('home.noWeight')}
-          onPress={() => navigate('/health/weight')}
+          onPress={() => navigateWithTransition(() => navigate('/health/weight'))}
+          vt="tile-weight"
         />
 
         <StatCard
@@ -241,11 +272,15 @@ export default function HomeScreen() {
           title={t('home.progressCard')}
           value={foodStreak ? t('progress.streak', { count: foodStreak }) : undefined}
           sub={foodStreak ? t('progress.streakFood') : t('progress.keepGoing')}
-          onPress={() => navigate('/health/progress')}
+          onPress={() => navigateWithTransition(() => navigate('/health/progress'))}
         />
       </div>
 
-      <Card onPress={() => navigate('/planner')} pressLabel={t('home.scheduleCard')} className="flex items-center gap-3 md:order-5 md:col-span-12 xl:order-4 xl:col-span-6">
+      <Card
+        onPress={() => navigate('/planner')}
+        pressLabel={t('home.scheduleCard')}
+        className="flex items-center gap-3 md:order-5 md:col-span-12 xl:order-4 xl:col-span-6"
+      >
         <CalendarDays className="h-5 w-5 shrink-0 text-primary-text" strokeWidth={1.75} />
         <div className="min-w-0 flex-1">
           <p className="text-body font-medium text-ink">{t('home.scheduleCard')}</p>

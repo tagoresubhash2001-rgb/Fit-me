@@ -736,7 +736,13 @@
     "loadFailed": "We could not load this. Check your connection and try again.",
     "saveFailed": "We could not save this. It will retry when you are back online.",
     "required": "This field is required.",
-    "number": "Enter a number between {{min}} and {{max}}."
+    "number": "Enter a number between {{min}} and {{max}}.",
+    "newVersionTitle": "A new version is ready",
+    "newVersionBody": "FIT ME AI was updated while this page was open. Reload to continue.",
+    "reload": "Reload",
+    "screenTitle": "This screen did not load",
+    "screenBody": "Something went wrong on our side. Your data is safe. Try again.",
+    "slowBody": "This is taking longer than usual. Check your connection and try again."
   },
   "workoutCategory": {
     "strength": "Strength",

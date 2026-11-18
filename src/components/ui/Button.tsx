@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import { cn } from './cn';
 import { haptic } from './haptics';
 
@@ -12,6 +12,8 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   loading?: boolean;
   fullWidth?: boolean;
   icon?: React.ReactNode;
+  /** Shows an animated check in place of the icon after a completed action. */
+  success?: boolean;
 }
 
 const variants: Record<ButtonVariant, string> = {
@@ -27,7 +29,20 @@ const sizes: Record<ButtonSize, string> = {
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'primary', size = 'md', loading = false, fullWidth, icon, className, children, disabled, type = 'button', onClick, ...rest },
+  {
+    variant = 'primary',
+    size = 'md',
+    loading = false,
+    success = false,
+    fullWidth,
+    icon,
+    className,
+    children,
+    disabled,
+    type = 'button',
+    onClick,
+    ...rest
+  },
   ref,
 ) {
   return (
@@ -51,7 +66,13 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
       )}
       {...rest}
     >
-      {loading ? <Loader2 aria-hidden className="h-[18px] w-[18px] animate-spin" strokeWidth={1.75} /> : icon}
+      {loading ? (
+        <Loader2 aria-hidden className="h-[18px] w-[18px] animate-spin" strokeWidth={1.75} />
+      ) : success ? (
+        <Check aria-hidden className="anim-check h-[18px] w-[18px]" strokeWidth={2.5} />
+      ) : (
+        icon
+      )}
       {children && <span className="min-w-0 truncate">{children}</span>}
     </button>
   );

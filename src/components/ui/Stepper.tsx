@@ -25,7 +25,21 @@ const round = (n: number, step: number) => {
 };
 
 /** Number input with − / + buttons (owner corrections 8, 9; sweep: every numeric input has a stepper). */
-export function Stepper({ value, onChange, step = 1, min = 0, max = 100000, label, decreaseLabel, increaseLabel, size = 'md', className, inputClassName, error, id }: StepperProps) {
+export function Stepper({
+  value,
+  onChange,
+  step = 1,
+  min = 0,
+  max = 100000,
+  label,
+  decreaseLabel,
+  increaseLabel,
+  size = 'md',
+  className,
+  inputClassName,
+  error,
+  id,
+}: StepperProps) {
   const auto = useId();
   const inputId = id ?? auto;
   const num = typeof value === 'number' ? value : 0;

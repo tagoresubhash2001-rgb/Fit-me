@@ -250,6 +250,42 @@
   }
 }
 
+/* ---- Motion system (PRD section 12): transform and opacity only, 150-300 ms, spring or ease-out ---- */
+@keyframes route-in-forward { from { opacity: 0; transform: translate3d(18px, 0, 0); } }
+@keyframes route-in-back { from { opacity: 0; transform: translate3d(-18px, 0, 0); } }
+@keyframes route-in-up { from { opacity: 0; transform: translate3d(0, 10px, 0); } }
+@keyframes sheet-up { from { opacity: 0.4; transform: translate3d(0, 100%, 0); } }
+@keyframes sheet-down { to { opacity: 0.4; transform: translate3d(0, 100%, 0); } }
+@keyframes dialog-in { from { opacity: 0; transform: scale(0.94) translate3d(0, 8px, 0); } }
+@keyframes dialog-out { to { opacity: 0; transform: scale(0.96) translate3d(0, 6px, 0); } }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes toast-in { from { opacity: 0; transform: translate3d(0, -16px, 0) scale(0.96); } }
+@keyframes toast-out { to { opacity: 0; transform: translate3d(0, -12px, 0) scale(0.96); } }
+@keyframes row-out { to { opacity: 0; transform: translate3d(-24px, 0, 0); } }
+@keyframes shimmer { from { transform: translate3d(-100%, 0, 0); } to { transform: translate3d(100%, 0, 0); } }
+@keyframes grow-y { from { transform: scaleY(0); } }
+@keyframes grow-x { from { transform: scaleX(0); } }
+@keyframes draw-line { from { stroke-dashoffset: 1; } }
+@keyframes check-pop { 0% { opacity: 0; transform: scale(0.4); } 60% { opacity: 1; transform: scale(1.15); } 100% { transform: scale(1); } }
+
+.route-forward { animation: route-in-forward 240ms var(--ease-emphasized) backwards; }
+.route-back { animation: route-in-back 240ms var(--ease-emphasized) backwards; }
+.route-up { animation: route-in-up 220ms var(--ease-out-soft) backwards; }
+[dir='rtl'] .route-forward { animation-name: route-in-back; }
+[dir='rtl'] .route-back { animation-name: route-in-forward; }
+.row-leaving { animation: row-out 200ms ease-in forwards; pointer-events: none; }
+[dir='rtl'] .row-leaving { animation-name: row-out; transform-origin: right; }
+.anim-grow-y { transform-box: fill-box; transform-origin: bottom; animation: grow-y 420ms var(--ease-emphasized) backwards; }
+.anim-grow-x { transform-origin: left; animation: grow-x 420ms var(--ease-emphasized) backwards; }
+[dir='rtl'] .anim-grow-x { transform-origin: right; }
+.anim-draw { stroke-dasharray: 1; animation: draw-line 700ms var(--ease-emphasized) backwards; }
+.anim-check { animation: check-pop 320ms var(--ease-spring) both; }
+/* Long lists: let the browser skip rendering rows that are off screen. */
+.list-lazy > li { content-visibility: auto; contain-intrinsic-size: auto 56px; }
+/* Shared-element transitions between a dashboard card and its screen (View Transitions API). */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 200ms; }
+::view-transition-group(*) { animation-duration: 280ms; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -259,6 +295,7 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
 
 /* Ruler-style slider for height / weight (filled track in brand green). */

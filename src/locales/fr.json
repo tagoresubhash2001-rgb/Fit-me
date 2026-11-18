@@ -414,5 +414,13 @@
   },
   "app": {
     "splash": "Repas, eau, sommeil, pas et séances, avec Jai et Jaya, vos coachs IA."
+  },
+  "errors": {
+    "newVersionTitle": "Une nouvelle version est prête",
+    "newVersionBody": "FIT ME AI a été mis à jour pendant que cette page était ouverte. Rechargez pour continuer.",
+    "reload": "Recharger",
+    "screenTitle": "Cet écran ne s'est pas chargé",
+    "screenBody": "Un problème est survenu de notre côté. Vos données sont en sécurité. Réessayez.",
+    "slowBody": "Cela prend plus de temps que d'habitude. Vérifiez votre connexion et réessayez."
   }
 }

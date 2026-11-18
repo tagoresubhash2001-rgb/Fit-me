@@ -3,7 +3,15 @@ import React, { useEffect, useRef, useState } from 'react';
 const reduced = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 /** Animates a number from its previous value to the new one (about 400 ms, ease-out). */
-export function CountUp({ value, format = (v) => String(Math.round(v)), duration = 400 }: { value: number; format?: (v: number) => string; duration?: number }) {
+export function CountUp({
+  value,
+  format = (v) => String(Math.round(v)),
+  duration = 400,
+}: {
+  value: number;
+  format?: (v: number) => string;
+  duration?: number;
+}) {
   const [shown, setShown] = useState(value);
   const from = useRef(value);
   useEffect(() => {

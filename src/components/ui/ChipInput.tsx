@@ -41,16 +41,26 @@ export function ChipInput({
     if (v && !values.some((x) => labelFor(x).toLowerCase() === v.toLowerCase())) onChange([...values, v]);
     setText('');
   };
-  const options: ComboOption[] = [...suggestions, ...moreOptions].filter((v) => !values.includes(v)).map((v) => ({ value: v, label: labelFor(v) }));
+  const options: ComboOption[] = [...suggestions, ...moreOptions]
+    .filter((v) => !values.includes(v))
+    .map((v) => ({ value: v, label: labelFor(v) }));
   return (
     <fieldset className="flex flex-col gap-2.5">
       <legend className="mb-1 text-small font-medium text-ink">{label}</legend>
       {values.length > 0 && (
         <ul className="flex flex-wrap gap-2" aria-live="polite">
           {values.map((v) => (
-            <li key={v} className="list-enter flex h-9 items-center gap-1 rounded-full bg-primary px-3 text-small font-medium text-on-primary">
+            <li
+              key={v}
+              className="list-enter flex h-9 items-center gap-1 rounded-full bg-primary px-3 text-small font-medium text-on-primary"
+            >
               <span className="max-w-[12rem] truncate">{labelFor(v)}</span>
-              <button type="button" aria-label={removeLabel(labelFor(v))} onClick={() => toggle(v)} className="-me-1 rounded-full p-1 hover:bg-primary-pressed">
+              <button
+                type="button"
+                aria-label={removeLabel(labelFor(v))}
+                onClick={() => toggle(v)}
+                className="-me-1 rounded-full p-1 hover:bg-primary-pressed"
+              >
                 <X className="h-3.5 w-3.5" strokeWidth={2} />
               </button>
             </li>
@@ -77,7 +87,17 @@ export function ChipInput({
           );
         })}
       </div>
-      <Combobox label={searchLabel} value={null} options={options} onChange={(v) => (options.some((o) => o.value === v) ? toggle(v) : onChange([...values, v]))} placeholder={searchPlaceholder} searchPlaceholder={searchPlaceholder} emptyText={emptyText} allowCustom addCustomLabel={(q) => `${addLabel}: ${q}`} />
+      <Combobox
+        label={searchLabel}
+        value={null}
+        options={options}
+        onChange={(v) => (options.some((o) => o.value === v) ? toggle(v) : onChange([...values, v]))}
+        placeholder={searchPlaceholder}
+        searchPlaceholder={searchPlaceholder}
+        emptyText={emptyText}
+        allowCustom
+        addCustomLabel={(q) => `${addLabel}: ${q}`}
+      />
       <div className="flex gap-2">
         <input
           aria-label={inputPlaceholder}
@@ -93,7 +113,12 @@ export function ChipInput({
           }}
           className="h-12 min-w-0 flex-1 rounded-input border border-line bg-surface px-3.5 text-body text-ink placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
-        <button type="button" onClick={addCustom} disabled={!text.trim()} className="h-12 shrink-0 rounded-button border border-line bg-surface px-4 text-body font-semibold text-ink hover:bg-raised disabled:opacity-50">
+        <button
+          type="button"
+          onClick={addCustom}
+          disabled={!text.trim()}
+          className="h-12 shrink-0 rounded-button border border-line bg-surface px-4 text-body font-semibold text-ink hover:bg-raised disabled:opacity-50"
+        >
           {addLabel}
         </button>
       </div>

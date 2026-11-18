@@ -13,6 +13,7 @@ interface ToastItem {
   message: string;
   tone: ToastTone;
   action?: ToastAction;
+  leaving?: boolean;
 }
 interface ToastState {
   toasts: ToastItem[];
@@ -28,7 +29,12 @@ export const useToast = create<ToastState>((set, get) => ({
     set({ toasts: [...get().toasts.slice(-2), { id, message, tone, action }] });
     setTimeout(() => get().dismiss(id), action ? 6000 : 3500);
   },
-  dismiss: (id) => set({ toasts: get().toasts.filter((t) => t.id !== id) }),
+  // Slide out first, then remove.
+  dismiss: (id) => {
+    if (!get().toasts.some((t) => t.id === id && !t.leaving)) return;
+    set({ toasts: get().toasts.map((t) => (t.id === id ? { ...t, leaving: true } : t)) });
+    setTimeout(() => set({ toasts: get().toasts.filter((t) => t.id !== id) }), 200);
+  },
 }));
 
 /** Imperative helper for non-React code. */
@@ -51,7 +57,12 @@ export function ToastViewport() {
           <div
             key={item.id}
             role={item.tone === 'error' ? 'alert' : 'status'}
-            className="glass pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-card border p-3.5 shadow-float animate-[sheet-in_200ms_ease-out]"
+            className={cn(
+              'glass pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-card border p-3.5 shadow-float',
+              item.leaving
+                ? 'pointer-events-none animate-[toast-out_200ms_ease-in_forwards]'
+                : 'animate-[toast-in_260ms_var(--ease-spring)]',
+            )}
           >
             <Icon className={cn('h-[18px] w-[18px] shrink-0', toneClass[item.tone])} strokeWidth={1.75} />
             <p className="min-w-0 flex-1 text-small text-ink">{item.message}</p>
