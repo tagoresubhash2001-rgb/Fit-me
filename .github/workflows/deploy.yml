@@ -215,13 +215,21 @@ jobs:
       - *auth_sa
       - *auth_wif
       # --force lets the CLI set the Artifact Registry clean-up policy for function images (avoids storage cost).
-      # Scheduled functions (trial reminders) deploy only once the repository variable ENABLE_SCHEDULED_FUNCTIONS
-      # is "true", i.e. after the deploy account has roles/cloudscheduler.admin (docs/DEPLOY.md).
-      # The CLI reads functions/.env.<project> when it analyses the code (plain settings only, never secrets).
-      - run: echo "SCHEDULED_FUNCTIONS=$SCHEDULED_FUNCTIONS" > "functions/.env.$FIREBASE_PROJECT"
+      # Scheduled functions (trial reminders) create Cloud Scheduler jobs, which need roles/cloudscheduler.admin on
+      # the deploy account. Until the owner grants it and sets the repository variable ENABLE_SCHEDULED_FUNCTIONS
+      # to "true" (docs/DEPLOY.md), deploy every other function by name so Cloud Scheduler is never touched.
+      - name: Deploy functions
         env:
-          SCHEDULED_FUNCTIONS: ${{ vars.ENABLE_SCHEDULED_FUNCTIONS == 'true' && 'on' || 'off' }}
-      - run: npx firebase deploy --only functions --project "$FIREBASE_PROJECT" --non-interactive --force
+          SCHEDULED: ${{ vars.ENABLE_SCHEDULED_FUNCTIONS == 'true' && 'on' || 'off' }}
+        run: |
+          if [ "$SCHEDULED" = "on" ]; then
+            npx firebase deploy --only functions --project "$FIREBASE_PROJECT" --non-interactive --force
+          else
+            npm run build --prefix functions
+            ONLY=$(cd functions && SCHEDULED_FUNCTIONS=off node -e "console.log(Object.keys(require('./lib/index.js')).map((n) => 'functions:' + n).join(','))")
+            echo "Deploying $ONLY"
+            npx firebase deploy --only "$ONLY" --project "$FIREBASE_PROJECT" --non-interactive --force
+          fi
       - name: Smoke test healthCheck
         run: |
           for i in 1 2 3 4 5 6; do

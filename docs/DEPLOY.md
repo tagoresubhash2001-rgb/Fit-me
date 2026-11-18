@@ -137,9 +137,9 @@ language.
 
 `trialReminders` runs daily at 10:00 Asia/Kolkata and sends the "trial ends in 3 days" push and in-app
 notification. Deploying it creates a Cloud Scheduler job, which the deploy account
-(`firebase-adminsdk-fbsvc@fit-me1.iam.gserviceaccount.com`) is not yet allowed to do, so the workflow skips it
-(`SCHEDULED_FUNCTIONS=off` written to `functions/.env.<project>`). The in-app trial-ending banner does not
-depend on it. To turn it on (owner, once):
+(`firebase-adminsdk-fbsvc@fit-me1.iam.gserviceaccount.com`) is not yet allowed to do, so the workflow deploys
+every other function by name and leaves it alone. The function exists in fit-me1 but has no schedule yet, so it
+does not run. The in-app trial-ending banner does not depend on it. To turn it on (owner, once):
 
 ```
 gcloud projects add-iam-policy-binding fit-me1 \
