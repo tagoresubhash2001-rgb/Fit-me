@@ -615,6 +615,8 @@
     "startTrial": "Start {{days}}-day free trial",
     "switchTo": "Switch to {{plan}}",
     "useChange": "Use Change plan above",
+    "useResume": "To switch, keep your plan first",
+    "useStore": "Switch plans in your app store",
     "seeAll": "See all features",
     "seeLess": "Show fewer features",
     "continueFree": "Continue with Free",

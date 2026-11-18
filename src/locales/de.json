@@ -247,6 +247,8 @@
     "startTrial": "{{days}} Tage gratis testen",
     "switchTo": "Zu {{plan}} wechseln",
     "useChange": "Nutze oben Plan ändern",
+    "useResume": "Zum Wechseln zuerst den Tarif behalten",
+    "useStore": "Tarif im App Store wechseln",
     "seeAll": "Alle Funktionen ansehen",
     "seeLess": "Weniger Funktionen zeigen",
     "continueFree": "Mit Free weitermachen",

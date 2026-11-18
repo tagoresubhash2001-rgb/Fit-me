@@ -247,6 +247,8 @@
     "startTrial": "Mulai uji coba gratis {{days}} hari",
     "switchTo": "Pindah ke {{plan}}",
     "useChange": "Gunakan Ganti paket di atas",
+    "useResume": "Untuk beralih, pertahankan paket Anda dulu",
+    "useStore": "Ganti paket di toko aplikasi Anda",
     "seeAll": "Lihat semua fitur",
     "seeLess": "Lihat lebih sedikit",
     "continueFree": "Lanjut dengan Free",

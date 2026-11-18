@@ -247,6 +247,8 @@
     "startTrial": "Démarrer l'essai gratuit de {{days}} jours",
     "switchTo": "Passer à {{plan}}",
     "useChange": "Utilisez Changer d'offre ci-dessus",
+    "useResume": "Pour changer, gardez d'abord votre forfait",
+    "useStore": "Changez de forfait dans votre magasin d'applications",
     "seeAll": "Voir toutes les fonctions",
     "seeLess": "Voir moins de fonctions",
     "continueFree": "Continuer avec Free",

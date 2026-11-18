@@ -154,6 +154,13 @@ export default function PlansScreen() {
             highlighted={highlight === p || (!highlight && p === 'pro')}
             changing={changing}
             subscribed={!!subscribed}
+            lockedHint={t(
+              subscribed?.source === 'appstore' || subscribed?.source === 'playstore'
+                ? 'plans.useStore'
+                : subscribed?.status === 'cancelled'
+                  ? 'plans.useResume'
+                  : 'plans.useChange',
+            )}
             onChoose={() => void choose(p)}
           />
         ))}
@@ -270,6 +277,7 @@ function PlanCard({
   highlighted,
   changing,
   subscribed,
+  lockedHint,
   onChoose,
 }: {
   plan: PaidPlan;
@@ -282,6 +290,7 @@ function PlanCard({
   highlighted: boolean;
   changing: boolean;
   subscribed: boolean;
+  lockedHint: string;
   onChoose: () => void;
 }) {
   const { t } = useTranslation();
@@ -380,7 +389,7 @@ function PlanCard({
         ) : (
           <p className="flex items-center justify-center gap-1.5 text-center text-small text-muted">
             <Lock className="h-4 w-4" strokeWidth={1.75} />
-            {t('plans.useChange')}
+            {lockedHint}
           </p>
         )}
       </div>

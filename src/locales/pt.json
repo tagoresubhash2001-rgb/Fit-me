@@ -247,6 +247,8 @@
     "startTrial": "Começar teste grátis de {{days}} dias",
     "switchTo": "Mudar para {{plan}}",
     "useChange": "Use Mudar plano acima",
+    "useResume": "Para trocar, mantenha seu plano primeiro",
+    "useStore": "Troque de plano na sua loja de apps",
     "seeAll": "Ver todos os recursos",
     "seeLess": "Ver menos recursos",
     "continueFree": "Continuar no Free",

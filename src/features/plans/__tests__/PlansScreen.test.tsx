@@ -99,6 +99,15 @@ describe('Plans screen', () => {
     expect(calls).toEqual([{ name: 'manageSubscription', data: { action: 'cancel' } }]);
   });
 
+  it('after cancelling, offers Keep my plan and does not point to a missing Change plan button', () => {
+    useSession.setState({ plan: 'pro', entitlement: { plan: 'pro', status: 'cancelled', period: 'yearly', source: 'test', expiresAt: Date.now() + 20 * DAY, trialEndsAt: Date.now() + 20 * DAY, willRenew: false, trialUsed: true } });
+    renderPlans();
+    expect(screen.getByRole('button', { name: 'Keep my plan' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Change plan' })).toBeNull();
+    expect(screen.getByText('To switch, keep your plan first')).toBeInTheDocument();
+    expect(screen.queryByText('Use Change plan above')).toBeNull();
+  });
+
   it('offers a plain choice (no trial) once the trial has been used', () => {
     useSession.setState({ entitlement: { plan: 'pro', status: 'expired', period: 'monthly', source: 'test', expiresAt: Date.now() - DAY, trialEndsAt: Date.now() - DAY, willRenew: false, trialUsed: true } });
     renderPlans();
