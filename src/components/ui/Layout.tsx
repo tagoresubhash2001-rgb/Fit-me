@@ -31,7 +31,7 @@ export function ListDetail({ list, detail, detailLabel, className }: { list: Rea
     <div className={cn('lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(340px,420px)] lg:items-start lg:gap-6', className)}>
       <div className="min-w-0">{list}</div>
       {detail && (
-        <aside aria-label={detailLabel} className="sticky top-24 hidden flex-col lg:flex">
+        <aside aria-label={detailLabel} className="sticky top-24 hidden max-h-[calc(100dvh-7rem)] flex-col lg:flex [&>*]:min-h-0">
           {detail}
         </aside>
       )}

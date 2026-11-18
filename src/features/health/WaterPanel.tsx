@@ -150,7 +150,7 @@ export function WaterPanel() {
         <BarChart ariaLabel={t('water.history')} target={goal} targetLabel={`${t('water.target')}: ${vol(goal)}`} colorClass="fill-water" points={seriesFor(range, today, (d) => logs.rows.filter((l) => l.date === d).reduce((a, l) => a + l.ml, 0)).map((b) => ({ label: bucketLabel(b, range), value: b.value }))} formatValue={vol} />
       </Card>
 
-      <EditWaterSheet entry={editing} onClose={() => setEditing(null)} unit={prefs.volume} />
+      <EditWaterSheet key={editing?.id ?? 'none'} entry={editing} onClose={() => setEditing(null)} unit={prefs.volume} />
       <WaterTargetSheet open={editTarget} onClose={() => setEditTarget(false)} goalMl={goal} unit={prefs.volume} suggestedMl={profile.targets.waterMl} />
     </>
   );
@@ -158,15 +158,10 @@ export function WaterPanel() {
 
 function EditWaterSheet({ entry, onClose, unit }: { entry: Entry | null; onClose: () => void; unit: VolumeUnit }) {
   const { t } = useTranslation();
-  const [ml, setMl] = useState<number | ''>('');
+  // Keyed by entry id at the call site: state starts from the entry, no late initialising effect.
+  const [ml, setMl] = useState<number | ''>(() => entry?.ml ?? '');
   const [u, setU] = useState<VolumeUnit>(unit);
-  const [time, setTime] = useState(0);
-  React.useEffect(() => {
-    if (entry) {
-      setMl(entry.ml);
-      setTime(entry.timeMinutes ?? 12 * 60);
-    }
-  }, [entry]);
+  const [time, setTime] = useState(() => entry?.timeMinutes ?? 12 * 60);
   if (!entry) return null;
   const valid = typeof ml === 'number' && ml >= 1 && ml <= 5000;
   return (

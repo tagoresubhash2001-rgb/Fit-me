@@ -230,6 +230,7 @@ export default function FoodScreen() {
         key={`m-${addSlot ?? 'none'}-${addQuery}`}
       />
       <EditFoodSheet
+        key={`m-${editing?.id ?? 'none'}`}
         log={split ? null : editing}
         onClose={() => setEditing(null)}
         onReplace={(l) => {
@@ -285,22 +286,19 @@ function EditFoodSheet({
     [log],
   );
   const options = useUnitOptions({ servings });
-  const [state, setState] = useState<QuantityState>({ unitId: 'g', quantity: 1 });
-  const [legacyQty, setLegacyQty] = useState<number | ''>('');
-  const [slot, setSlot] = useState<MealSlot>('breakfast');
-  const [time, setTime] = useState(12 * 60);
-  React.useEffect(() => {
-    if (!log) return;
-    setSlot(log.slot);
-    setTime(log.timeMinutes ?? nowMinutes());
-    setLegacyQty(log.servings);
+  // State starts from the entry itself (the sheet is keyed by entry id), so nothing the user does in the
+  // first frames can be overwritten by a late initialising effect.
+  const [state, setState] = useState<QuantityState>(() => {
+    if (!log) return { unitId: 'g', quantity: 1 };
     const match =
       log.unitId && options.some((o) => o.id === log.unitId)
         ? log.unitId
         : (options.find((o) => o.label === log.servingLabel)?.id ?? options[0]?.id ?? 'g');
-    setState({ unitId: match, quantity: log.servings });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [log]);
+    return { unitId: match, quantity: log.servings };
+  });
+  const [legacyQty, setLegacyQty] = useState<number | ''>(() => log?.servings ?? '');
+  const [slot, setSlot] = useState<MealSlot>(() => log?.slot ?? 'breakfast');
+  const [time, setTime] = useState(() => log?.timeMinutes ?? nowMinutes());
   if (!log) return null;
   const exact = per100g ? quantityResult(per100g, options, state) : null;
   const factor = !exact && typeof legacyQty === 'number' && legacyQty > 0 ? legacyQty / log.servings : 1;

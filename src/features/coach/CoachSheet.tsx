@@ -192,6 +192,12 @@ export function CoachDock() {
       aria-label={t('coach.title')}
       style={{ width }}
       className="glass sticky top-0 hidden h-dvh shrink-0 flex-col border-s shadow-float animate-[fade-in_200ms_ease-out] xl:flex"
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          setOpen(false);
+          document.getElementById('coach-button')?.focus();
+        }
+      }}
     >
       <div
         role="separator"

@@ -93,7 +93,7 @@ export default function WorkoutsScreen() {
         }
         detail={
           split ? (
-            <div id="workout-panel" className="flex flex-col gap-4">
+            <div id="workout-panel" className="flex flex-col gap-4 overflow-y-auto pb-1">
               <SessionPanel />
             </div>
           ) : undefined
@@ -487,7 +487,7 @@ function HistoryPanel() {
           </SwipeRow>
         ))}
       </ul>
-      <EditWorkoutSheet entry={editing} onClose={() => setEditing(null)} />
+      <EditWorkoutSheet key={editing?.id ?? 'none'} entry={editing} onClose={() => setEditing(null)} />
     </Card>
   );
 }
@@ -495,16 +495,10 @@ function HistoryPanel() {
 function EditWorkoutSheet({ entry, onClose }: { entry: WorkoutLog | null; onClose: () => void }) {
   const { t } = useTranslation();
   const today = useToday();
-  const [name, setName] = useState('');
-  const [minutes, setMinutes] = useState<number | ''>('');
-  const [d, setD] = useState(today);
-  React.useEffect(() => {
-    if (entry) {
-      setName(entry.name);
-      setMinutes(Math.round(entry.durationMin));
-      setD(entry.date);
-    }
-  }, [entry]);
+  // Keyed by entry id at the call site: state starts from the entry, no late initialising effect.
+  const [name, setName] = useState(() => entry?.name ?? '');
+  const [minutes, setMinutes] = useState<number | ''>(() => (entry ? Math.round(entry.durationMin) : ''));
+  const [d, setD] = useState(() => entry?.date ?? today);
   if (!entry) return null;
   const valid = name.trim().length > 0 && typeof minutes === 'number' && minutes > 0 && minutes <= 600;
   // Keep the calorie estimate proportional to the new duration (same activity mix).

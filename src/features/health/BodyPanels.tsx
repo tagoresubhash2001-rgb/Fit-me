@@ -141,7 +141,7 @@ export function WeightPanel() {
           </ul>
         </Card>
       )}
-      <EditWeightSheet entry={editing} onClose={() => setEditing(null)} />
+      <EditWeightSheet key={editing?.id ?? 'none'} entry={editing} onClose={() => setEditing(null)} />
     </>
   );
 }
@@ -150,15 +150,9 @@ function EditWeightSheet({ entry, onClose }: { entry: WeightLog | null; onClose:
   const { t } = useTranslation();
   const { prefs } = useUnits();
   const today = useToday();
-  const [kg, setKg] = useState<number | ''>('');
+  const [kg, setKg] = useState<number | ''>(() => entry?.kg ?? '');
   const [unit, setUnit] = useState<WeightUnit>(prefs.weight);
-  const [d, setD] = useState(today);
-  useEffect(() => {
-    if (entry) {
-      setKg(entry.kg);
-      setD(entry.date);
-    }
-  }, [entry]);
+  const [d, setD] = useState(() => entry?.date ?? today);
   if (!entry) return null;
   const valid = typeof kg === 'number' && kg >= 20 && kg <= 400;
   return (
@@ -272,7 +266,7 @@ export function SleepPanel() {
           </Button>
         </form>
       </Card>
-      <EditSleepSheet entry={editing} onClose={() => setEditing(null)} />
+      <EditSleepSheet key={editing?.id ?? 'none'} entry={editing} onClose={() => setEditing(null)} />
     </>
   );
 }
@@ -281,18 +275,10 @@ function EditSleepSheet({ entry, onClose }: { entry: SleepLog | null; onClose: (
   const { t } = useTranslation();
   const { n } = useFormat();
   const today = useToday();
-  const [s, setS] = useState(0);
-  const [e, setE] = useState(0);
-  const [q, setQ] = useState(3);
-  const [d, setD] = useState(today);
-  useEffect(() => {
-    if (entry) {
-      setS(entry.startMinutes);
-      setE(entry.endMinutes);
-      setQ(entry.quality ?? 3);
-      setD(entry.date);
-    }
-  }, [entry]);
+  const [s, setS] = useState(() => entry?.startMinutes ?? 0);
+  const [e, setE] = useState(() => entry?.endMinutes ?? 0);
+  const [q, setQ] = useState(() => entry?.quality ?? 3);
+  const [d, setD] = useState(() => entry?.date ?? today);
   if (!entry) return null;
   const dur = sleepMinutes(s, e);
   return (
@@ -433,17 +419,14 @@ export function StepsPanel() {
           </Button>
         </form>
       </Card>
-      <EditStepsSheet entry={editing} onClose={() => setEditing(null)} />
+      <EditStepsSheet key={editing?.id ?? 'none'} entry={editing} onClose={() => setEditing(null)} />
     </>
   );
 }
 
 function EditStepsSheet({ entry, onClose }: { entry: StepLog | null; onClose: () => void }) {
   const { t } = useTranslation();
-  const [v, setV] = useState<number | ''>('');
-  useEffect(() => {
-    if (entry) setV(entry.steps);
-  }, [entry]);
+  const [v, setV] = useState<number | ''>(() => entry?.steps ?? '');
   if (!entry) return null;
   const valid = typeof v === 'number' && v > 0 && v <= 200000;
   return (
