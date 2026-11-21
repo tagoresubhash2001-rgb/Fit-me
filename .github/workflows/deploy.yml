@@ -149,7 +149,7 @@ jobs:
         run: |
           for i in 1 2 3 4 5; do
             code=$(curl -s -o page.html -w "%{http_code}" "$SITE_URL/?smoke=${GITHUB_SHA::7}") || true
-            if [ "$code" = "200" ] && grep -q '<div id="root">' page.html && grep -q 'FIT ME AI' page.html; then
+            if [ "$code" = "200" ] && grep -q '<div id="root">' page.html && grep -q '<title>FitMe' page.html; then
               echo "Website OK: $SITE_URL"; echo "### Website live: $SITE_URL" >> "$GITHUB_STEP_SUMMARY"; exit 0
             fi
             echo "Attempt $i: HTTP $code"; sleep 10
