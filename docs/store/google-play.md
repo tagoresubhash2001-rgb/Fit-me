@@ -1,6 +1,6 @@
 # Google Play Console: everything that can be prepared in files
 
-Package: `com.sindulis.fitmeai` · Version 2.0.0 (200) · Signed release bundle: `android/app/build/outputs/bundle/release/app-release.aab`
+Package: `com.sindulis.fitmeai` · Version 2.0.1 (201) · Signed release bundle: `android/app/build/outputs/bundle/release/app-release.aab`
 (upload key: alias `fitme-upload`, stored in Google Secret Manager as `FITME_UPLOAD_KEYSTORE` / `FITME_UPLOAD_KEYSTORE_PASSWORD`; enrol in Play App Signing on first upload).
 
 ## Store listing

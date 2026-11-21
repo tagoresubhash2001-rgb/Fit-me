@@ -5,7 +5,6 @@ import {
   indexedDBLocalPersistence,
   initializeAuth,
   browserLocalPersistence,
-  browserPopupRedirectResolver,
   type Auth,
 } from 'firebase/auth';
 import {
@@ -60,10 +59,9 @@ export function firebase() {
 
   _auth = isNative()
     ? initializeAuth(app, { persistence: indexedDBLocalPersistence })
-    : initializeAuth(app, {
-        persistence: [indexedDBLocalPersistence, browserLocalPersistence],
-        popupRedirectResolver: browserPopupRedirectResolver,
-      });
+    : // No popup resolver here: it preloads Google's sign-in iframe (about 130 KB) on every visit. It is passed to
+      // signInWithPopup instead, so it loads only when someone taps a sign-in button.
+      initializeAuth(app, { persistence: [indexedDBLocalPersistence, browserLocalPersistence] });
 
   let cache;
   try {

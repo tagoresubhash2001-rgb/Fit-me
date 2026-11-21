@@ -24,8 +24,7 @@ import { PermissionProvider } from '../features/permissions/PermissionPrimer';
 const AdminApp = lazy(() => import('../features/admin/AdminApp'));
 const PageView = lazy(() => import('../features/pages/PageView'));
 const HelpScreen = lazy(() => import('../features/pages/HelpScreen'));
-import { AppGates } from './Gates';
-import { useApplyStringOverrides } from '../data/appConfig';
+const LateGates = lazy(() => import('./Gates'));
 
 /** Same look as the static splash in index.html, so the hand-over from HTML to React does not flash. */
 export function FullScreenLoader() {
@@ -83,8 +82,6 @@ function Gate() {
     if (profile?.language) void setLanguage(profile.language);
   }, [profile?.language]);
 
-  useApplyStringOverrides();
-
   if (!authReady) return <FullScreenLoader />;
   // Published pages (terms, privacy, help, tips) are public.
   if (pathname.startsWith('/p/'))
@@ -106,24 +103,24 @@ function Gate() {
     );
   if (!user)
     return (
-      <AppGates>
+      <>
         <Suspense fallback={<FullScreenLoader />}>
           <SignInScreen />
         </Suspense>
-      </AppGates>
+      </>
     );
   if (!profileReady) return <FullScreenLoader />;
   if (!profile)
     return (
-      <AppGates>
+      <>
         <Suspense fallback={<FullScreenLoader />}>
           <Onboarding />
         </Suspense>
-      </AppGates>
+      </>
     );
 
   return (
-    <AppGates>
+    <>
       <Suspense fallback={<FullScreenLoader />}>
         <Routes>
           <Route element={<Shell />}>
@@ -142,8 +139,23 @@ function Gate() {
           </Route>
         </Routes>
       </Suspense>
-    </AppGates>
+    </>
   );
+}
+
+/** Loads the admin-controlled gates (maintenance, forced update, text overrides) once the first screen is painted. */
+function DeferredGates() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+    if (w.requestIdleCallback) w.requestIdleCallback(() => setReady(true), { timeout: 2500 });
+    else setTimeout(() => setReady(true), 1200);
+  }, []);
+  return ready ? (
+    <Suspense fallback={null}>
+      <LateGates />
+    </Suspense>
+  ) : null;
 }
 
 export default function App() {
@@ -151,6 +163,7 @@ export default function App() {
     <BrowserRouter>
       <PermissionProvider>
         <Gate />
+        <DeferredGates />
       </PermissionProvider>
     </BrowserRouter>
   );

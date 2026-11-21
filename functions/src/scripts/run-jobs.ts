@@ -6,14 +6,15 @@
  *   - Scheduled admin notifications that are due.
  * Usage: GOOGLE_APPLICATION_CREDENTIALS=<key> node lib/scripts/run-jobs.js --project fit-me1
  */
-import { initializeApp } from 'firebase-admin/app';
+import { getApps, initializeApp } from 'firebase-admin/app';
 import { FieldValue, Timestamp, getFirestore } from 'firebase-admin/firestore';
 import { getMessaging } from 'firebase-admin/messaging';
 import { stageAt, stageReminderDue } from '../lib/access';
 import { toRecord, type AccessDoc } from '../account/access';
 import { deliverDue } from '../admin/notify';
 import { storeTrialReminders } from '../billing/reminders';
-import { freeLaunchFor, AccessPolicy } from '../lib/policy';
+import { freeLaunchFor } from '../lib/policy';
+import { AccessPolicy } from '../lib/policySchema';
 
 const arg = (n: string) => {
   const i = process.argv.indexOf(`--${n}`);
@@ -60,7 +61,8 @@ export async function stageReminders(nowMs = Date.now()): Promise<number> {
 async function main() {
   const project = arg('project');
   if (!project) throw new Error('--project is required');
-  initializeApp({ projectId: project });
+  // lib/admin (imported by the job modules) may already have created the default app from the environment.
+  if (!getApps().length) initializeApp({ projectId: project });
   const reminders = await stageReminders();
   const notifications = await deliverDue();
   const storeTrials = await storeTrialReminders();

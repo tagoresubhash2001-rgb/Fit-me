@@ -4,7 +4,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import { Button, Card, CardHeader, PageHeader, Skeleton, toast } from '../../components/ui';
 import { db } from '../../lib/firebase';
 import { DEFAULT_PRICING, PricingConfig } from '../../domain/billing';
-import { AccessConfig, DEFAULT_ACCESS } from '../../domain/access';
+import { DEFAULT_ACCESS, type AccessConfig as AccessConfigType } from '../../domain/access';
+import { AccessConfig } from '../../domain/accessSchema';
 import { call, errorCode } from './api';
 import { Confirm, Field, inputCls } from './ui';
 
@@ -20,7 +21,7 @@ const numOrNull = (v: string) => (v.trim() === '' ? null : Number(v));
 
 export function AccessCard() {
   const { t } = useTranslation();
-  const [cfg, setCfg] = useState<AccessConfig | null>(null);
+  const [cfg, setCfg] = useState<AccessConfigType | null>(null);
   const [apply, setApply] = useState(false);
   const [confirm, setConfirm] = useState(false);
   useEffect(() => {
@@ -29,7 +30,7 @@ export function AccessCard() {
       .catch(() => setCfg(DEFAULT_ACCESS));
   }, []);
   if (!cfg) return <Skeleton className="h-40" />;
-  const set = (patch: Partial<AccessConfig>) => setCfg({ ...cfg, ...patch });
+  const set = (patch: Partial<AccessConfigType>) => setCfg({ ...cfg, ...patch });
   return (
     <Card className="flex flex-col gap-4" id="admin-access">
       <CardHeader title={t('admin.pricing.accessTitle')} subtitle={t('admin.pricing.accessBody')} />

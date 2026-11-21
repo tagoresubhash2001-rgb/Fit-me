@@ -3,7 +3,7 @@ import type { User } from 'firebase/auth';
 import type { UserProfile } from '../domain/models';
 import type { Plan } from '../domain/plans';
 import type { AccessRecord } from '../domain/access';
-import { canUse, DEFAULT_POLICY, freeLaunchFor, type AccessPolicy, type GatedFeature, type Grant } from '../domain/policy';
+import { canUse, EMPTY_POLICY, freeLaunchFor, type AccessPolicy, type GatedFeature, type Grant } from '../domain/policy';
 import type { EntitlementStatus, PaidPlan, Period } from '../domain/billing';
 
 /** Client view of entitlements/{uid} (written only by Cloud Functions). Times in epoch ms. */
@@ -50,7 +50,7 @@ export const useSession = create<SessionState>((set) => ({
   entitlement: null,
   access: null,
   grant: null,
-  policy: DEFAULT_POLICY,
+  policy: EMPTY_POLICY,
   basePlan: 'free',
   set: (s) => set(s),
 }));

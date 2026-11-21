@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { AccessPolicy, canUse, DEFAULT_POLICY, freeLaunchFor, grantPlan, policyPlan, stageDaysFor, tierFor, bestTier } from '../policy';
+import { canUse, EMPTY_POLICY, freeLaunchFor, grantPlan, policyPlan, stageDaysFor, tierFor, bestTier } from '../policy';
+import { AccessPolicy, DEFAULT_POLICY } from '../policySchema';
 import { canOpen, ROLE_SECTIONS } from '../adminRoles';
 
 const p = (x: unknown) => AccessPolicy.parse(x);
 
 describe('access policy', () => {
+  it('the startup default equals the schema default', () => expect(EMPTY_POLICY).toEqual(DEFAULT_POLICY));
   it('defaults follow the PRD tiers', () => {
     expect(tierFor(DEFAULT_POLICY, 'coachChat', 'IN')).toBe('pro');
     expect(canUse(DEFAULT_POLICY, 'free', 'foodPhotoScan', 'IN')).toBe(false);

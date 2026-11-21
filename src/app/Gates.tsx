@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Wrench, Download } from 'lucide-react';
 import { BrandLogo, Button, Card } from '../components/ui';
-import { useAppSettings } from '../data/appConfig';
+import { useAppSettings, useApplyStringOverrides } from '../data/appConfig';
 import { localized, versionBelow } from '../domain/appConfig';
 import { isNative, platform } from '../lib/platform';
 
@@ -18,7 +18,7 @@ function useNativeVersion(): string | null {
 
 function Screen({ icon, title, body, action }: { icon: React.ReactNode; title: string; body: string; action?: React.ReactNode }) {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-canvas px-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-canvas px-4">
       <Card className="flex w-full max-w-sm flex-col items-start gap-3" id="gate-screen">
         <BrandLogo size={36} textClassName="text-title" />
         <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary-subtle text-primary-text">{icon}</span>
@@ -30,13 +30,23 @@ function Screen({ icon, title, body, action }: { icon: React.ReactNode; title: s
   );
 }
 
-/** Maintenance mode and minimum app version, both set from the admin dashboard (Settings). */
-export function AppGates({ children }: { children: React.ReactNode }) {
+/**
+ * Maintenance mode, minimum app version and the admin's text overrides. Loaded just after the first paint (so the
+ * sign-in screen stays light) and shown as a full-screen layer over the app when one applies.
+ */
+export default function LateGates() {
   const { t, i18n } = useTranslation();
   const app = useAppSettings();
   const version = useNativeVersion();
+  useApplyStringOverrides();
   if (app.maintenance.enabled)
-    return <Screen icon={<Wrench className="h-5 w-5" strokeWidth={1.75} />} title={t('gates.maintenanceTitle')} body={localized(app.maintenance.message, i18n.language) || t('gates.maintenanceBody')} />;
+    return (
+      <Screen
+        icon={<Wrench className="h-5 w-5" strokeWidth={1.75} />}
+        title={t('gates.maintenanceTitle')}
+        body={localized(app.maintenance.message, i18n.language) || t('gates.maintenanceBody')}
+      />
+    );
   if (version && versionBelow(version, app.minAppVersion)) {
     const url = platform() === 'ios' ? app.iosUrl : app.androidUrl;
     return (
@@ -54,5 +64,5 @@ export function AppGates({ children }: { children: React.ReactNode }) {
       />
     );
   }
-  return <>{children}</>;
+  return null;
 }

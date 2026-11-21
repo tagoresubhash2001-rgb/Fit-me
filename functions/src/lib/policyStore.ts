@@ -1,5 +1,5 @@
 import { db, isEmulator } from './admin';
-import { AccessPolicy, DEFAULT_POLICY } from './policy';
+import { AccessPolicy, DEFAULT_POLICY } from './policySchema';
 
 let policyCache: { at: number; policy: AccessPolicy } | null = null;
 

@@ -1,4 +1,3 @@
-import { z } from 'zod';
 
 /**
  * Access lifecycle (owner rules, November 2026), shared by the app and Cloud Functions. This file is mirrored
@@ -16,15 +15,15 @@ export type Stage = 'welcome' | 'trial' | 'ended';
 const DAY = 86_400_000;
 const RANK: Record<AccessPlan, number> = { free: 0, premium: 1, pro: 2 };
 
-export const AccessConfig = z.object({
+/** Admin settings for the stages (schema with validation: accessSchema.ts, loaded only where it is needed). */
+export interface AccessConfig {
   /** Bumped by the admin dashboard on every change; stored on each user's access record. */
-  version: z.number().int().min(1),
-  welcomeDays: z.number().int().min(0).max(90),
-  trialDays: z.number().int().min(0).max(365),
-  welcomePlan: z.enum(['premium', 'pro']),
-  trialPlan: z.enum(['premium', 'pro']),
-});
-export type AccessConfig = z.infer<typeof AccessConfig>;
+  version: number;
+  welcomeDays: number;
+  trialDays: number;
+  welcomePlan: 'premium' | 'pro';
+  trialPlan: 'premium' | 'pro';
+}
 
 export const DEFAULT_ACCESS: AccessConfig = { version: 1, welcomeDays: 7, trialDays: 30, welcomePlan: 'pro', trialPlan: 'premium' };
 

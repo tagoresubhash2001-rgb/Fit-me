@@ -1,6 +1,7 @@
 import {
   onAuthStateChanged,
   signInWithPopup,
+  browserPopupRedirectResolver,
   GoogleAuthProvider,
   OAuthProvider,
   signInWithCredential,
@@ -22,7 +23,7 @@ import { useSession } from './session';
 import { closeSharedListeners } from './useRecords';
 import { effectivePlan } from '../domain/plans';
 import { combinedPlan, stageAt } from '../domain/access';
-import { AccessPolicy, bestTier, DEFAULT_POLICY, grantPlan, policyPlan } from '../domain/policy';
+import { bestTier, EMPTY_POLICY, grantPlan, policyPlan } from '../domain/policy';
 import type { UserProfile } from '../domain/models';
 
 let profileUnsub: (() => void) | null = null;
@@ -41,27 +42,21 @@ function recomputePlan() {
   set({ basePlan, plan: policyPlan(policy, basePlan, profile?.country) });
   if (stageTimer) clearTimeout(stageTimer);
   stageTimer = null;
-  const next = Math.min(info.endsAtMs ?? Infinity, useSession.getState().entitlement?.expiresAt ?? Infinity, grant?.expiresAtMs ?? Infinity);
+  const next = Math.min(
+    info.endsAtMs ?? Infinity,
+    useSession.getState().entitlement?.expiresAt ?? Infinity,
+    grant?.expiresAtMs ?? Infinity,
+  );
   if (Number.isFinite(next) && next > now) stageTimer = setTimeout(recomputePlan, Math.min(next - now + 1000, 2 ** 31 - 1));
 }
 
-const tsMs = (v: unknown) => (v && typeof (v as { toMillis?: unknown }).toMillis === 'function' ? (v as { toMillis(): number }).toMillis() : 0);
+const tsMs = (v: unknown) =>
+  v && typeof (v as { toMillis?: unknown }).toMillis === 'function' ? (v as { toMillis(): number }).toMillis() : 0;
 
 /** Starts listening to auth, the user's profile document and their entitlement. Call once at startup. */
 export function watchSession() {
   const set = useSession.getState().set;
-  // Access policy (Free Launch Mode, feature tiers): public config, one listener for the app's lifetime.
-  policyUnsub ??= onSnapshot(
-    doc(db(), 'appConfig/policy'),
-    (snap) => {
-      const parsed = snap.exists() ? AccessPolicy.safeParse(snap.data()) : null;
-      set({ policy: parsed?.success ? parsed.data : DEFAULT_POLICY });
-      recomputePlan();
-    },
-    () => {
-      policyUnsub = null;
-    },
-  );
+
   return onAuthStateChanged(auth(), (user) => {
     profileUnsub?.();
     entUnsub?.();
@@ -69,13 +64,43 @@ export function watchSession() {
     grantUnsub?.();
     profileUnsub = entUnsub = accessUnsub = grantUnsub = null;
     if (stageTimer) clearTimeout(stageTimer);
-    set({ user, authReady: true, profile: null, profileReady: !user, plan: 'free', basePlan: 'free', subscriptionPlan: 'free', access: null, grant: null, entitlement: null });
+    set({
+      user,
+      authReady: true,
+      profile: null,
+      profileReady: !user,
+      plan: 'free',
+      basePlan: 'free',
+      subscriptionPlan: 'free',
+      access: null,
+      grant: null,
+      entitlement: null,
+    });
     if (!user) return;
+    // Access policy (Free Launch Mode, feature tiers): started after sign-in so the sign-in screen stays light;
+    // the zod schema loads on demand.
+    policyUnsub ??= onSnapshot(
+      doc(db(), 'appConfig/policy'),
+      (snap) =>
+        void import('../domain/policySchema').then(({ AccessPolicy }) => {
+          const parsed = snap.exists() ? AccessPolicy.safeParse(snap.data()) : null;
+          set({ policy: parsed?.success ? parsed.data : EMPTY_POLICY });
+          recomputePlan();
+        }),
+      () => {
+        policyUnsub = null;
+      },
+    );
     grantUnsub = onSnapshot(
       doc(db(), `grants/${user.uid}`),
       (snap) => {
         const d = snap.data();
-        set({ grant: d && (d.plan === 'premium' || d.plan === 'pro') ? { plan: d.plan, expiresAtMs: typeof d.expiresAtMs === 'number' ? d.expiresAtMs : null } : null });
+        set({
+          grant:
+            d && (d.plan === 'premium' || d.plan === 'pro')
+              ? { plan: d.plan, expiresAtMs: typeof d.expiresAtMs === 'number' ? d.expiresAtMs : null }
+              : null,
+        });
         recomputePlan();
       },
       () => undefined,
@@ -121,10 +146,20 @@ export function watchSession() {
       doc(db(), `entitlements/${user.uid}`),
       (snap) => {
         const d = snap.data();
-        const ms = (v: unknown) => (v && typeof (v as { toMillis?: unknown }).toMillis === 'function' ? (v as { toMillis(): number }).toMillis() : null);
+        const ms = (v: unknown) =>
+          v && typeof (v as { toMillis?: unknown }).toMillis === 'function' ? (v as { toMillis(): number }).toMillis() : null;
         const entitlement =
           d && (d.plan === 'premium' || d.plan === 'pro')
-            ? { plan: d.plan, status: d.status ?? 'active', period: d.period ?? null, source: d.source ?? 'admin', expiresAt: ms(d.expiresAt), trialEndsAt: ms(d.trialEndsAt), willRenew: !!d.willRenew, trialUsed: !!d.trialUsed }
+            ? {
+                plan: d.plan,
+                status: d.status ?? 'active',
+                period: d.period ?? null,
+                source: d.source ?? 'admin',
+                expiresAt: ms(d.expiresAt),
+                trialEndsAt: ms(d.trialEndsAt),
+                willRenew: !!d.willRenew,
+                trialUsed: !!d.trialUsed,
+              }
             : null;
         set({ subscriptionPlan: effectivePlan(d as never, Date.now()), entitlement });
         recomputePlan();
@@ -149,7 +184,7 @@ export async function signInWithGoogle() {
     if (!r.credential?.idToken) throw new Error('auth/cancelled');
     return signInWithCredential(auth(), GoogleAuthProvider.credential(r.credential.idToken, r.credential.accessToken));
   }
-  return signInWithPopup(auth(), new GoogleAuthProvider());
+  return signInWithPopup(auth(), new GoogleAuthProvider(), browserPopupRedirectResolver);
 }
 
 export async function signInWithApple() {
@@ -163,7 +198,7 @@ export async function signInWithApple() {
   const provider = new OAuthProvider('apple.com');
   provider.addScope('email');
   provider.addScope('name');
-  return signInWithPopup(auth(), provider);
+  return signInWithPopup(auth(), provider, browserPopupRedirectResolver);
 }
 
 export const signInWithEmail = (email: string, password: string) => signInWithEmailAndPassword(auth(), email.trim(), password);

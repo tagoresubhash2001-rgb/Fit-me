@@ -5,7 +5,8 @@ import { logger } from 'firebase-functions/v2';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { adminAuth, db } from '../lib/admin';
 import { callableOptions, requireAuth } from '../lib/callable';
-import { AccessConfig, buildAccess, DEFAULT_ACCESS, stageAt, type AccessRecord } from '../lib/access';
+import { buildAccess, DEFAULT_ACCESS, stageAt, type AccessConfig as AccessConfigType, type AccessRecord } from '../lib/access';
+import { AccessConfig } from '../lib/accessSchema';
 import { loadPolicy, userCountry } from '../lib/policyStore';
 
 const DAY = 86_400_000;
@@ -48,7 +49,7 @@ export function toDoc(uid: string, r: AccessRecord): AccessDoc {
   };
 }
 
-export async function loadAccessConfig(): Promise<AccessConfig> {
+export async function loadAccessConfig(): Promise<AccessConfigType> {
   const snap = await db().doc('appConfig/access').get();
   const parsed = snap.exists ? AccessConfig.safeParse(snap.data()) : null;
   return parsed?.success ? parsed.data : DEFAULT_ACCESS;

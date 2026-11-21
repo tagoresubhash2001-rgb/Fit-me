@@ -1,6 +1,8 @@
-import { z } from 'zod';
+import type { AccessPolicy } from './policySchema';
+export type { AccessPolicy, FeatureOverride } from './policySchema';
 
 /**
+ * Access policy rules (no zod here, so the app's startup bundle stays small; the schema is in policySchema.ts).
  * Access policy set from the admin dashboard (Firestore appConfig/policy, server-write only). Shared by the app
  * and Cloud Functions: functions/src/lib/policy.ts is an exact copy (test: config-mirror). Functions enforce it;
  * the app uses the same rules only to decide what to show.
@@ -30,31 +32,8 @@ export const FEATURE_TIERS = {
 export type GatedFeature = keyof typeof FEATURE_TIERS;
 export const GATED_FEATURES = Object.keys(FEATURE_TIERS) as GatedFeature[];
 
-const Country = z.string().regex(/^[A-Z]{2}$/);
-
-export const FeatureOverride = z.object({
-  feature: z.enum(GATED_FEATURES as [GatedFeature, ...GatedFeature[]]),
-  tier: z.enum(['free', 'premium', 'pro']),
-  /** Empty = every country. */
-  countries: z.array(Country).max(250).default([]),
-});
-export type FeatureOverride = z.infer<typeof FeatureOverride>;
-
-export const AccessPolicy = z.object({
-  version: z.number().int().min(1).default(1),
-  freeLaunch: z
-    .object({
-      enabled: z.boolean().default(false),
-      /** Empty = every country. */
-      countries: z.array(Country).max(250).default([]),
-    })
-    .default({ enabled: false, countries: [] }),
-  overrides: z.array(FeatureOverride).max(200).default([]),
-  /** Welcome Unlock / trial days for new sign-ups per country (missing = the global appConfig/access values). */
-  stageDays: z.record(Country, z.object({ welcomeDays: z.number().int().min(0).max(90), trialDays: z.number().int().min(0).max(365) })).default({}),
-});
-export type AccessPolicy = z.infer<typeof AccessPolicy>;
-export const DEFAULT_POLICY: AccessPolicy = AccessPolicy.parse({});
+/** Policy before the admin document loads (or when it is missing): no Free Launch, default tiers. */
+export const EMPTY_POLICY: AccessPolicy = { version: 1, freeLaunch: { enabled: false, countries: [] }, overrides: [], stageDays: {} };
 
 const inList = (countries: string[], country: string | null | undefined) => countries.length === 0 || (!!country && countries.includes(country.toUpperCase()));
 

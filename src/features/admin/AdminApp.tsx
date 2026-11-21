@@ -7,6 +7,11 @@ import { cn } from '../../components/ui/cn';
 import { useSession } from '../../data/session';
 import { signInWithEmail, signInWithGoogle, signOut } from '../../data/auth';
 import { canOpen, useStaffRole, type AdminSection } from './api';
+import i18n from '../../lib/i18n';
+import adminEn from '../../locales/admin.en.json';
+
+// Admin texts (English only) load with the dashboard, so members never download them.
+i18n.addResourceBundle('en', 'translation', adminEn, true, false);
 
 const Overview = lazy(() => import('./Overview'));
 const UsersPage = lazy(() => import('./UsersPage'));

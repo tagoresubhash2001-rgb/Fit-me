@@ -8,7 +8,7 @@
 import { initializeApp } from 'firebase-admin/app';
 import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 import { DEFAULT_PRICING } from '../billing/billing';
-import { AccessPolicy } from '../lib/policy';
+import { AccessPolicy } from '../lib/policySchema';
 
 const arg = (n: string) => process.argv.includes(`--${n}`);
 const val = (n: string) => process.argv[process.argv.indexOf(`--${n}`) + 1];

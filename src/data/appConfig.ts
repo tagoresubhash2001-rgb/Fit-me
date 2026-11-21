@@ -36,25 +36,34 @@ export const useFeatures = () => useConfigDoc('features', FeatureFlags as unknow
 export const useContent = () => useConfigDoc('content', ContentConfig, DEFAULT_CONTENT);
 export const usePlanCatalog = () => useConfigDoc('plans', PlanCatalog, DEFAULT_PLAN_CATALOG);
 
-export const useStringOverrides = () => useConfigDoc('strings', StringOverrides, { strings: {} });
+const NO_OVERRIDES: StringOverrides = { strings: {} };
+export const useStringOverrides = () => useConfigDoc('strings', StringOverrides, NO_OVERRIDES);
 
-/** Applies the admin's text overrides to i18next (every screen, every language) as soon as they change. */
+let appliedOverrides = '';
+/**
+ * Applies the admin's text overrides to i18next (every screen, every language) when they change. Runs only when the
+ * document content actually changes (compared as text), so it can never cause a render loop.
+ */
 export function useApplyStringOverrides() {
   const o = useStringOverrides();
+  const key = JSON.stringify(o.strings);
   useEffect(() => {
+    if (key === appliedOverrides || (key === '{}' && !appliedOverrides)) return;
+    appliedOverrides = key;
+    const strings = JSON.parse(key) as StringOverrides['strings'];
     void import('../lib/i18n').then(({ default: i18n }) => {
-      for (const [lang, map] of Object.entries(o.strings)) {
+      for (const [lang, map] of Object.entries(strings)) {
         const nested: Record<string, unknown> = {};
-        for (const [key, value] of Object.entries(map)) {
-          const parts = key.split('.');
+        for (const [k, value] of Object.entries(map)) {
+          const parts = k.split('.');
           let node = nested;
           for (const p of parts.slice(0, -1)) node = (node[p] ??= {}) as Record<string, unknown>;
           node[parts[parts.length - 1]] = value;
         }
         i18n.addResourceBundle(lang, 'translation', nested, true, true);
       }
-      // Re-render with the new texts.
+      // One re-render with the new texts.
       void i18n.changeLanguage(i18n.language);
     });
-  }, [o]);
+  }, [key]);
 }

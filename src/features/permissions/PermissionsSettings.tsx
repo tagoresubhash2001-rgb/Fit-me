@@ -4,7 +4,8 @@ import { ShieldCheck } from 'lucide-react';
 import { Badge, Button, Card, CardHeader, Skeleton } from '../../components/ui';
 import { openSystemSettings, permissionState, PERMISSIONS, type PermissionKind, type PermissionState } from '../../data/permissions';
 import { isNative } from '../../lib/platform';
-import { PERMISSION_ICONS, useAskPermission } from './PermissionPrimer';
+import { PERMISSION_ICONS } from './PermissionDialog';
+import { useAskPermission } from './PermissionPrimer';
 
 /** Settings > Permissions: every permission, its state and a button to change it. */
 export function PermissionsSettings() {

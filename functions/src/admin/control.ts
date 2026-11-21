@@ -5,7 +5,7 @@ import { adminAuth, db } from '../lib/admin';
 import { callableOptions } from '../lib/callable';
 import { logAdmin, requireSection, type Actor } from '../lib/staff';
 import type { AdminSection } from '../lib/adminRoles';
-import { AccessPolicy } from '../lib/policy';
+import { AccessPolicy } from '../lib/policySchema';
 import { clearPolicyCache } from '../lib/policyStore';
 import { Announcement, PageDoc, StringOverrides } from '../lib/appConfig';
 import { Coupon, PricingConfig, taxBreakdown } from '../billing/billing';

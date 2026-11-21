@@ -40,6 +40,9 @@ jobs:
           workload_identity_provider: ${{ env.WIF_PROVIDER }}
           service_account: ${{ env.DEPLOY_SERVICE_ACCOUNT }}
       - name: Run jobs
+        env:
+          GCLOUD_PROJECT: fit-me1
+          GOOGLE_CLOUD_PROJECT: fit-me1
         run: |
           cd functions
           npm ci

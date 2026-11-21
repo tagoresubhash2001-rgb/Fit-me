@@ -88,7 +88,8 @@ describe('finance and plans', () => {
     expect(p.overrides).toHaveLength(1);
     const pol = await readDoc('appConfig/policy');
     expect(JSON.stringify(pol)).toContain('foodPhotoScan');
-    const { canUse, AccessPolicy } = await import('../../src/domain/policy');
+    const { canUse } = await import('../../src/domain/policy');
+    const { AccessPolicy } = await import('../../src/domain/policySchema');
     const parsed = AccessPolicy.parse({ overrides: [{ feature: 'foodPhotoScan', tier: 'free', countries: ['IN'] }] });
     expect(canUse(parsed, 'free', 'foodPhotoScan', 'IN')).toBe(true);
     expect(canUse(parsed, 'free', 'foodPhotoScan', 'US')).toBe(false);

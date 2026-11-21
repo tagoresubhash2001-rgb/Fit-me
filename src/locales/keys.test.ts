@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import en from './en.json';
+import enMain from './en.json';
+import adminEn from './admin.en.json';
+
+const en = { ...enMain, ...adminEn };
 
 /** Every static t('a.b') key used in the app must exist in English. */
 const sources = import.meta.glob<string>(['../**/*.ts', '../**/*.tsx', '!../**/*.test.ts', '!../**/*.test.tsx'], {
