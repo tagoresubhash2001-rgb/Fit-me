@@ -2,30 +2,33 @@ import { HttpsError, type CallableRequest } from 'firebase-functions/v2/https';
 import { FieldValue } from 'firebase-admin/firestore';
 import { db } from './admin';
 import { requireAuth } from './callable';
+import { ADMIN_ROLES, canOpen, isAdminRole, type AdminRole, type AdminSection } from './adminRoles';
 
 /**
  * Staff roles live in Firebase Auth custom claims (`role`), set only by Cloud Functions (or the one-time
  * bootstrap script). Every admin action checks them here and again in Security Rules.
  */
-export const ROLES = ['superAdmin', 'admin', 'moderator'] as const;
-export type Role = (typeof ROLES)[number];
-const RANK: Record<Role, number> = { moderator: 1, admin: 2, superAdmin: 3 };
+export const ROLES = ADMIN_ROLES;
+export type Role = AdminRole;
 
 export function roleOf(token: Record<string, unknown> | undefined): Role | null {
   const r = token?.role;
-  return typeof r === 'string' && (ROLES as readonly string[]).includes(r) ? (r as Role) : null;
+  return isAdminRole(r) ? r : null;
 }
 
-export function roleAtLeast(role: Role | null, min: Role): boolean {
-  return !!role && RANK[role] >= RANK[min];
-}
+export type Actor = { uid: string; role: Role; email: string | null };
 
-/** Throws unless the caller is signed in with at least `min`. Returns the caller's uid and role. */
-export async function requireStaff(req: CallableRequest<unknown>, min: Role): Promise<{ uid: string; role: Role; email: string | null }> {
+/** Throws unless the caller is signed in with a role that may open `section` (matrix in lib/adminRoles.ts). */
+export async function requireSection(req: CallableRequest<unknown>, section: AdminSection): Promise<Actor> {
   const uid = await requireAuth(req);
   const role = roleOf(req.auth?.token as Record<string, unknown>);
-  if (!roleAtLeast(role, min)) throw new HttpsError('permission-denied', 'staff_only', { required: min });
+  if (!canOpen(role, section)) throw new HttpsError('permission-denied', 'staff_only', { section });
   return { uid, role: role!, email: (req.auth?.token.email as string | undefined) ?? null };
+}
+
+/** Any staff role (for actions on the caller's own staff session). */
+export async function requireAnyStaff(req: CallableRequest<unknown>): Promise<Actor> {
+  return requireSection(req, 'overview');
 }
 
 /**

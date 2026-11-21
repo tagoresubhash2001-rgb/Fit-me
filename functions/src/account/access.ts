@@ -6,6 +6,9 @@ import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { adminAuth, db } from '../lib/admin';
 import { callableOptions, requireAuth } from '../lib/callable';
 import { AccessConfig, buildAccess, DEFAULT_ACCESS, stageAt, type AccessRecord } from '../lib/access';
+import { loadPolicy, userCountry } from '../lib/policyStore';
+
+const DAY = 86_400_000;
 
 /** Firestore shape of access/{uid} (server-write only; the owner can read it). */
 export interface AccessDoc {
@@ -101,6 +104,28 @@ export const onUserCreated = functionsV1
 /** The app calls this once after sign-in (covers accounts created before the access lifecycle existed). */
 export const getAccess = onCall(callableOptions(), async (req) => {
   const uid = await requireAuth(req);
-  const record = await ensureAccess(uid);
+  const record = await applyCountryStages(uid, await ensureAccess(uid));
   return { ...record, ...stageAt(record, Date.now()) };
 });
+
+/**
+ * Country-specific stage lengths (admin: Trials, per country). The country is only known after onboarding, so the
+ * first time it is known, a still-running Welcome Unlock is re-timed from the sign-up time with that country's
+ * days. Done once per account (countryApplied); later policy changes never move an existing user's dates.
+ */
+export async function applyCountryStages(uid: string, record: AccessRecord): Promise<AccessRecord> {
+  const ref = db().doc(`access/${uid}`);
+  const snap = await ref.get();
+  if (!snap.exists || snap.get('countryApplied')) return record;
+  const country = await userCountry(uid);
+  if (!country) return record;
+  const days = (await loadPolicy()).stageDays[country];
+  if (!days || !record.eligible || Date.now() >= record.welcomeEndsAtMs) {
+    await ref.update({ countryApplied: country });
+    return record;
+  }
+  const welcomeEndsAtMs = record.createdAtMs + days.welcomeDays * DAY;
+  const next: AccessRecord = { ...record, welcomeEndsAtMs, trialEndsAtMs: welcomeEndsAtMs + days.trialDays * DAY };
+  await ref.update({ welcomeEndsAt: Timestamp.fromMillis(next.welcomeEndsAtMs), trialEndsAt: Timestamp.fromMillis(next.trialEndsAtMs), countryApplied: country });
+  return next;
+}

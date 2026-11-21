@@ -4,7 +4,8 @@ import { collection, onSnapshot } from 'firebase/firestore';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import { Badge, Button, Card, CardHeader, EmptyState, PageHeader, Skeleton, toast } from '../../components/ui';
 import { auth, db } from '../../lib/firebase';
-import { atLeast, call, errorCode, type Role } from './api';
+import { call, errorCode, type Role } from './api';
+import { ASSIGNABLE_ROLES } from '../../domain/adminRoles';
 import { Confirm, Field, Table, Td, inputCls } from './ui';
 
 interface Staff {
@@ -13,7 +14,7 @@ interface Staff {
   role: Role;
 }
 
-function MyAccount({ role }: { role: Role }) {
+export function MyAccount({ role }: { role: Role }) {
   const { t } = useTranslation();
   const u = auth().currentUser;
   const [current, setCurrent] = useState('');
@@ -80,10 +81,10 @@ export default function AdminsPage({ role }: { role: Role }) {
   const { t } = useTranslation();
   const [rows, setRows] = useState<Staff[] | null>(null);
   const [email, setEmail] = useState('');
-  const [newRole, setNewRole] = useState<Role>('moderator');
+  const [newRole, setNewRole] = useState<Role>('support');
   const [remove, setRemove] = useState<Staff | null>(null);
   const [busy, setBusy] = useState(false);
-  const isSuper = atLeast(role, 'superAdmin');
+  const isSuper = role === 'superAdmin';
   useEffect(() => {
     return onSnapshot(
         collection(db(), 'staff'),
@@ -120,7 +121,7 @@ export default function AdminsPage({ role }: { role: Role }) {
                 <Td>
                   {isSuper ? (
                     <select aria-label={t('admin.admins.role')} className={inputCls} value={s.role} disabled={busy} onChange={(e) => void setRole({ uid: s.uid, role: e.target.value as Role })}>
-                      {(['moderator', 'admin', 'superAdmin'] as const).map((r) => (
+                      {ASSIGNABLE_ROLES.map((r) => (
                         <option key={r} value={r}>
                           {t(`admin.roles.${r}`)}
                         </option>
@@ -154,7 +155,7 @@ export default function AdminsPage({ role }: { role: Role }) {
             </Field>
             <Field label={t('admin.admins.role')}>
               <select className={inputCls} value={newRole} onChange={(e) => setNewRole(e.target.value as Role)}>
-                {(['moderator', 'admin', 'superAdmin'] as const).map((r) => (
+                {ASSIGNABLE_ROLES.map((r) => (
                   <option key={r} value={r}>
                     {t(`admin.roles.${r}`)}
                   </option>

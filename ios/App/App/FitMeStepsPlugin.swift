@@ -20,6 +20,7 @@ public class FitMeStepsPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "startLive", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "stopLive", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "openAppSettings", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "batteryStatus", returnType: CAPPluginReturnPromise),
     ]
     private let pedometer = CMPedometer()
     private var zone: TimeZone = .current
@@ -106,5 +107,10 @@ public class FitMeStepsPlugin: CAPPlugin, CAPBridgedPlugin {
     @objc func stopLive(_ call: CAPPluginCall) {
         pedometer.stopUpdates()
         call.resolve()
+    }
+
+    /// iOS has no per-app battery optimisation that stops step counting (Core Motion records in hardware).
+    @objc func batteryStatus(_ call: CAPPluginCall) {
+        call.resolve(["optimised": false])
     }
 }

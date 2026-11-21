@@ -49,7 +49,11 @@ service cloud.firestore {
 
     // Staff role from the Auth custom claim (set only by Cloud Functions).
     function staffRole() {
-      return signedIn() && request.auth.token.get('role', null) in ['superAdmin', 'admin', 'moderator'];
+      return signedIn() && request.auth.token.get('role', null) in ['superAdmin', 'admin', 'finance', 'content', 'support', 'moderator'];
+    }
+    // Same matrix as src/domain/adminRoles.ts for the collections staff read directly.
+    function roleIn(roles) {
+      return signedIn() && request.auth.token.get('role', null) in roles;
     }
 
     // Fields a client may never set on its own profile.
@@ -105,6 +109,15 @@ service cloud.firestore {
 
       // AI chat threads: the user reads and can delete; messages are written only by the server
       // so the stored conversation always matches what the orchestrator saw.
+      // Inbox (admin messages, support replies, reminders): written by Functions; the owner reads it, marks it
+      // read (readAt only) or deletes it.
+      match /inbox/{id} {
+        allow read, delete: if isOwner(uid);
+        allow update: if isOwner(uid)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt'])
+          && request.resource.data.readAt is timestamp;
+      }
+
       match /aiThreads/{threadId} {
         allow read, delete: if isOwner(uid);
         match /messages/{messageId} {
@@ -139,8 +152,24 @@ service cloud.firestore {
       allow read: if signedIn();
       allow write: if false;
     }
+    // Public config (texts, features, maintenance, prices) is readable before sign-in; the rest needs an account.
     match /appConfig/{id} {
+      allow read: if signedIn() || id in ['app', 'content', 'strings', 'features', 'pricing', 'plans', 'policy'];
+      allow write: if false;
+    }
+    // Published pages (FAQ, help, legal, tips) for everyone; drafts only through the admin function.
+    match /pages/{slug} {
+      allow read: if resource.data.published == true;
+      allow write: if false;
+    }
+    // In-app announcements: signed-in members read; the app shows only the live ones for their country / plan.
+    match /announcements/{id} {
       allow read: if signedIn();
+      allow write: if false;
+    }
+    // Admin grant of free access (read by the owner to show their plan; written only by the admin function).
+    match /grants/{uid} {
+      allow read: if isOwner(uid);
       allow write: if false;
     }
 
@@ -170,7 +199,7 @@ service cloud.firestore {
     // Private submissions: the author and staff only. All writes go through Cloud Functions, which validate,
     // keep the status workflow and are the only way to publish.
     match /testimonials/{id} {
-      allow read: if (signedIn() && resource.data.uid == request.auth.uid) || staffRole();
+      allow read: if (signedIn() && resource.data.uid == request.auth.uid) || roleIn(['superAdmin', 'admin', 'content', 'support', 'moderator']);
       allow write: if false;
     }
     // Published copies of approved testimonials only: anyone may read, nobody may write from a client.
@@ -181,7 +210,7 @@ service cloud.firestore {
 
     // ---- Admin (read for staff; every change goes through a logged Cloud Function) ----
     match /adminLogs/{id} {
-      allow read: if staffRole();
+      allow read: if roleIn(['superAdmin', 'admin', 'finance']);
       allow write: if false; // immutable: no client can create, change or delete entries
     }
     match /staff/{uid} {
@@ -193,7 +222,7 @@ service cloud.firestore {
       allow write: if false;
     }
     match /foodSuggestions/{id} {
-      allow read: if staffRole();
+      allow read: if roleIn(['superAdmin', 'admin', 'content', 'support', 'moderator']);
       allow write: if false;
     }
     match /userStatus/{uid} {

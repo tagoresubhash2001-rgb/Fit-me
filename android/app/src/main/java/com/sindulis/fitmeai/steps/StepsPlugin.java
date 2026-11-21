@@ -185,6 +185,29 @@ public class StepsPlugin extends Plugin implements SensorEventListener {
         call.resolve();
     }
 
+    /** Whether Android may stop FitMe in the background (battery optimisation). Counting itself keeps working. */
+    @PluginMethod
+    public void batteryStatus(PluginCall call) {
+        android.os.PowerManager pm = (android.os.PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
+        JSObject r = new JSObject();
+        r.put("optimised", pm != null && !pm.isIgnoringBatteryOptimizations(getContext().getPackageName()));
+        call.resolve(r);
+    }
+
+    /** Opens the system list where the user can exclude FitMe from battery optimisation. */
+    @PluginMethod
+    public void openBatterySettings(PluginCall call) {
+        android.content.Intent i = new android.content.Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+        i.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            getContext().startActivity(i);
+        } catch (Exception e) {
+            openAppSettings(call);
+            return;
+        }
+        call.resolve();
+    }
+
     /** Live step events ("step") while the app is in the foreground. */
     @PluginMethod
     public void startLive(PluginCall call) {

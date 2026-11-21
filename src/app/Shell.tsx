@@ -33,6 +33,8 @@ import { useUi } from '../stores/ui.store';
 import { CoachDock, CoachSheet } from '../features/coach/CoachSheet';
 import { NovaBar } from './NovaBar';
 import { StageEndingBanner, TrialEndingBanner } from '../features/plans/PlanPrompts';
+import { PromoRibbon } from '../features/home/Banners';
+import { InboxButton } from '../features/inbox/InboxButton';
 import { useShortcuts, SHORTCUTS } from './shortcuts';
 import { useFeatures } from '../data/appConfig';
 import { isNative } from '../lib/platform';
@@ -97,6 +99,7 @@ export function Shell() {
             {t('common.offline')}
           </p>
         )}
+        <PromoRibbon />
         <TrialEndingBanner />
         <StageEndingBanner />
         <NovaBar />
@@ -394,6 +397,7 @@ function TopBar() {
               {t('plans.upgrade')}
             </button>
           )}
+          <InboxButton />
           <AvatarMenu initial={profile?.name?.[0]?.toUpperCase() ?? '?'} photoURL={(profile as { photoURL?: string | null } | null)?.photoURL} />
         </div>
       </div>

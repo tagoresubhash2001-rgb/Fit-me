@@ -22,22 +22,26 @@ import { useSession } from './session';
 import { closeSharedListeners } from './useRecords';
 import { effectivePlan } from '../domain/plans';
 import { combinedPlan, stageAt } from '../domain/access';
+import { AccessPolicy, bestTier, DEFAULT_POLICY, grantPlan, policyPlan } from '../domain/policy';
 import type { UserProfile } from '../domain/models';
 
 let profileUnsub: (() => void) | null = null;
 let entUnsub: (() => void) | null = null;
 let accessUnsub: (() => void) | null = null;
+let grantUnsub: (() => void) | null = null;
+let policyUnsub: (() => void) | null = null;
 let stageTimer: ReturnType<typeof setTimeout> | null = null;
 
 /** Recomputes the usable plan, and again the moment the current free stage ends. */
 function recomputePlan() {
-  const { subscriptionPlan, access, set } = useSession.getState();
+  const { subscriptionPlan, access, grant, policy, profile, set } = useSession.getState();
   const now = Date.now();
   const info = stageAt(access, now);
-  set({ plan: combinedPlan(subscriptionPlan, info.plan) });
+  const basePlan = bestTier(combinedPlan(subscriptionPlan, info.plan), grantPlan(grant, now));
+  set({ basePlan, plan: policyPlan(policy, basePlan, profile?.country) });
   if (stageTimer) clearTimeout(stageTimer);
   stageTimer = null;
-  const next = Math.min(info.endsAtMs ?? Infinity, useSession.getState().entitlement?.expiresAt ?? Infinity);
+  const next = Math.min(info.endsAtMs ?? Infinity, useSession.getState().entitlement?.expiresAt ?? Infinity, grant?.expiresAtMs ?? Infinity);
   if (Number.isFinite(next) && next > now) stageTimer = setTimeout(recomputePlan, Math.min(next - now + 1000, 2 ** 31 - 1));
 }
 
@@ -46,14 +50,36 @@ const tsMs = (v: unknown) => (v && typeof (v as { toMillis?: unknown }).toMillis
 /** Starts listening to auth, the user's profile document and their entitlement. Call once at startup. */
 export function watchSession() {
   const set = useSession.getState().set;
+  // Access policy (Free Launch Mode, feature tiers): public config, one listener for the app's lifetime.
+  policyUnsub ??= onSnapshot(
+    doc(db(), 'appConfig/policy'),
+    (snap) => {
+      const parsed = snap.exists() ? AccessPolicy.safeParse(snap.data()) : null;
+      set({ policy: parsed?.success ? parsed.data : DEFAULT_POLICY });
+      recomputePlan();
+    },
+    () => {
+      policyUnsub = null;
+    },
+  );
   return onAuthStateChanged(auth(), (user) => {
     profileUnsub?.();
     entUnsub?.();
     accessUnsub?.();
-    profileUnsub = entUnsub = accessUnsub = null;
+    grantUnsub?.();
+    profileUnsub = entUnsub = accessUnsub = grantUnsub = null;
     if (stageTimer) clearTimeout(stageTimer);
-    set({ user, authReady: true, profile: null, profileReady: !user, plan: 'free', subscriptionPlan: 'free', access: null, entitlement: null });
+    set({ user, authReady: true, profile: null, profileReady: !user, plan: 'free', basePlan: 'free', subscriptionPlan: 'free', access: null, grant: null, entitlement: null });
     if (!user) return;
+    grantUnsub = onSnapshot(
+      doc(db(), `grants/${user.uid}`),
+      (snap) => {
+        const d = snap.data();
+        set({ grant: d && (d.plan === 'premium' || d.plan === 'pro') ? { plan: d.plan, expiresAtMs: typeof d.expiresAtMs === 'number' ? d.expiresAtMs : null } : null });
+        recomputePlan();
+      },
+      () => undefined,
+    );
     let requested = false;
     accessUnsub = onSnapshot(
       doc(db(), `access/${user.uid}`),
@@ -87,6 +113,7 @@ export function watchSession() {
       (snap) => {
         const data = snap.data() as UserProfile | undefined;
         set({ profile: data && data.targets ? data : null, profileReady: true });
+        recomputePlan(); // country decides Free Launch Mode and per-country feature tiers
       },
       () => set({ profileReady: true }),
     );

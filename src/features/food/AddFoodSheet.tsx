@@ -12,9 +12,8 @@ import { matchAllergens, matchRestrictions } from '../../domain/allergens';
 import { searchFoods, searchFoodsPage, customToFoodItem, estimateFoodWithAi, type AiFoodEstimate, type FoodSearchPage } from '../../data/foods';
 import { createRecord, softDelete, restore, updateRecord } from '../../data/records';
 import { useAllRecords } from '../../data/useRecords';
-import { useSession } from '../../data/session';
+import { useCanUse, useSession } from '../../data/session';
 import { displayName, isLikelyDuplicate, scaleNutrients, sumNutrients, type FoodItem } from '../../domain/nutrition';
-import { planAllows } from '../../domain/plans';
 import type { FoodLog, MealSlot, Nutrients } from '../../domain/models';
 import { useFormat } from '../../lib/hooks';
 
@@ -96,7 +95,7 @@ function forPlan(n: Nutrients, premium: boolean): Nutrients {
 
 function QuantityPanel({ food, onAdd, busy }: { food: FoodItem; onAdd: (r: ReturnType<typeof quantityResult>) => void; busy: boolean }) {
   const { t, i18n } = useTranslation();
-  const plan = useSession((s) => s.plan);
+  const micros = useCanUse('micronutrients');
   const options = useUnitOptions(food);
   const [state, setState] = useState<QuantityState>({ unitId: options[0].id, quantity: 1 });
   const r = quantityResult(food.per100g, options, state);
@@ -112,7 +111,7 @@ function QuantityPanel({ food, onAdd, busy }: { food: FoodItem; onAdd: (r: Retur
       <p className="text-small font-medium text-ink">
         {t('food.nutrition')} · {r.grams} g{r.option.approximate ? ` (${t('qty.approx')})` : ''}
       </p>
-      <NutrientRows n={r.nutrients} showMicros={planAllows(plan, 'premium')} />
+      <NutrientRows n={r.nutrients} showMicros={micros} />
       <Button id="add-food-confirm" fullWidth disabled={r.quantity <= 0} loading={busy} onClick={() => onAdd(r)}>
         {t('food.addFood')}
       </Button>
@@ -145,7 +144,7 @@ export function AddFoodSheet({
 }) {
   const { t, i18n } = useTranslation();
   const plan = useSession((s) => s.plan);
-  const premium = planAllows(plan, 'premium');
+  const premium = useCanUse('micronutrients');
   const features = useFeatures();
   const [mode, setMode] = useState<Mode>('search');
   const [q, setQ] = useState(initialQuery);

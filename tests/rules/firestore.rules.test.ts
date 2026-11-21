@@ -260,9 +260,10 @@ describe('testimonials', () => {
 });
 
 describe('admin data', () => {
-  it('activity log: staff read, nobody writes, changes or deletes', async () => {
+  it('activity log: super admin, admin and finance read, nobody writes, changes or deletes', async () => {
     await seed('adminLogs/l1', { action: 'x' });
-    await assertSucceeds(getDoc(doc(staffCtx('mod', 'moderator'), 'adminLogs/l1')));
+    await assertSucceeds(getDoc(doc(staffCtx('sa', 'superAdmin'), 'adminLogs/l1')));
+    await assertFails(getDoc(doc(staffCtx('mod', 'moderator'), 'adminLogs/l1')));
     await assertFails(getDoc(doc(alice(), 'adminLogs/l1')));
     await assertFails(setDoc(doc(staffCtx('sa', 'superAdmin'), 'adminLogs/l2'), { action: 'forged' }));
     await assertFails(updateDoc(doc(staffCtx('sa', 'superAdmin'), 'adminLogs/l1'), { action: 'changed' }));
@@ -299,5 +300,52 @@ describe('admin data', () => {
     await seed('users/alice/healthDaily/cloud-2026-11-20', { uid: 'alice', steps: 9000 });
     await assertSucceeds(getDoc(doc(alice(), 'users/alice/healthDaily/cloud-2026-11-20')));
     await assertFails(getDoc(doc(bob(), 'users/alice/healthDaily/cloud-2026-11-20')));
+  });
+});
+
+describe('v4 admin and member collections', () => {
+  it('section matrix: finance cannot read testimonials; content cannot read the admin log; support reads food suggestions', async () => {
+    await seed('testimonials/t1', { uid: 'zed', status: 'pending' });
+    await seed('adminLogs/l1', { action: 'x' });
+    await seed('foodSuggestions/f1', { status: 'pending' });
+    await assertFails(getDoc(doc(staffCtx('fin', 'finance'), 'testimonials/t1')));
+    await assertSucceeds(getDoc(doc(staffCtx('ed', 'content'), 'testimonials/t1')));
+    await assertFails(getDoc(doc(staffCtx('ed', 'content'), 'adminLogs/l1')));
+    await assertSucceeds(getDoc(doc(staffCtx('fin', 'finance'), 'adminLogs/l1')));
+    await assertSucceeds(getDoc(doc(staffCtx('sup', 'support'), 'foodSuggestions/f1')));
+  });
+  it('payments, coupons, notifications, contact messages, diagnostics, webhook logs: no client access at all', async () => {
+    for (const c of ['payments/p1', 'coupons/SAVE10', 'notifications/n1', 'contactMessages/m1', 'diagnostics/d1', 'webhookLogs/w1']) {
+      await seed(c, { uid: 'alice' });
+      await assertFails(getDoc(doc(alice(), c)));
+      await assertFails(getDoc(doc(staffCtx('sa', 'superAdmin'), c)));
+      await assertFails(setDoc(doc(alice(), c), { uid: 'alice' }));
+    }
+  });
+  it('grants: owner reads, nobody writes', async () => {
+    await seed('grants/alice', { plan: 'pro', expiresAtMs: null });
+    await assertSucceeds(getDoc(doc(alice(), 'grants/alice')));
+    await assertFails(getDoc(doc(bob(), 'grants/alice')));
+    await assertFails(setDoc(doc(alice(), 'grants/alice'), { plan: 'pro' }));
+  });
+  it('inbox: owner reads and only marks read', async () => {
+    await seed('users/alice/inbox/i1', { title: { en: 'Hi' }, readAt: null });
+    await assertSucceeds(getDoc(doc(alice(), 'users/alice/inbox/i1')));
+    await assertSucceeds(updateDoc(doc(alice(), 'users/alice/inbox/i1'), { readAt: new Date() }));
+    await assertFails(updateDoc(doc(alice(), 'users/alice/inbox/i1'), { title: { en: 'changed' } }));
+    await assertFails(setDoc(doc(alice(), 'users/alice/inbox/i2'), { title: { en: 'fake' } }));
+    await assertFails(getDoc(doc(bob(), 'users/alice/inbox/i1')));
+  });
+  it('published pages are public; drafts are not; public config readable before sign-in', async () => {
+    await seed('pages/faq-1', { published: true, title: { en: 'Q' } });
+    await seed('pages/draft', { published: false });
+    const anon = env.unauthenticatedContext().firestore();
+    await assertSucceeds(getDoc(doc(anon, 'pages/faq-1')));
+    await assertFails(getDoc(doc(anon, 'pages/draft')));
+    await seed('appConfig/strings', { strings: {} });
+    await seed('appConfig/billing', { mode: 'interest' });
+    await assertSucceeds(getDoc(doc(anon, 'appConfig/strings')));
+    await assertFails(getDoc(doc(anon, 'appConfig/billing')));
+    await assertFails(setDoc(doc(staffCtx('sa', 'superAdmin'), 'pages/faq-1'), { published: false }));
   });
 });

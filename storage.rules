@@ -7,7 +7,10 @@ service firebase.storage {
       return request.auth != null && request.auth.uid == uid;
     }
     function isStaff() {
-      return request.auth != null && request.auth.token.get('role', null) in ['superAdmin', 'admin', 'moderator'];
+      return request.auth != null && request.auth.token.get('role', null) in ['superAdmin', 'admin', 'finance', 'content', 'support', 'moderator'];
+    }
+    function isContentEditor() {
+      return request.auth != null && request.auth.token.get('role', null) in ['superAdmin', 'admin', 'content'];
     }
 
     match /users/{uid}/{folder}/{fileName} {
@@ -41,6 +44,13 @@ service firebase.storage {
     match /public/testimonials/{id}/{fileName} {
       allow read: if true;
       allow write: if false;
+    }
+
+    // Admin media library (banners, pages, onboarding images): public read, content editors upload images.
+    match /public/media/{fileName} {
+      allow read: if true;
+      allow create, update, delete: if isContentEditor()
+        && (request.resource == null || (request.resource.size < 5 * 1024 * 1024 && request.resource.contentType.matches('image/(jpeg|png|webp|svg[+]xml)')));
     }
 
     match /{allPaths=**} {

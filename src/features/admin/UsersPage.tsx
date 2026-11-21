@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Avatar, Badge, Button, Card, EmptyState, PageHeader, Sheet, Skeleton, toast } from '../../components/ui';
-import { atLeast, call, errorCode, fmtDate, type Role } from './api';
-import { Confirm, Table, Td, inputCls } from './ui';
+import { act, call, canOpen, errorCode, fmtDate, useAction, type Role } from './api';
+import { Diagnostics } from './SupportPage';
+import { Confirm, Field, Table, Td, inputCls } from './ui';
 
 interface Row {
   uid: string;
@@ -27,7 +28,165 @@ interface Detail extends Row {
   testimonials: Array<{ id: string; status: string }>;
 }
 
-function UserDetail({ uid, canEdit, onChanged, onClose }: { uid: string; canEdit: boolean; onChanged: () => void; onClose: () => void }) {
+function UserDevices({ uid }: { uid: string }) {
+  const { t, i18n } = useTranslation();
+  const r = useAction<{ health: { app: string; connected: boolean; lastSyncAt: number | null } | null; phoneSteps: { enabled: boolean; lastSyncAt: number | null } | null; pushDevices: number }>('users.devices', { uid }, [uid]);
+  if (!r.data) return null;
+  const d = r.data;
+  return (
+    <div className="rounded-input border border-line p-3 text-small text-ink" id="user-devices">
+      <p className="font-semibold">{t('admin.users.devices')}</p>
+      <p>{d.health ? `${t(`devices.${d.health.app}`)}: ${d.health.connected ? t('devices.connected') : t('devices.off')} · ${fmtDate(d.health.lastSyncAt, i18n.language)}` : t('admin.users.noHealth')}</p>
+      <p>{d.phoneSteps ? `${t('steps.phoneTitle')}: ${d.phoneSteps.enabled ? t('devices.connected') : t('devices.off')} · ${fmtDate(d.phoneSteps.lastSyncAt, i18n.language)}` : t('admin.users.noPhoneSteps')}</p>
+      <p>{t('admin.users.pushDevices', { count: d.pushDevices })}</p>
+    </div>
+  );
+}
+
+/** Free access to a plan for a set period (next to any store subscription; never edits payment records). */
+function GrantAccess({ uid, onDone }: { uid: string; onDone: () => void }) {
+  const { t } = useTranslation();
+  const [plan, setPlan] = useState<'premium' | 'pro' | 'free'>('pro');
+  const [days, setDays] = useState('30');
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState(false);
+  return (
+    <fieldset className="flex flex-col gap-2 rounded-input border border-line p-3" id="user-grant">
+      <legend className="px-1 text-small font-semibold text-ink">{t('admin.users.grantTitle')}</legend>
+      <div className="grid grid-cols-2 gap-2">
+        <Field label={t('admin.plans.tier')}>
+          <select className={inputCls} value={plan} onChange={(e) => setPlan(e.target.value as typeof plan)}>
+            <option value="pro">{t('plans.pro')}</option>
+            <option value="premium">{t('plans.premium')}</option>
+            <option value="free">{t('admin.users.endGrant')}</option>
+          </select>
+        </Field>
+        <Field label={t('admin.users.days')} hint={t('admin.users.daysHint')}>
+          <input type="number" min={1} className={inputCls} value={days} onChange={(e) => setDays(e.target.value)} disabled={plan === 'free'} />
+        </Field>
+      </div>
+      <Field label={t('admin.reason')}>
+        <input className={inputCls} value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} />
+      </Field>
+      <div>
+        <Button
+          size="sm"
+          loading={busy}
+          disabled={reason.trim().length < 3}
+          onClick={async () => {
+            setBusy(true);
+            try {
+              await act('users.grant', { uid, plan, days: days ? Number(days) : null, reason: reason.trim() });
+              toast(t('admin.saved'), 'success');
+              setReason('');
+              onDone();
+            } catch (e) {
+              toast(errorCode(e), 'error');
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          {t('admin.save')}
+        </Button>
+      </div>
+    </fieldset>
+  );
+}
+
+function TrialAdjust({ uid, onDone }: { uid: string; onDone: () => void }) {
+  const { t } = useTranslation();
+  const [op, setOp] = useState<'extend' | 'reset' | 'end'>('extend');
+  const [days, setDays] = useState('7');
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState(false);
+  return (
+    <fieldset className="flex flex-col gap-2 rounded-input border border-line p-3" id="user-trial">
+      <legend className="px-1 text-small font-semibold text-ink">{t('admin.users.trialTitle')}</legend>
+      <div className="grid grid-cols-2 gap-2">
+        <Field label={t('admin.users.trialAction')}>
+          <select className={inputCls} value={op} onChange={(e) => setOp(e.target.value as typeof op)}>
+            {(['extend', 'reset', 'end'] as const).map((o) => (
+              <option key={o} value={o}>
+                {t(`admin.users.trialOps.${o}`)}
+              </option>
+            ))}
+          </select>
+        </Field>
+        {op === 'extend' && (
+          <Field label={t('admin.users.days')}>
+            <input type="number" min={1} max={365} className={inputCls} value={days} onChange={(e) => setDays(e.target.value)} />
+          </Field>
+        )}
+      </div>
+      <Field label={t('admin.reason')}>
+        <input className={inputCls} value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} />
+      </Field>
+      <div>
+        <Button
+          size="sm"
+          variant="secondary"
+          loading={busy}
+          disabled={reason.trim().length < 3}
+          onClick={async () => {
+            setBusy(true);
+            try {
+              await act('trials.adjust', { uid, op, days: Number(days) || 7, reason: reason.trim() });
+              toast(t('admin.saved'), 'success');
+              setReason('');
+              onDone();
+            } catch (e) {
+              toast(errorCode(e), 'error');
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          {t('admin.save')}
+        </Button>
+      </div>
+    </fieldset>
+  );
+}
+
+function MessageUser({ uid }: { uid: string }) {
+  const { t } = useTranslation();
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [busy, setBusy] = useState(false);
+  return (
+    <fieldset className="flex flex-col gap-2 rounded-input border border-line p-3" id="user-message">
+      <legend className="px-1 text-small font-semibold text-ink">{t('admin.users.messageTitle')}</legend>
+      <input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80} placeholder={t('admin.notify.title')} aria-label={t('admin.notify.title')} />
+      <textarea rows={2} className="w-full rounded-input border border-line bg-surface px-3 py-2 text-body text-ink" value={body} onChange={(e) => setBody(e.target.value)} maxLength={400} placeholder={t('admin.notify.message')} aria-label={t('admin.notify.message')} />
+      <div>
+        <Button
+          size="sm"
+          variant="secondary"
+          loading={busy}
+          disabled={!title.trim() || !body.trim()}
+          onClick={async () => {
+            setBusy(true);
+            try {
+              await act('users.message', { uid, title: title.trim(), body: body.trim() });
+              toast(t('admin.users.messageSent'), 'success');
+              setTitle('');
+              setBody('');
+            } catch (e) {
+              toast(errorCode(e), 'error');
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          {t('admin.users.sendMessage')}
+        </Button>
+      </div>
+    </fieldset>
+  );
+}
+
+function UserDetail({ uid, canEdit, canTrials, onChanged, onClose }: { uid: string; canEdit: boolean; canTrials: boolean; onChanged: () => void; onClose: () => void }) {
   const { t, i18n } = useTranslation();
   const [d, setD] = useState<Detail | null>(null);
   const [confirm, setConfirm] = useState(false);
@@ -80,6 +239,11 @@ function UserDetail({ uid, canEdit, onChanged, onClose }: { uid: string; canEdit
               {d.disabled ? t('admin.users.reactivate') : t('admin.users.deactivate')}
             </Button>
           )}
+          <UserDevices uid={d.uid} />
+          {canEdit && <GrantAccess uid={d.uid} onDone={load} />}
+          {canTrials && <TrialAdjust uid={d.uid} onDone={load} />}
+          <MessageUser uid={d.uid} />
+          <Diagnostics uid={d.uid} />
           <Confirm
             open={confirm}
             destructive={!d.disabled}
@@ -186,7 +350,7 @@ export default function UsersPage({ role }: { role: Role }) {
           </Button>
         )}
       </Card>
-      {open && <UserDetail uid={open} canEdit={atLeast(role, 'admin')} onChanged={() => void search()} onClose={() => setOpen(null)} />}
+      {open && <UserDetail uid={open} canEdit={role !== 'support' && role !== 'moderator'} canTrials={canOpen(role, 'trials')} onChanged={() => void search()} onClose={() => setOpen(null)} />}
     </div>
   );
 }

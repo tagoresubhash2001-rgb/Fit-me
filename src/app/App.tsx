@@ -22,6 +22,10 @@ const PlansScreen = lazy(routeLoaders.plans);
 const TestimonialsScreen = lazy(routeLoaders.stories);
 import { PermissionProvider } from '../features/permissions/PermissionPrimer';
 const AdminApp = lazy(() => import('../features/admin/AdminApp'));
+const PageView = lazy(() => import('../features/pages/PageView'));
+const HelpScreen = lazy(() => import('../features/pages/HelpScreen'));
+import { AppGates } from './Gates';
+import { useApplyStringOverrides } from '../data/appConfig';
 
 /** Same look as the static splash in index.html, so the hand-over from HTML to React does not flash. */
 export function FullScreenLoader() {
@@ -33,12 +37,20 @@ export function FullScreenLoader() {
     return () => clearTimeout(id);
   }, []);
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-canvas p-6 text-center" role="status" aria-label={t('common.loading')}>
+    <div
+      className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-canvas p-6 text-center"
+      role="status"
+      aria-label={t('common.loading')}
+    >
       <img src="/favicon.svg" alt="" width={72} height={72} className="h-[72px] w-[72px] motion-safe:animate-pulse" />
       <p className="text-[34px] leading-tight font-semibold text-ink">FitMe</p>
       <p className="max-w-md text-body text-muted">{slow ? t('errors.slowBody') : t('app.tagline')}</p>
       {slow && (
-        <button type="button" onClick={() => window.location.reload()} className="h-12 rounded-button bg-primary px-5 text-body font-semibold text-on-primary">
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="h-12 rounded-button bg-primary px-5 text-body font-semibold text-on-primary"
+        >
           {t('common.retry')}
         </button>
       )}
@@ -71,7 +83,18 @@ function Gate() {
     if (profile?.language) void setLanguage(profile.language);
   }, [profile?.language]);
 
+  useApplyStringOverrides();
+
   if (!authReady) return <FullScreenLoader />;
+  // Published pages (terms, privacy, help, tips) are public.
+  if (pathname.startsWith('/p/'))
+    return (
+      <Suspense fallback={<FullScreenLoader />}>
+        <Routes>
+          <Route path="p/:slug" element={<PageView />} />
+        </Routes>
+      </Suspense>
+    );
   // Admin dashboard: its own sign-in and layout, independent of the member onboarding.
   if (pathname === '/admin' || pathname.startsWith('/admin/'))
     return (
@@ -83,36 +106,43 @@ function Gate() {
     );
   if (!user)
     return (
-      <Suspense fallback={<FullScreenLoader />}>
-        <SignInScreen />
-      </Suspense>
+      <AppGates>
+        <Suspense fallback={<FullScreenLoader />}>
+          <SignInScreen />
+        </Suspense>
+      </AppGates>
     );
   if (!profileReady) return <FullScreenLoader />;
   if (!profile)
     return (
-      <Suspense fallback={<FullScreenLoader />}>
-        <Onboarding />
-      </Suspense>
+      <AppGates>
+        <Suspense fallback={<FullScreenLoader />}>
+          <Onboarding />
+        </Suspense>
+      </AppGates>
     );
 
   return (
-    <Suspense fallback={<FullScreenLoader />}>
-      <Routes>
-        <Route element={<Shell />}>
-          <Route index element={<HomeScreen />} />
-          <Route path="food" element={<FoodScreen />} />
-          <Route path="planner" element={<PlannerScreen />} />
-          <Route path="health" element={<HealthScreen />} />
-          <Route path="health/:tab" element={<HealthScreen />} />
-          <Route path="workouts" element={<WorkoutsScreen />} />
-          <Route path="store" element={<StoreScreen />} />
-          <Route path="settings" element={<SettingsScreen />} />
-          <Route path="plans" element={<PlansScreen />} />
-          <Route path="stories" element={<TestimonialsScreen />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </Suspense>
+    <AppGates>
+      <Suspense fallback={<FullScreenLoader />}>
+        <Routes>
+          <Route element={<Shell />}>
+            <Route index element={<HomeScreen />} />
+            <Route path="food" element={<FoodScreen />} />
+            <Route path="planner" element={<PlannerScreen />} />
+            <Route path="health" element={<HealthScreen />} />
+            <Route path="health/:tab" element={<HealthScreen />} />
+            <Route path="workouts" element={<WorkoutsScreen />} />
+            <Route path="store" element={<StoreScreen />} />
+            <Route path="settings" element={<SettingsScreen />} />
+            <Route path="plans" element={<PlansScreen />} />
+            <Route path="stories" element={<TestimonialsScreen />} />
+            <Route path="help" element={<HelpScreen />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </Suspense>
+    </AppGates>
   );
 }
 

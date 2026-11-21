@@ -30,6 +30,12 @@ const Market = z.object({
   /** ISO date-time the launch offer ends. Without it no regular price is struck through. */
   offerEndsAt: z.string().datetime({ offset: true }).nullable(),
   plans: z.object({ premium: PlanPrice, pro: PlanPrice }),
+  /** Off = this market's prices are not offered (the app then uses the store's local price tiers). */
+  enabled: z.boolean().default(true),
+  /** GST / VAT. `inclusive` = prices already contain the tax (receipts show the tax part). */
+  tax: z.object({ name: z.string().max(12).default('Tax'), percent: z.number().min(0).max(50).default(0), inclusive: z.boolean().default(true) }).default({ name: 'Tax', percent: 0, inclusive: true }),
+  /** Payment methods offered in this market. */
+  methods: z.object({ appStore: z.boolean().default(true), playStore: z.boolean().default(true), cashfreeWeb: z.boolean().default(true) }).default({ appStore: true, playStore: true, cashfreeWeb: true }),
 });
 
 export const PricingConfig = z.object({
@@ -47,6 +53,7 @@ export const PricingConfig = z.object({
 export type PricingConfig = z.infer<typeof PricingConfig>;
 export type MarketConfig = z.infer<typeof Market>;
 
+const ALL_METHODS = { appStore: true, playStore: true, cashfreeWeb: true };
 const EURO_COUNTRIES = ['AT', 'BE', 'HR', 'CY', 'EE', 'FI', 'FR', 'DE', 'GR', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PT', 'SK', 'SI', 'ES'];
 
 /**
@@ -64,18 +71,18 @@ export const DEFAULT_PRICING: PricingConfig = {
     yearly: { months: 12, discount: 0.4 },
   },
   markets: {
-    IN: { currency: 'INR', countries: ['IN'], eu: false, priceStep: 1, offerEndsAt: null, plans: { premium: { regular: 299, offer: 199 }, pro: { regular: 599, offer: 399 } } },
-    US: { currency: 'USD', countries: ['US'], eu: false, priceStep: 0.01, offerEndsAt: null, plans: { premium: { regular: null, offer: 9 }, pro: { regular: null, offer: 29 } } },
-    GB: { currency: 'GBP', countries: ['GB'], eu: false, priceStep: 0.01, offerEndsAt: null, plans: { premium: { regular: null, offer: 9 }, pro: { regular: null, offer: 29 } } },
-    EU: { currency: 'EUR', countries: EURO_COUNTRIES, eu: true, priceStep: 0.01, offerEndsAt: null, plans: { premium: { regular: null, offer: 9, lowest30d: null }, pro: { regular: null, offer: 29, lowest30d: null } } },
+    IN: { currency: 'INR', countries: ['IN'], eu: false, priceStep: 1, offerEndsAt: null, plans: { premium: { regular: 299, offer: 199 }, pro: { regular: 599, offer: 399 } }, enabled: true, tax: { name: 'GST', percent: 18, inclusive: true }, methods: ALL_METHODS },
+    US: { currency: 'USD', countries: ['US'], eu: false, priceStep: 0.01, offerEndsAt: null, plans: { premium: { regular: null, offer: 9 }, pro: { regular: null, offer: 29 } }, enabled: true, tax: { name: 'Sales tax', percent: 0, inclusive: false }, methods: ALL_METHODS },
+    GB: { currency: 'GBP', countries: ['GB'], eu: false, priceStep: 0.01, offerEndsAt: null, plans: { premium: { regular: null, offer: 9 }, pro: { regular: null, offer: 29 } }, enabled: true, tax: { name: 'VAT', percent: 20, inclusive: true }, methods: ALL_METHODS },
+    EU: { currency: 'EUR', countries: EURO_COUNTRIES, eu: true, priceStep: 0.01, offerEndsAt: null, plans: { premium: { regular: null, offer: 9, lowest30d: null }, pro: { regular: null, offer: 29, lowest30d: null } }, enabled: true, tax: { name: 'VAT', percent: 0, inclusive: true }, methods: ALL_METHODS },
   },
 };
 
 /** Market for a country, falling back to the currency; null = store local price tiers only. */
 export function marketFor(config: PricingConfig, country: string, currency?: string): string | null {
   const c = country.toUpperCase();
-  for (const [key, m] of Object.entries(config.markets)) if (m.countries.includes(c)) return key;
-  if (currency) for (const [key, m] of Object.entries(config.markets)) if (m.currency === currency.toUpperCase()) return key;
+  for (const [key, m] of Object.entries(config.markets)) if (m.enabled !== false && m.countries.includes(c)) return key;
+  if (currency) for (const [key, m] of Object.entries(config.markets)) if (m.enabled !== false && m.currency === currency.toUpperCase()) return key;
   return null;
 }
 
@@ -221,4 +228,52 @@ export function reminderDue(ent: Pick<Entitlement, 'status' | 'trialEndsAt'> | n
   if (!ent || ent.status !== 'trialing' || !ent.trialEndsAt || alreadySent) return false;
   const left = ent.trialEndsAt - nowMs;
   return left > 0 && left <= 3 * DAY;
+}
+
+// ---------------------------------------------------------------- Tax and coupons
+
+/** Tax part of a price. Inclusive: the tax is inside the amount; exclusive: it is added on top. */
+export function taxBreakdown(amount: number, tax: { percent: number; inclusive: boolean }, step: number): { net: number; tax: number; gross: number } {
+  const r = (x: number) => roundToStep(x, Math.min(step, 0.01), 'nearest');
+  if (!tax.percent) return { net: amount, tax: 0, gross: amount };
+  if (tax.inclusive) {
+    const net = r(amount / (1 + tax.percent / 100));
+    return { net, tax: r(amount - net), gross: amount };
+  }
+  const t = r((amount * tax.percent) / 100);
+  return { net: amount, tax: t, gross: r(amount + t) };
+}
+
+export const Coupon = z.object({
+  code: z.string().regex(/^[A-Z0-9_-]{3,24}$/),
+  active: z.boolean().default(true),
+  kind: z.enum(['percent', 'fixed']),
+  /** Percent (1-100) or a fixed amount in the market currency. */
+  value: z.number().positive(),
+  /** Empty = every market / plan / period. */
+  markets: z.array(z.string().max(8)).default([]),
+  plans: z.array(z.enum(PAID_PLANS)).default([]),
+  periods: z.array(z.enum(PERIODS)).default([]),
+  maxUses: z.number().int().positive().nullable().default(null),
+  perUserLimit: z.number().int().positive().default(1),
+  startsAt: z.string().datetime({ offset: true }).nullable().default(null),
+  endsAt: z.string().datetime({ offset: true }).nullable().default(null),
+});
+export type Coupon = z.infer<typeof Coupon>;
+
+export type CouponCheck = { ok: true; discount: number; total: number } | { ok: false; reason: 'inactive' | 'not_started' | 'expired' | 'not_for_market' | 'not_for_plan' | 'not_for_period' | 'used_up' | 'already_used' };
+
+/** Validates a coupon for one quote. The total never drops below one price step. */
+export function applyCoupon(c: Coupon, q: { market: string; plan: PaidPlan; period: Period; total: number; step: number }, ctx: { nowMs: number; uses: number; userUses: number }): CouponCheck {
+  if (!c.active) return { ok: false, reason: 'inactive' };
+  if (c.startsAt && Date.parse(c.startsAt) > ctx.nowMs) return { ok: false, reason: 'not_started' };
+  if (c.endsAt && Date.parse(c.endsAt) <= ctx.nowMs) return { ok: false, reason: 'expired' };
+  if (c.markets.length && !c.markets.includes(q.market)) return { ok: false, reason: 'not_for_market' };
+  if (c.plans.length && !c.plans.includes(q.plan)) return { ok: false, reason: 'not_for_plan' };
+  if (c.periods.length && !c.periods.includes(q.period)) return { ok: false, reason: 'not_for_period' };
+  if (c.maxUses !== null && ctx.uses >= c.maxUses) return { ok: false, reason: 'used_up' };
+  if (ctx.userUses >= c.perUserLimit) return { ok: false, reason: 'already_used' };
+  const raw = c.kind === 'percent' ? (q.total * Math.min(100, c.value)) / 100 : c.value;
+  const total = Math.max(q.step, roundToStep(q.total - raw, q.step, 'nearest'));
+  return { ok: true, discount: roundToStep(q.total - total, q.step, 'nearest'), total };
 }

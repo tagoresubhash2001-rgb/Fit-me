@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardHeader, EmptyState, PageHeader, Skeleton } from '../../components/ui';
 import { call, errorCode, fmtDate } from './api';
+import { Analytics } from './Analytics';
+import { MyAccount } from './AdminsPage';
+import { useStaffRole } from './api';
 
 interface OverviewData {
   totalUsers: number;
@@ -27,6 +30,7 @@ function Stat({ label, value, id }: { label: string; value: React.ReactNode; id?
 
 export default function Overview() {
   const { t, i18n } = useTranslation();
+  const staff = useStaffRole();
   const [data, setData] = useState<OverviewData | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
@@ -104,6 +108,8 @@ export default function Overview() {
           )}
         </Card>
       </div>
+      <Analytics />
+      {staff.role && <MyAccount role={staff.role} />}
     </div>
   );
 }

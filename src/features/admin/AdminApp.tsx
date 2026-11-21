@@ -1,16 +1,22 @@
 import React, { Suspense, lazy, useState } from 'react';
 import { NavLink, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Activity, CreditCard, FileText, LayoutDashboard, LogOut, MessageSquareQuote, Salad, Settings, Shield, ToggleRight, Users } from 'lucide-react';
+import { Activity, BadgePercent, Bell, CalendarClock, CreditCard, FileText, KeyRound, Layers, LayoutDashboard, LifeBuoy, LogOut, MessageSquareQuote, Salad, Settings, Shield, ToggleRight, Users } from 'lucide-react';
 import { BrandLogo, Button, Card, Input, Skeleton } from '../../components/ui';
 import { cn } from '../../components/ui/cn';
 import { useSession } from '../../data/session';
 import { signInWithEmail, signInWithGoogle, signOut } from '../../data/auth';
-import { atLeast, useStaffRole, type Role } from './api';
+import { canOpen, useStaffRole, type AdminSection } from './api';
 
 const Overview = lazy(() => import('./Overview'));
 const UsersPage = lazy(() => import('./UsersPage'));
-const PricingPage = lazy(() => import('./PricingPage'));
+const FinancePage = lazy(() => import('./FinancePage'));
+const PlansAccessPage = lazy(() => import('./PlansAccessPage'));
+const TrialsPage = lazy(() => import('./TrialsPage'));
+const CouponsPage = lazy(() => import('./CouponsPage'));
+const NotificationsPage = lazy(() => import('./NotificationsPage'));
+const IntegrationsPage = lazy(() => import('./IntegrationsPage'));
+const SupportPage = lazy(() => import('./SupportPage'));
 const TestimonialsPage = lazy(() => import('./TestimonialsPage'));
 const ContentPage = lazy(() => import('./ContentPage'));
 const FeaturesPage = lazy(() => import('./FeaturesPage'));
@@ -19,17 +25,23 @@ const SettingsPage = lazy(() => import('./SettingsPage'));
 const AdminsPage = lazy(() => import('./AdminsPage'));
 const LogsPage = lazy(() => import('./LogsPage'));
 
-const NAV: Array<{ to: string; key: string; icon: React.ComponentType<{ className?: string; strokeWidth?: number }>; min: Role }> = [
-  { to: '', key: 'overview', icon: LayoutDashboard, min: 'moderator' },
-  { to: 'users', key: 'users', icon: Users, min: 'moderator' },
-  { to: 'pricing', key: 'pricing', icon: CreditCard, min: 'admin' },
-  { to: 'testimonials', key: 'testimonials', icon: MessageSquareQuote, min: 'moderator' },
-  { to: 'content', key: 'content', icon: FileText, min: 'admin' },
-  { to: 'features', key: 'features', icon: ToggleRight, min: 'admin' },
-  { to: 'foods', key: 'foods', icon: Salad, min: 'admin' },
-  { to: 'settings', key: 'settings', icon: Settings, min: 'admin' },
-  { to: 'admins', key: 'admins', icon: Shield, min: 'moderator' },
-  { to: 'logs', key: 'logs', icon: Activity, min: 'moderator' },
+const NAV: Array<{ to: string; key: AdminSection; icon: React.ComponentType<{ className?: string; strokeWidth?: number }> }> = [
+  { to: '', key: 'overview', icon: LayoutDashboard },
+  { to: 'users', key: 'users', icon: Users },
+  { to: 'finance', key: 'finance', icon: CreditCard },
+  { to: 'plans', key: 'plans', icon: Layers },
+  { to: 'trials', key: 'trials', icon: CalendarClock },
+  { to: 'coupons', key: 'coupons', icon: BadgePercent },
+  { to: 'content', key: 'content', icon: FileText },
+  { to: 'foods', key: 'foods', icon: Salad },
+  { to: 'testimonials', key: 'testimonials', icon: MessageSquareQuote },
+  { to: 'notifications', key: 'notifications', icon: Bell },
+  { to: 'features', key: 'features', icon: ToggleRight },
+  { to: 'settings', key: 'settings', icon: Settings },
+  { to: 'integrations', key: 'integrations', icon: KeyRound },
+  { to: 'support', key: 'support', icon: LifeBuoy },
+  { to: 'admins', key: 'admins', icon: Shield },
+  { to: 'logs', key: 'logs', icon: Activity },
 ];
 
 function AdminLogin() {
@@ -123,7 +135,7 @@ export default function AdminApp() {
     );
   if (!staff.role) return <NotAuthorised email={staff.email} />;
   const role = staff.role;
-  const items = NAV.filter((n) => atLeast(role, n.min));
+  const items = NAV.filter((n) => canOpen(role, n.key));
   const nav = (
     <nav aria-label={t('admin.title')} className="flex flex-col gap-1">
       {items.map(({ to, key, icon: Icon }) => (
@@ -171,15 +183,21 @@ export default function AdminApp() {
           <Suspense fallback={<Skeleton className="h-40" />}>
             <Routes>
               <Route index element={<Overview />} />
-              <Route path="users" element={<UsersPage role={role} />} />
-              {atLeast(role, 'admin') && <Route path="pricing" element={<PricingPage />} />}
-              <Route path="testimonials" element={<TestimonialsPage />} />
-              {atLeast(role, 'admin') && <Route path="content" element={<ContentPage />} />}
-              {atLeast(role, 'admin') && <Route path="features" element={<FeaturesPage />} />}
-              {atLeast(role, 'admin') && <Route path="foods" element={<FoodsPage />} />}
-              {atLeast(role, 'admin') && <Route path="settings" element={<SettingsPage />} />}
-              <Route path="admins" element={<AdminsPage role={role} />} />
-              <Route path="logs" element={<LogsPage />} />
+              {canOpen(role, 'users') && <Route path="users" element={<UsersPage role={role} />} />}
+              {canOpen(role, 'finance') && <Route path="finance" element={<FinancePage />} />}
+              {canOpen(role, 'plans') && <Route path="plans" element={<PlansAccessPage />} />}
+              {canOpen(role, 'trials') && <Route path="trials" element={<TrialsPage />} />}
+              {canOpen(role, 'coupons') && <Route path="coupons" element={<CouponsPage />} />}
+              {canOpen(role, 'content') && <Route path="content" element={<ContentPage />} />}
+              {canOpen(role, 'foods') && <Route path="foods" element={<FoodsPage />} />}
+              {canOpen(role, 'testimonials') && <Route path="testimonials" element={<TestimonialsPage />} />}
+              {canOpen(role, 'notifications') && <Route path="notifications" element={<NotificationsPage />} />}
+              {canOpen(role, 'features') && <Route path="features" element={<FeaturesPage />} />}
+              {canOpen(role, 'settings') && <Route path="settings" element={<SettingsPage />} />}
+              {canOpen(role, 'integrations') && <Route path="integrations" element={<IntegrationsPage />} />}
+              {canOpen(role, 'support') && <Route path="support" element={<SupportPage />} />}
+              {canOpen(role, 'admins') && <Route path="admins" element={<AdminsPage role={role} />} />}
+              {canOpen(role, 'logs') && <Route path="logs" element={<LogsPage />} />}
               <Route path="*" element={<Navigate to="/admin" replace />} />
             </Routes>
           </Suspense>

@@ -31,4 +31,6 @@ export {
   adminReviewFoodSuggestion,
   reportAiFood,
 } from './admin/admin';
+export { adminAction } from './admin/control';
+export { memberAction } from './member/member';
 export { wearablesStatus, wearablesConnect, wearablesDisconnect, wearablesSync } from './wearables/openWearables';

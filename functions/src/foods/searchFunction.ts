@@ -4,8 +4,7 @@ import { logger } from 'firebase-functions';
 import { z } from 'zod';
 import { bucket, db } from '../lib/admin';
 import { callableOptions, requireAuth } from '../lib/callable';
-import { getPlan } from '../lib/entitlements';
-import { planAllows } from '../lib/plans';
+import { featureAllowed } from '../lib/entitlements';
 import { FoodIndex } from './search';
 import { INDEX_META, INDEX_PATH, type IndexFood } from './indexMeta';
 
@@ -92,15 +91,14 @@ export const searchFoods = onCall(callableOptions({ memory: '1GiB', timeoutSecon
   const parsed = Input.safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'invalid_input');
   const { q, offset, limit, country, language } = parsed.data;
-  const [index, plan] = await Promise.all([
+  const [index, micros] = await Promise.all([
     getIndex().catch((e) => {
       logger.error('food index unavailable', { error: (e as Error).message });
       throw new HttpsError('unavailable', 'index_unavailable');
     }),
-    getPlan(uid),
+    featureAllowed(uid, 'micronutrients'),
   ]);
   const res = index.search(q, { offset, limit, country, language });
-  const micros = planAllows(plan, 'premium');
   return {
     total: res.total,
     partial: res.partial,

@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Tabs } from '../../components/ui';
+import { HOME_SECTIONS, type Ribbon } from '../../domain/appConfig';
+import { MediaPicker } from './MediaLibrary';
 import { useTranslation } from 'react-i18next';
 import { doc, getDoc } from 'firebase/firestore';
 import { Button, Card, CardHeader, PageHeader, Skeleton, toast } from '../../components/ui';
@@ -9,10 +12,15 @@ import { call, errorCode } from './api';
 import { Field, inputCls } from './ui';
 
 const langs = [...SUPPORTED_LANGUAGES];
-const newBanner = (): Banner => ({ id: `b${Date.now().toString(36)}`, active: false, title: {}, body: {}, linkUrl: null, linkLabel: {}, endsAt: null });
+const newBanner = (): Banner => ({ id: `b${Date.now().toString(36)}`, active: false, title: {}, body: {}, linkUrl: null, linkLabel: {}, imageUrl: null, startsAt: null, endsAt: null, countries: [] });
+const newRibbon = (): Ribbon => ({ id: `r${Date.now().toString(36)}`, active: false, text: {}, linkUrl: null, startsAt: null, endsAt: null, countries: [] });
+const codes = (v: string) => v.toUpperCase().split(/[^A-Z]+/).filter((c) => c.length === 2);
+const StringsEditor = React.lazy(() => import('./StringsEditor'));
+const PagesEditor = React.lazy(() => import('./PagesEditor'));
+const MediaLibraryPage = React.lazy(() => import('./MediaLibrary'));
 
 /** Tagline, home banners and the stories section (per language; empty fields fall back to the app's text). */
-export default function ContentPage() {
+function HomeContent() {
   const { t } = useTranslation();
   const [cfg, setCfg] = useState<ContentConfig | null>(null);
   const [lang, setLang] = useState('en');
@@ -78,7 +86,14 @@ export default function ContentPage() {
               <Field label={t('admin.content.endsAt')}>
                 <input type="date" className={inputCls} value={b.endsAt?.slice(0, 10) ?? ''} onChange={(e) => upBanner(i, { endsAt: e.target.value ? new Date(`${e.target.value}T23:59:59Z`).toISOString() : null })} />
               </Field>
+              <Field label={t('admin.content.startsAt')}>
+                <input type="date" className={inputCls} value={b.startsAt?.slice(0, 10) ?? ''} onChange={(e) => upBanner(i, { startsAt: e.target.value ? new Date(`${e.target.value}T00:00:00Z`).toISOString() : null })} />
+              </Field>
+              <Field label={t('admin.content.countries')} hint={t('admin.coupons.emptyAll')}>
+                <input className={inputCls} defaultValue={b.countries.join(', ')} onBlur={(e) => upBanner(i, { countries: codes(e.target.value) })} />
+              </Field>
             </div>
+            <MediaPicker label={t('admin.content.image')} value={b.imageUrl} onChange={(url) => upBanner(i, { imageUrl: url })} />
             <div>
               <Button size="sm" variant="ghost" onClick={() => setCfg({ ...cfg, banners: cfg.banners.filter((_, j) => j !== i) })}>
                 {t('admin.content.removeBanner')}
@@ -91,6 +106,75 @@ export default function ContentPage() {
             {t('admin.content.addBanner')}
           </Button>
         </div>
+      </Card>
+      <Card className="flex flex-col gap-3" id="content-ribbons">
+        <CardHeader title={t('admin.content.ribbons')} subtitle={t('admin.content.ribbonsHint')} />
+        {cfg.ribbons.map((r, i) => {
+          const up = (patch: Partial<Ribbon>) => setCfg({ ...cfg, ribbons: cfg.ribbons.map((x, j) => (j === i ? { ...x, ...patch } : x)) });
+          return (
+            <fieldset key={r.id} className="flex flex-col gap-3 rounded-input border border-line p-3">
+              <label className="flex items-center gap-3 text-small text-ink">
+                <input type="checkbox" checked={r.active} onChange={(e) => up({ active: e.target.checked })} className="h-5 w-5 accent-[var(--primary)]" />
+                {t('admin.content.active')}
+              </label>
+              <Field label={t('admin.content.ribbonText')}>
+                <input className={inputCls} maxLength={120} value={r.text[lang] ?? ''} onChange={(e) => up({ text: { ...r.text, [lang]: e.target.value } })} />
+              </Field>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                <Field label={t('admin.content.link')}>
+                  <input className={inputCls} value={r.linkUrl ?? ''} onChange={(e) => up({ linkUrl: e.target.value.trim() || null })} />
+                </Field>
+                <Field label={t('admin.content.startsAt')}>
+                  <input type="date" className={inputCls} value={r.startsAt?.slice(0, 10) ?? ''} onChange={(e) => up({ startsAt: e.target.value ? new Date(`${e.target.value}T00:00:00Z`).toISOString() : null })} />
+                </Field>
+                <Field label={t('admin.content.endsAt')}>
+                  <input type="date" className={inputCls} value={r.endsAt?.slice(0, 10) ?? ''} onChange={(e) => up({ endsAt: e.target.value ? new Date(`${e.target.value}T23:59:59Z`).toISOString() : null })} />
+                </Field>
+                <Field label={t('admin.content.countries')}>
+                  <input className={inputCls} defaultValue={r.countries.join(', ')} onBlur={(e) => up({ countries: codes(e.target.value) })} />
+                </Field>
+              </div>
+              <div>
+                <Button size="sm" variant="ghost" onClick={() => setCfg({ ...cfg, ribbons: cfg.ribbons.filter((_, j) => j !== i) })}>
+                  {t('admin.remove')}
+                </Button>
+              </div>
+            </fieldset>
+          );
+        })}
+        <div>
+          <Button size="sm" variant="secondary" disabled={cfg.ribbons.length >= 10} onClick={() => setCfg({ ...cfg, ribbons: [...cfg.ribbons, newRibbon()] })}>
+            {t('admin.content.addRibbon')}
+          </Button>
+        </div>
+      </Card>
+      <Card className="flex flex-col gap-3" id="content-home-sections">
+        <CardHeader title={t('admin.content.homeSections')} subtitle={t('admin.content.homeSectionsHint')} />
+        {(() => {
+          const order = [...cfg.homeSections.map((x) => x.id), ...HOME_SECTIONS.filter((id) => !cfg.homeSections.some((x) => x.id === id))];
+          const vis = (id: string) => cfg.homeSections.find((x) => x.id === id)?.visible ?? true;
+          const write = (ids: string[], visible: (id: string) => boolean) => setCfg({ ...cfg, homeSections: ids.map((id) => ({ id: id as (typeof HOME_SECTIONS)[number], visible: visible(id) })) });
+          return (
+            <ol className="flex flex-col divide-y divide-line">
+              {order.map((id, i) => (
+                <li key={id} className="flex min-h-12 items-center gap-2 py-1.5">
+                  <span className="w-6 text-caption text-muted tabular-nums">{i + 1}</span>
+                  <span className="min-w-0 flex-1 text-small text-ink">{t(`admin.content.sections.${id}`)}</span>
+                  <label className="flex items-center gap-1.5 text-caption text-ink">
+                    <input type="checkbox" checked={vis(id)} onChange={(e) => write(order, (x) => (x === id ? e.target.checked : vis(x)))} />
+                    {t('admin.content.visible')}
+                  </label>
+                  <Button size="sm" variant="ghost" disabled={i === 0} aria-label={t('admin.content.moveUp')} onClick={() => write(order.map((x, j) => (j === i - 1 ? id : j === i ? order[i - 1] : x)), vis)}>
+                    ↑
+                  </Button>
+                  <Button size="sm" variant="ghost" disabled={i === order.length - 1} aria-label={t('admin.content.moveDown')} onClick={() => write(order.map((x, j) => (j === i + 1 ? id : j === i ? order[i + 1] : x)), vis)}>
+                    ↓
+                  </Button>
+                </li>
+              ))}
+            </ol>
+          );
+        })()}
       </Card>
       {!valid.success && <p className="text-small text-danger-text">{t('admin.content.invalid')}</p>}
       <div>
@@ -113,6 +197,32 @@ export default function ContentPage() {
           {t('admin.save')}
         </Button>
       </div>
+    </div>
+  );
+}
+
+export default function ContentPage() {
+  const { t } = useTranslation();
+  const [tab, setTab] = useState<'home' | 'texts' | 'pages' | 'media'>('home');
+  return (
+    <div className="flex flex-col gap-4">
+      <Tabs
+        value={tab}
+        onChange={setTab}
+        ariaLabel={t('admin.nav.content')}
+        items={[
+          { id: 'home', label: t('admin.content.tabHome') },
+          { id: 'texts', label: t('admin.content.tabTexts') },
+          { id: 'pages', label: t('admin.content.tabPages') },
+          { id: 'media', label: t('admin.content.tabMedia') },
+        ]}
+      />
+      <React.Suspense fallback={<Skeleton className="h-40" />}>
+        {tab === 'home' && <HomeContent />}
+        {tab === 'texts' && <StringsEditor />}
+        {tab === 'pages' && <PagesEditor />}
+        {tab === 'media' && <MediaLibraryPage />}
+      </React.Suspense>
     </div>
   );
 }

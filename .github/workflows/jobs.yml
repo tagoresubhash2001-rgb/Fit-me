@@ -1,0 +1,39 @@
+# Hourly background jobs (stage and trial reminders, scheduled admin notifications) without Cloud Scheduler.
+# Uses the same deploy service account secret as deploy.yml. Runs only on the default branch.
+name: Background jobs
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch: {}
+permissions:
+  contents: read
+concurrency:
+  group: background-jobs
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: ${{ github.repository == 'tagoresubhash2001-rgb/Fit-me' }}
+    env:
+      HAS_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        if: env.HAS_SA_KEY == 'true'
+      - uses: actions/setup-node@v4
+        if: env.HAS_SA_KEY == 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - uses: google-github-actions/auth@v2
+        if: env.HAS_SA_KEY == 'true'
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - name: Run jobs
+        if: env.HAS_SA_KEY == 'true'
+        run: |
+          cd functions
+          npm ci
+          npm run build
+          node lib/scripts/run-jobs.js --project fit-me1

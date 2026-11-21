@@ -69,3 +69,16 @@ describe('testimonial photos', () => {
     await assertFails(uploadBytes(ref(env.authenticatedContext('mod', { role: 'superAdmin' }).storage(), 'public/testimonials/t2/before.jpg'), jpg, { contentType: 'image/jpeg' }));
   });
 });
+
+describe('admin media library', () => {
+  it('content editors upload images; finance and members cannot; anyone reads', async () => {
+    const img = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]);
+    const editor = env.authenticatedContext('ed', { role: 'content' }).storage();
+    const finance = env.authenticatedContext('fin', { role: 'finance' }).storage();
+    await assertSucceeds(uploadBytes(ref(editor, 'public/media/banner.jpg'), img, { contentType: 'image/jpeg' }));
+    await assertFails(uploadBytes(ref(finance, 'public/media/x.jpg'), img, { contentType: 'image/jpeg' }));
+    await assertFails(uploadBytes(ref(env.authenticatedContext('alice').storage(), 'public/media/y.jpg'), img, { contentType: 'image/jpeg' }));
+    await assertFails(uploadBytes(ref(editor, 'public/media/page.html'), img, { contentType: 'text/html' }));
+    await assertSucceeds(getBytes(ref(env.unauthenticatedContext().storage(), 'public/media/banner.jpg')));
+  });
+});

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CircleArrowUp, Clock, X } from 'lucide-react';
 import { Button, IconButton } from '../../components/ui';
-import { useSession } from '../../data/session';
+import { useFreeLaunch, useSession } from '../../data/session';
 import { stageAt, stageReminderDue } from '../../domain/access';
 import { useFeatures } from '../../data/appConfig';
 
@@ -94,7 +94,8 @@ export function StageEndingBanner() {
   const due = stageReminderDue(info);
   const key = due ? `fit_me_stage_banner_${due.key}` : '';
   const [hidden, setHidden] = useState(() => !!key && safe(() => localStorage.getItem(key) === '1', false));
-  if (!due || hidden || subscription !== 'free' || info.endsAtMs === null) return null;
+  const freeLaunch = useFreeLaunch();
+  if (freeLaunch || !due || hidden || subscription !== 'free' || info.endsAtMs === null) return null;
   const when = new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'long' }).format(new Date(info.endsAtMs));
   return (
     <div role="status" id="stage-ending" className="card-enter mx-4 mt-3 flex items-center gap-3 rounded-card border border-card-border bg-accent-subtle p-3 md:mx-6 xl:mx-8">
@@ -122,6 +123,14 @@ export function AccessStageCard({ compact = false }: { compact?: boolean }) {
   const navigate = useNavigate();
   const access = useSession((s) => s.access);
   const subscription = useSession((s) => s.subscriptionPlan);
+  const freeLaunch = useFreeLaunch();
+  if (freeLaunch)
+    return (
+      <section id="free-launch-card" aria-label={t('access.freeLaunchTitle')} className="card-enter flex flex-col gap-1 rounded-card border border-card-border bg-primary-subtle p-4 md:col-span-12">
+        <h2 className="text-body font-semibold text-ink">{t('access.freeLaunchTitle')}</h2>
+        <p className="text-small text-ink">{t('access.freeLaunchBody')}</p>
+      </section>
+    );
   if (!access) return null;
   const info = stageAt(access, Date.now());
   if (info.stage === 'ended' && subscription !== 'free') return null;

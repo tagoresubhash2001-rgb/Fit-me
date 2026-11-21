@@ -4,7 +4,8 @@ import type { UserRecord } from 'firebase-admin/auth';
 import { z } from 'zod';
 import { adminAuth, db } from '../lib/admin';
 import { callableOptions, requireAuth } from '../lib/callable';
-import { logAdmin, requireStaff, roleOf, ROLES, type Role } from '../lib/staff';
+import { logAdmin, requireSection, requireAnyStaff, roleOf, type Role } from '../lib/staff';
+import { ASSIGNABLE_ROLES } from '../lib/adminRoles';
 import { AccessConfig, buildAccess, stageAt } from '../lib/access';
 import { AppSettings, ContentConfig, FeatureFlags, PlanCatalog } from '../lib/appConfig';
 import { PricingConfig } from '../billing/billing';
@@ -18,7 +19,7 @@ const ms = (v: unknown) => (v && typeof (v as { toMillis?: unknown }).toMillis =
 // ------------------------------------------------------------------ Overview
 /** Real counts only. Revenue is summed from verified payment records; none exist until billing goes live. */
 export const adminOverview = onCall(opts, async (req) => {
-  await requireStaff(req, 'moderator');
+  await requireSection(req, 'overview');
   const now = Timestamp.now();
   const count = async (q: FirebaseFirestore.Query) => (await q.count().get()).data().count;
   const users = db().collection('users');
@@ -121,7 +122,7 @@ const ListInput = z.object({
 
 /** Paged user list from Firebase Auth joined with profile, plan and stage. Search matches email, phone, name or uid. */
 export const adminListUsers = onCall(opts, async (req) => {
-  await requireStaff(req, 'moderator');
+  await requireSection(req, 'users');
   const parsed = ListInput.safeParse(req.data ?? {});
   if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
   const { q, status, pageToken } = parsed.data;
@@ -150,7 +151,7 @@ const UidInput = z.object({ uid: z.string().min(6).max(128) });
 
 /** One user: account, plan, stage, recent activity counts (no health details beyond counts). */
 export const adminGetUser = onCall(opts, async (req) => {
-  await requireStaff(req, 'moderator');
+  await requireSection(req, 'users');
   const parsed = UidInput.safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
   const u = await adminAuth().getUser(parsed.data.uid).catch(() => null);
@@ -183,7 +184,7 @@ export const adminGetUser = onCall(opts, async (req) => {
 
 /** Deactivate or reactivate: disables the Auth account, revokes refresh tokens and blocks callables at once. */
 export const adminSetUserDisabled = onCall(opts, async (req) => {
-  const actor = await requireStaff(req, 'admin');
+  const actor = await requireSection(req, 'users');
   const parsed = z.object({ uid: z.string().min(6).max(128), disabled: z.boolean(), reason: z.string().trim().max(500).optional() }).safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
   const { uid, disabled, reason } = parsed.data;
@@ -201,8 +202,8 @@ export const adminSetUserDisabled = onCall(opts, async (req) => {
 // ------------------------------------------------------------------ Staff and roles
 /** Grant, change or remove a staff role (super admin only). The last super admin cannot be removed. */
 export const adminSetRole = onCall(opts, async (req) => {
-  const actor = await requireStaff(req, 'superAdmin');
-  const parsed = z.object({ email: z.string().email().optional(), uid: z.string().min(6).max(128).optional(), role: z.enum(ROLES).nullable() }).refine((v) => v.email || v.uid).safeParse(req.data);
+  const actor = await requireSection(req, 'admins');
+  const parsed = z.object({ email: z.string().email().optional(), uid: z.string().min(6).max(128).optional(), role: z.enum(ASSIGNABLE_ROLES as [Role, ...Role[]]).nullable() }).refine((v) => v.email || v.uid).safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
   const { email, uid, role } = parsed.data;
   const u = uid ? await adminAuth().getUser(uid).catch(() => null) : await adminAuth().getUserByEmail(email!.toLowerCase()).catch(() => null);
@@ -222,14 +223,14 @@ export const adminSetRole = onCall(opts, async (req) => {
 
 /** Ends every session of the calling staff member (security settings). */
 export const adminRevokeMySessions = onCall(opts, async (req) => {
-  const actor = await requireStaff(req, 'moderator');
+  const actor = await requireAnyStaff(req);
   await adminAuth().revokeRefreshTokens(actor.uid);
   await logAdmin(actor, 'staff.revokeOwnSessions', { type: 'user', id: actor.uid }, null, null);
   return { ok: true };
 });
 
 // ------------------------------------------------------------------ Config documents (versioned)
-async function saveConfig(actor: Parameters<typeof logAdmin>[0], id: string, value: Record<string, unknown>, action: string) {
+export async function saveConfig(actor: Parameters<typeof logAdmin>[0], id: string, value: Record<string, unknown>, action: string) {
   const ref = db().doc(`appConfig/${id}`);
   const before = (await ref.get()).data() ?? null;
   const version = Number((before as { version?: number } | null)?.version ?? 0) + 1;
@@ -242,7 +243,7 @@ async function saveConfig(actor: Parameters<typeof logAdmin>[0], id: string, val
 
 /** Prices, periods and offer dates. Never touches subscription or payment records; every version is kept. */
 export const adminSavePricing = onCall(opts, async (req) => {
-  const actor = await requireStaff(req, 'admin');
+  const actor = await requireSection(req, 'finance');
   const parsed = PricingConfig.safeParse((req.data as { config?: unknown })?.config);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'invalid_pricing', { issues: parsed.error.issues.slice(0, 5).map((i) => `${i.path.join('.')}: ${i.message}`) });
   return { version: await saveConfig(actor, 'pricing', parsed.data as unknown as Record<string, unknown>, 'config.pricing') };
@@ -250,28 +251,28 @@ export const adminSavePricing = onCall(opts, async (req) => {
 
 /** Plan names, descriptions, benefits and whether a tier is offered. Existing subscribers keep their plan. */
 export const adminSavePlans = onCall(opts, async (req) => {
-  const actor = await requireStaff(req, 'admin');
+  const actor = await requireSection(req, 'plans');
   const parsed = PlanCatalog.safeParse((req.data as { config?: unknown })?.config);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'invalid_plans');
   return { version: await saveConfig(actor, 'plans', parsed.data, 'config.plans') };
 });
 
 export const adminSaveFeatures = onCall(opts, async (req) => {
-  const actor = await requireStaff(req, 'admin');
+  const actor = await requireSection(req, 'features');
   const parsed = FeatureFlags.safeParse((req.data as { config?: unknown })?.config);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'invalid_features');
   return { version: await saveConfig(actor, 'features', parsed.data as Record<string, unknown>, 'config.features') };
 });
 
 export const adminSaveContent = onCall(opts, async (req) => {
-  const actor = await requireStaff(req, 'admin');
+  const actor = await requireSection(req, 'content');
   const parsed = ContentConfig.safeParse((req.data as { config?: unknown })?.config);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'invalid_content', { issues: parsed.error.issues.slice(0, 5).map((i) => i.path.join('.')) });
   return { version: await saveConfig(actor, 'content', parsed.data as Record<string, unknown>, 'config.content') };
 });
 
 export const adminSaveAppSettings = onCall(opts, async (req) => {
-  const actor = await requireStaff(req, 'admin');
+  const actor = await requireSection(req, 'settings');
   const parsed = AppSettings.safeParse((req.data as { config?: unknown })?.config);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'invalid_settings');
   return { version: await saveConfig(actor, 'app', parsed.data, 'config.app') };
@@ -283,7 +284,7 @@ export const adminSaveAppSettings = onCall(opts, async (req) => {
  * people who already passed a stage; their subscription records are not touched).
  */
 export const adminSaveAccess = onCall(opts, async (req) => {
-  const actor = await requireStaff(req, 'admin');
+  const actor = await requireSection(req, 'trials');
   const parsed = z
     .object({ welcomeDays: z.number().int().min(0).max(90), trialDays: z.number().int().min(0).max(365), welcomePlan: z.enum(['premium', 'pro']), trialPlan: z.enum(['premium', 'pro']), applyToExisting: z.boolean().default(false) })
     .safeParse(req.data);
@@ -318,7 +319,7 @@ export const adminSaveAccess = onCall(opts, async (req) => {
 });
 
 // ------------------------------------------------------------------ Food database
-const FoodInput = z.object({
+export const FoodInput = z.object({
   id: z.string().regex(/^(admin|cur|dish|ifct|usda|fndds|usdaf|off)-[A-Za-z0-9_-]{1,60}$/).optional(),
   name: z.string().trim().min(2).max(120),
   aliases: z.array(z.string().trim().min(1).max(60)).max(20).default([]),
@@ -332,7 +333,7 @@ const FoodInput = z.object({
 
 /** Create or edit a food (search picks it up within minutes through the index overlay). */
 export const adminSaveFood = onCall(opts, async (req) => {
-  const actor = await requireStaff(req, 'admin');
+  const actor = await requireSection(req, 'foods');
   const parsed = FoodInput.safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'invalid_food', { issues: parsed.error.issues.slice(0, 5).map((i) => i.path.join('.')) });
   const f = parsed.data;
@@ -365,7 +366,7 @@ export const adminSaveFood = onCall(opts, async (req) => {
 
 /** Approve or reject an AI-estimated food a user saved (approval adds it to the shared database). */
 export const adminReviewFoodSuggestion = onCall(opts, async (req) => {
-  const actor = await requireStaff(req, 'admin');
+  const actor = await requireSection(req, 'foods');
   const parsed = z.object({ id: z.string().min(4).max(200), decision: z.enum(['approve', 'reject']), food: FoodInput.optional(), note: z.string().max(500).optional() }).safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
   const ref = db().doc(`foodSuggestions/${parsed.data.id}`);

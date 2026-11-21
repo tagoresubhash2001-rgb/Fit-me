@@ -6,7 +6,7 @@ import { OnDeviceSteps } from './OnDeviceSteps';
 import { CloudWearables } from './CloudWearables';
 import { useAskPermission } from '../permissions/PermissionPrimer';
 import { disconnectHealth, healthAppName, healthStatus, HEALTH_TYPES, openHealthSettings, syncHealth, type HealthStatus } from '../../data/healthSync';
-import { useAppSettings } from '../../data/appConfig';
+import { useAppSettings, useFeatures } from '../../data/appConfig';
 import { useFormat } from '../../lib/hooks';
 
 /**
@@ -18,6 +18,7 @@ export function ConnectedDevices() {
   const { t } = useTranslation();
   const { dateTime } = useFormat();
   const app = useAppSettings();
+  const features = useFeatures();
   const [status, setStatus] = useState<HealthStatus | null>(null);
   const [busy, setBusy] = useState<'connect' | 'sync' | 'disconnect' | null>(null);
   const name = t(`devices.${healthAppName()}`);
@@ -60,7 +61,8 @@ export function ConnectedDevices() {
     <Card id="devices" className="flex scroll-mt-24 flex-col gap-4">
       <CardHeader title={t('devices.title')} icon={<Watch className="h-5 w-5" strokeWidth={1.75} />} />
       <OnDeviceSteps />
-      <CloudWearables />
+      {/* Cloud watches need the Open Wearables backend: hidden until the admin switches the flag on. */}
+      {features.cloudWearables && <CloudWearables />}
       {!status ? (
         <Skeleton className="h-24" />
       ) : status.availability === 'web' ? (

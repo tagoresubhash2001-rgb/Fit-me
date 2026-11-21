@@ -20,6 +20,8 @@ interface FitMeStepsPlugin {
   stop(): Promise<void>;
   getDailySteps(o: { days: number }): Promise<{ days: Array<{ date: string; steps: number; distanceM?: number; source: string }> }>;
   startLive(): Promise<void>;
+  batteryStatus(): Promise<{ optimised: boolean }>;
+  openBatterySettings(): Promise<void>;
   stopLive(): Promise<void>;
   addListener(e: 'step', fn: (d: { sensorStepsToday: number }) => void): Promise<PluginListenerHandle>;
 }
@@ -100,3 +102,12 @@ export function useLivePhoneSteps(enabled: boolean): number | null {
   }, [enabled]);
   return steps;
 }
+
+/** Android battery optimisation can delay background syncs; null on the web or when unknown. */
+export async function batteryOptimised(): Promise<boolean | null> {
+  if (!isNative()) return null;
+  return Native.batteryStatus()
+    .then((r) => r.optimised)
+    .catch(() => null);
+}
+export const openBatterySettings = () => Native.openBatterySettings();

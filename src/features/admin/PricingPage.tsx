@@ -18,7 +18,7 @@ interface PlanEntry {
 
 const numOrNull = (v: string) => (v.trim() === '' ? null : Number(v));
 
-function AccessCard() {
+export function AccessCard() {
   const { t } = useTranslation();
   const [cfg, setCfg] = useState<AccessConfig | null>(null);
   const [apply, setApply] = useState(false);
@@ -81,7 +81,35 @@ function AccessCard() {
   );
 }
 
-function PricesCard() {
+function AddMarket({ onAdd, taken }: { onAdd: (code: string, currency: string, step: number) => void; taken: string[] }) {
+  const { t } = useTranslation();
+  const [code, setCode] = useState('');
+  const [currency, setCurrency] = useState('');
+  const ok = /^[A-Z]{2}$/.test(code) && /^[A-Z]{3}$/.test(currency) && !taken.includes(code);
+  return (
+    <div className="flex flex-wrap items-end gap-2 rounded-input border border-dashed border-line p-3" id="add-market">
+      <Field label={t('admin.finance.newCountry')}>
+        <input className={inputCls} maxLength={2} value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="AE" />
+      </Field>
+      <Field label={t('admin.finance.currency')}>
+        <input className={inputCls} maxLength={3} value={currency} onChange={(e) => setCurrency(e.target.value.toUpperCase())} placeholder="AED" />
+      </Field>
+      <Button
+        variant="secondary"
+        disabled={!ok}
+        onClick={() => {
+          onAdd(code, currency, ['INR', 'JPY', 'IDR', 'KRW', 'VND'].includes(currency) ? 1 : 0.01);
+          setCode('');
+          setCurrency('');
+        }}
+      >
+        {t('admin.finance.addCountry')}
+      </Button>
+    </div>
+  );
+}
+
+export function PricesCard() {
   const { t } = useTranslation();
   const [cfg, setCfg] = useState<PricingConfig | null>(null);
   const [confirm, setConfirm] = useState(false);
@@ -119,6 +147,42 @@ function PricesCard() {
           <legend className="px-1 text-small font-semibold text-ink">
             {key} · {m.currency}
           </legend>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <label className="flex min-h-11 items-center gap-2 text-small text-ink">
+              <input type="checkbox" checked={m.enabled !== false} onChange={(e) => market(key, { enabled: e.target.checked })} />
+              {t('admin.finance.marketEnabled')}
+            </label>
+            <Field label={t('admin.finance.countries')} hint={t('admin.finance.countriesHint')}>
+              <input
+                className={inputCls}
+                defaultValue={m.countries.join(', ')}
+                onBlur={(e) => market(key, { countries: e.target.value.toUpperCase().split(/[^A-Z]+/).filter((c) => c.length === 2) })}
+              />
+            </Field>
+            <Field label={t('admin.finance.currency')}>
+              <input className={inputCls} maxLength={3} value={m.currency} onChange={(e) => market(key, { currency: e.target.value.toUpperCase() })} />
+            </Field>
+          </div>
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <Field label={t('admin.finance.taxName')}>
+              <input className={inputCls} maxLength={12} value={m.tax?.name ?? ''} onChange={(e) => market(key, { tax: { ...m.tax, name: e.target.value } })} />
+            </Field>
+            <Field label={t('admin.finance.taxPercent')}>
+              <input type="number" min={0} max={50} step="any" className={inputCls} value={m.tax?.percent ?? 0} onChange={(e) => market(key, { tax: { ...m.tax, percent: Number(e.target.value) } })} />
+            </Field>
+            <label className="flex min-h-11 items-center gap-2 self-end text-small text-ink">
+              <input type="checkbox" checked={m.tax?.inclusive !== false} onChange={(e) => market(key, { tax: { ...m.tax, inclusive: e.target.checked } })} />
+              {t('admin.finance.taxInclusive')}
+            </label>
+          </div>
+          <div className="flex flex-wrap gap-4" role="group" aria-label={t('admin.finance.methods')}>
+            {(['playStore', 'appStore', 'cashfreeWeb'] as const).map((k) => (
+              <label key={k} className="flex min-h-11 items-center gap-2 text-small text-ink">
+                <input type="checkbox" checked={m.methods?.[k] !== false} onChange={(e) => market(key, { methods: { ...m.methods, [k]: e.target.checked } })} />
+                {t(`admin.finance.method.${k}`)}
+              </label>
+            ))}
+          </div>
           <Field label={t('admin.pricing.offerEnds')} hint={t('admin.pricing.offerEndsHint')}>
             <input
               type="date"
@@ -145,6 +209,18 @@ function PricesCard() {
           ))}
         </fieldset>
       ))}
+      <AddMarket
+        onAdd={(code, currency, step) =>
+          setCfg({
+            ...cfg,
+            markets: {
+              ...cfg.markets,
+              [code]: { currency, countries: [code], eu: false, priceStep: step, offerEndsAt: null, enabled: true, tax: { name: 'Tax', percent: 0, inclusive: true }, methods: { appStore: true, playStore: true, cashfreeWeb: true }, plans: { premium: { regular: null, offer: 9 }, pro: { regular: null, offer: 29 } } },
+            },
+          })
+        }
+        taken={Object.keys(cfg.markets)}
+      />
       {!valid.success && <p className="text-small text-danger-text">{t('admin.pricing.invalid')}</p>}
       <p className="text-caption text-muted">{t('admin.pricing.safety')}</p>
       <div>
@@ -171,7 +247,7 @@ function PricesCard() {
   );
 }
 
-function PlansCard() {
+export function PlansCard() {
   const { t } = useTranslation();
   const [plans, setPlans] = useState<PlanEntry[] | null>(null);
   const [busy, setBusy] = useState(false);

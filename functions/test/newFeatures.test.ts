@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { canTransition, TestimonialInput } from '../src/testimonials/testimonials';
 import { bestMatch, parsePhotoEstimate, sniffImage } from '../src/ai/foodPhoto';
-import { roleAtLeast, roleOf } from '../src/lib/staff';
+import { roleOf } from '../src/lib/staff';
+import { canOpen } from '../src/lib/adminRoles';
 import { identityKey } from '../src/account/access';
 import { addPeriod } from '../src/billing/subscription';
 
@@ -65,9 +66,9 @@ describe('staff roles and identity', () => {
     expect(roleOf({ role: 'admin' })).toBe('admin');
     expect(roleOf({ role: 'owner' })).toBeNull();
     expect(roleOf({ admin: true })).toBeNull();
-    expect(roleAtLeast('superAdmin', 'admin')).toBe(true);
-    expect(roleAtLeast('moderator', 'admin')).toBe(false);
-    expect(roleAtLeast(null, 'moderator')).toBe(false);
+    expect(canOpen('superAdmin', 'admins')).toBe(true);
+    expect(canOpen('moderator', 'finance')).toBe(false);
+    expect(canOpen(null, 'overview')).toBe(false);
   });
   it('one set of free stages per person: same verified email gives the same key, unverified gives none', () => {
     const a = identityKey({ email: 'Ravi@Example.com', emailVerified: true });

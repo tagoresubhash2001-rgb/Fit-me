@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { bucket, db } from '../lib/admin';
 import { requireEnabled } from '../lib/features';
 import { callableOptions, requireAuth } from '../lib/callable';
-import { logAdmin, requireStaff } from '../lib/staff';
+import { logAdmin, requireSection } from '../lib/staff';
 
 /**
  * Testimonials. Workflow: pending -> approved | rejected | changes_requested; changes_requested -> pending (edit
@@ -135,7 +135,7 @@ const TO: Record<z.infer<typeof ReviewInput>['decision'], TStatus> = { approve: 
 
 /** Staff review (moderator and above). Every decision is logged; approval is the only path to public display. */
 export const reviewTestimonial = onCall(callableOptions({ timeoutSeconds: 60 }), async (req) => {
-  const actor = await requireStaff(req, 'moderator');
+  const actor = await requireSection(req, 'testimonials');
   const parsed = ReviewInput.safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
   const { id, decision, note, edits, featured } = parsed.data;

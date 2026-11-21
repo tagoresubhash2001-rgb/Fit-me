@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, LogOut, Trash2, User, Bell, ShieldCheck } from 'lucide-react';
 import { ConnectedDevices } from './ConnectedDevices';
+import { SupportCards } from './SupportCards';
 import { ProfilePhoto } from './ProfilePhoto';
 import { PermissionsSettings } from '../permissions/PermissionsSettings';
 import { AccessStageCard } from '../plans/PlanPrompts';
@@ -274,6 +275,8 @@ export default function SettingsScreen() {
             </Button>
           </Card>
         )}
+
+        <SupportCards />
 
         <Card id="about" tone="subtle" className="scroll-mt-24">
           <p className="text-small text-ink">{t('common.disclaimer')}</p>

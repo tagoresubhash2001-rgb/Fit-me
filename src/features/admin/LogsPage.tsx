@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, limit, orderBy, query, startAfter, where, type QueryDocumentSnapshot } from 'firebase/firestore';
 import { Button, Card, EmptyState, PageHeader, Skeleton } from '../../components/ui';
 import { db } from '../../lib/firebase';
-import { fmtDate } from './api';
+import { downloadCsv, fmtDate } from './api';
 import { Table, Td, inputCls } from './ui';
 
 interface Log {
@@ -28,6 +28,11 @@ export default function LogsPage() {
   const [more, setMore] = useState(false);
   const [filter, setFilter] = useState('');
   const [open, setOpen] = useState<string | null>(null);
+  const [text, setText] = useState('');
+  const shown = useMemo(() => {
+    const n = text.trim().toLowerCase();
+    return n ? rows?.filter((r) => [r.action, r.actorEmail, r.targetId, r.note].some((v) => String(v ?? '').toLowerCase().includes(n))) : rows;
+  }, [rows, text]);
   const load = useCallback(
     async (after: QueryDocumentSnapshot | null) => {
       const base = collection(db(), 'adminLogs');
@@ -53,7 +58,7 @@ export default function LogsPage() {
         actions={
           <select aria-label={t('admin.logs.filter')} value={filter} onChange={(e) => setFilter(e.target.value)} className={inputCls}>
             <option value="">{t('admin.logs.all')}</option>
-            {['user', 'testimonial', 'appConfig', 'food', 'foodSuggestion'].map((x) => (
+            {['user', 'testimonial', 'appConfig', 'food', 'foodSuggestion', 'coupon', 'page', 'announcement', 'notification', 'notifyTemplate', 'secret', 'contactMessage'].map((x) => (
               <option key={x} value={x}>
                 {t(`admin.logs.types.${x}`)}
               </option>
@@ -62,13 +67,19 @@ export default function LogsPage() {
         }
       />
       <Card>
+        <div className="mb-3 flex flex-wrap gap-2">
+          <input id="logs-search" className={`${inputCls} min-w-0 flex-1`} value={text} onChange={(e) => setText(e.target.value)} placeholder={t('admin.logs.search')} />
+          <Button variant="secondary" disabled={!shown?.length} onClick={() => downloadCsv('fitme-admin-log', (shown ?? []).map((r) => ({ when: r.at?.toMillis?.() ? new Date(r.at.toMillis()).toISOString() : '', who: r.actorEmail, role: r.actorRole, action: r.action, targetType: r.targetType, targetId: r.targetId, note: r.note ?? '', before: r.before, after: r.after })))}>
+            {t('admin.exportCsv')}
+          </Button>
+        </div>
         {!rows ? (
           <Skeleton className="h-40" />
-        ) : !rows.length ? (
+        ) : !shown?.length ? (
           <EmptyState title={t('admin.logs.empty')} />
         ) : (
           <Table label={t('admin.nav.logs')} head={[t('admin.logs.when'), t('admin.logs.who'), t('admin.logs.action'), t('admin.logs.target'), '']}>
-            {rows.map((r) => (
+            {shown.map((r) => (
               <React.Fragment key={r.id}>
                 <tr>
                   <Td className="whitespace-nowrap text-muted">{fmtDate(r.at?.toMillis?.() ?? null, i18n.language)}</Td>
