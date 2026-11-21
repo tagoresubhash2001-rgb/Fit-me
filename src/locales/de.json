@@ -384,7 +384,13 @@
     "phoneOn": "Schritte auf diesem Handy zählen",
     "phoneOff": "Zählen beenden",
     "kmKcal": "{{km}} km · {{kcal}} kcal",
-    "synced": "Schritte synchronisiert"
+    "synced": "Schritte synchronisiert",
+    "sources": {
+      "health": "Von {{app}}",
+      "cloud": "Von deiner Uhr",
+      "phone": "Von diesem Handy",
+      "manual": "Von dir eingetragen"
+    }
   },
   "workouts": {
     "editEntry": "Workout bearbeiten",
@@ -591,7 +597,9 @@
       "welcome_other": "Dein Welcome Unlock endet in {{count}} Tagen ({{date}}). Dann beginnt dein kostenloser Test.",
       "trial_one": "Dein kostenloser Test endet morgen ({{date}}). Wähle einen Tarif, um die Premium-Funktionen zu behalten.",
       "trial_other": "Dein kostenloser Test endet in {{count}} Tagen ({{date}}). Wähle einen Tarif, um die Premium-Funktionen zu behalten."
-    }
+    },
+    "freeLaunchTitle": "Zum Start ist alles kostenlos",
+    "freeLaunchBody": "Alle FitMe-Funktionen sind gerade kostenlos für dich. Vor jeder Änderung sagen wir dir in der App Bescheid."
   },
   "photo": {
     "add": "Profilfoto hinzufügen",
@@ -758,6 +766,102 @@
       "denied": "Der Standortzugriff ist aus. Erlaube ihn unter Einstellungen, Berechtigungen.",
       "unsupported": "Der Standort ist auf diesem Gerät nicht verfügbar.",
       "unavailable": "Noch kein GPS-Signal. Versuche es draußen mit freier Sicht auf den Himmel."
+    },
+    "noticeTitle": "FitMe zeichnet deine Route auf",
+    "noticeBody": "Tippe, um zu deinem Training zurückzukehren."
+  },
+  "coupon": {
+    "label": "Rabattcode",
+    "apply": "Einlösen",
+    "newPrice": "{{price}} statt {{before}}",
+    "note": "Der Rabatt gilt, sobald Zahlungen starten. Codes werden für dein Land, deinen Tarif und den Zeitraum geprüft.",
+    "reasons": {
+      "not_found": "Dieser Code ist ungültig.",
+      "inactive": "Dieser Code ist nicht mehr aktiv.",
+      "not_started": "Dieser Code ist noch nicht aktiv.",
+      "expired": "Dieser Code ist abgelaufen.",
+      "not_for_market": "Dieser Code gilt nicht in deinem Land.",
+      "not_for_plan": "Dieser Code gilt nicht für diesen Tarif.",
+      "not_for_period": "Dieser Code gilt nicht für diesen Abrechnungszeitraum.",
+      "used_up": "Dieser Code ist aufgebraucht.",
+      "already_used": "Du hast diesen Code bereits verwendet.",
+      "failed": "Der Code konnte nicht geprüft werden. Versuche es erneut."
     }
+  },
+  "diagnostics": {
+    "title": "Diagnose senden",
+    "body": "Sendet einen technischen Bericht an den FitMe-Support: App-Version, Berechtigungen, verbundene Schritt- und Gesundheitsquellen, letzte Synchronisierung und aktuelle Fehler. Es werden keine Gesundheitswerte gesendet.",
+    "send": "Diagnose senden",
+    "sent": "Bericht gesendet. Danke.",
+    "failed": "Der Bericht konnte nicht gesendet werden. Prüfe deine Verbindung und versuche es erneut.",
+    "reference": "Referenz {{id}}"
+  },
+  "gates": {
+    "maintenanceTitle": "FitMe wird aktualisiert",
+    "maintenanceBody": "Wir nehmen Verbesserungen vor. Bitte versuche es gleich noch einmal.",
+    "updateTitle": "FitMe aktualisieren",
+    "updateBody": "Diese FitMe-Version wird nicht mehr unterstützt. Aktualisiere auf die neueste Version, um fortzufahren.",
+    "update": "Jetzt aktualisieren"
+  },
+  "help": {
+    "title": "Hilfe und Kontakt",
+    "entryBody": "Antworten auf häufige Fragen, oder schreib uns eine Nachricht.",
+    "faq": "Fragen und Antworten",
+    "noArticles": "Hilfeartikel erscheinen hier.",
+    "openPage": "Als Seite öffnen",
+    "contactTitle": "Kontakt",
+    "contactBody": "Sag uns, was du brauchst. Wir antworten in der App.",
+    "topic": "Thema",
+    "message": "Nachricht",
+    "send": "Nachricht senden",
+    "sent": "Nachricht gesendet. Wir antworten in der App.",
+    "failed": "Die Nachricht konnte nicht gesendet werden. Prüfe deine Verbindung und versuche es erneut.",
+    "orEmail": "Oder schreib uns an {{email}}."
+  },
+  "support": {
+    "topics": {
+      "help": "Frage",
+      "bug": "Etwas funktioniert nicht",
+      "billing": "Tarife und Zahlungen",
+      "feedback": "Feedback",
+      "other": "Sonstiges"
+    }
+  },
+  "inbox": {
+    "title": "Nachrichten",
+    "titleUnread_one": "Nachrichten, {{count}} neu",
+    "titleUnread_other": "Nachrichten, {{count}} neu",
+    "empty": "Noch keine Nachrichten",
+    "delete": "Nachricht löschen"
+  },
+  "pages": {
+    "notFound": "Seite nicht gefunden",
+    "notFoundBody": "Diese Seite gibt es nicht oder sie ist nicht veröffentlicht."
+  },
+  "stepsHelp": {
+    "title": "Schritte werden nicht aktualisiert?",
+    "subtitle": "Prüfe Berechtigungen, Verbindungen und Akkueinstellungen.",
+    "subtitleNone": "Heute noch keine Schritte. Prüfe, was eingerichtet ist.",
+    "check": "Prüfen",
+    "checks": {
+      "motion": "Berechtigung für körperliche Aktivität",
+      "health": "Health Connect oder Apple Health",
+      "battery": "Akkueinstellungen",
+      "sync": "Letzte Synchronisierung"
+    },
+    "motionOk": "Erlaubt. Dieses Handy zählt deine Schritte.",
+    "motionOff": "Erlaubt, aber das Schrittzählen auf diesem Handy ist aus.",
+    "motionDenied": "FitMe darf deine körperliche Aktivität nicht nutzen. Erlaube es, damit dieses Handy deine Schritte zählt.",
+    "motionUnsupported": "Dieses Handy hat keinen Schrittsensor. Verbinde eine Uhr über Health Connect oder Apple Health.",
+    "healthOk": "{{app}} ist verbunden.",
+    "healthOff": "{{app}} ist nicht verbunden. Verbinde es, um Schritte von deiner Uhr und anderen Apps zu übernehmen.",
+    "healthMissing": "Health Connect ist nicht installiert. Installiere es über Google Play, um deine Uhr zu synchronisieren.",
+    "healthKitMissing": "Apple Health ist auf diesem Gerät nicht verfügbar.",
+    "openHealth": "{{app}} öffnen",
+    "batteryOn": "Energiesparen kann die Schritt-Synchronisierung verzögern, wenn FitMe geschlossen ist. Nimm FitMe von der Akku-Optimierung aus.",
+    "batteryOk": "Die Akkueinstellungen passen.",
+    "batteryFix": "Akkueinstellungen öffnen",
+    "lastSync": "Zuletzt synchronisiert {{when}}.",
+    "neverSynced": "Noch nicht synchronisiert."
   }
 }

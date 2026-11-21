@@ -384,7 +384,13 @@
     "phoneOn": "Contar pasos en este móvil",
     "phoneOff": "Dejar de contar",
     "kmKcal": "{{km}} km · {{kcal}} kcal",
-    "synced": "Pasos sincronizados"
+    "synced": "Pasos sincronizados",
+    "sources": {
+      "health": "De {{app}}",
+      "cloud": "De tu reloj",
+      "phone": "De este móvil",
+      "manual": "Añadido por ti"
+    }
   },
   "workouts": {
     "editEntry": "Editar entrenamiento",
@@ -591,7 +597,9 @@
       "welcome_other": "Tu Welcome Unlock termina en {{count}} días ({{date}}). Entonces empieza tu prueba gratuita.",
       "trial_one": "Tu prueba gratuita termina mañana ({{date}}). Elige un plan para conservar las funciones premium.",
       "trial_other": "Tu prueba gratuita termina en {{count}} días ({{date}}). Elige un plan para conservar las funciones premium."
-    }
+    },
+    "freeLaunchTitle": "Todo es gratis durante el lanzamiento",
+    "freeLaunchBody": "Ahora todas las funciones de FitMe son gratis para ti. Te avisaremos en la app antes de cualquier cambio."
   },
   "photo": {
     "add": "Añadir foto de perfil",
@@ -758,6 +766,102 @@
       "denied": "El acceso a la ubicación está desactivado. Permítelo en Ajustes, Permisos.",
       "unsupported": "La ubicación no está disponible en este dispositivo.",
       "unavailable": "Aún no hay señal GPS. Prueba al aire libre con el cielo despejado."
+    },
+    "noticeTitle": "FitMe está registrando tu ruta",
+    "noticeBody": "Toca para volver a tu entrenamiento."
+  },
+  "coupon": {
+    "label": "Código de descuento",
+    "apply": "Aplicar",
+    "newPrice": "{{price}} en vez de {{before}}",
+    "note": "El descuento se aplica cuando se abran los pagos. Los códigos se comprueban según tu país, plan y periodo.",
+    "reasons": {
+      "not_found": "Este código no es válido.",
+      "inactive": "Este código ya no está activo.",
+      "not_started": "Este código aún no está activo.",
+      "expired": "Este código ha caducado.",
+      "not_for_market": "Este código no es válido en tu país.",
+      "not_for_plan": "Este código no es válido para este plan.",
+      "not_for_period": "Este código no es válido para este periodo de facturación.",
+      "used_up": "Este código ya se ha agotado.",
+      "already_used": "Ya has usado este código.",
+      "failed": "No se pudo comprobar el código. Inténtalo de nuevo."
     }
+  },
+  "diagnostics": {
+    "title": "Enviar diagnóstico",
+    "body": "Envía un informe técnico al soporte de FitMe: versión de la app, permisos, fuentes de pasos y salud conectadas, última sincronización y errores recientes. No se envían valores de salud.",
+    "send": "Enviar diagnóstico",
+    "sent": "Informe enviado. Gracias.",
+    "failed": "No se pudo enviar el informe. Revisa tu conexión e inténtalo de nuevo.",
+    "reference": "Referencia {{id}}"
+  },
+  "gates": {
+    "maintenanceTitle": "FitMe se está actualizando",
+    "maintenanceBody": "Estamos haciendo mejoras. Vuelve a intentarlo en un rato.",
+    "updateTitle": "Actualiza FitMe",
+    "updateBody": "Esta versión de FitMe ya no es compatible. Actualiza a la última versión para continuar.",
+    "update": "Actualizar ahora"
+  },
+  "help": {
+    "title": "Ayuda y contacto",
+    "entryBody": "Respuestas a preguntas frecuentes o envíanos un mensaje.",
+    "faq": "Preguntas y respuestas",
+    "noArticles": "Aquí aparecerán los artículos de ayuda.",
+    "openPage": "Abrir como página",
+    "contactTitle": "Contáctanos",
+    "contactBody": "Cuéntanos qué necesitas. Respondemos en la app.",
+    "topic": "Tema",
+    "message": "Mensaje",
+    "send": "Enviar mensaje",
+    "sent": "Mensaje enviado. Te responderemos en la app.",
+    "failed": "No se pudo enviar el mensaje. Revisa tu conexión e inténtalo de nuevo.",
+    "orEmail": "O escríbenos a {{email}}."
+  },
+  "support": {
+    "topics": {
+      "help": "Pregunta",
+      "bug": "Algo no funciona",
+      "billing": "Planes y pagos",
+      "feedback": "Comentarios",
+      "other": "Otro"
+    }
+  },
+  "inbox": {
+    "title": "Mensajes",
+    "titleUnread_one": "Mensajes, {{count}} nuevo",
+    "titleUnread_other": "Mensajes, {{count}} nuevos",
+    "empty": "Aún no hay mensajes",
+    "delete": "Eliminar mensaje"
+  },
+  "pages": {
+    "notFound": "Página no encontrada",
+    "notFoundBody": "Esta página no existe o no está publicada."
+  },
+  "stepsHelp": {
+    "title": "¿No se actualizan los pasos?",
+    "subtitle": "Revisa permisos, conexiones y ajustes de batería.",
+    "subtitleNone": "Aún no hay pasos hoy. Revisa la configuración.",
+    "check": "Revisar",
+    "checks": {
+      "motion": "Permiso de actividad física",
+      "health": "Health Connect o Apple Health",
+      "battery": "Ajustes de batería",
+      "sync": "Última sincronización"
+    },
+    "motionOk": "Permitido. Este móvil cuenta tus pasos.",
+    "motionOff": "Permitido, pero el conteo de pasos en este móvil está desactivado.",
+    "motionDenied": "FitMe no tiene permiso para usar tu actividad física. Permítelo para que este móvil cuente tus pasos.",
+    "motionUnsupported": "Este móvil no tiene sensor de pasos. Conecta un reloj con Health Connect o Apple Health.",
+    "healthOk": "{{app}} está conectado.",
+    "healthOff": "{{app}} no está conectado. Conéctalo para traer pasos de tu reloj y otras apps.",
+    "healthMissing": "Health Connect no está instalado. Instálalo desde Google Play para sincronizar tu reloj.",
+    "healthKitMissing": "Apple Health no está disponible en este dispositivo.",
+    "openHealth": "Abrir {{app}}",
+    "batteryOn": "El ahorro de batería puede retrasar la sincronización de pasos con FitMe cerrado. Excluye FitMe de la optimización de batería.",
+    "batteryOk": "Los ajustes de batería están bien.",
+    "batteryFix": "Abrir ajustes de batería",
+    "lastSync": "Última sincronización {{when}}.",
+    "neverSynced": "Aún sin sincronizar."
   }
 }

@@ -22,7 +22,7 @@ export default function StringsEditor() {
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
   const o = useAction<StringOverrides>('strings.get', {});
-  const overrides = o.data?.strings[lang] ?? {};
+  const overrides = useMemo(() => o.data?.strings[lang] ?? {}, [o.data, lang]);
   const rows = useMemo(() => {
     const n = q.trim().toLowerCase();
     const list = n ? ALL.filter(([k, v]) => k.toLowerCase().includes(n) || v.toLowerCase().includes(n) || (overrides[k] ?? '').toLowerCase().includes(n)) : ALL.filter(([k]) => k in overrides);

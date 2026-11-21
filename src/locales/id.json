@@ -384,7 +384,13 @@
     "phoneOn": "Hitung langkah di ponsel ini",
     "phoneOff": "Hentikan penghitungan",
     "kmKcal": "{{km}} km · {{kcal}} kcal",
-    "synced": "Langkah disinkronkan"
+    "synced": "Langkah disinkronkan",
+    "sources": {
+      "health": "Dari {{app}}",
+      "cloud": "Dari jam tanganmu",
+      "phone": "Dari ponsel ini",
+      "manual": "Ditambahkan olehmu"
+    }
   },
   "workouts": {
     "editEntry": "Ubah latihan",
@@ -591,7 +597,9 @@
       "welcome_other": "Welcome Unlock berakhir dalam {{count}} hari ({{date}}). Uji coba gratismu dimulai saat itu.",
       "trial_one": "Uji coba gratismu berakhir besok ({{date}}). Pilih paket untuk mempertahankan fitur premium.",
       "trial_other": "Uji coba gratismu berakhir dalam {{count}} hari ({{date}}). Pilih paket untuk mempertahankan fitur premium."
-    }
+    },
+    "freeLaunchTitle": "Semua gratis selama peluncuran",
+    "freeLaunchBody": "Semua fitur FitMe gratis untukmu sekarang. Kami akan memberi tahu di aplikasi sebelum ada perubahan."
   },
   "photo": {
     "add": "Tambah foto profil",
@@ -758,6 +766,102 @@
       "denied": "Akses lokasi mati. Izinkan di Pengaturan, Izin.",
       "unsupported": "Lokasi tidak tersedia di perangkat ini.",
       "unavailable": "Belum ada sinyal GPS. Coba di luar ruangan dengan langit terbuka."
+    },
+    "noticeTitle": "FitMe sedang merekam rutemu",
+    "noticeBody": "Ketuk untuk kembali ke latihanmu."
+  },
+  "coupon": {
+    "label": "Kode diskon",
+    "apply": "Terapkan",
+    "newPrice": "{{price}} bukan {{before}}",
+    "note": "Diskon berlaku saat pembayaran dibuka. Kode diperiksa untuk negara, paket, dan periodemu.",
+    "reasons": {
+      "not_found": "Kode ini tidak valid.",
+      "inactive": "Kode ini sudah tidak aktif.",
+      "not_started": "Kode ini belum aktif.",
+      "expired": "Kode ini sudah kedaluwarsa.",
+      "not_for_market": "Kode ini tidak berlaku di negaramu.",
+      "not_for_plan": "Kode ini tidak berlaku untuk paket ini.",
+      "not_for_period": "Kode ini tidak berlaku untuk periode tagihan ini.",
+      "used_up": "Kode ini sudah habis dipakai.",
+      "already_used": "Kamu sudah memakai kode ini.",
+      "failed": "Kode tidak bisa diperiksa. Coba lagi."
     }
+  },
+  "diagnostics": {
+    "title": "Kirim diagnostik",
+    "body": "Mengirim laporan teknis ke dukungan FitMe: versi aplikasi, izin, sumber langkah dan kesehatan yang terhubung, sinkronisasi terakhir, dan error terbaru. Tidak ada nilai kesehatan yang dikirim.",
+    "send": "Kirim diagnostik",
+    "sent": "Laporan terkirim. Terima kasih.",
+    "failed": "Laporan tidak bisa dikirim. Periksa koneksimu dan coba lagi.",
+    "reference": "Referensi {{id}}"
+  },
+  "gates": {
+    "maintenanceTitle": "FitMe sedang diperbarui",
+    "maintenanceBody": "Kami sedang melakukan perbaikan. Coba lagi sebentar lagi.",
+    "updateTitle": "Perbarui FitMe",
+    "updateBody": "Versi FitMe ini sudah tidak didukung. Perbarui ke versi terbaru untuk melanjutkan.",
+    "update": "Perbarui sekarang"
+  },
+  "help": {
+    "title": "Bantuan dan kontak",
+    "entryBody": "Jawaban untuk pertanyaan umum, atau kirimi kami pesan.",
+    "faq": "Tanya jawab",
+    "noArticles": "Artikel bantuan akan muncul di sini.",
+    "openPage": "Buka sebagai halaman",
+    "contactTitle": "Hubungi kami",
+    "contactBody": "Ceritakan apa yang kamu perlukan. Kami membalas di aplikasi.",
+    "topic": "Topik",
+    "message": "Pesan",
+    "send": "Kirim pesan",
+    "sent": "Pesan terkirim. Kami akan membalas di aplikasi.",
+    "failed": "Pesan tidak bisa dikirim. Periksa koneksimu dan coba lagi.",
+    "orEmail": "Atau email kami di {{email}}."
+  },
+  "support": {
+    "topics": {
+      "help": "Pertanyaan",
+      "bug": "Ada yang tidak berfungsi",
+      "billing": "Paket dan pembayaran",
+      "feedback": "Masukan",
+      "other": "Lainnya"
+    }
+  },
+  "inbox": {
+    "title": "Pesan",
+    "titleUnread_one": "Pesan, {{count}} baru",
+    "titleUnread_other": "Pesan, {{count}} baru",
+    "empty": "Belum ada pesan",
+    "delete": "Hapus pesan"
+  },
+  "pages": {
+    "notFound": "Halaman tidak ditemukan",
+    "notFoundBody": "Halaman ini tidak ada atau belum diterbitkan."
+  },
+  "stepsHelp": {
+    "title": "Langkah tidak diperbarui?",
+    "subtitle": "Periksa izin, koneksi, dan pengaturan baterai.",
+    "subtitleNone": "Belum ada langkah hari ini. Periksa apa yang sudah diatur.",
+    "check": "Periksa",
+    "checks": {
+      "motion": "Izin aktivitas fisik",
+      "health": "Health Connect atau Apple Health",
+      "battery": "Pengaturan baterai",
+      "sync": "Sinkronisasi terakhir"
+    },
+    "motionOk": "Diizinkan. Ponsel ini menghitung langkahmu.",
+    "motionOff": "Diizinkan, tetapi penghitungan langkah di ponsel ini mati.",
+    "motionDenied": "FitMe tidak diizinkan memakai aktivitas fisikmu. Izinkan agar ponsel ini bisa menghitung langkahmu.",
+    "motionUnsupported": "Ponsel ini tidak punya sensor langkah. Hubungkan jam tangan lewat Health Connect atau Apple Health.",
+    "healthOk": "{{app}} terhubung.",
+    "healthOff": "{{app}} belum terhubung. Hubungkan untuk mengambil langkah dari jam tangan dan aplikasi lain.",
+    "healthMissing": "Health Connect belum terpasang. Pasang dari Google Play untuk menyinkronkan jam tanganmu.",
+    "healthKitMissing": "Apple Health tidak tersedia di perangkat ini.",
+    "openHealth": "Buka {{app}}",
+    "batteryOn": "Penghemat baterai bisa menunda sinkronisasi langkah saat FitMe ditutup. Kecualikan FitMe dari optimasi baterai.",
+    "batteryOk": "Pengaturan baterai sudah baik.",
+    "batteryFix": "Buka pengaturan baterai",
+    "lastSync": "Terakhir disinkronkan {{when}}.",
+    "neverSynced": "Belum disinkronkan."
   }
 }
