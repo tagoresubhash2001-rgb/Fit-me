@@ -287,4 +287,17 @@ describe('admin data', () => {
     await seed('userStatus/alice', { disabled: true });
     await assertSucceeds(getDoc(doc(alice(), 'userStatus/alice')));
   });
+  it('wearable links and server config are server-only (no client read or write, not even staff)', async () => {
+    await seed('wearableLinks/alice', { uid: 'alice', owUserId: 'ow-1' });
+    await seed('serverConfig/openWearables', { baseUrl: 'https://ow.example' });
+    await assertFails(getDoc(doc(alice(), 'wearableLinks/alice')));
+    await assertFails(setDoc(doc(alice(), 'wearableLinks/alice'), { owUserId: 'other' }));
+    await assertFails(getDoc(doc(staffCtx('sa', 'superAdmin'), 'serverConfig/openWearables')));
+    await assertFails(setDoc(doc(alice(), 'serverConfig/openWearables'), { baseUrl: 'https://evil.example' }));
+  });
+  it('cloud wearable days are readable only by their owner', async () => {
+    await seed('users/alice/healthDaily/cloud-2026-11-20', { uid: 'alice', steps: 9000 });
+    await assertSucceeds(getDoc(doc(alice(), 'users/alice/healthDaily/cloud-2026-11-20')));
+    await assertFails(getDoc(doc(bob(), 'users/alice/healthDaily/cloud-2026-11-20')));
+  });
 });
