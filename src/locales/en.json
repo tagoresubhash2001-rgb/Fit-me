@@ -1162,10 +1162,9 @@
       "ended": "Free plan"
     },
     "stats": {
-      "totalUsers": "Users",
+      "totalUsers": "Registered users",
       "active30d": "Active in the last 30 days",
       "deactivated": "Deactivated",
-      "authAccounts": "Sign-in accounts",
       "welcome": "In Welcome Unlock",
       "trial": "In free trial",
       "ended": "Free period ended",
@@ -1177,7 +1176,8 @@
       "revenue": "Revenue (verified payments)",
       "noRevenue": "No verified payments yet. Revenue appears here once payments go live.",
       "recentRegistrations": "Recent sign-ups",
-      "recentActivity": "Recent admin activity"
+      "recentActivity": "Recent admin activity",
+      "onboarded": "Finished onboarding"
     },
     "users": {
       "search": "Search by email, phone, name or user ID",

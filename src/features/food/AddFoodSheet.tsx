@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Search, Plus, Trash2, Lock, AlertTriangle, Calculator, Camera } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ScanFood } from './ScanFood';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../../lib/firebase';
 import { useFeatures } from '../../data/appConfig';
 import { Button, Card, EmptyState, Input, Sheet, Skeleton, Tabs, Badge, SwipeRow, toast } from '../../components/ui';
 import { AllergyWarning, QuantityEditor, quantityResult, useUnitOptions, type QuantityState } from './QuantityEditor';
@@ -432,6 +434,8 @@ export function AddFoodSheet({
             initial={manualInitial}
             onSave={async (c) => {
               const id = await createRecord('customFoods', c, c.origin === 'ai' ? { source: 'ai' } : undefined);
+              // AI-estimated foods go to the review queue (admin, Food database) once the write has synced.
+              if (c.origin === 'ai') setTimeout(() => void httpsCallable(functions(), 'reportAiFood')({ customFoodId: id }).catch(() => undefined), 3000);
               doAdd({
                 foodId: id,
                 name: c.name,

@@ -7,7 +7,7 @@ import { cn } from '../../components/ui/cn';
 export function Table({ head, children, label }: { head: React.ReactNode[]; children: React.ReactNode; label: string }) {
   return (
     <div className="-mx-4 overflow-x-auto px-4">
-      <table className="w-full min-w-[640px] border-collapse text-start text-small" aria-label={label}>
+      <table className="w-max min-w-full border-collapse text-start text-small" aria-label={label}>
         <thead>
           <tr className="border-b border-line text-caption text-muted">
             {head.map((h, i) => (

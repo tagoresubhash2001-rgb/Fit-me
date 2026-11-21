@@ -5,7 +5,7 @@ import { call, errorCode, fmtDate } from './api';
 
 interface OverviewData {
   totalUsers: number;
-  authAccounts: number;
+  onboardedProfiles: number;
   activeUsers30d: number;
   deactivatedUsers: number;
   stages: { welcome: number; trial: number; ended: number; notEligible: number };
@@ -44,7 +44,7 @@ export default function Overview() {
         <Stat id="stat-users" label={t('admin.stats.totalUsers')} value={n(data.totalUsers)} />
         <Stat label={t('admin.stats.active30d')} value={n(data.activeUsers30d)} />
         <Stat label={t('admin.stats.deactivated')} value={n(data.deactivatedUsers)} />
-        <Stat label={t('admin.stats.authAccounts')} value={n(data.authAccounts)} />
+        <Stat label={t('admin.stats.onboarded')} value={n(data.onboardedProfiles)} />
         <Stat label={t('admin.stats.welcome')} value={n(data.stages.welcome)} />
         <Stat label={t('admin.stats.trial')} value={n(data.stages.trial)} />
         <Stat label={t('admin.stats.ended')} value={n(data.stages.ended)} />

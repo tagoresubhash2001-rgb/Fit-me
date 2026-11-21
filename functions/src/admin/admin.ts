@@ -1,10 +1,9 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
-import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import type { UserRecord } from 'firebase-admin/auth';
 import { z } from 'zod';
 import { adminAuth, db } from '../lib/admin';
-import { callableOptions } from '../lib/callable';
+import { callableOptions, requireAuth } from '../lib/callable';
 import { logAdmin, requireStaff, roleOf, ROLES, type Role } from '../lib/staff';
 import { AccessConfig, buildAccess, stageAt } from '../lib/access';
 import { AppSettings, ContentConfig, FeatureFlags, PlanCatalog } from '../lib/appConfig';
@@ -61,8 +60,8 @@ export const adminOverview = onCall(opts, async (req) => {
   }
   const logs = await db().collection('adminLogs').orderBy('at', 'desc').limit(10).get();
   return {
-    totalUsers,
-    authAccounts: scanned,
+    totalUsers: scanned,
+    onboardedProfiles: totalUsers,
     activeUsers30d: active30,
     deactivatedUsers: deactivated,
     stages: { welcome, trial: trialOrWelcome - welcome, ended: accessTotal - trialOrWelcome - notEligible, notEligible },
@@ -406,11 +405,20 @@ export const adminReviewFoodSuggestion = onCall(opts, async (req) => {
   return after;
 });
 
-/** A user saved an AI-estimated food: queue a copy (no personal data beyond the uid) for review. */
-export const onCustomFoodCreated = onDocumentCreated({ document: 'users/{uid}/customFoods/{id}', region: 'asia-south1' }, async (e) => {
-  const d = e.data?.data();
-  if (!d || d.origin !== 'ai') return;
-  await db()
-    .doc(`foodSuggestions/${e.params.uid}_${e.params.id}`)
-    .set({ uid: e.params.uid, customFoodId: e.params.id, name: String(d.name ?? '').slice(0, 120), servingLabel: d.servingLabel ?? null, grams: d.grams ?? null, nutrients: d.nutrients ?? null, status: 'pending', createdAt: FieldValue.serverTimestamp() });
+/**
+ * The app reports a custom food the user saved from an AI estimate. The server reads the user's own document
+ * (it must exist and be marked origin "ai") and queues a copy for review; nothing from the request is trusted.
+ */
+export const reportAiFood = onCall(callableOptions(), async (req) => {
+  const uid = await requireAuth(req);
+  const parsed = z.object({ customFoodId: z.string().regex(/^[A-Za-z0-9_-]{6,40}$/) }).safeParse(req.data);
+  if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
+  const id = parsed.data.customFoodId;
+  const snap = await db().doc(`users/${uid}/customFoods/${id}`).get();
+  const d = snap.data();
+  if (!d || d.origin !== 'ai') throw new HttpsError('failed-precondition', 'not_ai_food');
+  const ref = db().doc(`foodSuggestions/${uid}_${id}`);
+  if ((await ref.get()).exists) return { queued: false };
+  await ref.set({ uid, customFoodId: id, name: String(d.name ?? '').slice(0, 120), servingLabel: d.servingLabel ?? null, grams: d.grams ?? null, nutrients: d.nutrients ?? null, status: 'pending', createdAt: FieldValue.serverTimestamp() });
+  return { queued: true };
 });

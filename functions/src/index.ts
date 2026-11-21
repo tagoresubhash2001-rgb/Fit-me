@@ -29,5 +29,5 @@ export {
   adminSaveAccess,
   adminSaveFood,
   adminReviewFoodSuggestion,
-  onCustomFoodCreated,
+  reportAiFood,
 } from './admin/admin';

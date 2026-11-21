@@ -76,7 +76,7 @@ function Cropper({ file, onCancel, onSaved }: { file: Blob; onCancel: () => void
           style={natural ? { width: natural.w * scale, height: natural.h * scale, transform: `translate(calc(-50% + ${off.x}px), calc(-50% + ${off.y}px))` } : { opacity: 0 }}
         />
       </div>
-      <label className="flex w-full max-w-[260px] flex-col gap-1 text-small text-muted">
+      <label className="flex w-full flex-col gap-1 text-small text-muted" style={{ maxWidth: BOX }}>
         {t('photo.zoom')}
         <input
           type="range"
