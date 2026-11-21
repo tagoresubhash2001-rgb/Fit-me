@@ -43,3 +43,22 @@ describe('device sync helpers', () => {
     expect(workoutName('RUNNING')).toBe('Running');
   });
 });
+
+describe('sleep stages', () => {
+  it('adds up minutes per stage for the night', async () => {
+    const { sleepStageMinutes } = await import('../healthSync');
+    const night = { date: '2026-11-21', startMinutes: 0, endMinutes: 0, durationMin: 0 };
+    const m = sleepStageMinutes(
+      [
+        { startDate: '2026-11-20T17:00:00.000Z', endDate: '2026-11-20T18:00:00.000Z', state: 'light' },
+        { startDate: '2026-11-20T18:00:00.000Z', endDate: '2026-11-20T19:30:00.000Z', state: 'deep' },
+        { startDate: '2026-11-20T19:30:00.000Z', endDate: '2026-11-20T19:40:00.000Z', state: 'awake' },
+        { startDate: '2026-11-20T19:40:00.000Z', endDate: '2026-11-20T20:10:00.000Z', state: 'rem' },
+        { startDate: '2026-11-19T19:40:00.000Z', endDate: '2026-11-19T20:10:00.000Z', state: 'rem' },
+      ],
+      night,
+      'Asia/Kolkata',
+    );
+    expect(m).toEqual({ sleep_light: 60, sleep_deep: 90, sleep_awake: 10, sleep_rem: 30 });
+  });
+});

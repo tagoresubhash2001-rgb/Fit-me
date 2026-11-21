@@ -234,14 +234,18 @@ export class FoodIndex {
         const matched = arr.filter((x) => x > 0).length;
         if (matched < need - allowMissing) continue;
         const e = this.entries[i];
-        let score = arr.reduce((a, b) => a + b, 0) / need;
+        const quality = arr.reduce((a, b) => a + b, 0) / need;
+        // Country and dataset boosts count in proportion to how well the words matched, so a weak fuzzy match
+        // of a local dish never outranks an exact match from elsewhere.
+        const weight = quality * quality;
+        let score = quality;
         if (e.phrases.includes(qNorm)) score += e.nameNorm === qNorm ? 1 : 0.8;
         else if (e.nameNorm.startsWith(qNorm)) score += 0.25;
         else if (e.phrases.some((p) => p.startsWith(`${qNorm} `))) score += 0.2;
         if (e.firstToken === fold(qWords[0])) score += 0.15;
-        if (opts.country && e.food.countries?.length) score += e.food.countries.includes(opts.country) ? 0.5 : -0.15;
+        if (opts.country && e.food.countries?.length) score += e.food.countries.includes(opts.country) ? 0.5 * weight : -0.15;
         if (opts.language && e.food.names?.[opts.language] && normalize(e.food.names[opts.language]).includes(qNorm)) score += 0.2;
-        score += (e.food.rank ?? 50) / 250;
+        score += ((e.food.rank ?? 50) / 250) * weight;
         score -= Math.min(0.35, words(e.food.name).length / 28);
         if (matched < need) score -= 0.6;
         out.push({ i, score });

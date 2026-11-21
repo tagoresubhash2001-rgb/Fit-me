@@ -7,13 +7,20 @@ import { db, isEmulator } from './admin';
  */
 export const ENFORCE_APP_CHECK = false;
 
-/** Cost safety: at most this many instances per function (PRD section 13, per-user rate limits still apply). */
-export const MAX_INSTANCES = 5;
+/**
+ * Cost and quota safety: at most this many instances per function (per-user rate limits still apply). With many
+ * functions, a full vCPU each for several instances exceeds the project's regional CPU quota, so functions run
+ * on fractional CPU (one request at a time per instance). Raise both for production traffic.
+ */
+export const MAX_INSTANCES = 2;
+/** Fractional CPU sized to the memory (gen-1 style), counted much lower against the regional CPU quota. */
+export const LIGHT_CPU = 'gcf_gen1' as const;
 
 /** Shared options for every callable. */
 export const callableOptions = (extra: Partial<CallableOptions> = {}): CallableOptions => ({
   region: 'asia-south1',
   maxInstances: MAX_INSTANCES,
+  cpu: LIGHT_CPU,
   enforceAppCheck: ENFORCE_APP_CHECK && !isEmulator(),
   consumeAppCheckToken: false,
   ...extra,

@@ -75,3 +75,18 @@ export function workoutName(type: string): string {
     .toLowerCase();
   return words ? words[0].toUpperCase() + words.slice(1) : 'Workout';
 }
+
+/**
+ * Minutes in each sleep stage (deep, light, rem, awake) for one night. A segment belongs to the night you wake up
+ * from: its end time shifted by six hours gives that date (22:30 on the 20th counts towards the night of the 21st).
+ */
+export function sleepStageMinutes(segments: Array<{ startDate: string; endDate: string; state?: string }>, night: SleepNight, tz: string): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const s of segments) {
+    const end = new Date(s.endDate).getTime();
+    if (!s.state || !['deep', 'light', 'rem', 'awake'].includes(s.state) || localDate(end + 6 * 3600_000, tz) !== night.date) continue;
+    const min = Math.round((end - new Date(s.startDate).getTime()) / 60000);
+    if (min > 0) out[`sleep_${s.state}`] = (out[`sleep_${s.state}`] ?? 0) + min;
+  }
+  return out;
+}

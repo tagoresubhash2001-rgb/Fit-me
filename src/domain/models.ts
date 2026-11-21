@@ -91,6 +91,10 @@ export const WorkoutLog = BaseRecord.extend({
   durationMin: z.number().min(0).max(1440),
   sets: z.array(WorkoutSet).max(200),
   caloriesEst: z.number().min(0).max(5000),
+  /** GPS-tracked walks, runs and rides (RouteTracker). */
+  activity: z.enum(['walk', 'run', 'ride']).optional(),
+  distanceKm: z.number().min(0).max(1000).optional(),
+  route: z.array(z.object({ lat: z.number(), lng: z.number() })).max(400).optional(),
 });
 export type WorkoutLog = z.infer<typeof WorkoutLog>;
 

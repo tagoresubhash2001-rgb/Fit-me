@@ -8,6 +8,7 @@ import { functions } from '../../lib/firebase';
 import { isNative } from '../../lib/platform';
 import { ImageInputError, pickNativePhoto, prepareImage, type PreparedImage } from '../../lib/image';
 import { createRecord } from '../../data/records';
+import { useAskPermission } from '../permissions/PermissionPrimer';
 import { useSession } from '../../data/session';
 import { displayName, scaleNutrients, sumNutrients, type FoodItem } from '../../domain/nutrition';
 import type { MealSlot, Nutrients } from '../../domain/models';
@@ -107,6 +108,7 @@ function Webcam({ onShot, onClose }: { onShot: (b: Blob) => void; onClose: (erro
 export function ScanFood({ slot, date, onDone }: { slot: MealSlot; date: string; onDone: () => void }) {
   const { t, i18n } = useTranslation();
   const profile = useSession((s) => s.profile);
+  const ask = useAskPermission();
   const [stage, setStage] = useState<'pick' | 'webcam' | 'working' | 'review'>('pick');
   const [preview, setPreview] = useState<string | null>(null);
   const [result, setResult] = useState<ScanResult | null>(null);
@@ -164,6 +166,10 @@ export function ScanFood({ slot, date, onDone }: { slot: MealSlot; date: string;
 
   const take = async () => {
     setError(null);
+    if (isNative() || wantsWebcam()) {
+      const cam = await ask('camera');
+      if (cam === 'blocked' || cam === 'denied') return fail('permission_denied');
+    }
     if (isNative()) {
       try {
         const b = await pickNativePhoto('camera');
@@ -177,6 +183,8 @@ export function ScanFood({ slot, date, onDone }: { slot: MealSlot; date: string;
   const choose = async () => {
     setError(null);
     if (isNative()) {
+      const ph = await ask('photos');
+      if (ph === 'blocked' || ph === 'denied') return fail('permission_denied');
       try {
         const b = await pickNativePhoto('photos');
         if (b) void analyse(b);

@@ -1,7 +1,8 @@
+import { RouteTracker } from './RouteTracker';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, limit, query } from 'firebase/firestore';
-import { Play, Pause, Plus, Trash2, Timer, Search, Lock, Dumbbell } from 'lucide-react';
+import { Play, Pause, Plus, Trash2, Timer, Search, Lock, Dumbbell, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
   Button,
@@ -69,6 +70,7 @@ const CATEGORIES = ['all', 'strength', 'bodyweight', 'cardio', 'hiit', 'walking'
 export default function WorkoutsScreen() {
   const { t } = useTranslation();
   const [tab, setTab] = useState<'session' | 'library' | 'history'>('session');
+  const [routeOpen, setRouteOpen] = useState(false);
   const active = useWorkoutSession((s) => s.active);
   // From 1024 px the active workout panel stays beside the library or history (master-detail).
   const split = useMediaQuery('(min-width: 1024px)');
@@ -80,7 +82,15 @@ export default function WorkoutsScreen() {
   ];
   return (
     <div className="stagger flex flex-col gap-4">
-      <h1 className="text-display text-ink">{t('workouts.title')}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-display text-ink">{t('workouts.title')}</h1>
+        <Button id="open-route" variant="secondary" icon={<MapPin className="h-[18px] w-[18px]" strokeWidth={1.75} />} onClick={() => setRouteOpen(true)}>
+          {t('route.track')}
+        </Button>
+      </div>
+      <Sheet open={routeOpen} onClose={() => setRouteOpen(false)} closeLabel={t('common.close')} title={t('route.title')}>
+        {routeOpen && <RouteTracker onDone={() => setRouteOpen(false)} />}
+      </Sheet>
       <ListDetail
         detailLabel={active ? t('workouts.inProgress') : t('workouts.start')}
         list={

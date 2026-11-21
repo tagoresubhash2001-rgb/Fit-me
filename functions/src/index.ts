@@ -31,3 +31,4 @@ export {
   adminReviewFoodSuggestion,
   reportAiFood,
 } from './admin/admin';
+export { wearablesStatus, wearablesConnect, wearablesDisconnect, wearablesSync } from './wearables/openWearables';

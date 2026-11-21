@@ -2,7 +2,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, RefreshCw, Smartphone, Watch, X } from 'lucide-react';
 import { Badge, Button, Card, CardHeader, Skeleton, toast } from '../../components/ui';
-import { connectHealth, disconnectHealth, healthAppName, healthStatus, HEALTH_TYPES, openHealthSettings, syncHealth, type HealthStatus } from '../../data/healthSync';
+import { OnDeviceSteps } from './OnDeviceSteps';
+import { CloudWearables } from './CloudWearables';
+import { useAskPermission } from '../permissions/PermissionPrimer';
+import { disconnectHealth, healthAppName, healthStatus, HEALTH_TYPES, openHealthSettings, syncHealth, type HealthStatus } from '../../data/healthSync';
 import { useAppSettings } from '../../data/appConfig';
 import { useFormat } from '../../lib/hooks';
 
@@ -18,6 +21,7 @@ export function ConnectedDevices() {
   const [status, setStatus] = useState<HealthStatus | null>(null);
   const [busy, setBusy] = useState<'connect' | 'sync' | 'disconnect' | null>(null);
   const name = t(`devices.${healthAppName()}`);
+  const ask = useAskPermission();
 
   const refresh = useCallback(() => {
     void healthStatus()
@@ -30,7 +34,8 @@ export function ConnectedDevices() {
     setBusy(kind);
     try {
       if (kind === 'connect') {
-        const r = await connectHealth();
+        const p = await ask('health');
+        const r = p === 'granted' || p === 'limited' ? 'granted' : p === 'unsupported' ? 'unavailable' : 'denied';
         if (r !== 'granted') toast(t(r === 'denied' ? 'devices.denied' : 'devices.unavailable', { app: name }), 'error');
         else {
           const c = await syncHealth(7);
@@ -54,6 +59,8 @@ export function ConnectedDevices() {
   return (
     <Card id="devices" className="flex scroll-mt-24 flex-col gap-4">
       <CardHeader title={t('devices.title')} icon={<Watch className="h-5 w-5" strokeWidth={1.75} />} />
+      <OnDeviceSteps />
+      <CloudWearables />
       {!status ? (
         <Skeleton className="h-24" />
       ) : status.availability === 'web' ? (

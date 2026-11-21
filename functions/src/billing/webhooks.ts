@@ -1,12 +1,12 @@
 import { onRequest } from 'firebase-functions/v2/https';
 import { logger } from 'firebase-functions';
-import { MAX_INSTANCES } from '../lib/callable';
+import { MAX_INSTANCES, LIGHT_CPU } from '../lib/callable';
 import { cashfreeSignatureValid, cashfreeUid, fromCashfree, fromRevenueCat, revenueCatAuthorized, type CashfreeWebhook, type RevenueCatEvent } from './mappers';
 import { applyBillingEvent, loadPricing } from './store';
 
 import { webhookSecret } from './secrets';
 
-const opts = { region: 'asia-south1', maxInstances: MAX_INSTANCES, invoker: 'public' as const };
+const opts = { region: 'asia-south1', maxInstances: MAX_INSTANCES, cpu: LIGHT_CPU, invoker: 'public' as const };
 
 /** RevenueCat (App Store + Google Play) -> entitlements/{uid}. app_user_id is the Firebase uid. */
 export const revenuecatWebhook = onRequest(opts, async (req, res) => {

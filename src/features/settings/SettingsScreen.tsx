@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Download, LogOut, Trash2, User, Bell, ShieldCheck } from 'lucide-react';
 import { ConnectedDevices } from './ConnectedDevices';
 import { ProfilePhoto } from './ProfilePhoto';
+import { PermissionsSettings } from '../permissions/PermissionsSettings';
 import { AccessStageCard } from '../plans/PlanPrompts';
 import { useFeatures } from '../../data/appConfig';
 import { Badge, Button, Card, CardHeader, Choice, Input, Select, Sheet, Tabs, cn, toast } from '../../components/ui';
@@ -78,6 +79,7 @@ export default function SettingsScreen() {
     ['profile', t('nav.profile')],
     ['preferences', t('settings.preferences')],
     ['devices', t('devices.title')],
+    ['permissions', t('permissions.title')],
     ['reminders', t('settings.notifications')],
     ['privacy', t('settings.privacy')],
     ['about', t('settings.about')],
@@ -139,6 +141,8 @@ export default function SettingsScreen() {
         <AccessStageCard />
 
         {features.deviceSync && <ConnectedDevices />}
+
+        <PermissionsSettings />
 
         <Card id="preferences" className="flex scroll-mt-24 flex-col gap-4">
           <CardHeader title={t('settings.preferences')} />

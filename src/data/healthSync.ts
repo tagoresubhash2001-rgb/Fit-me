@@ -5,14 +5,14 @@ import { isNative, platform } from '../lib/platform';
 import { upsertRecord, userTz } from './records';
 import { currentUid } from './session';
 import { addDays, localDate } from '../domain/dates';
-import { byLocalDay, deviceRecordId, sleepNights, workoutName } from '../domain/healthSync';
+import { byLocalDay, deviceRecordId, sleepNights, sleepStageMinutes, workoutName } from '../domain/healthSync';
 
 /**
  * Apple Health (iOS, includes Apple Watch) and Health Connect (Android, includes Wear OS, Samsung Health,
  * Fitbit and other apps that write to it). Google Fit is not used: its APIs are deprecated and shutting down.
  * Browsers cannot read watch or health-platform data, so on the web this module reports "unavailable".
  */
-export const HEALTH_TYPES: HealthDataType[] = ['steps', 'distance', 'calories', 'heartRate', 'sleep', 'workouts', 'weight'];
+export const HEALTH_TYPES: HealthDataType[] = ['steps', 'distance', 'calories', 'totalCalories', 'heartRate', 'restingHeartRate', 'heartRateVariability', 'oxygenSaturation', 'sleep', 'workouts', 'weight'];
 
 export type HealthPlatform = 'healthKit' | 'healthConnect';
 export const healthAppName = (): HealthPlatform => (platform() === 'ios' ? 'healthKit' : 'healthConnect');
@@ -134,7 +134,16 @@ export async function syncHealth(days = 7): Promise<Record<string, number>> {
   const hr = (await safe(() => h.queryAggregated({ dataType: 'heartRate', startDate, endDate, bucket: 'day', aggregation: ['average', 'min', 'max'] })))?.samples ?? [];
   const hrByDay = new Map(hr.map((s) => [localDate(new Date(s.startDate).getTime(), tz), s]));
 
-  const dates = new Set([...steps.keys(), ...distance.keys(), ...energy.keys(), ...hrByDay.keys()]);
+  const totalEnergy = await daily('totalCalories');
+  const avgByDay = async (dataType: HealthDataType) => {
+    const r = (await safe(() => h.queryAggregated({ dataType, startDate, endDate, bucket: 'day', aggregation: 'average' })))?.samples ?? [];
+    return new Map(r.filter((x) => Number.isFinite(x.value) && x.value > 0).map((x) => [localDate(new Date(x.startDate).getTime(), tz), x.value]));
+  };
+  const resting = await avgByDay('restingHeartRate');
+  const hrv = await avgByDay('heartRateVariability');
+  const spo2 = await avgByDay('oxygenSaturation');
+
+  const dates = new Set([...steps.keys(), ...distance.keys(), ...energy.keys(), ...hrByDay.keys(), ...resting.keys(), ...hrv.keys(), ...spo2.keys()]);
   for (const date of dates) {
     const hrs = hrByDay.get(date) as { values?: Record<string, number>; value?: number } | undefined;
     const summary = {
@@ -143,6 +152,11 @@ export async function syncHealth(days = 7): Promise<Record<string, number>> {
       ...(distance.has(date) ? { distanceM: Math.round(distance.get(date)!) } : {}),
       ...(energy.has(date) ? { activeKcal: Math.round(energy.get(date)!) } : {}),
       ...(hrs?.values?.average ? { heartRateAvg: Math.round(hrs.values.average), heartRateMin: Math.round(hrs.values.min ?? 0), heartRateMax: Math.round(hrs.values.max ?? 0) } : {}),
+      ...(totalEnergy.has(date) ? { totalKcal: Math.round(totalEnergy.get(date)!) } : {}),
+      ...(resting.has(date) ? { restingHr: Math.round(resting.get(date)!) } : {}),
+      ...(hrv.has(date) ? { hrvMs: Math.round(hrv.get(date)! * 10) / 10 } : {}),
+      // Health Connect reports SpO2 as a percentage, HealthKit as a fraction.
+      ...(spo2.has(date) ? { spo2: Math.round((spo2.get(date)! <= 1 ? spo2.get(date)! * 100 : spo2.get(date)!) * 10) / 10 } : {}),
     };
     await upsertRecord('healthDaily', `device-${date}`, summary, { date, source: 'device' });
     if (steps.has(date)) await upsertRecord('stepLogs', `device-${date}`, { steps: Math.min(200000, Math.round(steps.get(date)!)), deviceName }, { date, source: 'device' });
@@ -154,8 +168,11 @@ export async function syncHealth(days = 7): Promise<Record<string, number>> {
     sleep.map((s) => ({ startDate: s.startDate, endDate: s.endDate, value: s.value, sourceName: s.sourceName, state: (s as { sleepState?: string }).sleepState })),
     tz,
   );
-  for (const n of nights)
+  for (const n of nights) {
     await upsertRecord('sleepLogs', `device-sleep-${n.date}`, { startMinutes: n.startMinutes, endMinutes: n.endMinutes, durationMin: n.durationMin }, { date: n.date, source: 'device' });
+    const stages = sleepStageMinutes(sleep.map((s) => ({ startDate: s.startDate, endDate: s.endDate, state: (s as { sleepState?: string }).sleepState })), n, tz);
+    if (Object.keys(stages).length) await upsertRecord('healthDaily', `device-${n.date}`, { sleepMin: n.durationMin, ...stages }, { date: n.date, source: 'device' });
+  }
   counts.sleep = nights.length;
 
   const weights = (await safe(() => h.readSamples({ dataType: 'weight', startDate, endDate, limit: 100 })))?.samples ?? [];

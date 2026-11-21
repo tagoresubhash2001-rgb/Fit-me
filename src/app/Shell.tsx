@@ -35,6 +35,8 @@ import { NovaBar } from './NovaBar';
 import { StageEndingBanner, TrialEndingBanner } from '../features/plans/PlanPrompts';
 import { useShortcuts, SHORTCUTS } from './shortcuts';
 import { useFeatures } from '../data/appConfig';
+import { isNative } from '../lib/platform';
+import { autoSyncDevices } from '../data/autoSync';
 
 const TABS = [
   { to: '/', key: 'home', icon: Home, end: true },
@@ -69,6 +71,15 @@ export function Shell() {
   useEffect(() => {
     prefetchWhenIdle();
   }, []);
+  // Phones: bring in the steps counted while FitMe was closed, and health-platform data, each time it opens.
+  useEffect(() => {
+    if (!isNative() || !features.deviceSync) return;
+    const run = () => void autoSyncDevices();
+    run();
+    const onVisible = () => document.visibilityState === 'visible' && run();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [features.deviceSync]);
   const transition = useRouteTransition(location.pathname, desktop);
 
   return (

@@ -431,7 +431,12 @@
     "synced": "Steps synced",
     "count": "Steps",
     "editEntry": "Edit steps entry",
-    "manualSource": "Entered by you"
+    "manualSource": "Entered by you",
+    "phoneTitle": "This phone",
+    "phoneBody": "Count steps with your phone's motion sensor, even without a watch. It keeps counting when FitMe is closed.",
+    "phoneOn": "Count steps on this phone",
+    "phoneOff": "Stop counting",
+    "kmKcal": "{{km}} km · {{kcal}} kcal"
   },
   "health": {
     "title": "Health",
@@ -982,7 +987,11 @@
       "heartRate": "Heart rate",
       "sleep": "Sleep",
       "workouts": "Workouts",
-      "weight": "Weight"
+      "weight": "Weight",
+      "totalCalories": "Total energy",
+      "restingHeartRate": "Resting heart rate",
+      "heartRateVariability": "Heart rate variability",
+      "oxygenSaturation": "Blood oxygen"
     },
     "iosPrivacy": "Apple Health does not tell apps which data you chose to share. If something is missing, check FitMe in the Health app under Sharing.",
     "syncNow": "Sync now",
@@ -995,7 +1004,12 @@
     "synced_other": "Synced {{days}} days",
     "disconnected": "{{app}} disconnected. Data already synced stays in FitMe.",
     "failed": "Sync did not finish. Check your connection and try again.",
-    "keepData": "FitMe only reads this data. Disconnecting stops new syncs; you can delete synced entries at any time."
+    "keepData": "FitMe only reads this data. Disconnecting stops new syncs; you can delete synced entries at any time.",
+    "cloudTitle": "Watches and rings",
+    "cloudBody": "Connect a wearable that syncs through its own app and cloud.",
+    "cloudSoon": "Garmin, Oura, WHOOP, Polar, Suunto, Strava, Fitbit and Withings will connect here once their developer accounts are set up.",
+    "notAvailableYet": "Not available yet",
+    "connectShort": "Connect"
   },
   "access": {
     "title": "Your free access",
@@ -1428,6 +1442,81 @@
       "details": "Details",
       "before": "Before",
       "after": "After"
+    }
+  },
+  "permissions": {
+    "title": "Permissions",
+    "continue": "Continue",
+    "notNow": "Not now",
+    "openSettings": "Open settings",
+    "allow": "Allow",
+    "change": "Change",
+    "privacy": "You can change this at any time in Settings, then Permissions.",
+    "blockedBody": "This was turned off. You can turn it on in your phone's settings for FitMe.",
+    "webNote": "In a browser, permissions are managed in the site settings next to the address bar. Steps and health data need the FitMe mobile app.",
+    "state": {
+      "granted": "Allowed",
+      "limited": "Partly allowed",
+      "prompt": "Not asked",
+      "denied": "Not allowed",
+      "blocked": "Turned off",
+      "unsupported": "Not available"
+    },
+    "motion": {
+      "title": "Motion and fitness",
+      "short": "Counts your steps on this phone",
+      "why": "FitMe uses your phone's motion sensor to count your steps, so your daily steps, distance and goal stay up to date even when the app is closed."
+    },
+    "location": {
+      "title": "Location",
+      "short": "Maps walks, runs and rides you track",
+      "why": "FitMe uses your location only while you track a walk, run or ride with the app open, to draw the route and measure distance and pace."
+    },
+    "camera": {
+      "title": "Camera",
+      "short": "Meal scans and photos",
+      "why": "FitMe uses the camera when you scan a meal or take a profile or testimonial photo. Photos of meals are not stored."
+    },
+    "photos": {
+      "title": "Photos",
+      "short": "Choose a photo from your library",
+      "why": "FitMe opens your photo library only when you choose a meal, profile or testimonial photo."
+    },
+    "health": {
+      "title": "Health data",
+      "short": "Apple Health or Health Connect",
+      "why": "FitMe reads the health data you choose (steps, heart rate, sleep, workouts, weight) to show your activity and progress. It never writes to your health app."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "short": "Reminders and trial notices",
+      "why": "FitMe sends reminders you set up and lets you know before your free period ends. No marketing notifications."
+    }
+  },
+  "route": {
+    "track": "Track a route",
+    "title": "Track a walk, run or ride",
+    "activity": {
+      "walk": "Walk",
+      "run": "Run",
+      "ride": "Ride"
+    },
+    "time": "Time",
+    "km": "km",
+    "pace": "min/km",
+    "kmh": "km/h",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "finish": "Finish and save",
+    "saved": "Saved: {{km}} km",
+    "gps": "GPS accuracy about {{m}} m",
+    "weakGps": "Weak GPS signal (about {{m}} m). Points are skipped until it improves.",
+    "foregroundNote": "Keep FitMe open while you track. Your route is saved to your workouts.",
+    "errors": {
+      "denied": "Location access is off. Allow it in Settings, then Permissions.",
+      "unsupported": "Location is not available on this device.",
+      "unavailable": "No GPS signal yet. Try outdoors with a clear view of the sky."
     }
   }
 }

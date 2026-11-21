@@ -29,6 +29,9 @@ import { currentStreak, movingAverage } from '../../domain/progress';
 import type { FoodLog, WaterLog, WorkoutLog, SleepLog, WeightLog, StepLog } from '../../domain/models';
 import { addWater } from '../health/waterActions';
 import { AccessStageCard, UpgradeNudge } from '../plans/PlanPrompts';
+import { useLivePhoneSteps } from '../../data/steps';
+import { pickDaily, stepStats } from '../../domain/steps';
+import { isNative } from '../../lib/platform';
 import { ContentBanners } from './Banners';
 
 function greetingKey(m: number) {
@@ -104,7 +107,10 @@ export default function HomeScreen() {
   const remaining = target - totals.calories + burned;
   const waterMl = water.rows.reduce((a, w) => a + w.ml, 0);
   const waterTarget = profile.waterTargetMl ?? profile.targets.waterMl;
-  const stepCount = steps.rows.reduce((a, s) => Math.max(a, s.steps), 0);
+  const live = useLivePhoneSteps(isNative());
+  // One count per day by source priority (health platform, cloud wearable, this phone, manual), never summed.
+  const stepCount = Math.max(pickDaily(steps.rows, today).steps, live ?? 0);
+  const stepInfo = stepStats(stepCount, profile.heightCm, profile.weightKg);
   const stepTarget = profile.stepTarget ?? 8000;
   const lastSleep = [...sleep.rows].sort((a, b) => b.durationMin - a.durationMin)[0];
   const latestWeight = [...weights.rows].sort((a, b) => b.date.localeCompare(a.date))[0];
@@ -233,7 +239,7 @@ export default function HomeScreen() {
           icon={<Footprints className="h-[18px] w-[18px]" strokeWidth={1.75} />}
           title={t('home.stepsCard')}
           value={stepCount ? n(stepCount) : '—'}
-          sub={stepCount ? `${t('common.of')} ${n(stepTarget)}` : t('home.noSteps')}
+          sub={stepCount ? `${t('common.of')} ${n(stepTarget)} · ${t('steps.kmKcal', { km: n(stepInfo.km, 1), kcal: n(stepInfo.kcal) })}` : t('home.noSteps')}
           onPress={() => navigateWithTransition(() => navigate('/health/steps'))}
           vt="tile-steps"
         >

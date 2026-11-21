@@ -87,7 +87,7 @@ export async function getIndex(): Promise<FoodIndex> {
  * Food search for every plan (food logging is free). Micronutrients are attached only for plans that include
  * them (PRD section 2), decided here on the server.
  */
-export const searchFoods = onCall(callableOptions({ memory: '1GiB', timeoutSeconds: 30, concurrency: 40 }), async (req) => {
+export const searchFoods = onCall(callableOptions({ memory: '1GiB', timeoutSeconds: 30, maxInstances: 3 }), async (req) => {
   const uid = await requireAuth(req);
   const parsed = Input.safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'invalid_input');

@@ -20,6 +20,7 @@ const StoreScreen = lazy(routeLoaders.store);
 const SettingsScreen = lazy(routeLoaders.settings);
 const PlansScreen = lazy(routeLoaders.plans);
 const TestimonialsScreen = lazy(routeLoaders.stories);
+import { PermissionProvider } from '../features/permissions/PermissionPrimer';
 const AdminApp = lazy(() => import('../features/admin/AdminApp'));
 
 /** Same look as the static splash in index.html, so the hand-over from HTML to React does not flash. */
@@ -118,7 +119,9 @@ function Gate() {
 export default function App() {
   return (
     <BrowserRouter>
-      <Gate />
+      <PermissionProvider>
+        <Gate />
+      </PermissionProvider>
     </BrowserRouter>
   );
 }

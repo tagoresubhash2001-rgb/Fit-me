@@ -11,7 +11,7 @@ import { readEntitlement } from './store';
  * notification record, plus a push message when the device registered for push. Email needs a mail
  * provider and is listed as pending in docs/BILLING_SETUP.md.
  */
-export const trialReminders = onSchedule({ schedule: 'every day 10:00', timeZone: 'Asia/Kolkata', region: 'asia-south1', maxInstances: 1 }, async () => {
+export const trialReminders = onSchedule({ schedule: 'every day 10:00', timeZone: 'Asia/Kolkata', region: 'asia-south1', maxInstances: 1, cpu: 'gcf_gen1' }, async () => {
   const now = Date.now();
   const snap = await db()
     .collection('entitlements')
