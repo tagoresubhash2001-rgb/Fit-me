@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Flame, TrendingUp, Scale, Dumbbell, Activity, Salad, Moon, Leaf, Zap, Star } from 'lucide-react';
+import { Flame, TrendingUp, Scale, Dumbbell, Activity, Salad, Moon, Leaf, Zap, Flag } from 'lucide-react';
 import { Badge, cn } from '../../components/ui';
 import { GOAL_IDS, conflictWith, recommendGoals, normalizePrimary, WEIGHT_GOALS, type GoalId } from '../../domain/goals';
 import type { ActivityLevel } from '../../domain/calculators';
@@ -63,7 +63,7 @@ export function GoalPicker({ selected, primary, onChange, bmi, age, activity }: 
                     onClick={() => onChange(selected, g)}
                     className={cn('flex h-9 shrink-0 items-center gap-1 rounded-full px-2.5 text-caption font-semibold transition-colors', isPrimary ? 'bg-primary text-on-primary' : 'border border-line bg-surface text-muted hover:text-ink')}
                   >
-                    <Star className="h-3.5 w-3.5" strokeWidth={2} />
+                    <Flag className="h-3.5 w-3.5" strokeWidth={2} />
                     {isPrimary ? t('goalPicker.primary') : t('goalPicker.makePrimary')}
                   </button>
                 )}

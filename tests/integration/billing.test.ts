@@ -3,6 +3,7 @@ import { initializeApp, deleteApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator, createUserWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator, doc, getDoc } from 'firebase/firestore';
 import { getFunctions, connectFunctionsEmulator, httpsCallable } from 'firebase/functions';
+import { accessAt, DAY, writeDoc } from './emulator';
 
 // Server-only config is written through the emulator REST API with the owner token (rules bypassed).
 async function setConfig(id: string, fields: Record<string, unknown>) {
@@ -26,18 +27,22 @@ afterAll(async () => deleteApp(app));
 const call = (name: string, data: unknown) => httpsCallable(getFunctions(app, 'asia-south1'), name)(data);
 
 describe('free trial and entitlements (emulator, test mode)', () => {
-  it('starts a 30-day Pro trial that unlocks Pro on the server, once per account', async () => {
+  it('after the free stages: a subscription unlocks Pro on the server, and cancelling keeps it to the end', async () => {
     await setConfig('billing', { mode: 'test' });
     const cred = await createUserWithEmailAndPassword(getAuth(app), `trial${Date.now()}@example.test`, 'password123');
     const uid = cred.user.uid;
+    // This account is past its free stages (day 38+), so only a subscription unlocks paid features.
+    await writeDoc(`access/${uid}`, accessAt(uid, Date.now() - 40 * DAY));
     // Before: Pro features are refused.
     await expect(call('coachChat', { threadId: 'jai', coach: 'jai', message: 'hi' })).rejects.toThrow('upgrade_required');
 
-    const res = (await call('startTrial', { plan: 'pro', period: 'yearly' })).data as { status: string; trialEndsAt: number };
-    expect(res.status).toBe('trialing');
-    expect(res.trialEndsAt - Date.now()).toBeGreaterThan(29.9 * 86400000);
+    // The free stages were this account's free trial: choosing a plan now is a purchase, not a second trial.
+    const res = (await call('startTrial', { plan: 'pro', period: 'yearly' })).data as { status: string; trialEndsAt: number | null };
+    expect(res.status).toBe('active');
+    expect(res.trialEndsAt).toBeNull();
     const ent = (await getDoc(doc(getFirestore(app), `entitlements/${uid}`))).data()!;
-    expect(ent).toMatchObject({ plan: 'pro', status: 'trialing', period: 'yearly', source: 'test', trialUsed: true, willRenew: true });
+    expect(ent).toMatchObject({ plan: 'pro', status: 'active', period: 'yearly', source: 'test', willRenew: true });
+    expect(ent.expiresAt.toMillis() - Date.now()).toBeGreaterThan(364 * DAY);
 
     // After: the server gate lets the Pro feature through (it then fails only for lack of an AI key).
     await expect(call('coachChat', { threadId: 'jai', coach: 'jai', message: 'hi' })).rejects.not.toThrow('upgrade_required');
@@ -50,12 +55,20 @@ describe('free trial and entitlements (emulator, test mode)', () => {
     expect(after).toMatchObject({ status: 'cancelled', willRenew: false });
     expect(after.expiresAt.toMillis()).toBe(ent.expiresAt.toMillis());
     await expect(call('coachChat', { threadId: 'jai', coach: 'jai', message: 'hi' })).rejects.not.toThrow('upgrade_required');
-    // Resume, change plan, cancel again; still no second trial.
-    await expect(call('manageSubscription', { action: 'resume' })).resolves.toMatchObject({ data: { status: 'trialing' } });
+    // Resume and change plan.
+    await expect(call('manageSubscription', { action: 'resume' })).resolves.toMatchObject({ data: { status: 'active' } });
     await expect(call('manageSubscription', { action: 'change', plan: 'premium', period: 'quarterly' })).resolves.toBeTruthy();
     expect((await getDoc(doc(getFirestore(app), `entitlements/${uid}`))).data()).toMatchObject({ plan: 'premium', period: 'quarterly' });
-    await call('manageSubscription', { action: 'cancel' });
-    await expect(call('startTrial', { plan: 'pro', period: 'monthly' })).rejects.toThrow('trial_used');
+  });
+
+  it('during a free stage: choosing a plan keeps the free days, first charge when the stage ends', async () => {
+    const cred = await createUserWithEmailAndPassword(getAuth(app), `stage${Date.now()}@example.test`, 'password123');
+    const uid = cred.user.uid;
+    const signUp = Date.now() - 10 * DAY; // day 11: in the free trial until day 37
+    await writeDoc(`access/${uid}`, accessAt(uid, signUp));
+    const res = (await call('startTrial', { plan: 'pro', period: 'monthly' })).data as { status: string; trialEndsAt: number };
+    expect(res.status).toBe('trialing');
+    expect(Math.abs(res.trialEndsAt - (signUp + 37 * DAY))).toBeLessThan(2000);
   });
 
   it('validates the plan and period', async () => {

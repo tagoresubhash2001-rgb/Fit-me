@@ -12,6 +12,7 @@ export const routeLoaders = {
   store: () => import('../features/store/StoreScreen'),
   settings: () => import('../features/settings/SettingsScreen'),
   plans: () => import('../features/plans/PlansScreen'),
+  stories: () => import('../features/testimonials/TestimonialsScreen'),
 } as const;
 export type RouteKey = keyof typeof routeLoaders;
 

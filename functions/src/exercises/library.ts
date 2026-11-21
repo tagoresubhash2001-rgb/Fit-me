@@ -1,5 +1,5 @@
 /**
- * FIT ME AI exercise library (seed data, ~100 exercises). Instructions are short, general guidance;
+ * FitMe exercise library (seed data, ~100 exercises). Instructions are short, general guidance;
  * a fitness reviewer approves them in the admin panel (Phase 5). Demo videos are added later.
  */
 type Eq = 'none' | 'home_basic' | 'gym';

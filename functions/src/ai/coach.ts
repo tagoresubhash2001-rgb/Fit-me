@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { db } from '../lib/admin';
 import { callableOptions, requireAuth } from '../lib/callable';
 import { requireFeature } from '../lib/entitlements';
+import { requireEnabled } from '../lib/features';
 import { consume } from '../lib/rateLimit';
 import { dailyLimit } from '../lib/limits';
 import { loadUserContext, summarizeContext } from './context';
@@ -25,11 +26,12 @@ export const CoachInput = z.object({
  * Nothing in a chat is ever written as a health record.
  */
 export const coachChat = onCall(callableOptions({ secrets: [GEMINI_API_KEY], timeoutSeconds: 60, memory: '512MiB' }), async (req) => {
-  const uid = requireAuth(req);
+  const uid = await requireAuth(req);
   const parsed = CoachInput.safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'invalid_input');
   const { threadId, coach, message } = parsed.data;
 
+  await requireEnabled('coach');
   const plan = await requireFeature(uid, 'coachChat');
   await consume(uid, 'coachChat', await dailyLimit('coachChat', plan));
 

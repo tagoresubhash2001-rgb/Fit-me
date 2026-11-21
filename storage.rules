@@ -1,10 +1,13 @@
 rules_version = '2';
 
-// FIT ME AI Storage rules: food photos and progress photos are private to the owner.
+// FitMe Storage rules: food photos and progress photos are private to the owner.
 service firebase.storage {
   match /b/{bucket}/o {
     function isOwner(uid) {
       return request.auth != null && request.auth.uid == uid;
+    }
+    function isStaff() {
+      return request.auth != null && request.auth.token.get('role', null) in ['superAdmin', 'admin', 'moderator'];
     }
 
     match /users/{uid}/{folder}/{fileName} {
@@ -13,6 +16,31 @@ service firebase.storage {
         && folder in ['foodPhotos', 'progressPhotos']
         && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/(jpeg|png|webp|heic)');
+    }
+
+    // Profile photo: one square JPEG per user (the app crops and compresses it). Max 5 MB.
+    match /users/{uid}/profile/{fileName} {
+      allow read, delete: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && fileName.matches('avatar-[0-9]{10,16}[.]jpg')
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType == 'image/jpeg';
+    }
+
+    // Testimonial photos before review: the author uploads before.jpg / after.jpg; author and staff read.
+    match /testimonials/{uid}/{id}/{fileName} {
+      allow read: if isOwner(uid) || isStaff();
+      allow delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && fileName in ['before.jpg', 'after.jpg']
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType == 'image/jpeg';
+    }
+
+    // Copies of approved testimonial photos, written only by Cloud Functions on approval.
+    match /public/testimonials/{id}/{fileName} {
+      allow read: if true;
+      allow write: if false;
     }
 
     match /{allPaths=**} {

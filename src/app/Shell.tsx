@@ -9,7 +9,7 @@ import {
   ShoppingBag,
   MessageCircle,
   WifiOff,
-  Sparkles,
+  CircleArrowUp,
   Settings as SettingsIcon,
   UserRound,
   PanelLeftClose,
@@ -21,7 +21,7 @@ import {
   LogOut,
   Keyboard,
 } from 'lucide-react';
-import { Sheet, Skeleton, SlidingPill, cn } from '../components/ui';
+import { Avatar, Sheet, Skeleton, SlidingPill, cn, BrandLogo } from '../components/ui';
 import { prefetchRoute, prefetchWhenIdle, type RouteKey } from './routes';
 import { RouteErrorBoundary } from './RouteErrorBoundary';
 import { useSession } from '../data/session';
@@ -32,8 +32,11 @@ import { useThemeStore, type VisualTheme } from '../stores/theme.store';
 import { useUi } from '../stores/ui.store';
 import { CoachDock, CoachSheet } from '../features/coach/CoachSheet';
 import { NovaBar } from './NovaBar';
-import { TrialEndingBanner } from '../features/plans/PlanPrompts';
+import { StageEndingBanner, TrialEndingBanner } from '../features/plans/PlanPrompts';
 import { useShortcuts, SHORTCUTS } from './shortcuts';
+import { useFeatures } from '../data/appConfig';
+import { isNative } from '../lib/platform';
+import { autoSyncDevices } from '../data/autoSync';
 
 const TABS = [
   { to: '/', key: 'home', icon: Home, end: true },
@@ -42,6 +45,12 @@ const TABS = [
   { to: '/workouts', key: 'workouts', icon: Dumbbell },
   { to: '/store', key: 'store', icon: ShoppingBag },
 ] as const;
+
+/** Navigation tabs, without the ones an admin switched off (Planner, Store). */
+function useTabs() {
+  const f = useFeatures();
+  return TABS.filter((tab) => (tab.key === 'planner' ? f.planner : tab.key === 'store' ? f.store : true));
+}
 
 /**
  * App shell: decides the layout for every form factor so screens only describe content.
@@ -55,12 +64,22 @@ export function Shell() {
   const location = useLocation();
   const online = useOnline();
   const desktop = useIsDesktop();
+  const features = useFeatures();
   const coachOpen = useUi((s) => s.coachOpen);
   const setCoachOpen = useUi((s) => s.setCoachOpen);
   useShortcuts();
   useEffect(() => {
     prefetchWhenIdle();
   }, []);
+  // Phones: bring in the steps counted while FitMe was closed, and health-platform data, each time it opens.
+  useEffect(() => {
+    if (!isNative() || !features.deviceSync) return;
+    const run = () => void autoSyncDevices();
+    run();
+    const onVisible = () => document.visibilityState === 'visible' && run();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [features.deviceSync]);
   const transition = useRouteTransition(location.pathname, desktop);
 
   return (
@@ -79,6 +98,7 @@ export function Shell() {
           </p>
         )}
         <TrialEndingBanner />
+        <StageEndingBanner />
         <NovaBar />
         <main id="main" tabIndex={-1} className="mx-auto w-full max-w-2xl flex-1 px-4 pt-4 pb-36 outline-none md:max-w-3xl md:px-6 land:max-w-5xl land:pb-10 xl:max-w-[1360px] xl:px-8 xl:pb-12 2xl:max-w-[1440px]">
           <div key={location.pathname.split('/')[1]} className={transition}>
@@ -93,7 +113,7 @@ export function Shell() {
 
       {/* Coach: docked panel on desktop, sheet elsewhere. The same conversation component. */}
       {desktop ? <CoachDock /> : <CoachSheet open={coachOpen} onClose={() => setCoachOpen(false)} />}
-      {!(desktop && coachOpen) && (
+      {features.coach && !(desktop && coachOpen) && (
         <button
           id="coach-button"
           type="button"
@@ -147,21 +167,12 @@ const prefetchProps = (key: string) => {
 
 function Logo({ compact }: { compact?: boolean }) {
   return (
-    <span className="text-title font-semibold whitespace-nowrap text-ink">
-      {compact ? (
-        <span aria-label="FIT ME AI" className="flex h-10 w-10 items-center justify-center rounded-button bg-primary text-body font-bold text-on-primary">
-          F
-        </span>
-      ) : (
-        <>
-          FIT ME <span className="text-primary-text">AI</span>
-        </>
-      )}
-    </span>
+    <BrandLogo size={compact ? 40 : 32} wordmark={!compact} textClassName="text-title" />
   );
 }
 
 function BottomBar() {
+  const tabs = useTabs();
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const list = useRef<HTMLUListElement>(null);
@@ -172,7 +183,7 @@ function BottomBar() {
     >
       <ul ref={list} className="relative flex items-stretch justify-between gap-1">
         <SlidingPill container={list} selector='[aria-current="page"] [data-pill]' watch={pathname} className="rounded-full bg-primary-subtle" />
-        {TABS.map(({ to, key, icon: Icon, ...rest }) => (
+        {tabs.map(({ to, key, icon: Icon, ...rest }) => (
           <li key={key} className="relative z-10 min-w-0 flex-1">
             <NavLink to={to} end={'end' in rest} id={`nav-${key}`} {...prefetchProps(key)} className="group flex w-full flex-col items-center gap-0.5 rounded-button py-1 active:scale-95 transition-transform duration-150">
               {({ isActive }) => (
@@ -193,6 +204,7 @@ function BottomBar() {
 
 /** Tablet landscape: compact rail with icons and labels. */
 function Rail() {
+  const tabs = useTabs();
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const list = useRef<HTMLUListElement>(null);
@@ -202,7 +214,7 @@ function Rail() {
       <Logo compact />
       <ul ref={list} className="relative mt-4 flex w-full flex-1 flex-col gap-1 px-2">
         <SlidingPill container={list} selector='[aria-current="page"] [data-pill]' watch={pathname} className="rounded-full bg-primary-subtle" />
-        {TABS.map(({ to, key, icon: Icon, ...rest }) => (
+        {tabs.map(({ to, key, icon: Icon, ...rest }) => (
           <li key={key} className="relative z-10">
             <NavLink to={to} end={'end' in rest} id={`rail-${key}`} {...prefetchProps(key)} className="group flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-button py-1.5 transition-transform duration-150 active:scale-95">
               {({ isActive }) => (
@@ -226,6 +238,7 @@ function Rail() {
 
 /** Desktop: collapsible glass sidebar. */
 function Sidebar() {
+  const tabs = useTabs();
   const { t } = useTranslation();
   const { pathname, hash } = useLocation();
   const list = useRef<HTMLUListElement>(null);
@@ -253,7 +266,7 @@ function Sidebar() {
       </div>
       <ul ref={list} className="relative mt-6 flex flex-col gap-1">
         <SlidingPill container={list} selector='[aria-current="page"]' watch={`${pathname}-${collapsed}`} className="rounded-button bg-primary-subtle" />
-        {TABS.map(({ to, key, icon: Icon, ...rest }) => (
+        {tabs.map(({ to, key, icon: Icon, ...rest }) => (
           <li key={key}>
             <NavLink to={to} end={'end' in rest} id={`side-${key}`} {...prefetchProps(key)} data-tip={collapsed ? t(`nav.${key}`) : undefined} data-tip-side="end" className={({ isActive }) => item(isActive, true)}>
               <Icon className="h-5 w-5 shrink-0" strokeWidth={1.75} />
@@ -275,7 +288,7 @@ function Sidebar() {
         {plan !== 'pro' && (
           <li>
             <NavLink to="/plans" id="side-upgrade" data-tip={collapsed ? t('plans.upgrade') : undefined} data-tip-side="end" className={cn(item(false), 'bg-accent-subtle font-semibold text-accent hover:bg-accent-subtle')}>
-              <Sparkles className="h-5 w-5 shrink-0" strokeWidth={1.75} />
+              <CircleArrowUp className="h-5 w-5 shrink-0" strokeWidth={1.75} />
               {label(t('plans.upgrade'))}
             </NavLink>
           </li>
@@ -378,11 +391,10 @@ function TopBar() {
               onClick={() => navigate('/plans')}
               className="flex h-9 items-center gap-1.5 rounded-full bg-accent-subtle px-3 text-small font-semibold text-accent transition-transform duration-150 active:scale-95 xl:hidden"
             >
-              <Sparkles className="h-4 w-4" strokeWidth={1.75} />
               {t('plans.upgrade')}
             </button>
           )}
-          <AvatarMenu initial={profile?.name?.[0]?.toUpperCase() ?? '?'} />
+          <AvatarMenu initial={profile?.name?.[0]?.toUpperCase() ?? '?'} photoURL={(profile as { photoURL?: string | null } | null)?.photoURL} />
         </div>
       </div>
     </header>
@@ -390,7 +402,7 @@ function TopBar() {
 }
 
 /** Avatar: goes straight to Settings on phones; a menu on larger screens. */
-function AvatarMenu({ initial }: { initial: string }) {
+function AvatarMenu({ initial, photoURL }: { initial: string; photoURL?: string | null }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const plan = useSession((s) => s.plan);
@@ -422,9 +434,9 @@ function AvatarMenu({ initial }: { initial: string }) {
         aria-label={`${t('nav.profile')}, ${t('nav.settings')}`}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-small font-semibold text-on-primary transition-transform duration-150 active:scale-95"
+        className="flex h-10 w-10 items-center justify-center rounded-full transition-transform duration-150 active:scale-95"
       >
-        {initial}
+        <Avatar name={initial} photoURL={photoURL} size={40} />
       </button>
       {open && (
         <div role="menu" className="glass absolute end-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-input border py-1 shadow-float animate-[pop-in_150ms_ease-out]">
@@ -438,7 +450,7 @@ function AvatarMenu({ initial }: { initial: string }) {
           </button>
           {plan !== 'pro' && (
             <button role="menuitem" type="button" className={itemCls} onClick={() => go('/plans')}>
-              <Sparkles className="h-4 w-4 text-accent" strokeWidth={1.75} />
+              <CircleArrowUp className="h-4 w-4 text-accent" strokeWidth={1.75} />
               {t('plans.upgrade')}
             </button>
           )}

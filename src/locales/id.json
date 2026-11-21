@@ -33,7 +33,7 @@
     "main": "Utama"
   },
   "auth": {
-    "welcomeTitle": "Selamat datang di FIT ME AI",
+    "welcomeTitle": "Selamat datang di FitMe",
     "google": "Lanjutkan dengan Google",
     "apple": "Lanjutkan dengan Apple",
     "email": "Lanjutkan dengan email",
@@ -59,7 +59,7 @@
       "incomplete": "Pilih hari, bulan, dan tahun.",
       "invalid": "Tanggal ini tidak ada.",
       "future": "Tanggal lahir tidak boleh di masa depan.",
-      "tooYoung": "Kamu harus berusia minimal 13 tahun untuk memakai FIT ME AI.",
+      "tooYoung": "Kamu harus berusia minimal 13 tahun untuk memakai FitMe.",
       "tooOld": "Periksa tahunnya."
     }
   },
@@ -271,7 +271,11 @@
       "firstCharge": "Tagihan pertama",
       "today": "Hari ini",
       "cancelHow": "Batalkan sebelum {{date}} dan kamu tidak ditagih. Buka Setelan, Paket, Batalkan, atau lewat toko aplikasi.",
-      "confirm": "Mulai uji coba gratis"
+      "confirm": "Mulai uji coba gratis",
+      "freeUntil": "Gratis sampai {{date}}",
+      "titleFree": "Pertahankan hari gratismu",
+      "confirmFree": "Pilih paket, bayar mulai tanggal itu",
+      "cancelPaid": "Tagihan dikenakan hari ini. Batalkan kapan saja di Pengaturan, Paket, atau di toko aplikasimu; akses tetap ada sampai akhir periode."
     },
     "trialStarted": "Uji coba {{plan}} dimulai. Gratis sampai {{date}}.",
     "error": {
@@ -304,7 +308,11 @@
     "nudgeTitle": "Coba Pro gratis 30 hari",
     "nudgeBody": "Pelatihan Jai dan Jaya, perencana, dan laporan. Batalkan kapan saja.",
     "nudgeCta": "Lihat paket",
-    "nudgeDismiss": "Nanti saja"
+    "nudgeDismiss": "Nanti saja",
+    "subtitleFreeUntil": "Gratis sampai {{date}}. Pilih paket sekarang atau nanti; pembayaran pertama pada {{date}}.",
+    "subtitlePaid": "Pilih paket yang cocok untukmu. Batalkan kapan saja.",
+    "freeUntilBadge": "Gratis sampai {{date}}",
+    "subscribed": "Kamu sekarang memakai {{plan}}."
   },
   "food": {
     "allergyWarning": "Mengandung {{items}}, yang kamu catat sebagai alergi atau pantangan.",
@@ -314,7 +322,31 @@
     "rename": "Ganti nama",
     "replaceFood": "Ganti makanan",
     "unit": "Satuan",
-    "quickAdd": "Tambah cepat"
+    "quickAdd": "Tambah cepat",
+    "offlineResults": "Kamu sedang offline. Menampilkan makanan yang tersimpan di perangkat ini.",
+    "closeMatches": "Tidak ada makanan yang cocok dengan semua kata di \"{{q}}\". Menampilkan yang paling mirip.",
+    "showMore": "Tampilkan lagi ({{shown}} dari {{total}})",
+    "noResultsBody": "Perkirakan dengan AI atau tambahkan sendiri. Keduanya disimpan sebagai makananmu sendiri.",
+    "estimateWithAi": "Perkirakan dengan AI",
+    "addOwnFood": "Tambah makananmu sendiri",
+    "aiEstimateTitle": "Perkiraan AI",
+    "aiEstimateRange": "{{portion}} · {{min}}–{{max}} kcal",
+    "reviewAndSave": "Periksa dan simpan",
+    "aiEstimateDisclaimer": "Ini perkiraan, bukan data terukur. Periksa nilainya sebelum menyimpan.",
+    "aiEstimateLocked": "Perkiraan AI adalah bagian dari Premium.",
+    "aiEstimateFailed": "Perkiraan belum bisa dibuat sekarang. Coba lagi atau tambahkan makanan sendiri.",
+    "aiEstimateEmpty": "Itu sepertinya bukan makanan. Coba nama lain.",
+    "aiEstimateNote": "Perkiraan AI. Periksa dan koreksi nilainya, lalu simpan sebagai makananmu sendiri.",
+    "saveAndAdd": "Simpan dan tambahkan",
+    "seePlans": "Lihat paket",
+    "sources": {
+      "usda": "USDA",
+      "ifct": "IFCT 2017",
+      "off": "Open Food Facts",
+      "curated": "Resep FitMe",
+      "custom": "Makananmu",
+      "ai": "Perkiraan AI"
+    }
   },
   "water": {
     "amount": "Jumlah",
@@ -345,7 +377,14 @@
   "steps": {
     "count": "Langkah",
     "editEntry": "Ubah catatan langkah",
-    "manualSource": "Dimasukkan olehmu"
+    "manualSource": "Dimasukkan olehmu",
+    "webOnly": "Langkah dari ponsel atau jam tangan disinkronkan di aplikasi FitMe untuk Android dan iOS. Di sini kamu bisa menambah langkah secara manual. Lihat",
+    "phoneTitle": "Ponsel ini",
+    "phoneBody": "Hitung langkah dengan sensor gerak ponselmu, bahkan tanpa jam tangan. Penghitungan tetap berjalan saat FitMe ditutup.",
+    "phoneOn": "Hitung langkah di ponsel ini",
+    "phoneOff": "Hentikan penghitungan",
+    "kmKcal": "{{km}} km · {{kcal}} kcal",
+    "synced": "Langkah disinkronkan"
   },
   "workouts": {
     "editEntry": "Ubah latihan",
@@ -357,7 +396,8 @@
     "heightUnit": "Satuan tinggi",
     "weightUnit": "Satuan berat",
     "volumeUnit": "Satuan volume",
-    "saveWithTargets": "Simpan. Target kalori baru: {{kcal}} kcal"
+    "saveWithTargets": "Simpan. Target kalori baru: {{kcal}} kcal",
+    "privacyPage": "Privasi dan data kesehatan"
   },
   "shell": {
     "collapse": "Ciutkan bilah samping",
@@ -411,18 +451,313 @@
     "moved": "{{name}} dipindahkan ke {{day}}"
   },
   "pwa": {
-    "updateAvailable": "Versi baru FIT ME AI sudah siap.",
+    "updateAvailable": "Versi baru FitMe sudah siap.",
     "refresh": "Muat ulang"
   },
   "app": {
-    "splash": "Makanan, air, tidur, langkah, dan latihan, bersama Jai dan Jaya, pelatih AI kamu."
+    "splash": "Makanan, air, tidur, langkah, dan latihan, bersama Jai dan Jaya, pelatih AI kamu.",
+    "tagline": "FitMe – For a Healthier Life."
   },
   "errors": {
     "newVersionTitle": "Versi baru sudah siap",
-    "newVersionBody": "FIT ME AI diperbarui saat halaman ini terbuka. Muat ulang untuk melanjutkan.",
+    "newVersionBody": "FitMe diperbarui saat halaman ini terbuka. Muat ulang untuk melanjutkan.",
     "reload": "Muat ulang",
     "screenTitle": "Layar ini tidak termuat",
     "screenBody": "Ada masalah di pihak kami. Datamu aman. Coba lagi.",
     "slowBody": "Ini lebih lama dari biasanya. Periksa koneksimu dan coba lagi."
+  },
+  "scan": {
+    "title": "Pindai makanan",
+    "hint": "Ambil foto yang jelas dari atas dengan cahaya cukup, seluruh piring terlihat.",
+    "takePhoto": "Ambil foto",
+    "choosePhoto": "Pilih foto",
+    "privacy": "Foto hanya dipakai untuk memperkirakan makanan ini dan tidak disimpan.",
+    "cameraPreview": "Pratinjau kamera",
+    "capture": "Ambil",
+    "analysing": "Mengenali makanan di fotomu",
+    "yourPhoto": "Fotomu",
+    "reviewHint": "Periksa setiap item dan beratnya. Hapus yang salah sebelum menambahkan.",
+    "matched": "Cocok dengan {{source}}",
+    "aiOnly": "Perkiraan AI, tidak ada di basis data makanan",
+    "confidence": {
+      "low": "Keyakinan rendah",
+      "medium": "Keyakinan sedang",
+      "high": "Keyakinan tinggi"
+    },
+    "remove": "Hapus {{name}}",
+    "restore": "Kembalikan {{name}}",
+    "grams": "Gram",
+    "portionGuess": "{{portion}}, sekitar {{min}}–{{max}} g",
+    "total": "Total {{kcal}} kcal",
+    "macros": "Protein {{p}} g · Karbohidrat {{c}} g · Lemak {{f}} g",
+    "estimateNote": "Porsi dari foto hanyalah perkiraan. Sesuaikan gram jika kamu tahu jumlah sebenarnya.",
+    "addItems_one": "Tambah {{count}} item ke {{slot}}",
+    "addItems_other": "Tambah {{count}} item ke {{slot}}",
+    "logged_one": "{{count}} item ditambahkan ke {{slot}}",
+    "logged_other": "{{count}} item ditambahkan ke {{slot}}",
+    "retake": "Ambil foto lain",
+    "quality": {
+      "dark": "Fotonya cukup gelap, jadi perkiraan bisa kurang akurat.",
+      "blurry": "Fotonya agak buram, jadi perkiraan bisa kurang akurat.",
+      "too_far": "Makanan terlihat kecil di foto. Ambil lebih dekat lain kali.",
+      "partial": "Sebagian piring terpotong. Item di luar foto tidak dihitung."
+    },
+    "errors": {
+      "permission_denied": "Akses kamera mati. Izinkan kamera untuk FitMe di pengaturan perangkat, atau pilih foto.",
+      "no_camera": "Tidak ada kamera di perangkat ini. Pilih foto.",
+      "unsupported_format": "Jenis gambar ini tidak didukung. Gunakan foto JPEG, PNG, atau WebP.",
+      "too_large": "Foto ini lebih dari 20 MB. Pilih yang lebih kecil.",
+      "decode_failed": "Foto ini tidak bisa dibuka. Coba foto lain.",
+      "not_food": "Tidak ada makanan di foto ini. Coba lagi dengan piring terlihat jelas.",
+      "locked": "Pindai foto makanan adalah bagian dari Premium.",
+      "limit": "Kamu sudah mencapai batas pindai foto hari ini. Batas direset besok.",
+      "offline": "Kamu sedang offline. Pindai foto butuh koneksi.",
+      "failed": "Foto belum bisa dianalisis sekarang. Coba lagi sebentar lagi."
+    }
+  },
+  "devices": {
+    "title": "Perangkat terhubung",
+    "healthKit": "Apple Health",
+    "healthConnect": "Health Connect",
+    "webTitle": "Sinkronisasi perangkat berfungsi di aplikasi seluler FitMe.",
+    "webBody": "Browser tidak bisa membaca data dari jam tangan atau aplikasi kesehatan. Pasang FitMe di ponselmu dan hubungkan Apple Health (iPhone dan Apple Watch) atau Health Connect (Android, Wear OS, Samsung Health, Fitbit, dan lainnya). Data yang tersinkron juga akan muncul di sini.",
+    "getAndroid": "Dapatkan di Google Play",
+    "getIos": "Unduh di App Store",
+    "appsSoon": "Aplikasi Android dan iOS segera hadir.",
+    "installHealthConnect": "Health Connect belum terpasang atau tidak didukung di ponsel ini. Pasang dari Google Play untuk menyinkronkan jam tangan dan aplikasi kebugaran.",
+    "healthKitMissing": "Apple Health tidak tersedia di perangkat ini.",
+    "openHealthConnect": "Buka Health Connect",
+    "lastSync": "Terakhir disinkronkan {{when}}",
+    "notSyncedYet": "Terhubung. Belum disinkronkan.",
+    "notConnected": "Tidak terhubung",
+    "connected": "Terhubung",
+    "off": "Mati",
+    "sourcesHint": {
+      "healthKit": "Termasuk Apple Watch dan aplikasi apa pun yang menulis ke Apple Health.",
+      "healthConnect": "Termasuk Wear OS, Samsung Health, Fitbit, dan aplikasi apa pun yang menulis ke Health Connect."
+    },
+    "permissions": "Data yang bisa dibaca FitMe",
+    "allowed": "diizinkan",
+    "notAllowed": "tidak diizinkan",
+    "types": {
+      "steps": "Langkah",
+      "distance": "Jarak",
+      "calories": "Energi aktif",
+      "heartRate": "Detak jantung",
+      "sleep": "Tidur",
+      "workouts": "Latihan",
+      "weight": "Berat badan",
+      "totalCalories": "Energi total",
+      "restingHeartRate": "Detak jantung istirahat",
+      "heartRateVariability": "Variabilitas detak jantung",
+      "oxygenSaturation": "Oksigen darah"
+    },
+    "iosPrivacy": "Apple Health tidak memberi tahu aplikasi data mana yang kamu bagikan. Jika ada yang kurang, periksa FitMe di aplikasi Health pada bagian Berbagi.",
+    "syncNow": "Sinkronkan sekarang",
+    "managePermissions": "Kelola izin",
+    "disconnect": "Putuskan",
+    "connect": "Hubungkan {{app}}",
+    "denied": "Izin {{app}} tidak diberikan. Kamu bisa mengizinkannya di pengaturan {{app}}.",
+    "unavailable": "{{app}} tidak tersedia di perangkat ini.",
+    "synced_one": "{{days}} hari disinkronkan",
+    "synced_other": "{{days}} hari disinkronkan",
+    "disconnected": "{{app}} diputuskan. Data yang sudah tersinkron tetap ada di FitMe.",
+    "failed": "Sinkronisasi tidak selesai. Periksa koneksimu dan coba lagi.",
+    "keepData": "FitMe hanya membaca data ini. Memutuskan akan menghentikan sinkronisasi baru; kamu bisa menghapus entri yang tersinkron kapan saja.",
+    "cloudTitle": "Jam tangan dan cincin",
+    "cloudBody": "Hubungkan perangkat wearable yang sinkron lewat aplikasi dan cloud miliknya.",
+    "cloudSoon": "Garmin, Oura, WHOOP, Polar, Suunto, Strava, Fitbit, dan Withings akan terhubung di sini setelah akun pengembangnya disiapkan.",
+    "notAvailableYet": "Belum tersedia",
+    "connectShort": "Hubungkan"
+  },
+  "access": {
+    "title": "Akses gratismu",
+    "stage": {
+      "welcome": "Welcome Unlock",
+      "trial": "Uji coba gratis",
+      "ended": "Paket gratis"
+    },
+    "daysLeft_one": "Sisa {{count}} hari",
+    "daysLeft_other": "Sisa {{count}} hari",
+    "welcomeBody": "Semua fitur FitMe gratis untukmu sampai {{date}}.",
+    "trialBody": "Uji coba gratis {{plan}} berlaku sampai {{date}}. Tanpa kartu.",
+    "thenTrial": "Setelah itu, uji coba gratis {{plan}} berlanjut sampai {{date}}.",
+    "thenFree": "Setelah {{date}} kamu tetap punya paket gratis: catatan makanan, air, berat badan, tidur, langkah, dan latihan dasar. Berlangganan kapan saja untuk mempertahankan sisanya.",
+    "endedBody": "Masa gratismu sudah berakhir. Kamu masih punya catatan makanan, air, berat badan, tidur, langkah, dan latihan dasar. Berlangganan untuk membuka sisanya.",
+    "notEligibleBody": "Akun ini memakai paket gratis. Masa gratis tersedia sekali per orang.",
+    "seePlans": "Lihat paket",
+    "ending": {
+      "welcome_one": "Welcome Unlock berakhir besok ({{date}}). Uji coba gratismu dimulai saat itu.",
+      "welcome_other": "Welcome Unlock berakhir dalam {{count}} hari ({{date}}). Uji coba gratismu dimulai saat itu.",
+      "trial_one": "Uji coba gratismu berakhir besok ({{date}}). Pilih paket untuk mempertahankan fitur premium.",
+      "trial_other": "Uji coba gratismu berakhir dalam {{count}} hari ({{date}}). Pilih paket untuk mempertahankan fitur premium."
+    }
+  },
+  "photo": {
+    "add": "Tambah foto profil",
+    "change": "Ganti foto profil",
+    "takePhoto": "Ambil foto",
+    "choose": "Pilih foto",
+    "remove": "Hapus foto",
+    "rules": "JPEG, PNG, WebP, atau HEIC. Foto dipotong persegi dan disimpan di bawah {{mb}} MB.",
+    "cropArea": "Area potong foto. Seret untuk memindahkan.",
+    "zoom": "Perbesar",
+    "cropHint": "Seret foto untuk menempatkannya di dalam lingkaran.",
+    "save": "Simpan foto",
+    "saved": "Foto profil disimpan",
+    "removed": "Foto profil dihapus",
+    "errors": {
+      "unsupported_format": "Jenis gambar ini tidak didukung. Gunakan JPEG, PNG, WebP, atau HEIC.",
+      "too_large": "Foto ini lebih dari 20 MB. Pilih yang lebih kecil.",
+      "decode_failed": "Foto ini tidak bisa dibuka. Beberapa browser tidak bisa membaca HEIC; coba JPEG.",
+      "permission_denied": "Akses kamera atau foto mati. Izinkan untuk FitMe di pengaturan perangkat.",
+      "no_camera": "Tidak ada kamera di perangkat ini.",
+      "cancelled": "Tidak ada foto yang dipilih.",
+      "uploadFailed": "Foto tidak bisa disimpan. Periksa koneksimu dan coba lagi."
+    }
+  },
+  "stories": {
+    "title": "Cerita",
+    "tabStories": "Cerita",
+    "tabShare": "Bagikan ceritamu",
+    "entryTitle": "Bagikan ceritamu",
+    "entryBody": "Ceritakan kepada orang lain bagaimana FitMe membantumu. Setiap cerita ditinjau sebelum diterbitkan.",
+    "open": "Buka",
+    "emptyTitle": "Belum ada cerita",
+    "emptyBody": "Cerita anggota FitMe yang disetujui akan muncul di sini.",
+    "hiddenTitle": "Cerita sedang tidak ditampilkan.",
+    "before": "Sebelum",
+    "after": "Sesudah",
+    "more": "Baca cerita lengkap",
+    "less": "Tampilkan lebih sedikit",
+    "weeks_one": "{{count}} minggu",
+    "weeks_other": "{{count}} minggu",
+    "kgChange": "{{kg}} kg",
+    "age": "Usia {{age}}",
+    "reviewNotice": "Tim kami meninjau setiap testimoni sebelum diterbitkan. Hanya cerita yang disetujui yang terlihat oleh orang lain; sampai saat itu tidak ada orang lain yang bisa melihatnya.",
+    "adminFeedback": "Masukan dari tim kami:",
+    "displayName": "Nama yang ditampilkan",
+    "fields": {
+      "testimonial": "Testimonimu (kutipan singkat)",
+      "experience": "Pengalamanmu dengan FitMe",
+      "journey": "Perjalanan perubahanmu (opsional)",
+      "durationWeeks": "Durasi (minggu)",
+      "weightChangeKg": "Perubahan berat (kg)",
+      "goal": "Tujuan",
+      "age": "Usia (opsional)",
+      "location": "Kota atau negara (opsional)"
+    },
+    "placeholders": {
+      "testimonial": "Apa yang akan kamu ceritakan tentang FitMe kepada teman?",
+      "experience": "Apa yang berubah untukmu, dan apa yang paling membantu?",
+      "journey": "Bagaimana perjalanannya dari minggu ke minggu? Ada hambatan?"
+    },
+    "detailsTitle": "Detail perubahan",
+    "addPhoto": "Tambah foto",
+    "replacePhoto": "Ganti foto",
+    "removePhoto": "Hapus foto {{label}}",
+    "consent": "Saya setuju FitMe menerbitkan nama, foto, dan cerita saya di atas di aplikasi dan situsnya setelah ditinjau. Saya bisa menarik persetujuan ini kapan saja, dan cerita akan dihapus dari tampilan publik.",
+    "submit": "Kirim untuk ditinjau",
+    "resubmit": "Kirim ulang untuk ditinjau",
+    "submitted": "Terima kasih. Ceritamu menunggu peninjauan.",
+    "mine": "Kirimanmu",
+    "status": {
+      "pending": "Menunggu peninjauan",
+      "approved": "Diterbitkan",
+      "rejected": "Tidak diterbitkan",
+      "changes_requested": "Perubahan diminta",
+      "withdrawn": "Persetujuan ditarik",
+      "unpublished": "Batal diterbitkan"
+    },
+    "edit": "Edit dan kirim ulang",
+    "withdraw": "Tarik persetujuan",
+    "withdrawn": "Persetujuan ditarik. Ceritamu tidak lagi ditampilkan.",
+    "errors": {
+      "displayName": "Masukkan nama yang ditampilkan.",
+      "testimonial": "Tulis minimal 20 karakter.",
+      "experience": "Tulis minimal 20 karakter.",
+      "durationWeeks": "Masukkan angka.",
+      "weightChangeKg": "Masukkan angka.",
+      "age": "Masukkan angka.",
+      "consent": "Setujui penerbitan untuk mengirim.",
+      "tooMany": "Kamu sudah punya tiga cerita yang menunggu. Tunggu peninjauan dulu.",
+      "invalid": "Beberapa jawaban tidak valid. Periksa formulirnya.",
+      "failed": "Tidak berhasil. Periksa koneksimu dan coba lagi."
+    }
+  },
+  "permissions": {
+    "title": "Izin",
+    "continue": "Lanjutkan",
+    "notNow": "Nanti saja",
+    "openSettings": "Buka pengaturan",
+    "allow": "Izinkan",
+    "change": "Ubah",
+    "privacy": "Kamu bisa mengubahnya kapan saja di Pengaturan, Izin.",
+    "blockedBody": "Izin ini dimatikan. Kamu bisa menyalakannya untuk FitMe di pengaturan ponsel.",
+    "webNote": "Di browser, izin diatur di pengaturan situs di samping bilah alamat. Langkah dan data kesehatan memerlukan aplikasi seluler FitMe.",
+    "state": {
+      "granted": "Diizinkan",
+      "limited": "Diizinkan sebagian",
+      "prompt": "Belum ditanya",
+      "denied": "Tidak diizinkan",
+      "blocked": "Dimatikan",
+      "unsupported": "Tidak tersedia"
+    },
+    "motion": {
+      "title": "Gerakan dan kebugaran",
+      "short": "Menghitung langkahmu di ponsel ini",
+      "why": "FitMe memakai sensor gerak ponselmu untuk menghitung langkah, sehingga langkah harian, jarak, dan targetmu tetap terbaru meski aplikasi ditutup."
+    },
+    "location": {
+      "title": "Lokasi",
+      "short": "Memetakan jalan kaki, lari, dan bersepeda yang kamu rekam",
+      "why": "FitMe memakai lokasimu hanya saat kamu merekam jalan kaki, lari, atau bersepeda dengan aplikasi terbuka, untuk menggambar rute serta mengukur jarak dan kecepatan."
+    },
+    "camera": {
+      "title": "Kamera",
+      "short": "Pindai makanan dan foto",
+      "why": "FitMe memakai kamera saat kamu memindai makanan atau mengambil foto profil atau testimoni. Foto makanan tidak disimpan."
+    },
+    "photos": {
+      "title": "Foto",
+      "short": "Pilih foto dari galerimu",
+      "why": "FitMe membuka galeri fotomu hanya saat kamu memilih foto makanan, profil, atau testimoni."
+    },
+    "health": {
+      "title": "Data kesehatan",
+      "short": "Apple Health atau Health Connect",
+      "why": "FitMe membaca data kesehatan yang kamu pilih (langkah, detak jantung, tidur, latihan, berat badan) untuk menampilkan aktivitas dan kemajuanmu. FitMe tidak pernah menulis ke aplikasi kesehatanmu."
+    },
+    "notifications": {
+      "title": "Notifikasi",
+      "short": "Pengingat dan pemberitahuan uji coba",
+      "why": "FitMe mengirim pengingat yang kamu atur dan memberi tahu sebelum masa gratismu berakhir. Tanpa notifikasi pemasaran."
+    }
+  },
+  "route": {
+    "track": "Rekam rute",
+    "title": "Rekam jalan kaki, lari, atau bersepeda",
+    "activity": {
+      "walk": "Jalan kaki",
+      "run": "Lari",
+      "ride": "Bersepeda"
+    },
+    "time": "Waktu",
+    "km": "km",
+    "pace": "mnt/km",
+    "kmh": "km/jam",
+    "start": "Mulai",
+    "pause": "Jeda",
+    "resume": "Lanjutkan",
+    "finish": "Selesai dan simpan",
+    "saved": "Tersimpan: {{km}} km",
+    "gps": "Akurasi GPS sekitar {{m}} m",
+    "weakGps": "Sinyal GPS lemah (sekitar {{m}} m). Titik dilewati sampai membaik.",
+    "foregroundNote": "Biarkan FitMe terbuka saat merekam. Rutemu disimpan di latihanmu.",
+    "errors": {
+      "denied": "Akses lokasi mati. Izinkan di Pengaturan, Izin.",
+      "unsupported": "Lokasi tidak tersedia di perangkat ini.",
+      "unavailable": "Belum ada sinyal GPS. Coba di luar ruangan dengan langit terbuka."
+    }
   }
 }

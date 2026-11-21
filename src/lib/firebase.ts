@@ -10,6 +10,7 @@ import {
 } from 'firebase/auth';
 import {
   initializeFirestore,
+  setLogLevel,
   connectFirestoreEmulator,
   persistentLocalCache,
   persistentMultipleTabManager,
@@ -72,6 +73,9 @@ export function firebase() {
     cache = memoryLocalCache();
   }
   _db = initializeFirestore(app, { localCache: cache, ignoreUndefinedProperties: true });
+  // Production: the SDK's connectivity notices (e.g. "transport errored" while offline) are expected and handled
+  // by the offline banner and queued writes; keep only real errors in the console.
+  if (import.meta.env.PROD) setLogLevel('error');
   _functions = getFunctions(app, env.functionsRegion);
 
   if (env.useEmulators) {

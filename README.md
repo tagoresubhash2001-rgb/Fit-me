@@ -1,4 +1,4 @@
-# Fit-me — FIT ME AI
+# Fit-me — FitMe
 
 Global AI health and wellness app. One React + TypeScript codebase for web, with iOS and Android via Capacitor.
 Firebase backend (Auth, Firestore, Storage, Cloud Functions, App Check).

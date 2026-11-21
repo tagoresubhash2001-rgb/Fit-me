@@ -56,7 +56,7 @@ export interface UsdaFood {
 }
 
 /** Builds generic foods from the SR Legacy CSV folder. Keeps at most `max`, preferring foods with household portions. */
-export function buildUsdaFoods(dir: string, max = 5000): UsdaFood[] {
+export function buildUsdaFoods(dir: string, max = Infinity): UsdaFood[] {
   const read = (f: string) => csvObjects(readFileSync(join(dir, f), 'utf8'));
   const categories = new Map(read('food_category.csv').map((c) => [c.id, c.description]));
   const units = new Map(read('measure_unit.csv').map((u) => [u.id, u.name]));

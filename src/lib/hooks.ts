@@ -29,6 +29,8 @@ export function useFormat() {
     n: (v: number, digits = 0) => new Intl.NumberFormat(lang, { maximumFractionDigits: digits }).format(v),
     date: (iso: string, opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' }) =>
       new Intl.DateTimeFormat(lang, { ...opts, timeZone: 'UTC' }).format(new Date(`${iso}T00:00:00Z`)),
+    /** A moment in time (ms) in the user's timezone, e.g. "21 Nov, 14:05". */
+    dateTime: (ms: number) => new Intl.DateTimeFormat(lang, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: tzNow() }).format(new Date(ms)),
   };
 }
 

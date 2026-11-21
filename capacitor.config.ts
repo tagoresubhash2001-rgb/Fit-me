@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.sindulis.fitmeai',
-  appName: 'FIT ME AI',
+  appName: 'FitMe',
   webDir: 'dist',
   backgroundColor: '#F7F5EF',
   plugins: {

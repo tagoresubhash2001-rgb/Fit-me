@@ -18,6 +18,10 @@ vi.mock('firebase/functions', () => ({
 vi.mock('../../../lib/firebase', () => ({ functions: () => ({}), db: () => ({}) }));
 let pricing: PricingConfig = DEFAULT_PRICING;
 vi.mock('../../../data/pricing', () => ({ usePricing: () => pricing }));
+vi.mock('../../../data/appConfig', async () => {
+  const c = await import('../../../domain/appConfig');
+  return { usePlanCatalog: () => c.DEFAULT_PLAN_CATALOG, useFeatures: () => c.DEFAULT_FEATURES, useContent: () => c.DEFAULT_CONTENT, useAppSettings: () => c.DEFAULT_APP_SETTINGS };
+});
 
 const PlansScreen = (await import('../PlansScreen')).default;
 const DAY = 86400000;
@@ -106,6 +110,25 @@ describe('Plans screen', () => {
     expect(screen.queryByRole('button', { name: 'Change plan' })).toBeNull();
     expect(screen.getByText('To switch, keep your plan first')).toBeInTheDocument();
     expect(screen.queryByText('Use Change plan above')).toBeNull();
+  });
+
+  it('during the free stages: no second trial, free until the stage ends, first charge then', async () => {
+    const u = userEvent.setup();
+    const now = Date.now();
+    useSession.setState({
+      plan: 'premium',
+      subscriptionPlan: 'free',
+      access: { createdAtMs: now - 10 * DAY, welcomeEndsAtMs: now - 3 * DAY, trialEndsAtMs: now + 27 * DAY, welcomePlan: 'pro', trialPlan: 'premium', eligible: true, configVersion: 1 },
+    } as never);
+    renderPlans('/plans?period=monthly');
+    expect(screen.queryByText('30 days free')).toBeNull();
+    expect(screen.getAllByText(/^Free until /)).toHaveLength(3); // page subtitle and both plan badges
+    await u.click(within(document.getElementById('plan-pro')!).getByRole('button', { name: 'Choose Pro' }));
+    const sheet = screen.getByRole('dialog');
+    const end = new Intl.DateTimeFormat('en', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(now + 27 * DAY));
+    expect(within(sheet).getByText(`Free until ${end}`)).toBeInTheDocument();
+    expect(within(sheet).getAllByText(end).length).toBeGreaterThan(0);
+    useSession.setState({ access: null } as never);
   });
 
   it('offers a plain choice (no trial) once the trial has been used', () => {
