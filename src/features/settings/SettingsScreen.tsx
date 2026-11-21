@@ -118,11 +118,7 @@ export default function SettingsScreen() {
             <div className="mt-1 flex flex-wrap items-center gap-2">
               <Badge tone={plan === 'free' ? 'neutral' : 'primary'}>{t('plans.currentPlan', { plan: t(`plans.${plan}`) })}</Badge>
               {plan !== 'pro' && (
-                <Button
-                  id="settings-upgrade"
-                  size="sm"
-                  onClick={() => navigate('/plans')}
-                >
+                <Button id="settings-upgrade" size="sm" onClick={() => navigate('/plans')}>
                   {t('plans.upgrade')}
                 </Button>
               )}
@@ -131,11 +127,11 @@ export default function SettingsScreen() {
                   {t('plans.manage')}
                 </Button>
               )}
+              <Button size="sm" variant="secondary" icon={<User className="h-4 w-4" strokeWidth={1.75} />} onClick={() => setEditing(true)}>
+                {t('settings.editProfile')}
+              </Button>
             </div>
           </div>
-          <Button size="sm" variant="secondary" icon={<User className="h-4 w-4" strokeWidth={1.75} />} onClick={() => setEditing(true)}>
-            {t('settings.editProfile')}
-          </Button>
         </Card>
 
         <AccessStageCard />
@@ -231,13 +227,13 @@ export default function SettingsScreen() {
         </Card>
 
         {features.reminders && (
-        <Card id="reminders" className="flex scroll-mt-24 items-start gap-3">
-          <Bell className="mt-0.5 h-5 w-5 shrink-0 text-primary-text" strokeWidth={1.75} />
-          <div>
-            <p className="text-body font-medium text-ink">{t('settings.notifications')}</p>
-            <p className="text-small text-muted">{t('settings.notificationsBody')}</p>
-          </div>
-        </Card>
+          <Card id="reminders" className="flex scroll-mt-24 items-start gap-3">
+            <Bell className="mt-0.5 h-5 w-5 shrink-0 text-primary-text" strokeWidth={1.75} />
+            <div>
+              <p className="text-body font-medium text-ink">{t('settings.notifications')}</p>
+              <p className="text-small text-muted">{t('settings.notificationsBody')}</p>
+            </div>
+          </Card>
         )}
 
         <Card id="privacy" className="flex scroll-mt-24 flex-col gap-3">
@@ -282,7 +278,10 @@ export default function SettingsScreen() {
         <Card id="about" tone="subtle" className="scroll-mt-24">
           <p className="text-small text-ink">{t('common.disclaimer')}</p>
           <p className="mt-2 text-caption text-muted">{t('settings.version', { v: import.meta.env.VITE_APP_VERSION ?? '0.1.0' })}</p>
-          <a href="/privacy.html" className="mt-2 inline-flex min-h-11 items-center text-small font-semibold text-primary-text hover:underline">
+          <a
+            href="/privacy.html"
+            className="mt-2 inline-flex min-h-11 items-center text-small font-semibold text-primary-text hover:underline"
+          >
             {t('settings.privacyPage')}
           </a>
         </Card>
