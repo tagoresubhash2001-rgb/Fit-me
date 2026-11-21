@@ -17,9 +17,8 @@ import {
   useTilt,
 } from '../../components/ui';
 import { db } from '../../lib/firebase';
-import { planAllows } from '../../domain/plans';
 import { useUi } from '../../stores/ui.store';
-import { useSession } from '../../data/session';
+import { useCanUse, useSession } from '../../data/session';
 import { useRecords } from '../../data/useRecords';
 import { useToday, useFormat, nowMinutes } from '../../lib/hooks';
 import { sumNutrients } from '../../domain/nutrition';
@@ -28,7 +27,14 @@ import { useUnits } from '../common/useUnits';
 import { currentStreak, movingAverage } from '../../domain/progress';
 import type { FoodLog, WaterLog, WorkoutLog, SleepLog, WeightLog, StepLog } from '../../domain/models';
 import { addWater } from '../health/waterActions';
-import { UpgradeNudge } from '../plans/PlanPrompts';
+import { AccessStageCard, UpgradeNudge } from '../plans/PlanPrompts';
+import { useLivePhoneSteps } from '../../data/steps';
+import { pickDaily, stepStats } from '../../domain/steps';
+import { isNative } from '../../lib/platform';
+import { Announcements, ContentBanners } from './Banners';
+import { StepsHelp } from './StepsHelp';
+import { useContent } from '../../data/appConfig';
+import type { HomeSection } from '../../domain/appConfig';
 
 function greetingKey(m: number) {
   if (m < 12 * 60) return 'greeting.morning';
@@ -103,7 +109,12 @@ export default function HomeScreen() {
   const remaining = target - totals.calories + burned;
   const waterMl = water.rows.reduce((a, w) => a + w.ml, 0);
   const waterTarget = profile.waterTargetMl ?? profile.targets.waterMl;
-  const stepCount = steps.rows.reduce((a, s) => Math.max(a, s.steps), 0);
+  const live = useLivePhoneSteps(isNative());
+  // One count per day by source priority (health platform, cloud wearable, this phone, manual), never summed.
+  const pickedSteps = pickDaily(steps.rows, today);
+  const stepCount = Math.max(pickedSteps.steps, live ?? 0);
+  const content = useContent();
+  const stepInfo = stepStats(stepCount, profile.heightCm, profile.weightKg);
   const stepTarget = profile.stepTarget ?? 8000;
   const lastSleep = [...sleep.rows].sort((a, b) => b.durationMin - a.durationMin)[0];
   const latestWeight = [...weights.rows].sort((a, b) => b.date.localeCompare(a.date))[0];
@@ -126,6 +137,18 @@ export default function HomeScreen() {
     </div>
   );
 
+  // Admin home layout (Content, Home sections): hidden sections are not rendered; a configured order wins.
+  const sections = content.homeSections;
+  const sec = (id: HomeSection): { show: boolean; style?: React.CSSProperties } => {
+    const i = sections.findIndex((x) => x.id === id);
+    if (i < 0) return { show: true };
+    return { show: sections[i].visible, style: { order: i + 1 } };
+  };
+  const stepRowSources = (pickedSteps.row as { sources?: string[] } | null)?.sources ?? [];
+  const stepSourceLabel = pickedSteps.source
+    ? `${t(`steps.sources.${pickedSteps.source}`, { app: pickedSteps.row?.deviceName ?? '' })}${stepRowSources.length ? ` · ${stepRowSources.join(', ')}` : ''}`
+    : null;
+
   return (
     <div className="stagger grid grid-cols-1 gap-4 md:grid-cols-12 md:gap-5">
       <div className="card-enter md:col-span-12">
@@ -137,6 +160,17 @@ export default function HomeScreen() {
         </p>
       </div>
 
+      {sec('banners').show && (
+        <div className="contents" style={sec('banners').style}>
+          <ContentBanners />
+        </div>
+      )}
+      {sec('announcements').show && (
+        <div className="contents" style={sec('announcements').style}>
+          <Announcements />
+        </div>
+      )}
+      {sec('access').show && <AccessStageCard compact />}
       <UpgradeNudge />
 
       {nothingToday && (
@@ -145,10 +179,11 @@ export default function HomeScreen() {
         </Card>
       )}
 
+      {sec('calories').show && (
       <Card
         id="card-calories"
         {...tilt}
-        style={{ viewTransitionName: 'tile-calories' }}
+        style={{ viewTransitionName: 'tile-calories', ...sec('calories').style }}
         className="md:order-1 md:col-span-12 xl:col-span-7"
       >
         <div className="mb-3 flex items-center justify-between">
@@ -192,17 +227,21 @@ export default function HomeScreen() {
             </dl>
           </div>
         )}
-        <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 md:mt-5 md:gap-x-6">
-          {macro('proteinG', t('onboarding.protein'), profile.targets.proteinG, 'bg-protein')}
-          {macro('carbsG', t('onboarding.carbs'), profile.targets.carbsG, 'bg-carbs')}
-          {macro('fatG', t('onboarding.fat'), profile.targets.fatG, 'bg-fat')}
-          {macro('fiberG', t('onboarding.fiber'), profile.targets.fiberG, 'bg-primary')}
-        </div>
+        {sec('macros').show && (
+          <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 md:mt-5 md:gap-x-6">
+            {macro('proteinG', t('onboarding.protein'), profile.targets.proteinG, 'bg-protein')}
+            {macro('carbsG', t('onboarding.carbs'), profile.targets.carbsG, 'bg-carbs')}
+            {macro('fatG', t('onboarding.fat'), profile.targets.fatG, 'bg-fat')}
+            {macro('fiberG', t('onboarding.fiber'), profile.targets.fiberG, 'bg-primary')}
+          </div>
+        )}
       </Card>
+      )}
 
       <WeightTrendCard rows={weights.rows} className="hidden md:order-3 md:col-span-6 md:flex xl:order-2 xl:col-span-5" />
 
       <div className="stagger grid grid-cols-2 gap-3 md:order-2 md:col-span-12 md:grid-cols-3 md:gap-4 xl:order-3 xl:grid-cols-6">
+        {sec('water').show && (
         <StatCard
           id="card-water"
           icon={<Droplet className="h-[18px] w-[18px] text-water" strokeWidth={1.75} />}
@@ -224,19 +263,24 @@ export default function HomeScreen() {
             {t('water.add', { amount: vol(250) })}
           </Button>
         </StatCard>
+        )}
 
+        {sec('steps').show && (
         <StatCard
           id="card-steps"
           icon={<Footprints className="h-[18px] w-[18px]" strokeWidth={1.75} />}
           title={t('home.stepsCard')}
           value={stepCount ? n(stepCount) : '—'}
-          sub={stepCount ? `${t('common.of')} ${n(stepTarget)}` : t('home.noSteps')}
+          sub={stepCount ? `${t('common.of')} ${n(stepTarget)} · ${t('steps.kmKcal', { km: n(stepInfo.km, 1), kcal: n(stepInfo.kcal) })}` : t('home.noSteps')}
           onPress={() => navigateWithTransition(() => navigate('/health/steps'))}
           vt="tile-steps"
         >
           {stepCount > 0 && <ProgressBar value={stepCount} max={stepTarget} label={t('home.stepsCard')} />}
+          {stepSourceLabel && <span className="text-caption text-muted">{stepSourceLabel}</span>}
         </StatCard>
+        )}
 
+        {sec('workouts').show && (
         <StatCard
           icon={<Dumbbell className="h-[18px] w-[18px]" strokeWidth={1.75} />}
           title={t('home.workoutCard')}
@@ -248,6 +292,7 @@ export default function HomeScreen() {
           sub={workouts.rows.length ? `${n(burned)} ${t('common.kcal')}` : t('home.noWorkout')}
           onPress={() => navigateWithTransition(() => navigate('/workouts'))}
         />
+        )}
 
         <StatCard
           icon={<Moon className="h-[18px] w-[18px] text-sleep" strokeWidth={1.75} />}
@@ -289,7 +334,8 @@ export default function HomeScreen() {
         {plan !== 'pro' && <PlanBadge plan="pro" label={t('plans.pro')} ariaLabel={t('plans.seePlans')} />}
       </Card>
 
-      <CoachInsightCard className="hidden md:order-4 md:col-span-6 md:flex xl:order-5 xl:col-span-6" />
+      {isNative() && <StepsHelp className="md:order-6 md:col-span-12" lastSyncDate={pickedSteps.row?.date ?? null} />}
+      {sec('coach').show && <CoachInsightCard className="hidden md:order-4 md:col-span-6 md:flex xl:order-5 xl:col-span-6" />}
     </div>
   );
 }
@@ -340,9 +386,8 @@ function CoachInsightCard({ className }: { className?: string }) {
   const navigate = useNavigate();
   const user = useSession((s) => s.user);
   const profile = useSession((s) => s.profile)!;
-  const plan = useSession((s) => s.plan);
   const setCoachOpen = useUi((s) => s.setCoachOpen);
-  const isPro = planAllows(plan, 'pro');
+  const isPro = useCanUse('coachChat');
   const coach = profile.coach;
   const name = t(`coach.${coach}`);
   const [last, setLast] = useState<string | null>(null);

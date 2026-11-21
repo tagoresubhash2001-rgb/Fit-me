@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Card, Choice, Input, ProgressBar, Select, toast } from '../../components/ui';
+import { BrandLogo, Button, Card, Choice, Input, ProgressBar, Select, toast } from '../../components/ui';
 import { TimeField } from './BodyFields';
 import { LanguagePicker } from '../settings/LanguagePicker';
 import { DobPicker, MeasureInput, dobError, dobToIso, type DobValue } from '../common/fields';
@@ -179,9 +179,7 @@ export default function Onboarding() {
     <div className="min-h-dvh bg-canvas px-4 pb-10 pt-[max(20px,env(safe-area-inset-top))]">
       <div className="mx-auto w-full max-w-md">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-title font-semibold text-ink">
-            FIT ME <span className="text-primary-text">AI</span>
-          </span>
+          <BrandLogo size={32} textClassName="text-title" />
           <span className="text-caption text-muted">{t('onboarding.stepOf', { step, total: TOTAL })}</span>
         </div>
         <ProgressBar value={step} max={TOTAL} label={t('onboarding.stepOf', { step, total: TOTAL })} className="mb-6" />

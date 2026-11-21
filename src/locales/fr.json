@@ -33,7 +33,7 @@
     "main": "Principal"
   },
   "auth": {
-    "welcomeTitle": "Bienvenue sur FIT ME AI",
+    "welcomeTitle": "Bienvenue sur FitMe",
     "google": "Continuer avec Google",
     "apple": "Continuer avec Apple",
     "email": "Continuer avec un e-mail",
@@ -59,7 +59,7 @@
       "incomplete": "Choisissez le jour, le mois et l'année.",
       "invalid": "Cette date n'existe pas.",
       "future": "La date de naissance ne peut pas être dans le futur.",
-      "tooYoung": "Vous devez avoir au moins 13 ans pour utiliser FIT ME AI.",
+      "tooYoung": "Vous devez avoir au moins 13 ans pour utiliser FitMe.",
       "tooOld": "Vérifiez l'année."
     }
   },
@@ -271,7 +271,11 @@
       "firstCharge": "Premier prélèvement",
       "today": "Aujourd'hui",
       "cancelHow": "Résiliez avant le {{date}} et vous ne payez rien. Réglages, Offre, Résilier, ou via votre store.",
-      "confirm": "Démarrer l'essai gratuit"
+      "confirm": "Démarrer l'essai gratuit",
+      "freeUntil": "Gratuit jusqu'au {{date}}",
+      "titleFree": "Gardez vos jours gratuits",
+      "confirmFree": "Choisir l'offre, payer à partir de cette date",
+      "cancelPaid": "Vous êtes débité aujourd'hui. Résiliez à tout moment dans Réglages, Offre, ou dans votre boutique d'applis ; l'accès reste actif jusqu'à la fin de la période."
     },
     "trialStarted": "Votre essai {{plan}} a commencé. Gratuit jusqu'au {{date}}.",
     "error": {
@@ -304,7 +308,11 @@
     "nudgeTitle": "Essayez Pro gratuitement 30 jours",
     "nudgeBody": "Coaching de Jai et Jaya, planificateur et rapports. Résiliez quand vous voulez.",
     "nudgeCta": "Voir les offres",
-    "nudgeDismiss": "Plus tard"
+    "nudgeDismiss": "Plus tard",
+    "subtitleFreeUntil": "Gratuit jusqu'au {{date}}. Choisissez une offre maintenant ou plus tard ; le premier paiement aurait lieu le {{date}}.",
+    "subtitlePaid": "Choisissez l'offre qui vous convient. Résiliable à tout moment.",
+    "freeUntilBadge": "Gratuit jusqu'au {{date}}",
+    "subscribed": "Vous avez maintenant {{plan}}."
   },
   "food": {
     "allergyWarning": "Contient {{items}}, que vous avez indiqué comme allergie ou restriction.",
@@ -314,7 +322,31 @@
     "rename": "Renommer",
     "replaceFood": "Changer d'aliment",
     "unit": "Unité",
-    "quickAdd": "Ajout rapide"
+    "quickAdd": "Ajout rapide",
+    "offlineResults": "Vous êtes hors ligne. Affichage des aliments enregistrés sur cet appareil.",
+    "closeMatches": "Aucun aliment ne correspond à tous les mots de « {{q}} ». Affichage des plus proches.",
+    "showMore": "Voir plus ({{shown}} sur {{total}})",
+    "noResultsBody": "Estimez-le avec l'IA ou ajoutez-le vous-même. Les deux sont enregistrés comme votre aliment.",
+    "estimateWithAi": "Estimer avec l'IA",
+    "addOwnFood": "Ajouter votre aliment",
+    "aiEstimateTitle": "Estimation IA",
+    "aiEstimateRange": "{{portion}} · {{min}}–{{max}} kcal",
+    "reviewAndSave": "Vérifier et enregistrer",
+    "aiEstimateDisclaimer": "C'est une estimation, pas une mesure. Vérifiez les valeurs avant d'enregistrer.",
+    "aiEstimateLocked": "Les estimations IA font partie de Premium.",
+    "aiEstimateFailed": "L'estimation est impossible pour le moment. Réessayez ou ajoutez l'aliment vous-même.",
+    "aiEstimateEmpty": "Cela ne ressemble pas à un aliment. Essayez un autre nom.",
+    "aiEstimateNote": "Estimation IA. Vérifiez et corrigez les valeurs, puis enregistrez-le comme votre aliment.",
+    "saveAndAdd": "Enregistrer et ajouter",
+    "seePlans": "Voir les offres",
+    "sources": {
+      "usda": "USDA",
+      "ifct": "IFCT 2017",
+      "off": "Open Food Facts",
+      "curated": "Recette FitMe",
+      "custom": "Votre aliment",
+      "ai": "Estimation IA"
+    }
   },
   "water": {
     "amount": "Quantité",
@@ -345,7 +377,20 @@
   "steps": {
     "count": "Pas",
     "editEntry": "Modifier l'entrée de pas",
-    "manualSource": "Saisi par vous"
+    "manualSource": "Saisi par vous",
+    "webOnly": "Les pas du téléphone ou de la montre se synchronisent dans l'application FitMe pour Android et iOS. Ici, vous pouvez ajouter des pas à la main. Voir",
+    "phoneTitle": "Ce téléphone",
+    "phoneBody": "Comptez vos pas avec le capteur de mouvement du téléphone, même sans montre. Le comptage continue quand FitMe est fermé.",
+    "phoneOn": "Compter les pas sur ce téléphone",
+    "phoneOff": "Arrêter le comptage",
+    "kmKcal": "{{km}} km · {{kcal}} kcal",
+    "synced": "Pas synchronisés",
+    "sources": {
+      "health": "Depuis {{app}}",
+      "cloud": "Depuis votre montre",
+      "phone": "Depuis ce téléphone",
+      "manual": "Ajouté par vous"
+    }
   },
   "workouts": {
     "editEntry": "Modifier la séance",
@@ -357,7 +402,8 @@
     "heightUnit": "Unité de taille",
     "weightUnit": "Unité de poids",
     "volumeUnit": "Unité de volume",
-    "saveWithTargets": "Enregistrer. Nouvel objectif : {{kcal}} kcal"
+    "saveWithTargets": "Enregistrer. Nouvel objectif : {{kcal}} kcal",
+    "privacyPage": "Confidentialité et données de santé"
   },
   "shell": {
     "collapse": "Réduire la barre latérale",
@@ -411,18 +457,411 @@
     "moved": "{{name}} déplacé au {{day}}"
   },
   "pwa": {
-    "updateAvailable": "Une nouvelle version de FIT ME AI est prête.",
+    "updateAvailable": "Une nouvelle version de FitMe est prête.",
     "refresh": "Actualiser"
   },
   "app": {
-    "splash": "Repas, eau, sommeil, pas et séances, avec Jai et Jaya, vos coachs IA."
+    "splash": "Repas, eau, sommeil, pas et séances, avec Jai et Jaya, vos coachs IA.",
+    "tagline": "FitMe – For a Healthier Life."
   },
   "errors": {
     "newVersionTitle": "Une nouvelle version est prête",
-    "newVersionBody": "FIT ME AI a été mis à jour pendant que cette page était ouverte. Rechargez pour continuer.",
+    "newVersionBody": "FitMe a été mis à jour pendant que cette page était ouverte. Rechargez pour continuer.",
     "reload": "Recharger",
     "screenTitle": "Cet écran ne s'est pas chargé",
     "screenBody": "Un problème est survenu de notre côté. Vos données sont en sécurité. Réessayez.",
     "slowBody": "Cela prend plus de temps que d'habitude. Vérifiez votre connexion et réessayez."
+  },
+  "scan": {
+    "title": "Scanner un repas",
+    "hint": "Prenez une photo nette du dessus, bien éclairée, avec toute l'assiette visible.",
+    "takePhoto": "Prendre une photo",
+    "choosePhoto": "Choisir une photo",
+    "privacy": "La photo sert uniquement à estimer ce repas et n'est pas conservée.",
+    "cameraPreview": "Aperçu de l'appareil photo",
+    "capture": "Capturer",
+    "analysing": "Recherche des aliments sur votre photo",
+    "yourPhoto": "Votre photo",
+    "reviewHint": "Vérifiez chaque élément et son poids. Retirez ce qui est faux avant d'ajouter.",
+    "matched": "Correspond à {{source}}",
+    "aiOnly": "Estimation IA, absente de la base d'aliments",
+    "confidence": {
+      "low": "Confiance faible",
+      "medium": "Confiance moyenne",
+      "high": "Confiance élevée"
+    },
+    "remove": "Retirer {{name}}",
+    "restore": "Remettre {{name}}",
+    "grams": "Grammes",
+    "portionGuess": "{{portion}}, environ {{min}}–{{max}} g",
+    "total": "Total {{kcal}} kcal",
+    "macros": "Protéines {{p}} g · Glucides {{c}} g · Lipides {{f}} g",
+    "estimateNote": "Les portions sur photo sont des estimations. Ajustez les grammes si vous connaissez la quantité réelle.",
+    "addItems_one": "Ajouter {{count}} élément à {{slot}}",
+    "addItems_other": "Ajouter {{count}} éléments à {{slot}}",
+    "logged_one": "{{count}} élément ajouté à {{slot}}",
+    "logged_other": "{{count}} éléments ajoutés à {{slot}}",
+    "retake": "Prendre une autre photo",
+    "quality": {
+      "dark": "La photo est assez sombre, l'estimation peut être moins précise.",
+      "blurry": "La photo est un peu floue, l'estimation peut être moins précise.",
+      "too_far": "Le repas paraît petit sur la photo. Rapprochez-vous la prochaine fois.",
+      "partial": "Une partie de l'assiette est coupée. Ce qui est hors cadre n'est pas compté."
+    },
+    "errors": {
+      "permission_denied": "L'accès à l'appareil photo est désactivé. Autorisez-le pour FitMe dans les réglages de l'appareil, ou choisissez une photo.",
+      "no_camera": "Aucun appareil photo trouvé sur cet appareil. Choisissez une photo.",
+      "unsupported_format": "Ce type d'image n'est pas pris en charge. Utilisez une photo JPEG, PNG ou WebP.",
+      "too_large": "Cette photo dépasse 20 MB. Choisissez-en une plus petite.",
+      "decode_failed": "Impossible d'ouvrir cette photo. Essayez-en une autre.",
+      "not_food": "Aucun aliment trouvé sur cette photo. Réessayez avec l'assiette bien visible.",
+      "locked": "Le scan de repas par photo fait partie de Premium.",
+      "limit": "Vous avez atteint la limite de scans du jour. Elle se réinitialise demain.",
+      "offline": "Vous êtes hors ligne. Le scan photo nécessite une connexion.",
+      "failed": "Impossible d'analyser la photo pour le moment. Réessayez dans un instant."
+    }
+  },
+  "devices": {
+    "title": "Appareils connectés",
+    "healthKit": "Apple Health",
+    "healthConnect": "Health Connect",
+    "webTitle": "La synchronisation des appareils fonctionne dans l'application mobile FitMe.",
+    "webBody": "Les navigateurs ne peuvent pas lire les données des montres ou des applis santé. Installez FitMe sur votre téléphone et connectez Apple Health (iPhone et Apple Watch) ou Health Connect (Android, Wear OS, Samsung Health, Fitbit et plus). Les données synchronisées apparaîtront aussi ici.",
+    "getAndroid": "Disponible sur Google Play",
+    "getIos": "Télécharger dans l'App Store",
+    "appsSoon": "Les applications Android et iOS arrivent bientôt.",
+    "installHealthConnect": "Health Connect n'est pas installé ou pas pris en charge sur ce téléphone. Installez-le depuis Google Play pour synchroniser votre montre et vos applis de sport.",
+    "healthKitMissing": "Apple Health n'est pas disponible sur cet appareil.",
+    "openHealthConnect": "Ouvrir Health Connect",
+    "lastSync": "Dernière synchronisation {{when}}",
+    "notSyncedYet": "Connecté. Pas encore synchronisé.",
+    "notConnected": "Non connecté",
+    "connected": "Connecté",
+    "off": "Désactivé",
+    "sourcesHint": {
+      "healthKit": "Inclut l'Apple Watch et toute appli qui écrit dans Apple Health.",
+      "healthConnect": "Inclut Wear OS, Samsung Health, Fitbit et toute appli qui écrit dans Health Connect."
+    },
+    "permissions": "Données que FitMe peut lire",
+    "allowed": "autorisé",
+    "notAllowed": "non autorisé",
+    "types": {
+      "steps": "Pas",
+      "distance": "Distance",
+      "calories": "Énergie active",
+      "heartRate": "Fréquence cardiaque",
+      "sleep": "Sommeil",
+      "workouts": "Entraînements",
+      "weight": "Poids",
+      "totalCalories": "Énergie totale",
+      "restingHeartRate": "Fréquence cardiaque au repos",
+      "heartRateVariability": "Variabilité de la fréquence cardiaque",
+      "oxygenSaturation": "Oxygène sanguin"
+    },
+    "iosPrivacy": "Apple Health n'indique pas aux applis quelles données vous avez partagées. S'il manque quelque chose, vérifiez FitMe dans l'app Santé, sous Partage.",
+    "syncNow": "Synchroniser",
+    "managePermissions": "Gérer les autorisations",
+    "disconnect": "Déconnecter",
+    "connect": "Connecter {{app}}",
+    "denied": "L'autorisation {{app}} n'a pas été donnée. Vous pouvez l'accorder dans les réglages de {{app}}.",
+    "unavailable": "{{app}} n'est pas disponible sur cet appareil.",
+    "synced_one": "{{days}} jour synchronisé",
+    "synced_other": "{{days}} jours synchronisés",
+    "disconnected": "{{app}} déconnecté. Les données déjà synchronisées restent dans FitMe.",
+    "failed": "La synchronisation n'a pas abouti. Vérifiez votre connexion et réessayez.",
+    "keepData": "FitMe lit seulement ces données. La déconnexion arrête les nouvelles synchronisations ; vous pouvez supprimer les entrées synchronisées à tout moment.",
+    "cloudTitle": "Montres et bagues",
+    "cloudBody": "Connectez un objet connecté qui se synchronise via sa propre appli et son cloud.",
+    "cloudSoon": "Garmin, Oura, WHOOP, Polar, Suunto, Strava, Fitbit et Withings se connecteront ici une fois leurs comptes développeur configurés.",
+    "notAvailableYet": "Pas encore disponible",
+    "connectShort": "Connecter"
+  },
+  "access": {
+    "title": "Votre accès gratuit",
+    "stage": {
+      "welcome": "Welcome Unlock",
+      "trial": "Essai gratuit",
+      "ended": "Offre gratuite"
+    },
+    "daysLeft_one": "{{count}} jour restant",
+    "daysLeft_other": "{{count}} jours restants",
+    "welcomeBody": "Toutes les fonctionnalités de FitMe sont gratuites pour vous jusqu'au {{date}}.",
+    "trialBody": "Votre essai gratuit de {{plan}} dure jusqu'au {{date}}. Sans carte.",
+    "thenTrial": "Ensuite, votre essai gratuit de {{plan}} continue jusqu'au {{date}}.",
+    "thenFree": "Après le {{date}}, vous gardez l'offre gratuite : journal alimentaire, eau, poids, sommeil, pas et entraînements de base. Abonnez-vous quand vous voulez pour garder le reste.",
+    "endedBody": "Votre période gratuite est terminée. Vous gardez le journal alimentaire, l'eau, le poids, le sommeil, les pas et les entraînements de base. Abonnez-vous pour débloquer le reste.",
+    "notEligibleBody": "Ce compte utilise l'offre gratuite. La période gratuite est proposée une fois par personne.",
+    "seePlans": "Voir les offres",
+    "ending": {
+      "welcome_one": "Votre Welcome Unlock se termine demain ({{date}}). Votre essai gratuit commence alors.",
+      "welcome_other": "Votre Welcome Unlock se termine dans {{count}} jours ({{date}}). Votre essai gratuit commence alors.",
+      "trial_one": "Votre essai gratuit se termine demain ({{date}}). Choisissez une offre pour garder les fonctions premium.",
+      "trial_other": "Votre essai gratuit se termine dans {{count}} jours ({{date}}). Choisissez une offre pour garder les fonctions premium."
+    },
+    "freeLaunchTitle": "Tout est gratuit pendant le lancement",
+    "freeLaunchBody": "Toutes les fonctionnalités de FitMe sont gratuites pour vous en ce moment. Nous vous préviendrons dans l'appli avant tout changement."
+  },
+  "photo": {
+    "add": "Ajouter une photo de profil",
+    "change": "Changer la photo de profil",
+    "takePhoto": "Prendre une photo",
+    "choose": "Choisir une photo",
+    "remove": "Supprimer la photo",
+    "rules": "JPEG, PNG, WebP ou HEIC. Elle est recadrée en carré et enregistrée sous {{mb}} MB.",
+    "cropArea": "Zone de recadrage. Faites glisser pour déplacer.",
+    "zoom": "Zoom",
+    "cropHint": "Faites glisser la photo pour la placer dans le cercle.",
+    "save": "Enregistrer la photo",
+    "saved": "Photo de profil enregistrée",
+    "removed": "Photo de profil supprimée",
+    "errors": {
+      "unsupported_format": "Ce type d'image n'est pas pris en charge. Utilisez JPEG, PNG, WebP ou HEIC.",
+      "too_large": "Cette photo dépasse 20 MB. Choisissez-en une plus petite.",
+      "decode_failed": "Impossible d'ouvrir cette photo. Certains navigateurs ne lisent pas le HEIC ; essayez un JPEG.",
+      "permission_denied": "L'accès à l'appareil photo ou aux photos est désactivé. Autorisez-le pour FitMe dans les réglages de l'appareil.",
+      "no_camera": "Aucun appareil photo disponible sur cet appareil.",
+      "cancelled": "Aucune photo choisie.",
+      "uploadFailed": "La photo n'a pas pu être enregistrée. Vérifiez votre connexion et réessayez."
+    }
+  },
+  "stories": {
+    "title": "Témoignages",
+    "tabStories": "Témoignages",
+    "tabShare": "Partager le vôtre",
+    "entryTitle": "Partagez votre histoire",
+    "entryBody": "Racontez comment FitMe vous a aidé. Chaque histoire est vérifiée avant publication.",
+    "open": "Ouvrir",
+    "emptyTitle": "Aucune histoire pour l'instant",
+    "emptyBody": "Les histoires approuvées des membres FitMe apparaissent ici.",
+    "hiddenTitle": "Les histoires ne sont pas affichées pour le moment.",
+    "before": "Avant",
+    "after": "Après",
+    "more": "Lire toute l'histoire",
+    "less": "Voir moins",
+    "weeks_one": "{{count}} semaine",
+    "weeks_other": "{{count}} semaines",
+    "kgChange": "{{kg}} kg",
+    "age": "{{age}} ans",
+    "reviewNotice": "Notre équipe vérifie chaque témoignage avant publication. Seules les histoires approuvées sont visibles ; d'ici là, personne d'autre ne peut la voir.",
+    "adminFeedback": "Retour de notre équipe :",
+    "displayName": "Nom affiché",
+    "fields": {
+      "testimonial": "Votre témoignage (une courte citation)",
+      "experience": "Votre expérience avec FitMe",
+      "journey": "Votre parcours de transformation (facultatif)",
+      "durationWeeks": "Durée (semaines)",
+      "weightChangeKg": "Variation de poids (kg)",
+      "goal": "Objectif",
+      "age": "Âge (facultatif)",
+      "location": "Ville ou pays (facultatif)"
+    },
+    "placeholders": {
+      "testimonial": "Que diriez-vous de FitMe à un ami ?",
+      "experience": "Qu'est-ce qui a changé pour vous, et qu'est-ce qui vous a le plus aidé ?",
+      "journey": "Comment cela s'est-il passé semaine après semaine ? Des difficultés ?"
+    },
+    "detailsTitle": "Détails de la transformation",
+    "addPhoto": "Ajouter une photo",
+    "replacePhoto": "Remplacer la photo",
+    "removePhoto": "Supprimer la photo {{label}}",
+    "consent": "J'accepte que FitMe publie mon nom, mes photos et mon histoire ci-dessus dans l'application et sur son site après vérification. Je peux retirer ce consentement à tout moment, ce qui les retire de l'affichage public.",
+    "submit": "Envoyer pour vérification",
+    "resubmit": "Renvoyer pour vérification",
+    "submitted": "Merci. Votre histoire est en attente de vérification.",
+    "mine": "Vos envois",
+    "status": {
+      "pending": "En attente de vérification",
+      "approved": "Publiée",
+      "rejected": "Non publiée",
+      "changes_requested": "Modifications demandées",
+      "withdrawn": "Consentement retiré",
+      "unpublished": "Dépubliée"
+    },
+    "edit": "Modifier et renvoyer",
+    "withdraw": "Retirer le consentement",
+    "withdrawn": "Consentement retiré. Votre histoire n'est plus affichée.",
+    "errors": {
+      "displayName": "Saisissez le nom affiché.",
+      "testimonial": "Écrivez au moins 20 caractères.",
+      "experience": "Écrivez au moins 20 caractères.",
+      "durationWeeks": "Saisissez un nombre.",
+      "weightChangeKg": "Saisissez un nombre.",
+      "age": "Saisissez un nombre.",
+      "consent": "Acceptez la publication pour envoyer.",
+      "tooMany": "Vous avez déjà trois histoires en attente. Attendez d'abord une vérification.",
+      "invalid": "Certaines réponses ne sont pas valides. Vérifiez le formulaire.",
+      "failed": "Cela n'a pas fonctionné. Vérifiez votre connexion et réessayez."
+    }
+  },
+  "permissions": {
+    "title": "Autorisations",
+    "continue": "Continuer",
+    "notNow": "Pas maintenant",
+    "openSettings": "Ouvrir les réglages",
+    "allow": "Autoriser",
+    "change": "Modifier",
+    "privacy": "Vous pouvez modifier cela à tout moment dans Réglages, Autorisations.",
+    "blockedBody": "Cette autorisation a été désactivée. Vous pouvez l'activer pour FitMe dans les réglages du téléphone.",
+    "webNote": "Dans un navigateur, les autorisations se gèrent dans les paramètres du site, à côté de la barre d'adresse. Les pas et les données de santé nécessitent l'application mobile FitMe.",
+    "state": {
+      "granted": "Autorisé",
+      "limited": "Autorisé en partie",
+      "prompt": "Pas encore demandé",
+      "denied": "Non autorisé",
+      "blocked": "Désactivé",
+      "unsupported": "Indisponible"
+    },
+    "motion": {
+      "title": "Mouvements et forme",
+      "short": "Compte vos pas sur ce téléphone",
+      "why": "FitMe utilise le capteur de mouvement du téléphone pour compter vos pas, afin que vos pas quotidiens, votre distance et votre objectif restent à jour même appli fermée."
+    },
+    "location": {
+      "title": "Localisation",
+      "short": "Trace les marches, courses et sorties vélo enregistrées",
+      "why": "FitMe utilise votre position uniquement pendant que vous enregistrez une marche, une course ou une sortie vélo avec l'appli ouverte, pour tracer le parcours et mesurer distance et allure."
+    },
+    "camera": {
+      "title": "Appareil photo",
+      "short": "Scans de repas et photos",
+      "why": "FitMe utilise l'appareil photo quand vous scannez un repas ou prenez une photo de profil ou de témoignage. Les photos de repas ne sont pas conservées."
+    },
+    "photos": {
+      "title": "Photos",
+      "short": "Choisir une photo dans votre galerie",
+      "why": "FitMe ouvre votre galerie uniquement quand vous choisissez une photo de repas, de profil ou de témoignage."
+    },
+    "health": {
+      "title": "Données de santé",
+      "short": "Apple Health ou Health Connect",
+      "why": "FitMe lit les données de santé que vous choisissez (pas, fréquence cardiaque, sommeil, entraînements, poids) pour afficher votre activité et vos progrès. Il n'écrit jamais dans votre appli santé."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "short": "Rappels et avis d'essai",
+      "why": "FitMe envoie les rappels que vous configurez et vous prévient avant la fin de votre période gratuite. Aucune notification marketing."
+    }
+  },
+  "route": {
+    "track": "Enregistrer un parcours",
+    "title": "Enregistrer une marche, une course ou une sortie vélo",
+    "activity": {
+      "walk": "Marche",
+      "run": "Course",
+      "ride": "Vélo"
+    },
+    "time": "Temps",
+    "km": "km",
+    "pace": "min/km",
+    "kmh": "km/h",
+    "start": "Démarrer",
+    "pause": "Pause",
+    "resume": "Reprendre",
+    "finish": "Terminer et enregistrer",
+    "saved": "Enregistré : {{km}} km",
+    "gps": "Précision GPS d'environ {{m}} m",
+    "weakGps": "Signal GPS faible (environ {{m}} m). Les points sont ignorés jusqu'à amélioration.",
+    "foregroundNote": "Dans l'appli FitMe sur téléphone, l'enregistrement continue écran éteint. Dans un navigateur, gardez cette page ouverte. Votre parcours est enregistré dans vos entraînements.",
+    "errors": {
+      "denied": "L'accès à la localisation est désactivé. Autorisez-le dans Réglages, Autorisations.",
+      "unsupported": "La localisation n'est pas disponible sur cet appareil.",
+      "unavailable": "Pas encore de signal GPS. Essayez dehors, avec une vue dégagée sur le ciel."
+    },
+    "noticeTitle": "FitMe enregistre votre parcours",
+    "noticeBody": "Touchez pour revenir à votre entraînement."
+  },
+  "coupon": {
+    "label": "Code de réduction",
+    "apply": "Appliquer",
+    "newPrice": "{{price}} au lieu de {{before}}",
+    "note": "La réduction s'applique à l'ouverture des paiements. Les codes sont vérifiés selon votre pays, offre et période.",
+    "reasons": {
+      "not_found": "Ce code n'est pas valide.",
+      "inactive": "Ce code n'est plus actif.",
+      "not_started": "Ce code n'est pas encore actif.",
+      "expired": "Ce code a expiré.",
+      "not_for_market": "Ce code n'est pas valable dans votre pays.",
+      "not_for_plan": "Ce code n'est pas valable pour cette offre.",
+      "not_for_period": "Ce code n'est pas valable pour cette période de facturation.",
+      "used_up": "Ce code a atteint sa limite d'utilisation.",
+      "already_used": "Vous avez déjà utilisé ce code.",
+      "failed": "Impossible de vérifier le code. Réessayez."
+    }
+  },
+  "diagnostics": {
+    "title": "Envoyer un diagnostic",
+    "body": "Envoie un rapport technique au support FitMe : version de l'appli, autorisations, sources de pas et de santé connectées, dernière synchronisation et erreurs récentes. Aucune valeur de santé n'est envoyée.",
+    "send": "Envoyer un diagnostic",
+    "sent": "Rapport envoyé. Merci.",
+    "failed": "Le rapport n'a pas pu être envoyé. Vérifiez votre connexion et réessayez.",
+    "reference": "Référence {{id}}"
+  },
+  "gates": {
+    "maintenanceTitle": "FitMe est en cours de mise à jour",
+    "maintenanceBody": "Nous apportons des améliorations. Réessayez dans un moment.",
+    "updateTitle": "Mettez FitMe à jour",
+    "updateBody": "Cette version de FitMe n'est plus prise en charge. Mettez à jour vers la dernière version pour continuer.",
+    "update": "Mettre à jour"
+  },
+  "help": {
+    "title": "Aide et contact",
+    "entryBody": "Réponses aux questions fréquentes, ou envoyez-nous un message.",
+    "faq": "Questions et réponses",
+    "noArticles": "Les articles d'aide apparaîtront ici.",
+    "openPage": "Ouvrir en page",
+    "contactTitle": "Nous contacter",
+    "contactBody": "Dites-nous ce dont vous avez besoin. Nous répondons dans l'appli.",
+    "topic": "Sujet",
+    "message": "Message",
+    "send": "Envoyer le message",
+    "sent": "Message envoyé. Nous répondrons dans l'appli.",
+    "failed": "Le message n'a pas pu être envoyé. Vérifiez votre connexion et réessayez.",
+    "orEmail": "Ou écrivez-nous à {{email}}."
+  },
+  "support": {
+    "topics": {
+      "help": "Question",
+      "bug": "Quelque chose ne fonctionne pas",
+      "billing": "Offres et paiements",
+      "feedback": "Avis",
+      "other": "Autre"
+    }
+  },
+  "inbox": {
+    "title": "Messages",
+    "titleUnread_one": "Messages, {{count}} nouveau",
+    "titleUnread_other": "Messages, {{count}} nouveaux",
+    "empty": "Aucun message pour l'instant",
+    "delete": "Supprimer le message"
+  },
+  "pages": {
+    "notFound": "Page introuvable",
+    "notFoundBody": "Cette page n'existe pas ou n'est pas publiée."
+  },
+  "stepsHelp": {
+    "title": "Les pas ne se mettent pas à jour ?",
+    "subtitle": "Vérifiez les autorisations, les connexions et les réglages de batterie.",
+    "subtitleNone": "Pas encore de pas aujourd'hui. Vérifiez ce qui est configuré.",
+    "check": "Vérifier",
+    "checks": {
+      "motion": "Autorisation d'activité physique",
+      "health": "Health Connect ou Apple Health",
+      "battery": "Réglages de batterie",
+      "sync": "Dernière synchronisation"
+    },
+    "motionOk": "Autorisé. Ce téléphone compte vos pas.",
+    "motionOff": "Autorisé, mais le comptage des pas sur ce téléphone est désactivé.",
+    "motionDenied": "FitMe n'est pas autorisé à utiliser votre activité physique. Autorisez-le pour que ce téléphone compte vos pas.",
+    "motionUnsupported": "Ce téléphone n'a pas de capteur de pas. Connectez une montre via Health Connect ou Apple Health.",
+    "healthOk": "{{app}} est connecté.",
+    "healthOff": "{{app}} n'est pas connecté. Connectez-le pour récupérer les pas de votre montre et d'autres applis.",
+    "healthMissing": "Health Connect n'est pas installé. Installez-le depuis Google Play pour synchroniser votre montre.",
+    "healthKitMissing": "Apple Health n'est pas disponible sur cet appareil.",
+    "openHealth": "Ouvrir {{app}}",
+    "batteryOn": "L'économie de batterie peut retarder la synchronisation des pas quand FitMe est fermé. Excluez FitMe de l'optimisation de batterie.",
+    "batteryOk": "Les réglages de batterie sont corrects.",
+    "batteryFix": "Ouvrir les réglages de batterie",
+    "lastSync": "Dernière synchronisation {{when}}.",
+    "neverSynced": "Pas encore synchronisé."
   }
 }

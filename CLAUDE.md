@@ -1,6 +1,6 @@
-# FIT ME AI — Project Instructions for Claude Code
+# FitMe — Project Instructions for Claude Code
 
-FIT ME AI is a global AI health & wellness app by Sindulis Innovative Solutions.
+FitMe is a global AI health & wellness app by Sindulis Innovative Solutions.
 One React + TypeScript codebase → Web, plus iOS and Android via Capacitor. Firebase backend for launch (may move later).
 Full product spec: `docs/PRD.md` (read the relevant section before starting any task).
 

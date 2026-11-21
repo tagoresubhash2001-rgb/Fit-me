@@ -3,6 +3,7 @@ import { initializeApp, deleteApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator, doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
 import { getFunctions, connectFunctionsEmulator, httpsCallable } from 'firebase/functions';
+import { accessAt, DAY, writeDoc } from './emulator';
 
 let app: FirebaseApp;
 beforeAll(() => {
@@ -21,8 +22,9 @@ describe('callable functions (emulator)', () => {
     await expect(call('coachChat', { threadId: 't1', coach: 'jai', message: 'hi' })).rejects.toMatchObject({ code: 'functions/unauthenticated' });
   });
 
-  it('blocks a free user from Pro and Premium AI features on the server', async () => {
-    await createUserWithEmailAndPassword(getAuth(app), `free${Date.now()}@example.test`, 'password123');
+  it('blocks a free user (free stages over) from Pro and Premium AI features on the server', async () => {
+    const cred = await createUserWithEmailAndPassword(getAuth(app), `free${Date.now()}@example.test`, 'password123');
+    await writeDoc(`access/${cred.user.uid}`, accessAt(cred.user.uid, Date.now() - 40 * DAY));
     await expect(call('coachChat', { threadId: 't1', coach: 'jai', message: 'hi' })).rejects.toThrow('upgrade_required');
     await expect(call('analyzeFoodText', { text: '2 idli with sambar' })).rejects.toMatchObject({ code: 'functions/permission-denied' });
   });

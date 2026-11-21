@@ -1,12 +1,26 @@
 import { onRequest } from 'firebase-functions/v2/https';
 import { logger } from 'firebase-functions';
-import { MAX_INSTANCES } from '../lib/callable';
-import { cashfreeSignatureValid, cashfreeUid, fromCashfree, fromRevenueCat, revenueCatAuthorized, type CashfreeWebhook, type RevenueCatEvent } from './mappers';
+import { MAX_INSTANCES, LIGHT_CPU } from '../lib/callable';
+import { FieldValue } from 'firebase-admin/firestore';
+import { db } from '../lib/admin';
+import { cashfreeSignatureValid, cashfreeUid, fromCashfree, fromRevenueCat, paymentFromCashfree, paymentFromRevenueCat, revenueCatAuthorized, type CashfreeWebhook, type PaymentRecord, type RevenueCatEvent } from './mappers';
 import { applyBillingEvent, loadPricing } from './store';
 
 import { webhookSecret } from './secrets';
 
-const opts = { region: 'asia-south1', maxInstances: MAX_INSTANCES, invoker: 'public' as const };
+/** Webhook log (admin: Finance) and the payment record. A payment is created once; a refund only changes status. */
+async function record(provider: string, type: string, eventId: string, applied: boolean, payment: PaymentRecord | null, uid: string | null) {
+  await db().collection('webhookLogs').add({ provider, type, eventId, applied, uid, paymentId: payment?.id ?? null, at: FieldValue.serverTimestamp() });
+  if (!payment) return;
+  const ref = db().doc(`payments/${payment.id}`);
+  await db().runTransaction(async (tx) => {
+    const s = await tx.get(ref);
+    if (!s.exists) tx.create(ref, { ...payment, createdAt: FieldValue.serverTimestamp() });
+    else if (payment.status === 'refunded' && s.get('status') !== 'refunded') tx.update(ref, { status: 'refunded', refundedAt: FieldValue.serverTimestamp() });
+  });
+}
+
+const opts = { region: 'asia-south1', maxInstances: MAX_INSTANCES, cpu: LIGHT_CPU, invoker: 'public' as const };
 
 /** RevenueCat (App Store + Google Play) -> entitlements/{uid}. app_user_id is the Firebase uid. */
 export const revenuecatWebhook = onRequest(opts, async (req, res) => {
@@ -18,6 +32,7 @@ export const revenuecatWebhook = onRequest(opts, async (req, res) => {
   if (!e?.id || !e.app_user_id || e.app_user_id.startsWith('$RCAnonymousID')) return void res.status(200).send('ignored');
   const event = fromRevenueCat(e);
   if (event) await applyBillingEvent(e.app_user_id, event, `rc_${e.id}`);
+  await record('revenuecat', e.type, e.id, !!event, paymentFromRevenueCat(e), e.app_user_id);
   logger.info('revenuecat event', { type: e.type, applied: !!event, env: e.environment });
   res.status(200).send('ok');
 });
@@ -35,6 +50,7 @@ export const cashfreeWebhook = onRequest(opts, async (req, res) => {
   const event = fromCashfree(w, (await loadPricing()).trialDays);
   const id = `cf_${w.data?.subscription_details?.subscription_id ?? 'x'}_${w.type}_${w.event_time ?? ''}_${w.data?.payment?.payment_id ?? ''}`;
   if (event) await applyBillingEvent(uid, event, id);
+  await record('cashfree', w.type, id, !!event, paymentFromCashfree(w, uid), uid);
   logger.info('cashfree event', { type: w.type, applied: !!event });
   res.status(200).send('ok');
 });

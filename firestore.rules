@@ -17,12 +17,43 @@ service cloud.firestore {
     }
 
     // Active paid plan, read from the server-written entitlement (PRD section 3).
-    function hasPlan(plans) {
+    function hasSubscription(plans) {
       let path = /databases/$(database)/documents/entitlements/$(request.auth.uid);
-      return signedIn() && exists(path)
+      return exists(path)
         && get(path).data.plan in plans
         && get(path).data.get('status', 'active') != 'expired'
         && (!('expiresAt' in get(path).data) || get(path).data.expiresAt == null || get(path).data.expiresAt > request.time);
+    }
+
+    // Free stages (7-day Welcome Unlock, then the 30-day Free Trial), from the server-written access record.
+    function hasStage(plans) {
+      let path = /databases/$(database)/documents/access/$(request.auth.uid);
+      return exists(path) && get(path).data.eligible == true
+        && ((request.time < get(path).data.welcomeEndsAt && get(path).data.welcomePlan in plans)
+          || (request.time < get(path).data.trialEndsAt && get(path).data.trialPlan in plans));
+    }
+
+    function hasPlan(plans) {
+      return signedIn() && (hasSubscription(plans) || hasStage(plans));
+    }
+
+    // A profile photo can only point at the user's own file in Storage (users/{uid}/profile/avatar-<time>.jpg).
+    function validPhoto(uid) {
+      let d = request.resource.data;
+      return (!('photoPath' in d) || d.photoPath == null || (d.photoPath is string && d.photoPath.matches('users/' + uid + '/profile/avatar-[0-9]{10,16}[.]jpg')))
+        && (!('photoURL' in d) || d.photoURL == null
+          || (d.photoURL is string && d.photoURL.size() < 600
+            && (d.photoURL.matches('https://firebasestorage[.]googleapis[.]com/v0/b/[^/]+/o/users%2F' + uid + '%2Fprofile%2F.*')
+              || d.photoURL.matches('http://(127[.]0[.]0[.]1|localhost):9199/v0/b/[^/]+/o/users%2F' + uid + '%2Fprofile%2F.*'))));
+    }
+
+    // Staff role from the Auth custom claim (set only by Cloud Functions).
+    function staffRole() {
+      return signedIn() && request.auth.token.get('role', null) in ['superAdmin', 'admin', 'finance', 'content', 'support', 'moderator'];
+    }
+    // Same matrix as src/domain/adminRoles.ts for the collections staff read directly.
+    function roleIn(roles) {
+      return signedIn() && request.auth.token.get('role', null) in roles;
     }
 
     // Fields a client may never set on its own profile.
@@ -52,21 +83,21 @@ service cloud.firestore {
 
     match /users/{uid} {
       allow read, delete: if isOwner(uid);
-      allow create: if isOwner(uid) && request.resource.data.uid == uid && noServerFields();
-      allow update: if isOwner(uid) && request.resource.data.uid == uid && noServerFields();
+      allow create: if isOwner(uid) && request.resource.data.uid == uid && noServerFields() && validPhoto(uid);
+      allow update: if isOwner(uid) && request.resource.data.uid == uid && noServerFields() && validPhoto(uid);
 
       // Health and activity logs, plans, schedule, habits, reports.
       match /{collection}/{docId} {
         allow read, delete: if isOwner(uid)
           && collection in ['foodLogs', 'waterLogs', 'workoutLogs', 'weightLogs', 'sleepLogs', 'stepLogs',
-                            'plans', 'schedule', 'habits', 'reports', 'savedMeals', 'recipes', 'customFoods'];
+                            'plans', 'schedule', 'habits', 'reports', 'savedMeals', 'recipes', 'customFoods', 'healthDaily'];
         allow create: if isOwner(uid)
           && collection in ['foodLogs', 'waterLogs', 'workoutLogs', 'weightLogs', 'sleepLogs', 'stepLogs',
-                            'plans', 'schedule', 'habits', 'reports', 'savedMeals', 'recipes', 'customFoods']
+                            'plans', 'schedule', 'habits', 'reports', 'savedMeals', 'recipes', 'customFoods', 'healthDaily']
           && validRecord(uid, docId);
         allow update: if isOwner(uid)
           && collection in ['foodLogs', 'waterLogs', 'workoutLogs', 'weightLogs', 'sleepLogs', 'stepLogs',
-                            'plans', 'schedule', 'habits', 'reports', 'savedMeals', 'recipes', 'customFoods']
+                            'plans', 'schedule', 'habits', 'reports', 'savedMeals', 'recipes', 'customFoods', 'healthDaily']
           && validRecord(uid, docId)
           && immutableOnUpdate();
       }
@@ -78,12 +109,27 @@ service cloud.firestore {
 
       // AI chat threads: the user reads and can delete; messages are written only by the server
       // so the stored conversation always matches what the orchestrator saw.
+      // Inbox (admin messages, support replies, reminders): written by Functions; the owner reads it, marks it
+      // read (readAt only) or deletes it.
+      match /inbox/{id} {
+        allow read, delete: if isOwner(uid);
+        allow update: if isOwner(uid)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['readAt'])
+          && request.resource.data.readAt is timestamp;
+      }
+
       match /aiThreads/{threadId} {
         allow read, delete: if isOwner(uid);
         match /messages/{messageId} {
           allow read, delete: if isOwner(uid);
         }
       }
+    }
+
+    // Free-stage record (dates from the Auth creation time): written only by Cloud Functions.
+    match /access/{uid} {
+      allow read: if isOwner(uid);
+      allow write: if false;
     }
 
     // Plan entitlements: written only by Cloud Functions (RevenueCat / Cashfree webhooks).
@@ -106,8 +152,24 @@ service cloud.firestore {
       allow read: if signedIn();
       allow write: if false;
     }
+    // Public config (texts, features, maintenance, prices) is readable before sign-in; the rest needs an account.
     match /appConfig/{id} {
+      allow read: if signedIn() || id in ['app', 'content', 'strings', 'features', 'pricing', 'plans', 'policy'];
+      allow write: if false;
+    }
+    // Published pages (FAQ, help, legal, tips) for everyone; drafts only through the admin function.
+    match /pages/{slug} {
+      allow read: if resource.data.published == true;
+      allow write: if false;
+    }
+    // In-app announcements: signed-in members read; the app shows only the live ones for their country / plan.
+    match /announcements/{id} {
       allow read: if signedIn();
+      allow write: if false;
+    }
+    // Admin grant of free access (read by the owner to show their plan; written only by the admin function).
+    match /grants/{uid} {
+      allow read: if isOwner(uid);
       allow write: if false;
     }
 
@@ -133,7 +195,42 @@ service cloud.firestore {
         && request.resource.data.updatedAt is timestamp;
     }
 
-    // Everything else is denied.
+    // ---- Testimonials ----
+    // Private submissions: the author and staff only. All writes go through Cloud Functions, which validate,
+    // keep the status workflow and are the only way to publish.
+    match /testimonials/{id} {
+      allow read: if (signedIn() && resource.data.uid == request.auth.uid) || roleIn(['superAdmin', 'admin', 'content', 'support', 'moderator']);
+      allow write: if false;
+    }
+    // Published copies of approved testimonials only: anyone may read, nobody may write from a client.
+    match /publicTestimonials/{id} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ---- Admin (read for staff; every change goes through a logged Cloud Function) ----
+    match /adminLogs/{id} {
+      allow read: if roleIn(['superAdmin', 'admin', 'finance']);
+      allow write: if false; // immutable: no client can create, change or delete entries
+    }
+    match /staff/{uid} {
+      allow read: if staffRole();
+      allow write: if false;
+    }
+    match /appConfigVersions/{id} {
+      allow read: if staffRole();
+      allow write: if false;
+    }
+    match /foodSuggestions/{id} {
+      allow read: if roleIn(['superAdmin', 'admin', 'content', 'support', 'moderator']);
+      allow write: if false;
+    }
+    match /userStatus/{uid} {
+      allow read: if isOwner(uid) || staffRole();
+      allow write: if false;
+    }
+
+    // Everything else is denied (trialRegistry, billing, usage, payments, aiUsage ...).
     match /{document=**} {
       allow read, write: if false;
     }

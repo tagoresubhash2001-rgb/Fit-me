@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "216212194424",
+    "project_id": "fit-me1",
+    "storage_bucket": "fit-me1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:216212194424:android:82fe84df5e1267e134d98d",
+        "android_client_info": {
+          "package_name": "com.sindulis.fitmeai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "216212194424-0ispof5k12i8a4qbk5t958n1qkbq7rgk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sindulis.fitmeai",
+            "certificate_hash": "728a952984e410fa45854b44804f4a5cd642d010"
+          }
+        },
+        {
+          "client_id": "216212194424-agpf9meicmujij0o4662flgvkq4f4qim.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sindulis.fitmeai",
+            "certificate_hash": "bd29b5662e95dfb74f023fed3031fe83a3a382ed"
+          }
+        },
+        {
+          "client_id": "216212194424-1tdet41fli8ls72du3059312dua11k9s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAArGb6W08G2vvq1RD41dSnlbOgKWBegSY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "216212194424-1tdet41fli8ls72du3059312dua11k9s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

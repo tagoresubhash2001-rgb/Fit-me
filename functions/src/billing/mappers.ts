@@ -30,6 +30,10 @@ export interface RevenueCatEvent {
   grace_period_expiration_at_ms?: number | null;
   store?: string;
   environment?: 'SANDBOX' | 'PRODUCTION';
+  price_in_purchased_currency?: number;
+  currency?: string;
+  country_code?: string;
+  transaction_id?: string;
 }
 
 const rcSource = (store?: string): Entitlement['source'] => (store === 'PLAY_STORE' ? 'playstore' : 'appstore');
@@ -96,7 +100,8 @@ export interface CashfreeWebhook {
       next_schedule_date?: string;
       subscription_first_charge_time?: string;
     };
-    payment?: { payment_id?: string };
+    payment?: { payment_id?: string; payment_amount?: number; payment_currency?: string; payment_status?: string };
+    customer_details?: { customer_country?: string };
   };
 }
 
@@ -128,4 +133,58 @@ export function fromCashfree(w: CashfreeWebhook, trialDays: number): BillingEven
     default:
       return null;
   }
+}
+
+/** Payment record from a webhook (payments/{id}). Written once per provider transaction; refunds update status only. */
+export interface PaymentRecord {
+  id: string;
+  uid: string;
+  provider: 'revenuecat' | 'cashfree';
+  store: string | null;
+  amount: number;
+  currency: string;
+  country: string | null;
+  product: string | null;
+  status: 'paid' | 'failed' | 'refunded';
+  verified: boolean;
+  sandbox: boolean;
+}
+
+const RC_PAID = ['INITIAL_PURCHASE', 'RENEWAL', 'NON_RENEWING_PURCHASE', 'PRODUCT_CHANGE'];
+export function paymentFromRevenueCat(e: RevenueCatEvent): PaymentRecord | null {
+  const paid = RC_PAID.includes(e.type) && (e.price_in_purchased_currency ?? 0) > 0;
+  const refund = e.type === 'CANCELLATION' && (e as { cancel_reason?: string }).cancel_reason === 'CUSTOMER_SUPPORT';
+  if (!paid && !refund) return null;
+  return {
+    id: `rc_${e.transaction_id ?? e.id}`,
+    uid: e.app_user_id,
+    provider: 'revenuecat',
+    store: e.store ?? null,
+    amount: Math.abs(e.price_in_purchased_currency ?? 0),
+    currency: (e.currency ?? 'USD').toUpperCase(),
+    country: e.country_code?.toUpperCase() ?? null,
+    product: e.product_id ?? null,
+    status: refund ? 'refunded' : 'paid',
+    verified: e.environment !== 'SANDBOX',
+    sandbox: e.environment === 'SANDBOX',
+  };
+}
+
+export function paymentFromCashfree(w: CashfreeWebhook, uid: string): PaymentRecord | null {
+  const p = w.data?.payment;
+  if (!p?.payment_id || !p.payment_amount) return null;
+  const st = (p.payment_status ?? '').toUpperCase();
+  return {
+    id: `cf_${p.payment_id}`,
+    uid,
+    provider: 'cashfree',
+    store: 'web',
+    amount: p.payment_amount,
+    currency: (p.payment_currency ?? 'INR').toUpperCase(),
+    country: w.data?.customer_details?.customer_country?.toUpperCase() ?? null,
+    product: w.data?.subscription_details?.plan_details?.plan_id ?? null,
+    status: st === 'SUCCESS' ? 'paid' : st.includes('REFUND') ? 'refunded' : 'failed',
+    verified: st === 'SUCCESS',
+    sandbox: false,
+  };
 }

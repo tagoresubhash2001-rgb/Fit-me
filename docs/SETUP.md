@@ -1,4 +1,4 @@
-# FIT ME AI: setup the owner must do
+# FitMe: setup the owner must do
 
 Everything below needs an account, a console login or a decision that only the owner can make.
 The code is ready for each item; nothing here has been done for you.

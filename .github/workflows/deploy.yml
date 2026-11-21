@@ -226,9 +226,19 @@ jobs:
             npx firebase deploy --only functions --project "$FIREBASE_PROJECT" --non-interactive --force
           else
             npm run build --prefix functions
-            ONLY=$(cd functions && SCHEDULED_FUNCTIONS=off node -e "console.log(Object.keys(require('./lib/index.js')).map((n) => 'functions:' + n).join(','))")
-            echo "Deploying $ONLY"
-            npx firebase deploy --only "$ONLY" --project "$FIREBASE_PROJECT" --non-interactive --force
+            # One function at a time with retries: deploying all at once exceeds the project's regional
+            # Cloud Run CPU quota (each function is its own service).
+            NAMES=$(cd functions && SCHEDULED_FUNCTIONS=off node -e "console.log(Object.keys(require('./lib/index.js')).join(' '))")
+            FAILED=""
+            for f in $NAMES; do
+              ok=0
+              for try in 1 2 3; do
+                if SCHEDULED_FUNCTIONS=off npx firebase deploy --only "functions:$f" --project "$FIREBASE_PROJECT" --non-interactive --force; then ok=1; break; fi
+                sleep 30
+              done
+              [ $ok = 1 ] || FAILED="$FAILED $f"
+            done
+            if [ -n "$FAILED" ]; then echo "::error::Functions not deployed:$FAILED"; exit 1; fi
           fi
       - name: Smoke test healthCheck
         run: |

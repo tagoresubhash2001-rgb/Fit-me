@@ -1,4 +1,4 @@
-# FIT ME AI — Codebase Audit
+# FitMe — Codebase Audit
 
 **Audited build:** Google AI Studio export (commit `6a8d876`), React 19 + Vite 6 + Tailwind 4 + Zustand 5, Express `server.ts` calling Gemini.
 **Audited against:** `docs/PRD.md` (v2.0, source of truth) and `docs/ORIGINAL_SPEC.md` (v1.0).

@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import en from './en.json';
+import enMain from './en.json';
+import adminEn from './admin.en.json';
+
+const en = { ...enMain, ...adminEn };
 
 /** Every static t('a.b') key used in the app must exist in English. */
 const sources = import.meta.glob<string>(['../**/*.ts', '../**/*.tsx', '!../**/*.test.ts', '!../**/*.test.tsx'], {
@@ -22,7 +25,8 @@ describe('translation keys', () => {
     expect(Object.keys(sources).length).toBeGreaterThan(40);
     const missing: string[] = [];
     for (const [file, src] of Object.entries(sources)) {
-      for (const m of src.matchAll(/\bt\(\s*'([a-zA-Z0-9_.]+)'/g)) if (!has(m[1])) missing.push(`${file}: ${m[1]}`);
+      // i18next plurals: t('a.b', { count }) resolves a.b_one / a.b_other.
+      for (const m of src.matchAll(/\bt\(\s*'([a-zA-Z0-9_.]+)'/g)) if (!has(m[1]) && !(has(`${m[1]}_one`) && has(`${m[1]}_other`))) missing.push(`${file}: ${m[1]}`);
     }
     expect(missing).toEqual([]);
   });

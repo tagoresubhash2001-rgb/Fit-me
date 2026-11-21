@@ -3,13 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CalendarDays, ChevronLeft, ChevronRight, Droplet, Dumbbell, Lock, Moon, Utensils } from 'lucide-react';
 import { Button, Card, EmptyState, IconButton, Input, ListDetail, PlanBadge, Sheet, Skeleton, Tabs, cn, toast } from '../../components/ui';
-import { useSession } from '../../data/session';
+import { useCanUse, useSession } from '../../data/session';
 import { useRecords } from '../../data/useRecords';
 import { updateRecord } from '../../data/records';
 import { useFormat, useToday } from '../../lib/hooks';
 import { useMediaQuery } from '../../lib/breakpoints';
 import { addDays, dateRange, startOfWeek } from '../../domain/dates';
-import { planAllows } from '../../domain/plans';
 import type { FoodLog, SleepLog, WaterLog, WorkoutLog } from '../../domain/models';
 import { useUnits } from '../common/useUnits';
 
@@ -40,6 +39,7 @@ export default function PlannerScreen() {
   const navigate = useNavigate();
   const profile = useSession((s) => s.profile)!;
   const plan = useSession((s) => s.plan);
+  const canPlan = useCanUse('planner');
   const today = useToday();
   const [params, setParams] = useSearchParams();
   const view: View = params.get('view') === 'month' ? 'month' : 'week';
@@ -269,7 +269,7 @@ export default function PlannerScreen() {
             {calendar}
             {!split && dayPanel}
             <Card className="flex items-center gap-3">
-              {planAllows(plan, 'pro') ? (
+              {canPlan ? (
                 <CalendarDays className="h-5 w-5 shrink-0 text-primary-text" strokeWidth={1.75} />
               ) : (
                 <Lock className="h-5 w-5 shrink-0 text-muted" strokeWidth={1.75} />

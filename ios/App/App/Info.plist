@@ -3,15 +3,28 @@
 <plist version="1.0">
 <dict>
 	<key>NSHealthShareUsageDescription</key>
-	<string>FIT ME AI reads your steps and sleep from Apple Health to show your daily activity. You can turn this off at any time.</string>
+	<string>FitMe reads your steps, distance, energy, heart rate, resting heart rate, heart rate variability, blood oxygen, sleep, workouts and weight from Apple Health to show your daily activity and progress. You choose what to share and can turn it off at any time in the Health app.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>FIT ME AI uses the camera to scan food and barcodes when you choose to.</string>
+	<string>FitMe uses the camera when you choose to scan a meal or take a profile photo.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>FitMe counts your steps with the phone's motion sensors so your daily steps, distance and goal progress stay up to date, even without a watch.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>remote-notification</string>
+	</array>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>FitMe uses your location only while you track a walk, run or ride, including with the screen locked, to draw the route and measure distance and pace.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>FitMe uses your location while the app is open to map and measure walks, runs and rides you choose to track.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>FitMe opens your photo library when you choose a meal photo to scan or a profile photo.</string>
   <key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>FIT ME AI</string>
+        <string>FitMe</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

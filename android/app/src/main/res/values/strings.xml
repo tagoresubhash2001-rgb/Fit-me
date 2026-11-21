@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">FIT ME AI</string>
-    <string name="title_activity_main">FIT ME AI</string>
+    <string name="app_name">FitMe</string>
+    <string name="title_activity_main">FitMe</string>
     <string name="package_name">com.sindulis.fitmeai</string>
     <string name="custom_url_scheme">com.sindulis.fitmeai</string>
+    <!-- Shown by Health Connect when the user opens "Privacy policy" in its permission screen -->
+    <string name="health_connect_privacy_policy_url">https://fit-me1.web.app/privacy.html</string>
 </resources>

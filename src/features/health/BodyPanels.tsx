@@ -22,6 +22,7 @@ import { useSession } from '../../data/session';
 import { useRecords } from '../../data/useRecords';
 import { createRecord, restore, softDelete, updateRecord } from '../../data/records';
 import { updateProfileFields } from '../../data/auth';
+import { Link } from 'react-router-dom';
 import { connectHealth, healthAvailable, healthAppName, isHealthConnected, syncSteps } from '../../data/healthSync';
 import { useToday, useFormat } from '../../lib/hooks';
 import { addDays, formatMinutes } from '../../domain/dates';
@@ -483,7 +484,12 @@ export function StepsPanel() {
         )}
         {todaySource && <Badge>{t('steps.source', { source: todaySource.deviceName ?? t('steps.manualSource') })}</Badge>}
         {available === false ? (
-          <p className="text-center text-small text-muted">{t('steps.webOnly')}</p>
+          <p className="text-center text-small text-muted">
+            {t('steps.webOnly')}{' '}
+            <Link to="/settings#devices" className="font-semibold text-primary-text hover:underline">
+              {t('devices.title')}
+            </Link>
+          </p>
         ) : (
           <Button
             variant="secondary"

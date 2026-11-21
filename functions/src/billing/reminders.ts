@@ -11,8 +11,7 @@ import { readEntitlement } from './store';
  * notification record, plus a push message when the device registered for push. Email needs a mail
  * provider and is listed as pending in docs/BILLING_SETUP.md.
  */
-export const trialReminders = onSchedule({ schedule: 'every day 10:00', timeZone: 'Asia/Kolkata', region: 'asia-south1', maxInstances: 1 }, async () => {
-  const now = Date.now();
+export async function storeTrialReminders(now = Date.now()): Promise<number> {
   const snap = await db()
     .collection('entitlements')
     .where('status', '==', 'trialing')
@@ -39,11 +38,16 @@ export const trialReminders = onSchedule({ schedule: 'every day 10:00', timeZone
     const tokens = ((await db().doc(`users/${uid}/settings/push`).get()).get('tokens') as string[] | undefined) ?? [];
     if (tokens.length) {
       await getMessaging()
-        .sendEachForMulticast({ tokens, notification: { title: 'FIT ME AI', body: 'Your free trial ends in 3 days. You can cancel anytime in Settings.' }, data: { type: 'trial_ending' } })
+        .sendEachForMulticast({ tokens, notification: { title: 'FitMe', body: 'Your free trial ends in 3 days. You can cancel anytime in Settings.' }, data: { type: 'trial_ending' } })
         .catch((e) => logger.warn('push failed', { uid, e: String(e) }));
     }
     await billing.set({ reminderSentFor: end }, { merge: true });
     sent++;
   }
   logger.info('trial reminders', { candidates: snap.size, sent });
+  return sent;
+}
+
+export const trialReminders = onSchedule({ schedule: 'every day 10:00', timeZone: 'Asia/Kolkata', region: 'asia-south1', maxInstances: 1, cpu: 'gcf_gen1' }, async () => {
+  await storeTrialReminders();
 });

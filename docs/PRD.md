@@ -1,18 +1,18 @@
-# FIT ME AI: Master Product Requirements Document (v2.0)
+# FitMe: Master Product Requirements Document (v2.0)
 
 **Owner:** Tagore Subhash Maguluri, Sindulis Innovative Solutions
 **Last updated:** 14 November 2026
 **Status:** Approved for build
 
-This document is the single source of truth for the FIT ME AI build. `docs/ORIGINAL_SPEC.md` describes each module in more detail; where the two documents disagree, this PRD wins.
+This document is the single source of truth for the FitMe build. `docs/ORIGINAL_SPEC.md` describes each module in more detail; where the two documents disagree, this PRD wins.
 
 ## 1. Product overview
 
-FIT ME AI is a global AI health and wellness app by Sindulis Innovative Solutions. It launches on iOS, Android and the web from day one. It combines nutrition, fitness, planning, tracking and two AI coaches (Jai and Jaya) in one app that feels as if it was built for each user's own country.
+FitMe is a global AI health and wellness app by Sindulis Innovative Solutions. It launches on iOS, Android and the web from day one. It combines nutrition, fitness, planning, tracking and two AI coaches (Jai and Jaya) in one app that feels as if it was built for each user's own country.
 
 A first React version was built in Google AI Studio. Claude Code audits that build against this PRD and completes it.
 
-**Positioning:** FIT ME AI = Nutrition + Fitness + Health Tracking + AI Coaching + Intelligent Planning. It is not just a calorie counter.
+**Positioning:** FitMe = Nutrition + Fitness + Health Tracking + AI Coaching + Intelligent Planning. It is not just a calorie counter.
 
 **Three USPs**
 
@@ -33,7 +33,7 @@ A first React version was built in Google AI Studio. Claude Code audits that bui
 
 ## 2. Business model and pricing
 
-FIT ME AI earns from four revenue streams, with subscriptions at the core. A generous free tier drives downloads; the paid tiers unlock AI features.
+FitMe earns from four revenue streams, with subscriptions at the core. A generous free tier drives downloads; the paid tiers unlock AI features.
 
 **Revenue streams**
 
@@ -239,7 +239,7 @@ The food database is global from launch. It is built from open datasets plus our
 | Open Food Facts | Packaged foods and barcodes worldwide | ODbL: attribution and share-alike on the data |
 | IFCT 2017 (NIN, India) | Indian raw foods | Commercial use needs permission from NIN |
 | UK CoFID and other national tables | Country-specific foods | Check each licence |
-| FIT ME AI curated dishes | Cooked regional dishes (pesarattu, biryani, pho, tacos) built from recipes | Owned by Sindulis |
+| FitMe curated dishes | Cooked regional dishes (pesarattu, biryani, pho, tacos) built from recipes | Owned by Sindulis |
 
 **Rules**
 
@@ -276,7 +276,7 @@ Trainers and the Store are commission marketplaces; ads are shown to free users 
 
 ## 11. Privacy, compliance and safety
 
-FIT ME AI handles health data in many countries, so privacy is built in from Phase 0, not added later. A qualified lawyer must review the app before launch.
+FitMe handles health data in many countries, so privacy is built in from Phase 0, not added later. A qualified lawyer must review the app before launch.
 
 | Law or policy | Applies to | Key requirement |
 | --- | --- | --- |
@@ -291,7 +291,7 @@ FIT ME AI handles health data in many countries, so privacy is built in from Pha
 - Separate, revocable consent screens for health data, device sync, AI processing and ads.
 - Data export and full account deletion from Settings.
 - Progress photos and food photos are private by default.
-- A clear disclaimer: FIT ME AI is not a medical device and does not replace a doctor.
+- A clear disclaimer: FitMe is not a medical device and does not replace a doctor.
 - Admins cannot read private health records without explicit authorisation, and every such access is audit-logged.
 - Clinical features (glucose, pregnancy) launch only after expert review.
 - No unverifiable claims such as "HIPAA compliant" or "disease reversal".

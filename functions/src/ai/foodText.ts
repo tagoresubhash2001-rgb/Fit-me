@@ -3,6 +3,7 @@ import { logger } from 'firebase-functions/v2';
 import { FieldValue } from 'firebase-admin/firestore';
 import { z } from 'zod';
 import { db } from '../lib/admin';
+import { requireEnabled } from '../lib/features';
 import { callableOptions, requireAuth } from '../lib/callable';
 import { requireFeature } from '../lib/entitlements';
 import { consume } from '../lib/rateLimit';
@@ -82,9 +83,10 @@ const Input = z.object({
  * Returns an estimate only; the client shows it for editing and the user confirms before anything is saved.
  */
 export const analyzeFoodText = onCall(callableOptions({ secrets: [GEMINI_API_KEY], timeoutSeconds: 60 }), async (req) => {
-  const uid = requireAuth(req);
+  const uid = await requireAuth(req);
   const parsed = Input.safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'invalid_input');
+  await requireEnabled('aiEstimate');
   const plan = await requireFeature(uid, 'foodTextAnalysis');
   await consume(uid, 'foodTextAnalysis', await dailyLimit('foodTextAnalysis', plan));
 

@@ -1,6 +1,7 @@
 import {
   onAuthStateChanged,
   signInWithPopup,
+  browserPopupRedirectResolver,
   GoogleAuthProvider,
   OAuthProvider,
   signInWithCredential,
@@ -21,25 +22,123 @@ import { isNative, platform } from '../lib/platform';
 import { useSession } from './session';
 import { closeSharedListeners } from './useRecords';
 import { effectivePlan } from '../domain/plans';
+import { combinedPlan, stageAt } from '../domain/access';
+import { bestTier, EMPTY_POLICY, grantPlan, policyPlan } from '../domain/policy';
 import type { UserProfile } from '../domain/models';
 
 let profileUnsub: (() => void) | null = null;
 let entUnsub: (() => void) | null = null;
+let accessUnsub: (() => void) | null = null;
+let grantUnsub: (() => void) | null = null;
+let policyUnsub: (() => void) | null = null;
+let stageTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** Recomputes the usable plan, and again the moment the current free stage ends. */
+function recomputePlan() {
+  const { subscriptionPlan, access, grant, policy, profile, set } = useSession.getState();
+  const now = Date.now();
+  const info = stageAt(access, now);
+  const basePlan = bestTier(combinedPlan(subscriptionPlan, info.plan), grantPlan(grant, now));
+  set({ basePlan, plan: policyPlan(policy, basePlan, profile?.country) });
+  if (stageTimer) clearTimeout(stageTimer);
+  stageTimer = null;
+  const next = Math.min(
+    info.endsAtMs ?? Infinity,
+    useSession.getState().entitlement?.expiresAt ?? Infinity,
+    grant?.expiresAtMs ?? Infinity,
+  );
+  if (Number.isFinite(next) && next > now) stageTimer = setTimeout(recomputePlan, Math.min(next - now + 1000, 2 ** 31 - 1));
+}
+
+const tsMs = (v: unknown) =>
+  v && typeof (v as { toMillis?: unknown }).toMillis === 'function' ? (v as { toMillis(): number }).toMillis() : 0;
 
 /** Starts listening to auth, the user's profile document and their entitlement. Call once at startup. */
 export function watchSession() {
   const set = useSession.getState().set;
+
   return onAuthStateChanged(auth(), (user) => {
     profileUnsub?.();
     entUnsub?.();
-    profileUnsub = entUnsub = null;
-    set({ user, authReady: true, profile: null, profileReady: !user, plan: 'free' });
+    accessUnsub?.();
+    grantUnsub?.();
+    profileUnsub = entUnsub = accessUnsub = grantUnsub = null;
+    if (stageTimer) clearTimeout(stageTimer);
+    set({
+      user,
+      authReady: true,
+      profile: null,
+      profileReady: !user,
+      plan: 'free',
+      basePlan: 'free',
+      subscriptionPlan: 'free',
+      access: null,
+      grant: null,
+      entitlement: null,
+    });
     if (!user) return;
+    // Access policy (Free Launch Mode, feature tiers): started after sign-in so the sign-in screen stays light;
+    // the zod schema loads on demand.
+    policyUnsub ??= onSnapshot(
+      doc(db(), 'appConfig/policy'),
+      (snap) =>
+        void import('../domain/policySchema').then(({ AccessPolicy }) => {
+          const parsed = snap.exists() ? AccessPolicy.safeParse(snap.data()) : null;
+          set({ policy: parsed?.success ? parsed.data : EMPTY_POLICY });
+          recomputePlan();
+        }),
+      () => {
+        policyUnsub = null;
+      },
+    );
+    grantUnsub = onSnapshot(
+      doc(db(), `grants/${user.uid}`),
+      (snap) => {
+        const d = snap.data();
+        set({
+          grant:
+            d && (d.plan === 'premium' || d.plan === 'pro')
+              ? { plan: d.plan, expiresAtMs: typeof d.expiresAtMs === 'number' ? d.expiresAtMs : null }
+              : null,
+        });
+        recomputePlan();
+      },
+      () => undefined,
+    );
+    let requested = false;
+    accessUnsub = onSnapshot(
+      doc(db(), `access/${user.uid}`),
+      (snap) => {
+        const d = snap.data();
+        if (!d) {
+          // Accounts from before the free stages, or the sign-up trigger has not run yet: ask the server once.
+          if (!requested && !snap.metadata.fromCache) {
+            requested = true;
+            void httpsCallable(functions(), 'getAccess')({}).catch(() => undefined);
+          }
+          return;
+        }
+        set({
+          access: {
+            createdAtMs: tsMs(d.createdAt),
+            welcomeEndsAtMs: tsMs(d.welcomeEndsAt),
+            trialEndsAtMs: tsMs(d.trialEndsAt),
+            welcomePlan: d.welcomePlan,
+            trialPlan: d.trialPlan,
+            eligible: d.eligible === true,
+            configVersion: Number(d.configVersion ?? 1),
+          },
+        });
+        recomputePlan();
+      },
+      () => undefined,
+    );
     profileUnsub = onSnapshot(
       doc(db(), `users/${user.uid}`),
       (snap) => {
         const data = snap.data() as UserProfile | undefined;
         set({ profile: data && data.targets ? data : null, profileReady: true });
+        recomputePlan(); // country decides Free Launch Mode and per-country feature tiers
       },
       () => set({ profileReady: true }),
     );
@@ -47,14 +146,28 @@ export function watchSession() {
       doc(db(), `entitlements/${user.uid}`),
       (snap) => {
         const d = snap.data();
-        const ms = (v: unknown) => (v && typeof (v as { toMillis?: unknown }).toMillis === 'function' ? (v as { toMillis(): number }).toMillis() : null);
+        const ms = (v: unknown) =>
+          v && typeof (v as { toMillis?: unknown }).toMillis === 'function' ? (v as { toMillis(): number }).toMillis() : null;
         const entitlement =
           d && (d.plan === 'premium' || d.plan === 'pro')
-            ? { plan: d.plan, status: d.status ?? 'active', period: d.period ?? null, source: d.source ?? 'admin', expiresAt: ms(d.expiresAt), trialEndsAt: ms(d.trialEndsAt), willRenew: !!d.willRenew, trialUsed: !!d.trialUsed }
+            ? {
+                plan: d.plan,
+                status: d.status ?? 'active',
+                period: d.period ?? null,
+                source: d.source ?? 'admin',
+                expiresAt: ms(d.expiresAt),
+                trialEndsAt: ms(d.trialEndsAt),
+                willRenew: !!d.willRenew,
+                trialUsed: !!d.trialUsed,
+              }
             : null;
-        set({ plan: effectivePlan(d as never, Date.now()), entitlement });
+        set({ subscriptionPlan: effectivePlan(d as never, Date.now()), entitlement });
+        recomputePlan();
       },
-      () => set({ plan: 'free', entitlement: null }),
+      () => {
+        set({ subscriptionPlan: 'free', entitlement: null });
+        recomputePlan();
+      },
     );
   });
 }
@@ -71,7 +184,7 @@ export async function signInWithGoogle() {
     if (!r.credential?.idToken) throw new Error('auth/cancelled');
     return signInWithCredential(auth(), GoogleAuthProvider.credential(r.credential.idToken, r.credential.accessToken));
   }
-  return signInWithPopup(auth(), new GoogleAuthProvider());
+  return signInWithPopup(auth(), new GoogleAuthProvider(), browserPopupRedirectResolver);
 }
 
 export async function signInWithApple() {
@@ -85,7 +198,7 @@ export async function signInWithApple() {
   const provider = new OAuthProvider('apple.com');
   provider.addScope('email');
   provider.addScope('name');
-  return signInWithPopup(auth(), provider);
+  return signInWithPopup(auth(), provider, browserPopupRedirectResolver);
 }
 
 export const signInWithEmail = (email: string, password: string) => signInWithEmailAndPassword(auth(), email.trim(), password);

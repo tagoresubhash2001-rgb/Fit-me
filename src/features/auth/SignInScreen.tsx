@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mail, Phone, ArrowLeft } from 'lucide-react';
-import { Button, Card, Input, IconButton } from '../../components/ui';
+import { useContent } from '../../data/appConfig';
+import { localized } from '../../domain/appConfig';
+import { BrandLogo, Button, Card, Input, IconButton } from '../../components/ui';
 import {
   signInWithGoogle,
   signInWithApple,
@@ -37,7 +39,8 @@ function AppleMark() {
 }
 
 export default function SignInScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const content = useContent();
   const [mode, setMode] = useState<Mode>('choose');
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -72,11 +75,9 @@ export default function SignInScreen() {
           <LanguagePicker compact />
         </div>
         <div className="mt-8 mb-6">
-          <p className="text-display text-ink">
-            FIT ME <span className="text-primary-text">AI</span>
-          </p>
+          <BrandLogo size={48} textClassName="text-display" />
+          <p className="mt-2 text-body text-muted">{localized(content.tagline, i18n.language) || t('app.tagline')}</p>
           <h1 className="mt-4 text-title text-ink">{t('auth.welcomeTitle')}</h1>
-          <p className="mt-1 text-body text-muted">{t('auth.welcomeBody')}</p>
         </div>
 
         {!configured && (

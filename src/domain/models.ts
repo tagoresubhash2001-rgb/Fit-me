@@ -77,7 +77,7 @@ export const SleepLog = BaseRecord.extend({
 });
 export type SleepLog = z.infer<typeof SleepLog>;
 
-export const StepLog = BaseRecord.extend({ steps: z.number().int().min(0).max(200000), deviceName: z.string().max(80).optional() });
+export const StepLog = BaseRecord.extend({ steps: z.number().int().min(0).max(200000), deviceName: z.string().max(80).optional(), sources: z.array(z.string().max(40)).max(6).optional() });
 export type StepLog = z.infer<typeof StepLog>;
 
 export const WorkoutSet = z.object({
@@ -91,6 +91,10 @@ export const WorkoutLog = BaseRecord.extend({
   durationMin: z.number().min(0).max(1440),
   sets: z.array(WorkoutSet).max(200),
   caloriesEst: z.number().min(0).max(5000),
+  /** GPS-tracked walks, runs and rides (RouteTracker). */
+  activity: z.enum(['walk', 'run', 'ride']).optional(),
+  distanceKm: z.number().min(0).max(1000).optional(),
+  route: z.array(z.object({ lat: z.number(), lng: z.number() })).max(400).optional(),
 });
 export type WorkoutLog = z.infer<typeof WorkoutLog>;
 
@@ -148,6 +152,9 @@ export const UserProfile = z.object({
     waterMl: z.number(),
   }),
   onboardedAt: z.unknown().optional(),
+  /** Profile photo (Storage users/{uid}/profile/...), shown by the shared Avatar. */
+  photoURL: z.string().url().nullable().optional(),
+  photoPath: z.string().max(200).nullable().optional(),
 });
 export type UserProfile = z.infer<typeof UserProfile>;
 

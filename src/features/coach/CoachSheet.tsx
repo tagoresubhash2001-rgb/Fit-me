@@ -7,8 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, EmptyState, IconButton, Sheet, Tabs, cn } from '../../components/ui';
 import { COACH_MAX, COACH_MIN, useUi } from '../../stores/ui.store';
 import { db, functions } from '../../lib/firebase';
-import { useSession } from '../../data/session';
-import { planAllows } from '../../domain/plans';
+import { useCanUse, useSession } from '../../data/session';
 
 interface Msg {
   id: string;
@@ -26,14 +25,13 @@ function CoachConversation({ open, onClose }: { open: boolean; onClose: () => vo
   const { t } = useTranslation();
   const user = useSession((s) => s.user);
   const profile = useSession((s) => s.profile);
-  const plan = useSession((s) => s.plan);
   const [coach, setCoach] = useState<'jai' | 'jaya'>(profile?.coach ?? 'jaya');
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
-  const isPro = planAllows(plan, 'pro');
+  const isPro = useCanUse('coachChat');
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -173,3 +173,179 @@ describe('store waitlist', () => {
     await assertFails(setDoc(doc(bob(), 'storeWaitlist/bob'), { uid: 'bob', createdAt: now, email: 'x' }));
   });
 });
+
+// ---------------------------------------------------------------- Added with the access lifecycle, admin and testimonials
+const DAYMS = 86_400_000;
+const staffCtx = (uid: string, role: string) => env.authenticatedContext(uid, { role }).firestore();
+const seed = (path: string, data: Record<string, unknown>) => env.withSecurityRulesDisabled((ctx) => setDoc(doc(ctx.firestore(), path), data));
+const accessDoc = (signUpMs: number) => ({
+  uid: 'alice',
+  createdAt: Timestamp.fromMillis(signUpMs),
+  welcomeEndsAt: Timestamp.fromMillis(signUpMs + 7 * DAYMS),
+  trialEndsAt: Timestamp.fromMillis(signUpMs + 37 * DAYMS),
+  welcomePlan: 'pro',
+  trialPlan: 'premium',
+  eligible: true,
+  configVersion: 1,
+});
+
+describe('access/{uid} free stages', () => {
+  it('the owner can read but never write their access record', async () => {
+    await seed('access/alice', accessDoc(Date.now()));
+    await assertSucceeds(getDoc(doc(alice(), 'access/alice')));
+    await assertFails(getDoc(doc(bob(), 'access/alice')));
+    await assertFails(setDoc(doc(alice(), 'access/alice'), accessDoc(Date.now() + 1000 * DAYMS)));
+    await assertFails(updateDoc(doc(alice(), 'access/alice'), { eligible: true }));
+  });
+  it.each([
+    ['Day 1', 0, true],
+    ['Day 7', 6.5, true],
+    ['Day 8', 7.5, true],
+    ['Day 37', 36.5, true],
+    ['Day 38', 37.5, false],
+  ])('%s: premium micronutrients readable = %s', async (_label, daysAgo, allowed) => {
+    await seed('access/alice', accessDoc(Date.now() - (daysAgo as number) * DAYMS));
+    await seed('foodMicros/x', { ironMg: 1 });
+    const read = getDoc(doc(alice(), 'foodMicros/x'));
+    await (allowed ? assertSucceeds(read) : assertFails(read));
+  });
+  it('someone who already had free stages (eligible false) gets nothing from them', async () => {
+    await seed('access/alice', { ...accessDoc(Date.now()), eligible: false });
+    await seed('foodMicros/x', { ironMg: 1 });
+    await assertFails(getDoc(doc(alice(), 'foodMicros/x')));
+  });
+});
+
+describe('profile photo URL', () => {
+  it('may only point at the user own profile file', async () => {
+    const own = 'https://firebasestorage.googleapis.com/v0/b/fit-me1.firebasestorage.app/o/users%2Falice%2Fprofile%2Favatar-1794900000000.jpg?alt=media&token=abc';
+    await assertSucceeds(setDoc(doc(alice(), 'users/alice'), { uid: 'alice', photoURL: own, photoPath: 'users/alice/profile/avatar-1794900000000.jpg' }));
+    await assertSucceeds(updateDoc(doc(alice(), 'users/alice'), { photoURL: null, photoPath: null }));
+    await assertFails(updateDoc(doc(alice(), 'users/alice'), { photoURL: own.replace('users%2Falice', 'users%2Fbob') }));
+    await assertFails(updateDoc(doc(alice(), 'users/alice'), { photoURL: 'https://evil.example.com/x.jpg' }));
+    await assertFails(updateDoc(doc(alice(), 'users/alice'), { photoPath: 'users/bob/profile/avatar-1794900000000.jpg' }));
+  });
+});
+
+describe('device summaries (healthDaily)', () => {
+  it('owner can create and update a daily summary; others cannot read it', async () => {
+    const ref = doc(alice(), 'users/alice/healthDaily/device-2026-11-21');
+    await assertSucceeds(setDoc(ref, record('alice', 'device-2026-11-21', { source: 'device', steps: 8000, heartRateAvg: 72 })));
+    await assertSucceeds(updateDoc(ref, { steps: 9000, updatedAt: Timestamp.now() }));
+    await assertFails(getDoc(doc(bob(), 'users/alice/healthDaily/device-2026-11-21')));
+  });
+});
+
+describe('testimonials', () => {
+  beforeEach(async () => {
+    await seed('testimonials/t1', { id: 't1', uid: 'alice', status: 'pending', testimonial: 'x' });
+    await seed('publicTestimonials/t2', { id: 't2', displayName: 'Ravi', testimonial: 'Great' });
+  });
+  it('pending submissions: the author and staff only, never public', async () => {
+    await assertSucceeds(getDoc(doc(alice(), 'testimonials/t1')));
+    await assertSucceeds(getDoc(doc(staffCtx('mod', 'moderator'), 'testimonials/t1')));
+    await assertFails(getDoc(doc(bob(), 'testimonials/t1')));
+    await assertFails(getDoc(doc(anon(), 'testimonials/t1')));
+    await assertFails(getDocs(collection(anon(), 'testimonials')));
+  });
+  it('nobody writes submissions from a client (Cloud Functions validate and publish)', async () => {
+    await assertFails(setDoc(doc(alice(), 'testimonials/t3'), { uid: 'alice', status: 'approved' }));
+    await assertFails(updateDoc(doc(alice(), 'testimonials/t1'), { status: 'approved' }));
+    await assertFails(setDoc(doc(staffCtx('adm', 'admin'), 'publicTestimonials/t9'), { id: 't9' }));
+  });
+  it('approved copies are public', async () => {
+    await assertSucceeds(getDoc(doc(anon(), 'publicTestimonials/t2')));
+    await assertSucceeds(getDocs(collection(anon(), 'publicTestimonials')));
+  });
+});
+
+describe('admin data', () => {
+  it('activity log: super admin, admin and finance read, nobody writes, changes or deletes', async () => {
+    await seed('adminLogs/l1', { action: 'x' });
+    await assertSucceeds(getDoc(doc(staffCtx('sa', 'superAdmin'), 'adminLogs/l1')));
+    await assertFails(getDoc(doc(staffCtx('mod', 'moderator'), 'adminLogs/l1')));
+    await assertFails(getDoc(doc(alice(), 'adminLogs/l1')));
+    await assertFails(setDoc(doc(staffCtx('sa', 'superAdmin'), 'adminLogs/l2'), { action: 'forged' }));
+    await assertFails(updateDoc(doc(staffCtx('sa', 'superAdmin'), 'adminLogs/l1'), { action: 'changed' }));
+    await assertFails(deleteDoc(doc(staffCtx('sa', 'superAdmin'), 'adminLogs/l1')));
+  });
+  it('a made-up role claim gives no staff access', async () => {
+    await seed('adminLogs/l1', { action: 'x' });
+    await assertFails(getDoc(doc(staffCtx('x', 'owner'), 'adminLogs/l1')));
+  });
+  it('config, staff list, suggestions: staff read only; config writes only through Functions', async () => {
+    await seed('staff/s1', { role: 'admin' });
+    await seed('foodSuggestions/f1', { status: 'pending' });
+    await assertSucceeds(getDoc(doc(staffCtx('mod', 'moderator'), 'staff/s1')));
+    await assertSucceeds(getDoc(doc(staffCtx('mod', 'moderator'), 'foodSuggestions/f1')));
+    await assertFails(getDoc(doc(alice(), 'foodSuggestions/f1')));
+    await assertFails(setDoc(doc(staffCtx('sa', 'superAdmin'), 'appConfig/pricing'), { version: 99 }));
+    await assertFails(setDoc(doc(staffCtx('sa', 'superAdmin'), 'staff/alice'), { role: 'superAdmin' }));
+  });
+  it('trial registry and user status cannot be written by clients', async () => {
+    await assertFails(setDoc(doc(alice(), 'trialRegistry/abc'), { uid: 'alice' }));
+    await assertFails(setDoc(doc(alice(), 'userStatus/alice'), { disabled: false }));
+    await seed('userStatus/alice', { disabled: true });
+    await assertSucceeds(getDoc(doc(alice(), 'userStatus/alice')));
+  });
+  it('wearable links and server config are server-only (no client read or write, not even staff)', async () => {
+    await seed('wearableLinks/alice', { uid: 'alice', owUserId: 'ow-1' });
+    await seed('serverConfig/openWearables', { baseUrl: 'https://ow.example' });
+    await assertFails(getDoc(doc(alice(), 'wearableLinks/alice')));
+    await assertFails(setDoc(doc(alice(), 'wearableLinks/alice'), { owUserId: 'other' }));
+    await assertFails(getDoc(doc(staffCtx('sa', 'superAdmin'), 'serverConfig/openWearables')));
+    await assertFails(setDoc(doc(alice(), 'serverConfig/openWearables'), { baseUrl: 'https://evil.example' }));
+  });
+  it('cloud wearable days are readable only by their owner', async () => {
+    await seed('users/alice/healthDaily/cloud-2026-11-20', { uid: 'alice', steps: 9000 });
+    await assertSucceeds(getDoc(doc(alice(), 'users/alice/healthDaily/cloud-2026-11-20')));
+    await assertFails(getDoc(doc(bob(), 'users/alice/healthDaily/cloud-2026-11-20')));
+  });
+});
+
+describe('v4 admin and member collections', () => {
+  it('section matrix: finance cannot read testimonials; content cannot read the admin log; support reads food suggestions', async () => {
+    await seed('testimonials/t1', { uid: 'zed', status: 'pending' });
+    await seed('adminLogs/l1', { action: 'x' });
+    await seed('foodSuggestions/f1', { status: 'pending' });
+    await assertFails(getDoc(doc(staffCtx('fin', 'finance'), 'testimonials/t1')));
+    await assertSucceeds(getDoc(doc(staffCtx('ed', 'content'), 'testimonials/t1')));
+    await assertFails(getDoc(doc(staffCtx('ed', 'content'), 'adminLogs/l1')));
+    await assertSucceeds(getDoc(doc(staffCtx('fin', 'finance'), 'adminLogs/l1')));
+    await assertSucceeds(getDoc(doc(staffCtx('sup', 'support'), 'foodSuggestions/f1')));
+  });
+  it('payments, coupons, notifications, contact messages, diagnostics, webhook logs: no client access at all', async () => {
+    for (const c of ['payments/p1', 'coupons/SAVE10', 'notifications/n1', 'contactMessages/m1', 'diagnostics/d1', 'webhookLogs/w1']) {
+      await seed(c, { uid: 'alice' });
+      await assertFails(getDoc(doc(alice(), c)));
+      await assertFails(getDoc(doc(staffCtx('sa', 'superAdmin'), c)));
+      await assertFails(setDoc(doc(alice(), c), { uid: 'alice' }));
+    }
+  });
+  it('grants: owner reads, nobody writes', async () => {
+    await seed('grants/alice', { plan: 'pro', expiresAtMs: null });
+    await assertSucceeds(getDoc(doc(alice(), 'grants/alice')));
+    await assertFails(getDoc(doc(bob(), 'grants/alice')));
+    await assertFails(setDoc(doc(alice(), 'grants/alice'), { plan: 'pro' }));
+  });
+  it('inbox: owner reads and only marks read', async () => {
+    await seed('users/alice/inbox/i1', { title: { en: 'Hi' }, readAt: null });
+    await assertSucceeds(getDoc(doc(alice(), 'users/alice/inbox/i1')));
+    await assertSucceeds(updateDoc(doc(alice(), 'users/alice/inbox/i1'), { readAt: new Date() }));
+    await assertFails(updateDoc(doc(alice(), 'users/alice/inbox/i1'), { title: { en: 'changed' } }));
+    await assertFails(setDoc(doc(alice(), 'users/alice/inbox/i2'), { title: { en: 'fake' } }));
+    await assertFails(getDoc(doc(bob(), 'users/alice/inbox/i1')));
+  });
+  it('published pages are public; drafts are not; public config readable before sign-in', async () => {
+    await seed('pages/faq-1', { published: true, title: { en: 'Q' } });
+    await seed('pages/draft', { published: false });
+    const anon = env.unauthenticatedContext().firestore();
+    await assertSucceeds(getDoc(doc(anon, 'pages/faq-1')));
+    await assertFails(getDoc(doc(anon, 'pages/draft')));
+    await seed('appConfig/strings', { strings: {} });
+    await seed('appConfig/billing', { mode: 'interest' });
+    await assertSucceeds(getDoc(doc(anon, 'appConfig/strings')));
+    await assertFails(getDoc(doc(anon, 'appConfig/billing')));
+    await assertFails(setDoc(doc(staffCtx('sa', 'superAdmin'), 'pages/faq-1'), { published: false }));
+  });
+});

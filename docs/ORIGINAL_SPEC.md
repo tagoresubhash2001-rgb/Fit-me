@@ -1,4 +1,4 @@
-# FIT ME AI: Original Product Specification (v1.0)
+# FitMe: Original Product Specification (v1.0)
 
 Your personal AI health and wellness ecosystem.
 
@@ -15,7 +15,7 @@ Your personal AI health and wellness ecosystem.
 
 ## 1. Product Vision
 
-FIT ME AI is a complete digital health platform that works as a personal AI health assistant for every user.
+FitMe is a complete digital health platform that works as a personal AI health assistant for every user.
 
 Its main purpose:
 
@@ -90,7 +90,7 @@ Design rules
 
 ## 4. Navigation & Dynamic Island Experience
 
-A key UI element of FIT ME AI is the Dynamic Island-inspired Nova Bar.
+A key UI element of FitMe is the Dynamic Island-inspired Nova Bar.
 
 It is not decoration. It must work as the app's live activity centre.
 
@@ -126,7 +126,7 @@ The bottom navigation gives access to five main sections. The AI assistant must 
 
 ## 5. Complete Application Modules – A to Z
 
-FIT ME AI has 18 main functional modules.
+FitMe has 18 main functional modules.
 
 | # | Module | Summary |
 | --- | --- | --- |
@@ -255,7 +255,7 @@ Tapping any dashboard card opens the related detailed module.
 
 ### Module 03 – Nutrition & Calorie Intelligence
 
-This is the core engine of FIT ME AI.
+This is the core engine of FitMe.
 
 Food Tracking
 
@@ -423,7 +423,7 @@ Major Differentiator
 
 This module must be built completely.
 
-FIT ME AI must not only track each day; it must let users plan health activities in advance.
+FitMe must not only track each day; it must let users plan health activities in advance.
 
 A. Daily Planner
 
@@ -547,7 +547,7 @@ When sleep data comes from a connected device, show the source clearly. Manual e
 
 ### Module 10 – AI Coaches: Jai & Jaya
 
-FIT ME AI has two distinct AI personalities.
+FitMe has two distinct AI personalities.
 
 | Coach | Voice | Focus |
 | --- | --- | --- |
@@ -594,7 +594,7 @@ They may access only data the user has permitted. Anything the user says in an A
 
 ### Module 11 – Health Intelligence
 
-This is the section that sets FIT ME AI apart from ordinary fitness apps.
+This is the section that sets FitMe apart from ordinary fitness apps.
 
 Health Categories
 
@@ -628,7 +628,7 @@ Women's Wellness
 
 Safety Requirements
 
-FIT ME AI is not a substitute for a doctor. The AI must never make decisions about diagnosis, medication changes, insulin dosage or emergency treatment. Clinical features need qualified medical review, explicit consent and strong privacy controls.
+FitMe is not a substitute for a doctor. The AI must never make decisions about diagnosis, medication changes, insulin dosage or emergency treatment. Clinical features need qualified medical review, explicit consent and strong privacy controls.
 
 ### Module 12 – Unified AI Scanner Hub
 
@@ -790,7 +790,7 @@ Settings
 ```mermaid
 
 flowchart TD
- A["Open FIT ME AI"] --> B["Welcome & Language"]
+ A["Open FitMe"] --> B["Welcome & Language"]
  B --> C["Sign Up / Login"]
  C --> D["Personal Health Onboarding"]
  D --> E["Set Health Goals"]
@@ -813,7 +813,7 @@ flowchart TD
 
 ## 7. Complete AI Intelligence Architecture
 
-In FIT ME AI, the AI must not be just a chatbot. It is the intelligence layer of the whole application.
+In FitMe, the AI must not be just a chatbot. It is the intelligence layer of the whole application.
 
 Centralized AI Orchestrator
 
@@ -857,7 +857,7 @@ An update made in one place appears in every related module.
 
 ### A. Buttons
 
-All buttons in FIT ME AI follow one design language.
+All buttons in FitMe follow one design language.
 
 | Button          | Design                       |
 | --------------- | ---------------------------- |
@@ -935,7 +935,7 @@ No horizontal overflow, clipped content, unreadable text or overlapping navigati
 
 ## 9. Complete Technical Architecture
 
-FIT ME AI uses a Firebase-first architecture.
+FitMe uses a Firebase-first architecture.
 
 **Architecture**
 
@@ -1061,7 +1061,7 @@ Official reference: [Firebase Security Checklist](https://firebase.google.com/su
 * Enforce subscription entitlements server-side.
 * Handle API failures gracefully.
 
-## 10. Admin Dashboard – FIT ME AI Management
+## 10. Admin Dashboard – FitMe Management
 
 The admin panel must be able to manage the whole application.
 
@@ -1098,7 +1098,7 @@ Admin users must not automatically get unrestricted access to private health rec
 
 ## 11. Data Intelligence & Personalization
 
-Every FIT ME AI user has a personalised health profile.
+Every FitMe user has a personalised health profile.
 
 What the AI analyses periodically:
 
@@ -1120,7 +1120,7 @@ Insights like this must be generated from the user's real data. With no data, th
 
 ## 12. Localization
 
-FIT ME AI was first designed for India. PRD v2.0 makes it global from launch, and India remains a key market. The items below describe the India experience; PRD section 4 covers other countries.
+FitMe was first designed for India. PRD v2.0 makes it global from launch, and India remains a key market. The items below describe the India experience; PRD section 4 covers other countries.
 
 Languages
 
@@ -1170,7 +1170,7 @@ Every integration is opt-in. Never show fake synchronisation for unsupported dev
 
 ## 14. Performance & Production Requirements
 
-These items are mandatory for FIT ME AI to be production-ready.
+These items are mandatory for FitMe to be production-ready.
 
 | Area          | Requirement                     |
 | ------------- | ------------------------------- |
@@ -1315,7 +1315,7 @@ Release criteria: move to the next production milestone only after functionality
 
 ## 17. Final Product Acceptance Standards
 
-FIT ME AI is considered a complete application only when it meets these standards.
+FitMe is considered a complete application only when it meets these standards.
 
 | Category       | Expected Standard                     |
 | -------------- | ------------------------------------- |
@@ -1344,11 +1344,11 @@ The original all-in-one development prompt has been retired. Claude Code works f
 
 ## 19. Project status and USPs
 
-The first FIT ME AI build (`fit-me-ai-lwlxvj`) was created in Google AI Studio as a React web app. It uses demo tracking, local browser storage and simulated AI features.
+The first FitMe build (`fit-me-ai-lwlxvj`) was created in Google AI Studio as a React web app. It uses demo tracking, local browser storage and simulated AI features.
 
 Do not assume any functionality in this document already works in production. Audit the existing code and determine what really works, what is incomplete and what must be built new.
 
-The three main USPs of FIT ME AI:
+The three main USPs of FitMe:
 
 **1. Indian Food Intelligence.** An AI nutrition engine that understands local food (Indian food first, global cuisines from launch).
 
@@ -1356,6 +1356,6 @@ The three main USPs of FIT ME AI:
 
 **3. Intelligent Health Planner.** Complete health planning and scheduling, from daily to monthly.
 
-**Positioning:** FIT ME AI = Nutrition + Fitness + Health Tracking + AI Coaching + Intelligent Planning + Personal Wellness.
+**Positioning:** FitMe = Nutrition + Fitness + Health Tracking + AI Coaching + Intelligent Planning + Personal Wellness.
 
-This is the FIT ME AI we are building: not just an app that counts calories, but a personal AI ecosystem that manages a person's daily wellness journey.
+This is the FitMe we are building: not just an app that counts calories, but a personal AI ecosystem that manages a person's daily wellness journey.
