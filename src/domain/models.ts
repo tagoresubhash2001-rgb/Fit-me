@@ -148,6 +148,9 @@ export const UserProfile = z.object({
     waterMl: z.number(),
   }),
   onboardedAt: z.unknown().optional(),
+  /** Profile photo (Storage users/{uid}/profile/...), shown by the shared Avatar. */
+  photoURL: z.string().url().nullable().optional(),
+  photoPath: z.string().max(200).nullable().optional(),
 });
 export type UserProfile = z.infer<typeof UserProfile>;
 

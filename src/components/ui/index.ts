@@ -27,3 +27,4 @@ export * from './Layout';
 export * from './SlidingPill';
 export * from './motion';
 export { BrandLogo } from './Brand';
+export { Avatar } from './Avatar';
