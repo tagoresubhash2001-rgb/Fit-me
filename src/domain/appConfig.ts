@@ -43,6 +43,23 @@ export const ContentConfig = z.object({
 export type ContentConfig = z.infer<typeof ContentConfig>;
 export const DEFAULT_CONTENT: ContentConfig = ContentConfig.parse({});
 
+/** appConfig/plans: display copy for each paid tier and whether it is offered to new subscribers. */
+export const PlanCatalog = z.object({
+  plans: z
+    .array(
+      z.object({
+        id: z.enum(['premium', 'pro']),
+        active: z.boolean().default(true),
+        name: z.record(z.string(), z.string().max(40)).default({}),
+        description: z.record(z.string(), z.string().max(200)).default({}),
+        benefits: z.record(z.string(), z.array(z.string().max(80)).max(10)).default({}),
+      }),
+    )
+    .default([]),
+});
+export type PlanCatalog = z.infer<typeof PlanCatalog>;
+export const DEFAULT_PLAN_CATALOG: PlanCatalog = { plans: [] };
+
 /** Picks the user's language, else English, else the first value. */
 export function localized(map: Record<string, string> | undefined, lang: string): string | undefined {
   if (!map) return undefined;

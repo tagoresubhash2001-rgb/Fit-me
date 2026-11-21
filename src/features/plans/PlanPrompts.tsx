@@ -5,6 +5,7 @@ import { CircleArrowUp, Clock, X } from 'lucide-react';
 import { Button, IconButton } from '../../components/ui';
 import { useSession } from '../../data/session';
 import { stageAt, stageReminderDue } from '../../domain/access';
+import { useFeatures } from '../../data/appConfig';
 
 const DAY = 86400000;
 const SESSION_KEY = 'fit_me_nudge_session';
@@ -58,7 +59,8 @@ export function UpgradeNudge() {
     return true;
   });
   const [open, setOpen] = useState(show);
-  if (!open) return null;
+  const enabled = useFeatures().upgradePrompt;
+  if (!open || !enabled) return null;
   const dismiss = () => {
     safe(() => localStorage.setItem(SNOOZE_KEY, String(Date.now() + 7 * DAY)), undefined);
     setOpen(false);

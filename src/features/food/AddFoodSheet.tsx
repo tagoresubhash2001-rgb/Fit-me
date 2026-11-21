@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Search, Plus, Trash2, Lock, AlertTriangle, Calculator, Camera } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ScanFood } from './ScanFood';
+import { useFeatures } from '../../data/appConfig';
 import { Button, Card, EmptyState, Input, Sheet, Skeleton, Tabs, Badge, SwipeRow, toast } from '../../components/ui';
 import { AllergyWarning, QuantityEditor, quantityResult, useUnitOptions, type QuantityState } from './QuantityEditor';
 import { matchAllergens, matchRestrictions } from '../../domain/allergens';
@@ -143,6 +144,7 @@ export function AddFoodSheet({
   const { t, i18n } = useTranslation();
   const plan = useSession((s) => s.plan);
   const premium = planAllows(plan, 'premium');
+  const features = useFeatures();
   const [mode, setMode] = useState<Mode>('search');
   const [q, setQ] = useState(initialQuery);
   const [page, setPage] = useState<FoodSearchPage | null>(null);
@@ -286,9 +288,11 @@ export function AddFoodSheet({
                 className="h-12 w-full rounded-input border border-line bg-surface ps-11 pe-3 text-body text-ink placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
+            {features.photoScan && (
             <Button id="open-scan" variant="secondary" icon={<Camera className="h-[18px] w-[18px]" strokeWidth={1.75} />} onClick={() => setMode('scan')}>
               {t('scan.title')}
             </Button>
+            )}
             {searching && (
               <div className="flex flex-col gap-2">
                 <Skeleton className="h-14" />
@@ -592,6 +596,7 @@ function NoResults({ q, onManual }: { q: string; onManual: (initial: ManualIniti
   const { t } = useTranslation();
   const [state, setState] = useState<'idle' | 'loading' | 'error' | 'locked' | 'empty'>('idle');
   const [estimate, setEstimate] = useState<AiFoodEstimate | null>(null);
+  const aiOn = useFeatures().aiEstimate;
   const run = () => {
     setState('loading');
     estimateFoodWithAi(q)
@@ -652,7 +657,7 @@ function NoResults({ q, onManual }: { q: string; onManual: (initial: ManualIniti
       {state === 'error' && <p className="text-small text-danger-text">{t('food.aiEstimateFailed')}</p>}
       {state === 'empty' && <p className="text-small text-muted">{t('food.aiEstimateEmpty')}</p>}
       <div className="flex flex-wrap gap-2">
-        {!estimate?.items.length && (
+        {aiOn && !estimate?.items.length && (
           <Button id="estimate-ai" loading={state === 'loading'} icon={<Calculator className="h-[18px] w-[18px]" strokeWidth={1.75} />} onClick={run}>
             {t('food.estimateWithAi')}
           </Button>

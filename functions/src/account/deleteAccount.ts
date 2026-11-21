@@ -9,7 +9,7 @@ import { callableOptions, requireAuth } from '../lib/callable';
  * The client asks the user to confirm (and re-authenticate) before calling.
  */
 export const deleteAccount = onCall(callableOptions({ timeoutSeconds: 300 }), async (req) => {
-  const uid = requireAuth(req);
+  const uid = await requireAuth(req);
   const firestore = db();
   await firestore.recursiveDelete(firestore.doc(`users/${uid}`));
   await Promise.all([firestore.doc(`entitlements/${uid}`).delete(), firestore.doc(`storeWaitlist/${uid}`).delete(), firestore.doc(`planInterest/${uid}`).delete(), firestore.recursiveDelete(firestore.doc(`billing/${uid}`))]);

@@ -13,3 +13,21 @@ import { trialReminders } from './billing/reminders';
 // Scheduled functions need the deploy account to manage Cloud Scheduler jobs. The deploy workflow sets
 // SCHEDULED_FUNCTIONS=off until the owner grants that role (docs/DEPLOY.md, "Scheduled functions").
 if (process.env.SCHEDULED_FUNCTIONS !== 'off') exports.trialReminders = trialReminders;
+export { submitTestimonial, withdrawTestimonial, reviewTestimonial } from './testimonials/testimonials';
+export {
+  adminOverview,
+  adminListUsers,
+  adminGetUser,
+  adminSetUserDisabled,
+  adminSetRole,
+  adminRevokeMySessions,
+  adminSavePricing,
+  adminSavePlans,
+  adminSaveFeatures,
+  adminSaveContent,
+  adminSaveAppSettings,
+  adminSaveAccess,
+  adminSaveFood,
+  adminReviewFoodSuggestion,
+  onCustomFoodCreated,
+} from './admin/admin';

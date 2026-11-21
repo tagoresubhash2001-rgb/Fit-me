@@ -13,7 +13,7 @@ export function toPlain(v: unknown): unknown {
 
 /** Data export (GDPR art. 20, DPDP): returns every document the user owns as JSON. */
 export const exportData = onCall(callableOptions({ timeoutSeconds: 120 }), async (req) => {
-  const uid = requireAuth(req);
+  const uid = await requireAuth(req);
   const userRef = db().doc(`users/${uid}`);
   const out: Record<string, unknown> = { exportedAt: new Date().toISOString(), uid };
   const profile = await userRef.get();

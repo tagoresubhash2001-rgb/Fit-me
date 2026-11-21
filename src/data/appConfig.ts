@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { doc, onSnapshot } from 'firebase/firestore';
 import type { z } from 'zod';
 import { db } from '../lib/firebase';
-import { AppSettings, ContentConfig, DEFAULT_APP_SETTINGS, DEFAULT_CONTENT, DEFAULT_FEATURES, FeatureFlags } from '../domain/appConfig';
+import { AppSettings, ContentConfig, DEFAULT_APP_SETTINGS, DEFAULT_CONTENT, DEFAULT_FEATURES, DEFAULT_PLAN_CATALOG, FeatureFlags, PlanCatalog } from '../domain/appConfig';
 
 /**
  * Live, admin-managed config (appConfig/app, appConfig/features, appConfig/content). One listener per document
@@ -34,3 +34,4 @@ function useConfigDoc<T>(id: string, schema: z.ZodType<T>, fallback: T): T {
 export const useAppSettings = () => useConfigDoc('app', AppSettings, DEFAULT_APP_SETTINGS);
 export const useFeatures = () => useConfigDoc('features', FeatureFlags as unknown as z.ZodType<typeof DEFAULT_FEATURES>, DEFAULT_FEATURES);
 export const useContent = () => useConfigDoc('content', ContentConfig, DEFAULT_CONTENT);
+export const usePlanCatalog = () => useConfigDoc('plans', PlanCatalog, DEFAULT_PLAN_CATALOG);

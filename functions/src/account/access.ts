@@ -100,7 +100,7 @@ export const onUserCreated = functionsV1
 
 /** The app calls this once after sign-in (covers accounts created before the access lifecycle existed). */
 export const getAccess = onCall(callableOptions(), async (req) => {
-  const uid = requireAuth(req);
+  const uid = await requireAuth(req);
   const record = await ensureAccess(uid);
   return { ...record, ...stageAt(record, Date.now()) };
 });

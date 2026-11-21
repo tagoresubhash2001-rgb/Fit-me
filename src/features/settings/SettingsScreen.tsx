@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, LogOut, Trash2, User, Bell, ShieldCheck } from 'lucide-react';
 import { ConnectedDevices } from './ConnectedDevices';
+import { ProfilePhoto } from './ProfilePhoto';
 import { AccessStageCard } from '../plans/PlanPrompts';
+import { useFeatures } from '../../data/appConfig';
 import { Badge, Button, Card, CardHeader, Choice, Input, Select, Sheet, Tabs, cn, toast } from '../../components/ui';
 import { useSession } from '../../data/session';
 import { deleteAccount, exportData, signOut, updateProfileFields, authErrorKey, isServerUnavailable } from '../../data/auth';
@@ -30,6 +32,7 @@ export default function SettingsScreen() {
   const profile = useSession((s) => s.profile)!;
   const plan = useSession((s) => s.plan);
   const navigate = useNavigate();
+  const features = useFeatures();
   const { hash } = useLocation();
   const prefs = unitPrefsOf(profile);
   const theme = useThemeStore((s) => s.theme);
@@ -106,9 +109,7 @@ export default function SettingsScreen() {
         <h1 className="text-display text-ink xl:hidden">{t('settings.title')}</h1>
 
         <Card id="profile" className="flex scroll-mt-24 items-center gap-3">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-title text-on-primary">
-            {profile.name[0]?.toUpperCase()}
-          </span>
+          <ProfilePhoto />
           <div className="min-w-0 flex-1">
             <p className="truncate text-body font-semibold text-ink">{profile.name}</p>
             <p className="truncate text-small text-muted">{t('settings.signedInAs', { who: user.email ?? user.phoneNumber ?? '' })}</p>
@@ -137,7 +138,7 @@ export default function SettingsScreen() {
 
         <AccessStageCard />
 
-        <ConnectedDevices />
+        {features.deviceSync && <ConnectedDevices />}
 
         <Card id="preferences" className="flex scroll-mt-24 flex-col gap-4">
           <CardHeader title={t('settings.preferences')} />
@@ -225,6 +226,7 @@ export default function SettingsScreen() {
           <StepTargetField profile={profile} />
         </Card>
 
+        {features.reminders && (
         <Card id="reminders" className="flex scroll-mt-24 items-start gap-3">
           <Bell className="mt-0.5 h-5 w-5 shrink-0 text-primary-text" strokeWidth={1.75} />
           <div>
@@ -232,6 +234,7 @@ export default function SettingsScreen() {
             <p className="text-small text-muted">{t('settings.notificationsBody')}</p>
           </div>
         </Card>
+        )}
 
         <Card id="privacy" className="flex scroll-mt-24 flex-col gap-3">
           <CardHeader title={t('settings.privacy')} icon={<ShieldCheck className="h-5 w-5" strokeWidth={1.75} />} />
@@ -260,9 +263,24 @@ export default function SettingsScreen() {
           {t('settings.signOut')}
         </Button>
 
+        {features.testimonials && (
+          <Card id="stories-entry" className="flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-body font-semibold text-ink">{t('stories.entryTitle')}</p>
+              <p className="text-small text-muted">{t('stories.entryBody')}</p>
+            </div>
+            <Button size="sm" variant="secondary" onClick={() => navigate('/stories')}>
+              {t('stories.open')}
+            </Button>
+          </Card>
+        )}
+
         <Card id="about" tone="subtle" className="scroll-mt-24">
           <p className="text-small text-ink">{t('common.disclaimer')}</p>
           <p className="mt-2 text-caption text-muted">{t('settings.version', { v: import.meta.env.VITE_APP_VERSION ?? '0.1.0' })}</p>
+          <a href="/privacy.html" className="mt-2 inline-flex min-h-11 items-center text-small font-semibold text-primary-text hover:underline">
+            {t('settings.privacyPage')}
+          </a>
         </Card>
 
         <Sheet

@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '../data/session';
 import { watchSession } from '../data/auth';
@@ -19,6 +19,8 @@ const PlannerScreen = lazy(routeLoaders.planner);
 const StoreScreen = lazy(routeLoaders.store);
 const SettingsScreen = lazy(routeLoaders.settings);
 const PlansScreen = lazy(routeLoaders.plans);
+const TestimonialsScreen = lazy(routeLoaders.stories);
+const AdminApp = lazy(() => import('../features/admin/AdminApp'));
 
 /** Same look as the static splash in index.html, so the hand-over from HTML to React does not flash. */
 export function FullScreenLoader() {
@@ -45,6 +47,7 @@ export function FullScreenLoader() {
 
 function Gate() {
   const { authReady, user, profileReady, profile } = useSession();
+  const { pathname } = useLocation();
   const theme = useThemeStore((s) => s.theme);
   const applyTheme = useThemeStore((s) => s.applyTheme);
 
@@ -68,6 +71,15 @@ function Gate() {
   }, [profile?.language]);
 
   if (!authReady) return <FullScreenLoader />;
+  // Admin dashboard: its own sign-in and layout, independent of the member onboarding.
+  if (pathname === '/admin' || pathname.startsWith('/admin/'))
+    return (
+      <Suspense fallback={<FullScreenLoader />}>
+        <Routes>
+          <Route path="admin/*" element={<AdminApp />} />
+        </Routes>
+      </Suspense>
+    );
   if (!user)
     return (
       <Suspense fallback={<FullScreenLoader />}>
@@ -95,6 +107,7 @@ function Gate() {
           <Route path="store" element={<StoreScreen />} />
           <Route path="settings" element={<SettingsScreen />} />
           <Route path="plans" element={<PlansScreen />} />
+          <Route path="stories" element={<TestimonialsScreen />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

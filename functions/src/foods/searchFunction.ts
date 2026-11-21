@@ -88,7 +88,7 @@ export async function getIndex(): Promise<FoodIndex> {
  * them (PRD section 2), decided here on the server.
  */
 export const searchFoods = onCall(callableOptions({ memory: '1GiB', timeoutSeconds: 30, concurrency: 40 }), async (req) => {
-  const uid = requireAuth(req);
+  const uid = await requireAuth(req);
   const parsed = Input.safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'invalid_input');
   const { q, offset, limit, country, language } = parsed.data;

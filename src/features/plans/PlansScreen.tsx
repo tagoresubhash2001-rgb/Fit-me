@@ -8,6 +8,8 @@ import { functions } from '../../lib/firebase';
 import { useSession, type EntitlementView } from '../../data/session';
 import { usePricing } from '../../data/pricing';
 import { stageAt } from '../../domain/access';
+import { usePlanCatalog } from '../../data/appConfig';
+import { localized, type PlanCatalog } from '../../domain/appConfig';
 import { PLAN_FEATURES, formatPrice } from '../../domain/pricing';
 import {
   PERIODS,
@@ -54,6 +56,7 @@ export default function PlansScreen() {
   );
   const subscribed = ent && hasAccess(ent, now) ? ent : null;
   const access = useSession((s) => s.access);
+  const catalog = usePlanCatalog();
   const stage = stageAt(access, now);
   // With the free stages (owner rules) they are the account's free trial: no second store trial on top.
   const freeUntil = access && access.eligible && stage.stage !== 'ended' ? access.trialEndsAtMs : null;
@@ -149,9 +152,10 @@ export default function PlansScreen() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
-        {(['premium', 'pro'] as const).map((p) => (
+        {(['premium', 'pro'] as const).filter((p) => catalog.plans.find((c) => c.id === p)?.active !== false || subscribed?.plan === p).map((p) => (
           <PlanCard
             key={p}
+            copy={catalog.plans.find((c) => c.id === p)}
             plan={p}
             q={quotes?.[p] ?? null}
             money={money}
@@ -289,7 +293,10 @@ function PlanCard({
   subscribed,
   lockedHint,
   onChoose,
+  copy,
 }: {
+  /** Admin-edited name, description and benefits (appConfig/plans); empty fields use the built-in text. */
+  copy?: PlanCatalog['plans'][number];
   plan: PaidPlan;
   q: Quote | null;
   money: (v: number, q: Quote) => string;
@@ -305,11 +312,13 @@ function PlanCard({
   lockedHint: string;
   onChoose: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [all, setAll] = useState(false);
   const tilt = useTilt();
   const included = PLAN_FEATURES.filter((f) => f.plans.includes(plan)).map((f) => f.id);
   const features = all ? included : KEY_FEATURES[plan];
+  const lang = i18n.language;
+  const customBenefits = copy?.benefits?.[lang]?.length ? copy.benefits[lang] : copy?.benefits?.en?.length ? copy.benefits.en : null;
   const big = q ? (q.months === 1 ? q.total : q.perMonth) : null;
   const action = current
     ? null
@@ -333,8 +342,8 @@ function PlanCard({
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <h2 className="text-title text-ink">{t(`plans.${plan}`)}</h2>
-          <p className="text-small text-muted">{t(`plans.tagline.${plan}`)}</p>
+          <h2 className="text-title text-ink">{localized(copy?.name, i18n.language) || t(`plans.${plan}`)}</h2>
+          <p className="text-small text-muted">{localized(copy?.description, i18n.language) || t(`plans.tagline.${plan}`)}</p>
         </div>
         <div className="flex flex-wrap gap-1.5">
           {current ? (
@@ -375,14 +384,14 @@ function PlanCard({
       )}
 
       <ul className="flex flex-col gap-2">
-        {features.map((f) => (
+        {(customBenefits ?? features.map((f) => t(`plans.features.${f}`))).map((f) => (
           <li key={f} className="list-enter flex items-start gap-2 text-small text-ink">
             <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary-text" strokeWidth={2.25} aria-hidden />
-            {t(`plans.features.${f}`)}
+            {f}
           </li>
         ))}
       </ul>
-      {included.length > KEY_FEATURES[plan].length && (
+      {!customBenefits && included.length > KEY_FEATURES[plan].length && (
         <button
           type="button"
           aria-expanded={all}

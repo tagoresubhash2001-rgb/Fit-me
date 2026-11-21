@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mail, Phone, ArrowLeft } from 'lucide-react';
+import { useContent } from '../../data/appConfig';
+import { localized } from '../../domain/appConfig';
 import { BrandLogo, Button, Card, Input, IconButton } from '../../components/ui';
 import {
   signInWithGoogle,
@@ -37,7 +39,8 @@ function AppleMark() {
 }
 
 export default function SignInScreen() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const content = useContent();
   const [mode, setMode] = useState<Mode>('choose');
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -73,7 +76,7 @@ export default function SignInScreen() {
         </div>
         <div className="mt-8 mb-6">
           <BrandLogo size={48} textClassName="text-display" />
-          <p className="mt-2 text-body text-muted">{t('app.tagline')}</p>
+          <p className="mt-2 text-body text-muted">{localized(content.tagline, i18n.language) || t('app.tagline')}</p>
           <h1 className="mt-4 text-title text-ink">{t('auth.welcomeTitle')}</h1>
         </div>
 

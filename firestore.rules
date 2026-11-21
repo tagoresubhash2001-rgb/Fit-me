@@ -37,6 +37,21 @@ service cloud.firestore {
       return signedIn() && (hasSubscription(plans) || hasStage(plans));
     }
 
+    // A profile photo can only point at the user's own file in Storage (users/{uid}/profile/avatar-<time>.jpg).
+    function validPhoto(uid) {
+      let d = request.resource.data;
+      return (!('photoPath' in d) || d.photoPath == null || (d.photoPath is string && d.photoPath.matches('users/' + uid + '/profile/avatar-[0-9]{10,16}[.]jpg')))
+        && (!('photoURL' in d) || d.photoURL == null
+          || (d.photoURL is string && d.photoURL.size() < 600
+            && (d.photoURL.matches('https://firebasestorage[.]googleapis[.]com/v0/b/[^/]+/o/users%2F' + uid + '%2Fprofile%2F.*')
+              || d.photoURL.matches('http://(127[.]0[.]0[.]1|localhost):9199/v0/b/[^/]+/o/users%2F' + uid + '%2Fprofile%2F.*'))));
+    }
+
+    // Staff role from the Auth custom claim (set only by Cloud Functions).
+    function staffRole() {
+      return signedIn() && request.auth.token.get('role', null) in ['superAdmin', 'admin', 'moderator'];
+    }
+
     // Fields a client may never set on its own profile.
     function noServerFields() {
       return !request.resource.data.keys().hasAny(['role', 'roles', 'plan', 'entitlement', 'isAdmin', 'deletedAt']);
@@ -64,8 +79,8 @@ service cloud.firestore {
 
     match /users/{uid} {
       allow read, delete: if isOwner(uid);
-      allow create: if isOwner(uid) && request.resource.data.uid == uid && noServerFields();
-      allow update: if isOwner(uid) && request.resource.data.uid == uid && noServerFields();
+      allow create: if isOwner(uid) && request.resource.data.uid == uid && noServerFields() && validPhoto(uid);
+      allow update: if isOwner(uid) && request.resource.data.uid == uid && noServerFields() && validPhoto(uid);
 
       // Health and activity logs, plans, schedule, habits, reports.
       match /{collection}/{docId} {
@@ -151,7 +166,42 @@ service cloud.firestore {
         && request.resource.data.updatedAt is timestamp;
     }
 
-    // Everything else is denied.
+    // ---- Testimonials ----
+    // Private submissions: the author and staff only. All writes go through Cloud Functions, which validate,
+    // keep the status workflow and are the only way to publish.
+    match /testimonials/{id} {
+      allow read: if (signedIn() && resource.data.uid == request.auth.uid) || staffRole();
+      allow write: if false;
+    }
+    // Published copies of approved testimonials only: anyone may read, nobody may write from a client.
+    match /publicTestimonials/{id} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ---- Admin (read for staff; every change goes through a logged Cloud Function) ----
+    match /adminLogs/{id} {
+      allow read: if staffRole();
+      allow write: if false; // immutable: no client can create, change or delete entries
+    }
+    match /staff/{uid} {
+      allow read: if staffRole();
+      allow write: if false;
+    }
+    match /appConfigVersions/{id} {
+      allow read: if staffRole();
+      allow write: if false;
+    }
+    match /foodSuggestions/{id} {
+      allow read: if staffRole();
+      allow write: if false;
+    }
+    match /userStatus/{uid} {
+      allow read: if isOwner(uid) || staffRole();
+      allow write: if false;
+    }
+
+    // Everything else is denied (trialRegistry, billing, usage, payments, aiUsage ...).
     match /{document=**} {
       allow read, write: if false;
     }

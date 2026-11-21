@@ -1,5 +1,5 @@
 import { HttpsError, type CallableOptions, type CallableRequest } from 'firebase-functions/v2/https';
-import { isEmulator } from './admin';
+import { db, isEmulator } from './admin';
 
 /**
  * App Check enforcement for callables. Off until reCAPTCHA Enterprise (web) and App Attest / Play Integrity
@@ -19,8 +19,25 @@ export const callableOptions = (extra: Partial<CallableOptions> = {}): CallableO
   ...extra,
 });
 
-export function requireAuth(req: CallableRequest<unknown>): string {
+const statusCache = new Map<string, { disabled: boolean; at: number }>();
+
+/** True when an admin deactivated the account (userStatus/{uid}, server-written). Cached for 30 s. */
+export async function isDeactivated(uid: string): Promise<boolean> {
+  const hit = statusCache.get(uid);
+  if (hit && Date.now() - hit.at < 30_000) return hit.disabled;
+  const snap = await db().doc(`userStatus/${uid}`).get();
+  const disabled = snap.exists && snap.get('disabled') === true;
+  statusCache.set(uid, { disabled, at: Date.now() });
+  return disabled;
+}
+
+/**
+ * Signed-in, active user. Deactivated accounts are also disabled in Auth with refresh tokens revoked; this check
+ * blocks their still-valid ID token (up to an hour) from calling any function in the meantime.
+ */
+export async function requireAuth(req: CallableRequest<unknown>): Promise<string> {
   const uid = req.auth?.uid;
   if (!uid) throw new HttpsError('unauthenticated', 'sign_in_required');
+  if (await isDeactivated(uid)) throw new HttpsError('permission-denied', 'account_disabled');
   return uid;
 }

@@ -25,7 +25,7 @@ const StartInput = z.object({ plan: z.enum(PAID_PLANS), period: z.enum(PERIODS) 
  * RevenueCat and arrives here via the webhook instead.
  */
 export const startTrial = onCall(callableOptions(), async (req) => {
-  const uid = requireAuth(req);
+  const uid = await requireAuth(req);
   const parsed = StartInput.safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
   const { plan, period } = parsed.data;
@@ -74,7 +74,7 @@ const MANAGE_URLS: Record<string, string> = {
 
 /** Manage / change plan / cancel. Store subscriptions are managed in the store; test ones here. */
 export const manageSubscription = onCall(callableOptions(), async (req) => {
-  const uid = requireAuth(req);
+  const uid = await requireAuth(req);
   const parsed = ManageInput.safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
   const current = readEntitlement((await db().doc(`entitlements/${uid}`).get()).data());
