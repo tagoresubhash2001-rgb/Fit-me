@@ -3,9 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>NSHealthShareUsageDescription</key>
-	<string>FitMe reads your steps, distance, active energy, heart rate, sleep, workouts and weight from Apple Health to show your daily activity and progress. You choose what to share and can turn it off at any time in the Health app.</string>
+	<string>FitMe reads your steps, distance, energy, heart rate, resting heart rate, heart rate variability, blood oxygen, sleep, workouts and weight from Apple Health to show your daily activity and progress. You choose what to share and can turn it off at any time in the Health app.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>FitMe uses the camera when you choose to scan a meal or take a profile photo.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>FitMe counts your steps with the phone's motion sensors so your daily steps, distance and goal progress stay up to date, even without a watch.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>FitMe uses your location while the app is open to map and measure walks, runs and rides you choose to track.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>FitMe opens your photo library when you choose a meal photo to scan or a profile photo.</string>
   <key>CAPACITOR_DEBUG</key>
