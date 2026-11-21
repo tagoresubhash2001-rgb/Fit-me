@@ -76,6 +76,8 @@ async function window_(page, fn) {
   });
   // Route changes through the bottom bar: time from tap to the new screen's heading.
   out.routes = {};
+  out.routesRepeat = {};
+  for (const key of ['routes', 'routesRepeat'])
   for (const [tab, heading] of [
     ['health', 'Health'],
     ['workouts', 'Workouts'],
@@ -86,7 +88,7 @@ async function window_(page, fn) {
     await page.click(`#nav-${tab}`);
     if (heading) await page.getByRole('heading', { name: heading, level: 1 }).first().waitFor();
     else await page.locator('#card-calories').waitFor();
-    out.routes[tab] = Date.now() - t0;
+    out[key][tab] = Date.now() - t0;
   }
   try {
     await page.goto(`${BASE}/plans`, { waitUntil: 'domcontentloaded' });
