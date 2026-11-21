@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "FIT ME AI",
-    "tagline": "Your personal health and wellness coach",
+    "name": "FitMe",
+    "tagline": "FitMe – For a Healthier Life.",
     "splash": "Food, water, sleep, steps and workouts, with Jai and Jaya, your AI coaches."
   },
   "common": {
@@ -44,7 +44,7 @@
     "finish": "Finish",
     "pause": "Pause",
     "resume": "Resume",
-    "disclaimer": "FIT ME AI is not a medical device and does not replace a doctor. For medical advice, talk to a qualified professional.",
+    "disclaimer": "FitMe is not a medical device and does not replace a doctor. For medical advice, talk to a qualified professional.",
     "serverUnavailable": "This feature is temporarily unavailable. Please try again later.",
     "date": "Date",
     "decrease": "Decrease",
@@ -63,7 +63,7 @@
     "main": "Main"
   },
   "auth": {
-    "welcomeTitle": "Welcome to FIT ME AI",
+    "welcomeTitle": "Welcome to FitMe",
     "welcomeBody": "Track food, workouts, water and sleep, and get a plan that fits your day.",
     "google": "Continue with Google",
     "apple": "Continue with Apple",
@@ -150,7 +150,7 @@
     "coachJai": "Jai — fitness, workouts and motivation",
     "coachJaya": "Jaya — nutrition, hydration and wellness",
     "consentTitle": "Your health data",
-    "consentHealth": "I agree that FIT ME AI stores the health information I enter to calculate my targets and show my progress.",
+    "consentHealth": "I agree that FitMe stores the health information I enter to calculate my targets and show my progress.",
     "consentRequired": "Please agree to continue. You can export or delete your data at any time in Settings.",
     "targetsTitle": "Your daily targets",
     "targetsBody": "Calculated with the Mifflin-St Jeor formula. You can adjust water and steps later.",
@@ -307,12 +307,13 @@
     "emptySlot": "Nothing logged yet",
     "source": "Source: {{source}}",
     "sources": {
-      "usda": "USDA FoodData Central",
-      "curated": "FIT ME AI dishes (pending nutrition review)",
+      "usda": "USDA",
+      "curated": "FitMe recipe",
       "custom": "Your food",
       "off": "Open Food Facts",
       "ai": "AI estimate",
-      "recipe": "Your recipe"
+      "recipe": "Your recipe",
+      "ifct": "IFCT 2017"
     },
     "dayTotal": "Day total",
     "micros": "Vitamins and minerals",
@@ -329,7 +330,23 @@
     "rename": "Rename",
     "replaceFood": "Change food",
     "unit": "Unit",
-    "quickAdd": "Quick add"
+    "quickAdd": "Quick add",
+    "offlineResults": "You are offline. Showing foods saved on this device.",
+    "closeMatches": "No food matches every word in \"{{q}}\". Showing the closest matches.",
+    "showMore": "Show more ({{shown}} of {{total}})",
+    "noResultsBody": "Estimate it with AI or add it yourself. Both are saved as your own food.",
+    "estimateWithAi": "Estimate with AI",
+    "addOwnFood": "Add your own food",
+    "aiEstimateTitle": "AI estimate",
+    "aiEstimateRange": "{{portion}} · {{min}}–{{max}} kcal",
+    "reviewAndSave": "Review and save",
+    "aiEstimateDisclaimer": "This is an estimate, not measured data. Check the values before you save.",
+    "aiEstimateLocked": "AI estimates are part of Premium.",
+    "aiEstimateFailed": "The estimate could not be made right now. Try again or add the food yourself.",
+    "aiEstimateEmpty": "That does not look like a food. Try a different name.",
+    "aiEstimateNote": "AI estimate. Check and correct the values, then save it as your own food.",
+    "saveAndAdd": "Save and add",
+    "seePlans": "See plans"
   },
   "water": {
     "title": "Water",
@@ -406,7 +423,7 @@
     "manual": "Add steps manually",
     "healthKit": "Apple Health",
     "healthConnect": "Health Connect",
-    "webOnly": "Step tracking from your phone is available in the iOS and Android apps. You can add steps manually here.",
+    "webOnly": "Steps from your phone or watch sync in the FitMe app for Android and iOS. You can add steps by hand here. See",
     "permissionDenied": "Permission was not granted. You can allow it in your phone's settings.",
     "notAvailable": "Health data is not available on this device.",
     "source": "Source: {{source}}",
@@ -496,7 +513,7 @@
   "planner": {
     "title": "Planner",
     "lockedTitle": "Plan your days with Pro",
-    "lockedBody": "Daily, weekly and monthly plans, an AI auto-planner and smart rescheduling are part of FIT ME AI Pro.",
+    "lockedBody": "Daily, weekly and monthly plans, an AI auto-planner and smart rescheduling are part of FitMe Pro.",
     "daily": "Day",
     "weekly": "Week",
     "monthly": "Month",
@@ -520,7 +537,7 @@
   },
   "store": {
     "title": "Store",
-    "comingTitle": "The FIT ME AI Store is coming soon",
+    "comingTitle": "The FitMe Store is coming soon",
     "comingBody": "We are partnering with trusted wellness brands. Every product will be reviewed before it is listed.",
     "notify": "Notify me",
     "notified": "You are on the list. We will let you know when the store opens.",
@@ -639,7 +656,11 @@
       "firstCharge": "First charge",
       "today": "Today",
       "cancelHow": "Cancel anytime before {{date}} and you will not be charged. Go to Settings, then Plan, then Cancel, or use your app store.",
-      "confirm": "Start free trial"
+      "confirm": "Start free trial",
+      "freeUntil": "Free until {{date}}",
+      "titleFree": "Keep your free days",
+      "confirmFree": "Choose plan, pay from that date",
+      "cancelPaid": "You are charged today. Cancel anytime in Settings, then Plan, or in your app store; you keep access until the end of the period."
     },
     "trialStarted": "Your {{plan}} trial has started. It is free until {{date}}.",
     "error": {
@@ -672,7 +693,11 @@
     "nudgeTitle": "Try Pro free for 30 days",
     "nudgeBody": "Jai and Jaya coaching, the planner and reports. Cancel anytime.",
     "nudgeCta": "See plans",
-    "nudgeDismiss": "Not now"
+    "nudgeDismiss": "Not now",
+    "subtitleFreeUntil": "Free until {{date}}. Choose a plan now or later; your first payment would be on {{date}}.",
+    "subtitlePaid": "Choose the plan that fits you. Cancel anytime.",
+    "freeUntilBadge": "Free until {{date}}",
+    "subscribed": "You are now on {{plan}}."
   },
   "settings": {
     "title": "Settings",
@@ -740,7 +765,7 @@
     "required": "This field is required.",
     "number": "Enter a number between {{min}} and {{max}}.",
     "newVersionTitle": "A new version is ready",
-    "newVersionBody": "FIT ME AI was updated while this page was open. Reload to continue.",
+    "newVersionBody": "FitMe was updated while this page was open. Reload to continue.",
     "reload": "Reload",
     "screenTitle": "This screen did not load",
     "screenBody": "Something went wrong on our side. Your data is safe. Try again.",
@@ -768,7 +793,7 @@
       "incomplete": "Choose day, month and year.",
       "invalid": "This date does not exist.",
       "future": "Date of birth cannot be in the future.",
-      "tooYoung": "You need to be at least 13 to use FIT ME AI.",
+      "tooYoung": "You need to be at least 13 to use FitMe.",
       "tooOld": "Please check the year."
     }
   },
@@ -873,7 +898,125 @@
     }
   },
   "pwa": {
-    "updateAvailable": "A new version of FIT ME AI is ready.",
+    "updateAvailable": "A new version of FitMe is ready.",
     "refresh": "Refresh"
+  },
+  "scan": {
+    "title": "Scan food",
+    "hint": "Take a clear photo from above in good light, with the whole plate in view.",
+    "takePhoto": "Take photo",
+    "choosePhoto": "Choose photo",
+    "privacy": "The photo is used only to estimate this meal and is not stored.",
+    "cameraPreview": "Camera preview",
+    "capture": "Capture",
+    "analysing": "Finding the foods in your photo",
+    "yourPhoto": "Your photo",
+    "reviewHint": "Check each item and its weight. Remove anything that is wrong before adding.",
+    "matched": "Matched to {{source}}",
+    "aiOnly": "AI estimate, not in the food database",
+    "confidence": {
+      "low": "Low confidence",
+      "medium": "Medium confidence",
+      "high": "High confidence"
+    },
+    "remove": "Remove {{name}}",
+    "restore": "Put back {{name}}",
+    "grams": "Grams",
+    "portionGuess": "{{portion}}, about {{min}}–{{max}} g",
+    "total": "Total {{kcal}} kcal",
+    "macros": "Protein {{p}} g · Carbs {{c}} g · Fat {{f}} g",
+    "estimateNote": "Portions from a photo are estimates. Adjust the grams if you know the real amount.",
+    "addItems_one": "Add {{count}} item to {{slot}}",
+    "addItems_other": "Add {{count}} items to {{slot}}",
+    "logged_one": "{{count}} item added to {{slot}}",
+    "logged_other": "{{count}} items added to {{slot}}",
+    "retake": "Take another photo",
+    "quality": {
+      "dark": "The photo is quite dark, so the estimate may be less accurate.",
+      "blurry": "The photo is a little blurry, so the estimate may be less accurate.",
+      "too_far": "The food looks small in the photo. Move closer next time for a better estimate.",
+      "partial": "Part of the plate is cut off. Items outside the photo are not counted."
+    },
+    "errors": {
+      "permission_denied": "Camera access is off. Allow camera access for FitMe in your device settings, or choose a photo instead.",
+      "no_camera": "No camera was found on this device. Choose a photo instead.",
+      "unsupported_format": "This image type is not supported. Use a JPEG, PNG or WebP photo.",
+      "too_large": "This photo is larger than 20 MB. Choose a smaller one.",
+      "decode_failed": "This photo could not be opened. Try another one.",
+      "not_food": "No food was found in this photo. Try again with the plate clearly in view.",
+      "locked": "Food photo scan is part of Premium.",
+      "limit": "You have reached today's photo scan limit. It resets tomorrow.",
+      "offline": "You are offline. Photo scan needs a connection.",
+      "failed": "The photo could not be analysed right now. Try again in a moment."
+    }
+  },
+  "devices": {
+    "title": "Connected devices",
+    "healthKit": "Apple Health",
+    "healthConnect": "Health Connect",
+    "webTitle": "Device sync works in the FitMe mobile app.",
+    "webBody": "Browsers cannot read data from watches or health apps. Install FitMe on your phone and connect Apple Health (iPhone and Apple Watch) or Health Connect (Android, Wear OS, Samsung Health, Fitbit and more). Synced data then appears here too.",
+    "getAndroid": "Get it on Google Play",
+    "getIos": "Download on the App Store",
+    "appsSoon": "The Android and iOS apps are coming soon.",
+    "installHealthConnect": "Health Connect is not installed or not supported on this phone. Install it from Google Play to sync your watch and fitness apps.",
+    "healthKitMissing": "Apple Health is not available on this device.",
+    "openHealthConnect": "Open Health Connect",
+    "lastSync": "Last synced {{when}}",
+    "notSyncedYet": "Connected. Not synced yet.",
+    "notConnected": "Not connected",
+    "connected": "Connected",
+    "off": "Off",
+    "sourcesHint": {
+      "healthKit": "Includes Apple Watch and any app that writes to Apple Health.",
+      "healthConnect": "Includes Wear OS, Samsung Health, Fitbit and any app that writes to Health Connect."
+    },
+    "permissions": "Data FitMe can read",
+    "allowed": "allowed",
+    "notAllowed": "not allowed",
+    "types": {
+      "steps": "Steps",
+      "distance": "Distance",
+      "calories": "Active energy",
+      "heartRate": "Heart rate",
+      "sleep": "Sleep",
+      "workouts": "Workouts",
+      "weight": "Weight"
+    },
+    "iosPrivacy": "Apple Health does not tell apps which data you chose to share. If something is missing, check FitMe in the Health app under Sharing.",
+    "syncNow": "Sync now",
+    "managePermissions": "Manage permissions",
+    "disconnect": "Disconnect",
+    "connect": "Connect {{app}}",
+    "denied": "{{app}} permission was not given. You can allow it in {{app}} settings.",
+    "unavailable": "{{app}} is not available on this device.",
+    "synced_one": "Synced {{days}} day",
+    "synced_other": "Synced {{days}} days",
+    "disconnected": "{{app}} disconnected. Data already synced stays in FitMe.",
+    "failed": "Sync did not finish. Check your connection and try again.",
+    "keepData": "FitMe only reads this data. Disconnecting stops new syncs; you can delete synced entries at any time."
+  },
+  "access": {
+    "title": "Your free access",
+    "stage": {
+      "welcome": "Welcome Unlock",
+      "trial": "Free trial",
+      "ended": "Free plan"
+    },
+    "daysLeft_one": "{{count}} day left",
+    "daysLeft_other": "{{count}} days left",
+    "welcomeBody": "Every FitMe feature is free for you until {{date}}.",
+    "trialBody": "Your free trial of {{plan}} runs until {{date}}. No card needed.",
+    "thenTrial": "After that, your free trial of {{plan}} continues until {{date}}.",
+    "thenFree": "After {{date}} you keep the free plan: food logging, water, weight, sleep, steps and basic workouts. Subscribe any time to keep the rest.",
+    "endedBody": "Your free period has ended. You still have food logging, water, weight, sleep, steps and basic workouts. Subscribe to unlock the rest.",
+    "notEligibleBody": "This account uses the free plan. The free period is available once per person.",
+    "seePlans": "See plans",
+    "ending": {
+      "welcome_one": "Your Welcome Unlock ends tomorrow ({{date}}). Your free trial starts then.",
+      "welcome_other": "Your Welcome Unlock ends in {{count}} days ({{date}}). Your free trial starts then.",
+      "trial_one": "Your free trial ends tomorrow ({{date}}). Choose a plan to keep your premium features.",
+      "trial_other": "Your free trial ends in {{count}} days ({{date}}). Choose a plan to keep your premium features."
+    }
   }
 }

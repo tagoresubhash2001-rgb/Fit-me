@@ -1,4 +1,4 @@
-# FIT ME AI: Next steps in Claude Code
+# FitMe: Next steps in Claude Code
 
 Claude Code has finished Step 0 (stack confirmed, CLAUDE.md updated) and is waiting for two files.
 

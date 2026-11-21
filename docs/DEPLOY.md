@@ -1,4 +1,4 @@
-# Deploying FIT ME AI
+# Deploying FitMe
 
 Every deploy runs in GitHub Actions (`.github/workflows/deploy.yml`). Nobody deploys from a laptop.
 
@@ -95,7 +95,7 @@ environment, the workflow uses it instead. Minimum roles for that account are th
   The push to `main` deploys the reverted code.
 - Firestore data is never touched by deploys; rules and indexes roll back with the steps above.
 - **Service worker and rollbacks:** `sw.js`, `index.html` and the manifest are served with `no-cache`, so
-  every visit checks for a new release. Open tabs see "A new version of FIT ME AI is ready" and switch on
+  every visit checks for a new release. Open tabs see "A new version of FitMe is ready" and switch on
   **Refresh**; old cached files are cleaned up by the new worker. A Hosting rollback is picked up the same way
   (the rolled-back `sw.js` differs from the current one). If a release ever ships a broken worker, deploy a
   fix: the browser re-checks `sw.js` on every navigation and at least once an hour while the app is open.

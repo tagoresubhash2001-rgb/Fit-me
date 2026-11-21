@@ -39,7 +39,7 @@ export const trialReminders = onSchedule({ schedule: 'every day 10:00', timeZone
     const tokens = ((await db().doc(`users/${uid}/settings/push`).get()).get('tokens') as string[] | undefined) ?? [];
     if (tokens.length) {
       await getMessaging()
-        .sendEachForMulticast({ tokens, notification: { title: 'FIT ME AI', body: 'Your free trial ends in 3 days. You can cancel anytime in Settings.' }, data: { type: 'trial_ending' } })
+        .sendEachForMulticast({ tokens, notification: { title: 'FitMe', body: 'Your free trial ends in 3 days. You can cancel anytime in Settings.' }, data: { type: 'trial_ending' } })
         .catch((e) => logger.warn('push failed', { uid, e: String(e) }));
     }
     await billing.set({ reminderSentFor: end }, { merge: true });

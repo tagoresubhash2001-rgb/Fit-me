@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Download, LogOut, Trash2, User, Bell, ShieldCheck, Sparkles } from 'lucide-react';
+import { Download, LogOut, Trash2, User, Bell, ShieldCheck } from 'lucide-react';
+import { ConnectedDevices } from './ConnectedDevices';
+import { AccessStageCard } from '../plans/PlanPrompts';
 import { Badge, Button, Card, CardHeader, Choice, Input, Select, Sheet, Tabs, cn, toast } from '../../components/ui';
 import { useSession } from '../../data/session';
 import { deleteAccount, exportData, signOut, updateProfileFields, authErrorKey, isServerUnavailable } from '../../data/auth';
@@ -72,6 +74,7 @@ export default function SettingsScreen() {
   const sections = [
     ['profile', t('nav.profile')],
     ['preferences', t('settings.preferences')],
+    ['devices', t('devices.title')],
     ['reminders', t('settings.notifications')],
     ['privacy', t('settings.privacy')],
     ['about', t('settings.about')],
@@ -115,7 +118,6 @@ export default function SettingsScreen() {
                 <Button
                   id="settings-upgrade"
                   size="sm"
-                  icon={<Sparkles className="h-4 w-4" strokeWidth={1.75} />}
                   onClick={() => navigate('/plans')}
                 >
                   {t('plans.upgrade')}
@@ -132,6 +134,10 @@ export default function SettingsScreen() {
             {t('settings.editProfile')}
           </Button>
         </Card>
+
+        <AccessStageCard />
+
+        <ConnectedDevices />
 
         <Card id="preferences" className="flex scroll-mt-24 flex-col gap-4">
           <CardHeader title={t('settings.preferences')} />

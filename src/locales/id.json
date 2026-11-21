@@ -33,7 +33,7 @@
     "main": "Utama"
   },
   "auth": {
-    "welcomeTitle": "Selamat datang di FIT ME AI",
+    "welcomeTitle": "Selamat datang di FitMe",
     "google": "Lanjutkan dengan Google",
     "apple": "Lanjutkan dengan Apple",
     "email": "Lanjutkan dengan email",
@@ -59,7 +59,7 @@
       "incomplete": "Pilih hari, bulan, dan tahun.",
       "invalid": "Tanggal ini tidak ada.",
       "future": "Tanggal lahir tidak boleh di masa depan.",
-      "tooYoung": "Kamu harus berusia minimal 13 tahun untuk memakai FIT ME AI.",
+      "tooYoung": "Kamu harus berusia minimal 13 tahun untuk memakai FitMe.",
       "tooOld": "Periksa tahunnya."
     }
   },
@@ -411,7 +411,7 @@
     "moved": "{{name}} dipindahkan ke {{day}}"
   },
   "pwa": {
-    "updateAvailable": "Versi baru FIT ME AI sudah siap.",
+    "updateAvailable": "Versi baru FitMe sudah siap.",
     "refresh": "Muat ulang"
   },
   "app": {
@@ -419,7 +419,7 @@
   },
   "errors": {
     "newVersionTitle": "Versi baru sudah siap",
-    "newVersionBody": "FIT ME AI diperbarui saat halaman ini terbuka. Muat ulang untuk melanjutkan.",
+    "newVersionBody": "FitMe diperbarui saat halaman ini terbuka. Muat ulang untuk melanjutkan.",
     "reload": "Muat ulang",
     "screenTitle": "Layar ini tidak termuat",
     "screenBody": "Ada masalah di pihak kami. Datamu aman. Coba lagi.",

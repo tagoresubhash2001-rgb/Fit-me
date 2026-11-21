@@ -34,7 +34,7 @@ shows a bigger saving than the store charges. Regular prices for the launch offe
 
 ## 3. App Store Connect (iOS)
 
-1. App Store Connect → your app → **Subscriptions** → create a subscription group **FIT ME AI**.
+1. App Store Connect → your app → **Subscriptions** → create a subscription group **FitMe**.
 2. Add the six auto-renewable subscriptions above (Reference name = product id, Product ID = product id).
    Within the group, rank Pro above Premium so upgrades and downgrades are handled by Apple.
 3. For each: set the duration (1 month / 3 months / 1 year), prices per territory (table above; other

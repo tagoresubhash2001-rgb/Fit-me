@@ -28,7 +28,7 @@ import { useUnits } from '../common/useUnits';
 import { currentStreak, movingAverage } from '../../domain/progress';
 import type { FoodLog, WaterLog, WorkoutLog, SleepLog, WeightLog, StepLog } from '../../domain/models';
 import { addWater } from '../health/waterActions';
-import { UpgradeNudge } from '../plans/PlanPrompts';
+import { AccessStageCard, UpgradeNudge } from '../plans/PlanPrompts';
 
 function greetingKey(m: number) {
   if (m < 12 * 60) return 'greeting.morning';
@@ -137,6 +137,7 @@ export default function HomeScreen() {
         </p>
       </div>
 
+      <AccessStageCard compact />
       <UpgradeNudge />
 
       {nothingToday && (

@@ -32,10 +32,8 @@ export function FullScreenLoader() {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-canvas p-6 text-center" role="status" aria-label={t('common.loading')}>
       <img src="/favicon.svg" alt="" width={72} height={72} className="h-[72px] w-[72px] motion-safe:animate-pulse" />
-      <p className="text-[34px] leading-tight font-semibold text-ink">
-        FIT ME <span className="text-primary-text">AI</span>
-      </p>
-      <p className="max-w-md text-body text-muted">{slow ? t('errors.slowBody') : t('app.splash')}</p>
+      <p className="text-[34px] leading-tight font-semibold text-ink">FitMe</p>
+      <p className="max-w-md text-body text-muted">{slow ? t('errors.slowBody') : t('app.tagline')}</p>
       {slow && (
         <button type="button" onClick={() => window.location.reload()} className="h-12 rounded-button bg-primary px-5 text-body font-semibold text-on-primary">
           {t('common.retry')}

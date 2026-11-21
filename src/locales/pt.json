@@ -33,7 +33,7 @@
     "main": "Principal"
   },
   "auth": {
-    "welcomeTitle": "Boas-vindas ao FIT ME AI",
+    "welcomeTitle": "Boas-vindas ao FitMe",
     "google": "Continuar com o Google",
     "apple": "Continuar com a Apple",
     "email": "Continuar com e-mail",
@@ -59,7 +59,7 @@
       "incomplete": "Escolha dia, mês e ano.",
       "invalid": "Esta data não existe.",
       "future": "A data de nascimento não pode estar no futuro.",
-      "tooYoung": "Você precisa ter pelo menos 13 anos para usar o FIT ME AI.",
+      "tooYoung": "Você precisa ter pelo menos 13 anos para usar o FitMe.",
       "tooOld": "Verifique o ano."
     }
   },
@@ -411,7 +411,7 @@
     "moved": "{{name}} movido para {{day}}"
   },
   "pwa": {
-    "updateAvailable": "Uma nova versão do FIT ME AI está pronta.",
+    "updateAvailable": "Uma nova versão do FitMe está pronta.",
     "refresh": "Atualizar"
   },
   "app": {
@@ -419,7 +419,7 @@
   },
   "errors": {
     "newVersionTitle": "Há uma nova versão",
-    "newVersionBody": "O FIT ME AI foi atualizado enquanto esta página estava aberta. Recarregue para continuar.",
+    "newVersionBody": "O FitMe foi atualizado enquanto esta página estava aberta. Recarregue para continuar.",
     "reload": "Recarregar",
     "screenTitle": "Esta tela não carregou",
     "screenBody": "Algo deu errado do nosso lado. Seus dados estão seguros. Tente de novo.",

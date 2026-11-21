@@ -26,3 +26,4 @@ export { haptic } from './haptics';
 export * from './Layout';
 export * from './SlidingPill';
 export * from './motion';
+export { BrandLogo } from './Brand';

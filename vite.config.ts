@@ -46,9 +46,9 @@ export default defineConfig(() => {
         },
         manifest: {
           id: '/',
-          name: 'FIT ME AI',
-          short_name: 'FIT ME AI',
-          description: 'Food, water, sleep, steps and workouts, with Jai and Jaya, your AI coaches.',
+          name: 'FitMe',
+          short_name: 'FitMe',
+          description: 'FitMe – For a Healthier Life.',
           lang: 'en',
           start_url: '/',
           scope: '/',

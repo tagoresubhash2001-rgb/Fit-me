@@ -9,7 +9,7 @@ import {
   ShoppingBag,
   MessageCircle,
   WifiOff,
-  Sparkles,
+  CircleArrowUp,
   Settings as SettingsIcon,
   UserRound,
   PanelLeftClose,
@@ -21,7 +21,7 @@ import {
   LogOut,
   Keyboard,
 } from 'lucide-react';
-import { Sheet, Skeleton, SlidingPill, cn } from '../components/ui';
+import { Sheet, Skeleton, SlidingPill, cn, BrandLogo } from '../components/ui';
 import { prefetchRoute, prefetchWhenIdle, type RouteKey } from './routes';
 import { RouteErrorBoundary } from './RouteErrorBoundary';
 import { useSession } from '../data/session';
@@ -32,7 +32,7 @@ import { useThemeStore, type VisualTheme } from '../stores/theme.store';
 import { useUi } from '../stores/ui.store';
 import { CoachDock, CoachSheet } from '../features/coach/CoachSheet';
 import { NovaBar } from './NovaBar';
-import { TrialEndingBanner } from '../features/plans/PlanPrompts';
+import { StageEndingBanner, TrialEndingBanner } from '../features/plans/PlanPrompts';
 import { useShortcuts, SHORTCUTS } from './shortcuts';
 
 const TABS = [
@@ -79,6 +79,7 @@ export function Shell() {
           </p>
         )}
         <TrialEndingBanner />
+        <StageEndingBanner />
         <NovaBar />
         <main id="main" tabIndex={-1} className="mx-auto w-full max-w-2xl flex-1 px-4 pt-4 pb-36 outline-none md:max-w-3xl md:px-6 land:max-w-5xl land:pb-10 xl:max-w-[1360px] xl:px-8 xl:pb-12 2xl:max-w-[1440px]">
           <div key={location.pathname.split('/')[1]} className={transition}>
@@ -147,17 +148,7 @@ const prefetchProps = (key: string) => {
 
 function Logo({ compact }: { compact?: boolean }) {
   return (
-    <span className="text-title font-semibold whitespace-nowrap text-ink">
-      {compact ? (
-        <span aria-label="FIT ME AI" className="flex h-10 w-10 items-center justify-center rounded-button bg-primary text-body font-bold text-on-primary">
-          F
-        </span>
-      ) : (
-        <>
-          FIT ME <span className="text-primary-text">AI</span>
-        </>
-      )}
-    </span>
+    <BrandLogo size={compact ? 40 : 32} wordmark={!compact} textClassName="text-title" />
   );
 }
 
@@ -275,7 +266,7 @@ function Sidebar() {
         {plan !== 'pro' && (
           <li>
             <NavLink to="/plans" id="side-upgrade" data-tip={collapsed ? t('plans.upgrade') : undefined} data-tip-side="end" className={cn(item(false), 'bg-accent-subtle font-semibold text-accent hover:bg-accent-subtle')}>
-              <Sparkles className="h-5 w-5 shrink-0" strokeWidth={1.75} />
+              <CircleArrowUp className="h-5 w-5 shrink-0" strokeWidth={1.75} />
               {label(t('plans.upgrade'))}
             </NavLink>
           </li>
@@ -378,7 +369,6 @@ function TopBar() {
               onClick={() => navigate('/plans')}
               className="flex h-9 items-center gap-1.5 rounded-full bg-accent-subtle px-3 text-small font-semibold text-accent transition-transform duration-150 active:scale-95 xl:hidden"
             >
-              <Sparkles className="h-4 w-4" strokeWidth={1.75} />
               {t('plans.upgrade')}
             </button>
           )}
@@ -438,7 +428,7 @@ function AvatarMenu({ initial }: { initial: string }) {
           </button>
           {plan !== 'pro' && (
             <button role="menuitem" type="button" className={itemCls} onClick={() => go('/plans')}>
-              <Sparkles className="h-4 w-4 text-accent" strokeWidth={1.75} />
+              <CircleArrowUp className="h-4 w-4 text-accent" strokeWidth={1.75} />
               {t('plans.upgrade')}
             </button>
           )}

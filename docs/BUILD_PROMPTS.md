@@ -1,4 +1,4 @@
-# FIT ME AI — Claude Code prompts (paste one phase at a time)
+# FitMe — Claude Code prompts (paste one phase at a time)
 
 > **Superseded (2026-11-14):** the stack changed from Flutter to React + Capacitor.
 > These Flutter phase prompts are kept for reference only; the phase goals still apply,
@@ -18,7 +18,7 @@ Setup before Phase 0:
 ```
 Read CLAUDE.md and docs/PRD.md fully before doing anything.
 
-We are starting FIT ME AI from scratch. Your task is Phase 0 (Foundation) only.
+We are starting FitMe from scratch. Your task is Phase 0 (Foundation) only.
 
 First, give me a short plan: the folder structure, packages you will add, and the order of work.
 Wait for my "ok" before writing code.

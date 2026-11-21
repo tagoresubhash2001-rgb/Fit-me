@@ -1,5 +1,5 @@
 /*
- * FIT ME AI design tokens (PRD section 12).
+ * FitMe design tokens (PRD section 12).
  * Every colour used by components comes from these tokens. Do not use hex values in components.
  * Light mode is the default; dark mode is applied with the `dark` class on <html>.
  */
@@ -75,6 +75,8 @@
   /* Frosted glass for header, navigation, sheets and modals. */
   --glass: rgba(255, 255, 255, 0.72);
   --glass-strong: rgba(255, 255, 255, 0.9);
+  /* Opaque twin of --glass-strong for touch screens, where blur under scrolling content repaints badly. */
+  --glass-solid: #fcfbf8;
   --glass-border: rgba(255, 255, 255, 0.7);
   --glass-edge: rgba(15, 23, 32, 0.08);
 
@@ -105,6 +107,7 @@
   --shadow-float: 0 2px 4px rgba(0, 0, 0, 0.24), 0 8px 24px rgba(0, 0, 0, 0.32);
   --glass: rgba(23, 33, 43, 0.72);
   --glass-strong: rgba(23, 33, 43, 0.92);
+  --glass-solid: #17212b;
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-edge: rgba(0, 0, 0, 0.3);
   color-scheme: dark;
@@ -182,10 +185,16 @@
 }
 
 @layer base {
+  /* The root carries the canvas colour too, so overscroll, the mobile address bar resizing and the first
+     paint never show a white page (mobile Chrome white-flash fix). */
   html {
     -webkit-text-size-adjust: 100%;
+    background-color: var(--canvas);
+    overscroll-behavior-x: none;
   }
   body {
+    min-height: 100dvh;
+    overscroll-behavior-x: none;
     background-color: var(--canvas);
     color: var(--ink);
     font-family: var(--font-sans);
@@ -255,6 +264,15 @@
   .glass-strong {
     background-color: var(--glass-strong);
   }
+  /* Touch screens: fixed bars are solid with no blur. Blurring content that scrolls under a fixed element
+     forces a repaint of every frame and showed as white flashes on Android Chrome. */
+  @media (pointer: coarse) {
+    .glass-strong {
+      background-color: var(--glass-solid);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
 }
 
 /* ---- Motion system (PRD section 12): transform and opacity only, 150-300 ms, spring or ease-out ---- */
@@ -287,11 +305,16 @@
 [dir='rtl'] .anim-grow-x { transform-origin: right; }
 .anim-draw { stroke-dasharray: 1; animation: draw-line 700ms var(--ease-emphasized) backwards; }
 .anim-check { animation: check-pop 320ms var(--ease-spring) both; }
-/* Long lists: let the browser skip rendering rows that are off screen. */
-.list-lazy > li { content-visibility: auto; contain-intrinsic-size: auto 56px; }
+/* Long lists render normally. (content-visibility: auto here left rows blank for a moment during fast
+   scrolling on phones; lists are short enough to render in full.) */
 /* Shared-element transitions between a dashboard card and its screen (View Transitions API). */
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 200ms; }
 ::view-transition-group(*) { animation-duration: 280ms; animation-timing-function: cubic-bezier(0.2, 0, 0, 1); }
+
+/* Installed app (PWA): no rubber-band bounce past the top or bottom. */
+@media (display-mode: standalone) {
+  html, body { overscroll-behavior-y: none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,
