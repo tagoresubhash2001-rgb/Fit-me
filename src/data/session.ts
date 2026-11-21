@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { User } from 'firebase/auth';
 import type { UserProfile } from '../domain/models';
 import type { Plan } from '../domain/plans';
+import type { AccessRecord } from '../domain/access';
 import type { EntitlementStatus, PaidPlan, Period } from '../domain/billing';
 
 /** Client view of entitlements/{uid} (written only by Cloud Functions). Times in epoch ms. */
@@ -21,8 +22,13 @@ interface SessionState {
   user: User | null;
   profileReady: boolean;
   profile: UserProfile | null;
+  /** What the user can use now: the better of their subscription and their free stage. */
   plan: Plan;
+  /** Plan from the subscription alone (entitlements/{uid}). */
+  subscriptionPlan: Plan;
   entitlement: EntitlementView | null;
+  /** Free-stage record (access/{uid}, server-written); null until loaded. */
+  access: AccessRecord | null;
   set: (s: Partial<Omit<SessionState, 'set'>>) => void;
 }
 
@@ -33,7 +39,9 @@ export const useSession = create<SessionState>((set) => ({
   profileReady: false,
   profile: null,
   plan: 'free',
+  subscriptionPlan: 'free',
   entitlement: null,
+  access: null,
   set: (s) => set(s),
 }));
 

@@ -17,12 +17,24 @@ service cloud.firestore {
     }
 
     // Active paid plan, read from the server-written entitlement (PRD section 3).
-    function hasPlan(plans) {
+    function hasSubscription(plans) {
       let path = /databases/$(database)/documents/entitlements/$(request.auth.uid);
-      return signedIn() && exists(path)
+      return exists(path)
         && get(path).data.plan in plans
         && get(path).data.get('status', 'active') != 'expired'
         && (!('expiresAt' in get(path).data) || get(path).data.expiresAt == null || get(path).data.expiresAt > request.time);
+    }
+
+    // Free stages (7-day Welcome Unlock, then the 30-day Free Trial), from the server-written access record.
+    function hasStage(plans) {
+      let path = /databases/$(database)/documents/access/$(request.auth.uid);
+      return exists(path) && get(path).data.eligible == true
+        && ((request.time < get(path).data.welcomeEndsAt && get(path).data.welcomePlan in plans)
+          || (request.time < get(path).data.trialEndsAt && get(path).data.trialPlan in plans));
+    }
+
+    function hasPlan(plans) {
+      return signedIn() && (hasSubscription(plans) || hasStage(plans));
     }
 
     // Fields a client may never set on its own profile.
@@ -59,14 +71,14 @@ service cloud.firestore {
       match /{collection}/{docId} {
         allow read, delete: if isOwner(uid)
           && collection in ['foodLogs', 'waterLogs', 'workoutLogs', 'weightLogs', 'sleepLogs', 'stepLogs',
-                            'plans', 'schedule', 'habits', 'reports', 'savedMeals', 'recipes', 'customFoods'];
+                            'plans', 'schedule', 'habits', 'reports', 'savedMeals', 'recipes', 'customFoods', 'healthDaily'];
         allow create: if isOwner(uid)
           && collection in ['foodLogs', 'waterLogs', 'workoutLogs', 'weightLogs', 'sleepLogs', 'stepLogs',
-                            'plans', 'schedule', 'habits', 'reports', 'savedMeals', 'recipes', 'customFoods']
+                            'plans', 'schedule', 'habits', 'reports', 'savedMeals', 'recipes', 'customFoods', 'healthDaily']
           && validRecord(uid, docId);
         allow update: if isOwner(uid)
           && collection in ['foodLogs', 'waterLogs', 'workoutLogs', 'weightLogs', 'sleepLogs', 'stepLogs',
-                            'plans', 'schedule', 'habits', 'reports', 'savedMeals', 'recipes', 'customFoods']
+                            'plans', 'schedule', 'habits', 'reports', 'savedMeals', 'recipes', 'customFoods', 'healthDaily']
           && validRecord(uid, docId)
           && immutableOnUpdate();
       }
@@ -84,6 +96,12 @@ service cloud.firestore {
           allow read, delete: if isOwner(uid);
         }
       }
+    }
+
+    // Free-stage record (dates from the Auth creation time): written only by Cloud Functions.
+    match /access/{uid} {
+      allow read: if isOwner(uid);
+      allow write: if false;
     }
 
     // Plan entitlements: written only by Cloud Functions (RevenueCat / Cashfree webhooks).

@@ -1,8 +1,11 @@
 export { healthCheck } from './health';
 export { coachChat } from './ai/coach';
 export { analyzeFoodText } from './ai/foodText';
+export { analyzeFoodPhoto } from './ai/foodPhoto';
 export { deleteAccount } from './account/deleteAccount';
 export { exportData } from './account/exportData';
+export { searchFoods } from './foods/searchFunction';
+export { onUserCreated, getAccess } from './account/access';
 export { startTrial, manageSubscription } from './billing/subscription';
 export { revenuecatWebhook, cashfreeWebhook } from './billing/webhooks';
 import { trialReminders } from './billing/reminders';

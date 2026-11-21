@@ -21,10 +21,27 @@ import { isNative, platform } from '../lib/platform';
 import { useSession } from './session';
 import { closeSharedListeners } from './useRecords';
 import { effectivePlan } from '../domain/plans';
+import { combinedPlan, stageAt } from '../domain/access';
 import type { UserProfile } from '../domain/models';
 
 let profileUnsub: (() => void) | null = null;
 let entUnsub: (() => void) | null = null;
+let accessUnsub: (() => void) | null = null;
+let stageTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** Recomputes the usable plan, and again the moment the current free stage ends. */
+function recomputePlan() {
+  const { subscriptionPlan, access, set } = useSession.getState();
+  const now = Date.now();
+  const info = stageAt(access, now);
+  set({ plan: combinedPlan(subscriptionPlan, info.plan) });
+  if (stageTimer) clearTimeout(stageTimer);
+  stageTimer = null;
+  const next = Math.min(info.endsAtMs ?? Infinity, useSession.getState().entitlement?.expiresAt ?? Infinity);
+  if (Number.isFinite(next) && next > now) stageTimer = setTimeout(recomputePlan, Math.min(next - now + 1000, 2 ** 31 - 1));
+}
+
+const tsMs = (v: unknown) => (v && typeof (v as { toMillis?: unknown }).toMillis === 'function' ? (v as { toMillis(): number }).toMillis() : 0);
 
 /** Starts listening to auth, the user's profile document and their entitlement. Call once at startup. */
 export function watchSession() {
@@ -32,9 +49,39 @@ export function watchSession() {
   return onAuthStateChanged(auth(), (user) => {
     profileUnsub?.();
     entUnsub?.();
-    profileUnsub = entUnsub = null;
-    set({ user, authReady: true, profile: null, profileReady: !user, plan: 'free' });
+    accessUnsub?.();
+    profileUnsub = entUnsub = accessUnsub = null;
+    if (stageTimer) clearTimeout(stageTimer);
+    set({ user, authReady: true, profile: null, profileReady: !user, plan: 'free', subscriptionPlan: 'free', access: null, entitlement: null });
     if (!user) return;
+    let requested = false;
+    accessUnsub = onSnapshot(
+      doc(db(), `access/${user.uid}`),
+      (snap) => {
+        const d = snap.data();
+        if (!d) {
+          // Accounts from before the free stages, or the sign-up trigger has not run yet: ask the server once.
+          if (!requested && !snap.metadata.fromCache) {
+            requested = true;
+            void httpsCallable(functions(), 'getAccess')({}).catch(() => undefined);
+          }
+          return;
+        }
+        set({
+          access: {
+            createdAtMs: tsMs(d.createdAt),
+            welcomeEndsAtMs: tsMs(d.welcomeEndsAt),
+            trialEndsAtMs: tsMs(d.trialEndsAt),
+            welcomePlan: d.welcomePlan,
+            trialPlan: d.trialPlan,
+            eligible: d.eligible === true,
+            configVersion: Number(d.configVersion ?? 1),
+          },
+        });
+        recomputePlan();
+      },
+      () => undefined,
+    );
     profileUnsub = onSnapshot(
       doc(db(), `users/${user.uid}`),
       (snap) => {
@@ -52,9 +99,13 @@ export function watchSession() {
           d && (d.plan === 'premium' || d.plan === 'pro')
             ? { plan: d.plan, status: d.status ?? 'active', period: d.period ?? null, source: d.source ?? 'admin', expiresAt: ms(d.expiresAt), trialEndsAt: ms(d.trialEndsAt), willRenew: !!d.willRenew, trialUsed: !!d.trialUsed }
             : null;
-        set({ plan: effectivePlan(d as never, Date.now()), entitlement });
+        set({ subscriptionPlan: effectivePlan(d as never, Date.now()), entitlement });
+        recomputePlan();
       },
-      () => set({ plan: 'free', entitlement: null }),
+      () => {
+        set({ subscriptionPlan: 'free', entitlement: null });
+        recomputePlan();
+      },
     );
   });
 }

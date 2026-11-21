@@ -5,6 +5,15 @@ import { callableOptions, requireAuth } from '../lib/callable';
 import { db, isEmulator } from '../lib/admin';
 import { PAID_PLANS, PERIODS, hasAccess, trialEligible, type BillingEvent } from './billing';
 import { applyBillingEvent, loadBillingMode, loadPricing, readEntitlement, trialUsedAt } from './store';
+import { ensureAccess } from '../account/access';
+
+const DAY_MS = 86_400_000;
+/** End of one billing period from `at` (calendar months, test mode). */
+export function addPeriod(at: number, period: (typeof PERIODS)[number]): number {
+  const d = new Date(at);
+  d.setUTCMonth(d.getUTCMonth() + (period === 'monthly' ? 1 : period === 'quarterly' ? 3 : 12));
+  return d.getTime();
+}
 
 const StartInput = z.object({ plan: z.enum(PAID_PLANS), period: z.enum(PERIODS) });
 
@@ -26,9 +35,22 @@ export const startTrial = onCall(callableOptions(), async (req) => {
   if (mode === 'test' && tester) {
     const current = readEntitlement((await db().doc(`entitlements/${uid}`).get()).data());
     if (current && hasAccess(current, Date.now()) && current.status !== 'cancelled') throw new HttpsError('failed-precondition', 'already_subscribed');
+    const at = Date.now();
+    const access = await ensureAccess(uid).catch(() => null);
+    if (access) {
+      // The free stages are the account's free trial (owner rules): no second trial on top of them. Choosing a
+      // plan during a stage keeps the free days; the first charge is the day the stage would have ended.
+      const freeUntil = access.eligible ? access.trialEndsAtMs : 0;
+      if (freeUntil > at) {
+        const ent = await applyBillingEvent(uid, { type: 'trial_started', plan, period, at, trialDays: (freeUntil - at) / DAY_MS, source: 'test' });
+        return { status: 'trialing' as const, trialEndsAt: ent?.trialEndsAt ?? freeUntil };
+      }
+      const ent = await applyBillingEvent(uid, { type: 'purchased', plan, period, at, periodEndsAt: addPeriod(at, period), source: 'test' });
+      return { status: 'active' as const, trialEndsAt: null, expiresAt: ent?.expiresAt ?? null };
+    }
     if (!trialEligible(await trialUsedAt(uid))) throw new HttpsError('failed-precondition', 'trial_used');
     const pricing = await loadPricing();
-    const ent = await applyBillingEvent(uid, { type: 'trial_started', plan, period, at: Date.now(), trialDays: pricing.trialDays, source: 'test' });
+    const ent = await applyBillingEvent(uid, { type: 'trial_started', plan, period, at, trialDays: pricing.trialDays, source: 'test' });
     return { status: 'trialing' as const, trialEndsAt: ent?.trialEndsAt ?? null };
   }
 

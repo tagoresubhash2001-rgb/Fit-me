@@ -2,11 +2,12 @@ import React, { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { httpsCallable } from 'firebase/functions';
-import { BellRing, Check, ChevronDown, Lock, Minus, ShieldCheck, Sparkles, XCircle } from 'lucide-react';
+import { BellRing, Check, ChevronDown, Lock, Minus, ShieldCheck, XCircle } from 'lucide-react';
 import { Badge, Button, Card, CountUp, PageHeader, Select, Sheet, Tabs, cn, toast, useTilt } from '../../components/ui';
 import { functions } from '../../lib/firebase';
 import { useSession, type EntitlementView } from '../../data/session';
 import { usePricing } from '../../data/pricing';
+import { stageAt } from '../../domain/access';
 import { PLAN_FEATURES, formatPrice } from '../../domain/pricing';
 import {
   PERIODS,
@@ -52,7 +53,11 @@ export default function PlansScreen() {
     [pricing, market, period, now],
   );
   const subscribed = ent && hasAccess(ent, now) ? ent : null;
-  const eligible = trialEligible(ent?.trialUsed ? 1 : null);
+  const access = useSession((s) => s.access);
+  const stage = stageAt(access, now);
+  // With the free stages (owner rules) they are the account's free trial: no second store trial on top.
+  const freeUntil = access && access.eligible && stage.stage !== 'ended' ? access.trialEndsAtMs : null;
+  const eligible = access ? false : trialEligible(ent?.trialUsed ? 1 : null);
   const money = (v: number, q: Quote) => formatPrice(roundToStep(v, pricing.markets[market!].priceStep, 'down'), q.currency, i18n.language);
   const date = (ms: number) =>
     new Intl.DateTimeFormat(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(ms));
@@ -111,7 +116,10 @@ export default function PlansScreen() {
 
   return (
     <div className="stagger mx-auto flex w-full max-w-5xl flex-col gap-5">
-      <PageHeader title={t('plans.title')} subtitle={t('plans.subtitle', { days: pricing.trialDays })} />
+      <PageHeader
+        title={t('plans.title')}
+        subtitle={freeUntil ? t('plans.subtitleFreeUntil', { date: date(freeUntil) }) : access ? t('plans.subtitlePaid') : t('plans.subtitle', { days: pricing.trialDays })}
+      />
 
       {subscribed && (
         <CurrentPlan
@@ -150,6 +158,7 @@ export default function PlansScreen() {
             date={date}
             trialDays={pricing.trialDays}
             eligible={eligible}
+            freeUntil={freeUntil ? date(freeUntil) : null}
             current={!!subscribed && subscribed.plan === p}
             highlighted={highlight === p || (!highlight && p === 'pro')}
             changing={changing}
@@ -260,7 +269,7 @@ export default function PlansScreen() {
         </div>
       </Card>
 
-      <TrialSummarySheet q={summary} market={market} money={money} date={date} eligible={eligible} onClose={() => setSummary(null)} />
+      <TrialSummarySheet q={summary} market={market} money={money} date={date} eligible={eligible} freeUntil={freeUntil} onClose={() => setSummary(null)} />
       {subscribed && <CancelSheet open={cancelOpen} ent={subscribed} date={date} onClose={() => setCancelOpen(false)} />}
     </div>
   );
@@ -273,6 +282,7 @@ function PlanCard({
   date,
   trialDays,
   eligible,
+  freeUntil,
   current,
   highlighted,
   changing,
@@ -286,6 +296,8 @@ function PlanCard({
   date: (ms: number) => string;
   trialDays: number;
   eligible: boolean;
+  /** Formatted end of the free stages, when the user is still in them. */
+  freeUntil: string | null;
   current: boolean;
   highlighted: boolean;
   changing: boolean;
@@ -308,6 +320,7 @@ function PlanCard({
       : eligible
         ? t('plans.startTrial', { days: trialDays })
         : t('plans.choose', { plan: t(`plans.${plan}`) });
+  const freeNote = !subscribed && freeUntil ? t('plans.freeUntilBadge', { date: freeUntil }) : null;
   return (
     <Card
       id={`plan-${plan}`}
@@ -330,6 +343,7 @@ function PlanCard({
             plan === 'pro' && <Badge tone="accent">{t('plans.mostPopular')}</Badge>
           )}
           {!subscribed && eligible && <Badge tone="primary">{t('plans.trialBadge', { days: trialDays })}</Badge>}
+          {freeNote && <Badge tone="primary">{freeNote}</Badge>}
         </div>
       </div>
 
@@ -381,7 +395,7 @@ function PlanCard({
 
       <div className="mt-auto pt-1">
         {action ? (
-          <Button id={`choose-${plan}`} fullWidth icon={<Sparkles className="h-[18px] w-[18px]" strokeWidth={1.75} />} onClick={onChoose}>
+          <Button id={`choose-${plan}`} fullWidth onClick={onChoose}>
             {action}
           </Button>
         ) : current ? (
@@ -478,6 +492,7 @@ function TrialSummarySheet({
   money,
   date,
   eligible,
+  freeUntil,
   onClose,
 }: {
   q: Quote | null;
@@ -485,22 +500,28 @@ function TrialSummarySheet({
   money: (v: number, q: Quote) => string;
   date: (ms: number) => string;
   eligible: boolean;
+  /** End of the free stages (ms) when the user is still in them: first charge then, no extra trial. */
+  freeUntil: number | null;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   if (!q) return null;
-  const firstCharge = Date.now() + q.trialDays * DAY;
+  const firstCharge = freeUntil ?? Date.now() + q.trialDays * DAY;
   const price = market && q.total > 0 ? `${money(q.total, q)} ${t(`plans.every.${q.period}`)}` : t('plans.localPrice');
   const start = async () => {
     setBusy(true);
     try {
       const r = (await httpsCallable(functions(), 'startTrial')({ plan: q.plan, period: q.period })).data as {
-        status: 'trialing' | 'interest';
+        status: 'trialing' | 'interest' | 'active';
         trialEndsAt?: number;
       };
-      if (r.status === 'trialing') {
+      if (r.status === 'active') {
+        setDone(true);
+        toast(t('plans.subscribed', { plan: t(`plans.${q.plan}`) }), 'success');
+        setTimeout(onClose, 900);
+      } else if (r.status === 'trialing') {
         setDone(true);
         toast(t('plans.trialStarted', { plan: t(`plans.${q.plan}`), date: date(r.trialEndsAt ?? firstCharge) }), 'success');
         setTimeout(onClose, 900);
@@ -525,16 +546,16 @@ function TrialSummarySheet({
   const rows: Array<[string, string]> = [
     [t('plans.summary.plan'), t(`plans.${q.plan}`)],
     [t('plans.summary.period'), t(`plans.period.${q.period}`)],
-    [t('plans.summary.trial'), eligible ? t('plans.summary.trialValue', { days: q.trialDays }) : t('plans.summary.noTrial')],
+    [t('plans.summary.trial'), freeUntil ? t('plans.summary.freeUntil', { date: date(freeUntil) }) : eligible ? t('plans.summary.trialValue', { days: q.trialDays }) : t('plans.summary.noTrial')],
     [t('plans.summary.after'), price],
-    [t('plans.summary.firstCharge'), eligible ? date(firstCharge) : t('plans.summary.today')],
+    [t('plans.summary.firstCharge'), eligible || freeUntil ? date(firstCharge) : t('plans.summary.today')],
   ];
   return (
     <Sheet
       open
       onClose={onClose}
       closeLabel={t('common.close')}
-      title={eligible ? t('plans.summary.title') : t('plans.summary.titleNoTrial')}
+      title={freeUntil ? t('plans.summary.titleFree') : eligible ? t('plans.summary.title') : t('plans.summary.titleNoTrial')}
       footer={
         <Button
           id="confirm-trial"
@@ -544,7 +565,7 @@ function TrialSummarySheet({
           icon={done ? <Check className="h-[18px] w-[18px] animate-[pop-in_250ms_var(--ease-spring)]" strokeWidth={2.5} /> : undefined}
           onClick={() => void start()}
         >
-          {eligible ? t('plans.summary.confirm') : t('plans.choose', { plan: t(`plans.${q.plan}`) })}
+          {freeUntil ? t('plans.summary.confirmFree') : eligible ? t('plans.summary.confirm') : t('plans.choose', { plan: t(`plans.${q.plan}`) })}
         </Button>
       }
     >
@@ -556,7 +577,9 @@ function TrialSummarySheet({
           </div>
         ))}
       </dl>
-      <p className="mt-3 rounded-input bg-raised p-3 text-small text-ink">{t('plans.summary.cancelHow', { date: date(firstCharge) })}</p>
+      <p className="mt-3 rounded-input bg-raised p-3 text-small text-ink">
+        {eligible || freeUntil ? t('plans.summary.cancelHow', { date: date(firstCharge) }) : t('plans.summary.cancelPaid')}
+      </p>
     </Sheet>
   );
 }
