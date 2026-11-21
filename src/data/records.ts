@@ -1,6 +1,7 @@
 import {
   collection,
   doc,
+  getDoc,
   setDoc,
   updateDoc,
   onSnapshot,
@@ -17,7 +18,7 @@ import { localDate, localMinutes } from '../domain/dates';
 import type { LogCollection } from '../domain/models';
 import { currentUid, useSession } from './session';
 
-export type RecordCollection = LogCollection | 'plans' | 'schedule' | 'habits' | 'savedMeals' | 'recipes' | 'customFoods';
+export type RecordCollection = LogCollection | 'plans' | 'schedule' | 'habits' | 'savedMeals' | 'recipes' | 'customFoods' | 'healthDaily';
 type Source = 'manual' | 'ai' | 'device' | 'import';
 
 export const userTz = () => useSession.getState().profile?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
@@ -53,6 +54,34 @@ export async function createRecord<T extends object>(
   };
   void setDoc(doc(db(), `users/${uid}/${c}/${id}`), rec);
   return id;
+}
+
+/**
+ * Create-or-update for records with a stable id (device sync: one record per day or per platform sample).
+ * Updating keeps uid and createdAt, which Security Rules require, so a second sync does not fail.
+ */
+export async function upsertRecord<T extends object>(c: RecordCollection, id: string, data: T, opts: { date: string; source: Source }) {
+  const uid = currentUid();
+  const ref = doc(db(), `users/${uid}/${c}/${id}`);
+  let exists = false;
+  try {
+    exists = (await getDoc(ref)).exists();
+  } catch {
+    /* offline and not cached: treat as new */
+  }
+  if (exists) await updateDoc(ref, { ...data, status: 'active', updatedAt: serverTimestamp() });
+  else
+    await setDoc(ref, {
+      ...data,
+      id,
+      uid,
+      date: opts.date,
+      tz: userTz(),
+      source: opts.source,
+      status: 'active',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
 }
 
 export async function updateRecord(c: RecordCollection, id: string, patch: Record<string, unknown>) {
