@@ -143,7 +143,6 @@ export function AddFoodSheet({
   dayLogs: FoodLog[];
 }) {
   const { t, i18n } = useTranslation();
-  const plan = useSession((s) => s.plan);
   const premium = useCanUse('micronutrients');
   const features = useFeatures();
   const [mode, setMode] = useState<Mode>('search');

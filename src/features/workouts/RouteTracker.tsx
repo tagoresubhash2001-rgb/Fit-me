@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pause, Play, Square } from 'lucide-react';
 import { Button, Card, Tabs, toast } from '../../components/ui';
@@ -10,16 +10,24 @@ import { acceptFix, distanceMeters, paceSecPerKm, routeCalories, thin, type Fix,
 import { useFormat } from '../../lib/hooks';
 
 type Stop = () => void;
+const RouteMap = lazy(() => import('./RouteMap'));
 
 /** Location updates while the app is open: Capacitor Geolocation on phones, the browser API on the web. */
-async function watch(onFix: (f: Fix) => void, onError: (code: string) => void): Promise<Stop> {
+async function watch(onFix: (f: Fix) => void, onError: (code: string) => void, notice: { title: string; message: string }): Promise<Stop> {
   if (isNative()) {
-    const { Geolocation } = await import('@capacitor/geolocation');
-    const id = await Geolocation.watchPosition({ enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }, (pos, err) => {
-      if (err || !pos) return onError('unavailable');
-      onFix({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy, t: pos.timestamp });
+    // Android: a foreground service with a visible notification keeps tracking with the screen off.
+    // iOS: background location updates only while this watcher (the active workout) runs.
+    const { registerPlugin } = await import('@capacitor/core');
+    type Loc = { latitude: number; longitude: number; accuracy: number; time: number | null };
+    const BG = registerPlugin<{
+      addWatcher(o: Record<string, unknown>, cb: (l?: Loc, e?: { code?: string }) => void): Promise<string>;
+      removeWatcher(o: { id: string }): Promise<void>;
+    }>('BackgroundGeolocation');
+    const id = await BG.addWatcher({ backgroundTitle: notice.title, backgroundMessage: notice.message, requestPermissions: false, stale: false, distanceFilter: 3 }, (l, err) => {
+      if (err || !l) return onError(err?.code === 'NOT_AUTHORIZED' ? 'denied' : 'unavailable');
+      onFix({ lat: l.latitude, lng: l.longitude, accuracy: l.accuracy, t: l.time ?? Date.now() });
     });
-    return () => void Geolocation.clearWatch({ id });
+    return () => void BG.removeWatcher({ id });
   }
   if (!('geolocation' in navigator)) {
     onError('unsupported');
@@ -94,6 +102,7 @@ export function RouteTracker({ onDone }: { onDone: () => void }) {
         setPoints((ps) => (acceptFix(ps[ps.length - 1] ?? null, f, activity) ? [...ps, f] : ps));
       },
       (code) => setError(code),
+      { title: t('route.noticeTitle'), message: t('route.noticeBody') },
     );
     moving.current.since = Date.now();
     setNow(Date.now());
@@ -136,7 +145,9 @@ export function RouteTracker({ onDone }: { onDone: () => void }) {
           items={(['walk', 'run', 'ride'] as const).map((a) => ({ id: a, label: t(`route.activity.${a}`) }))}
         />
       )}
-      <RouteShape points={points} />
+      <Suspense fallback={<RouteShape points={points} />}>
+        <RouteMap points={points} />
+      </Suspense>
       <Card tone="subtle" padding="sm" className="grid grid-cols-3 gap-2 text-center tabular-nums">
         <div>
           <p className="text-title text-ink" id="route-time">{fmt(elapsed)}</p>

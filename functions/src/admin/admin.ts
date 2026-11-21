@@ -185,6 +185,8 @@ export const adminGetUser = onCall(opts, async (req) => {
 /** Deactivate or reactivate: disables the Auth account, revokes refresh tokens and blocks callables at once. */
 export const adminSetUserDisabled = onCall(opts, async (req) => {
   const actor = await requireSection(req, 'users');
+  // Support staff can look users up but not deactivate them.
+  if (actor.role === 'support' || actor.role === 'moderator') throw new HttpsError('permission-denied', 'staff_only', { section: 'users.disable' });
   const parsed = z.object({ uid: z.string().min(6).max(128), disabled: z.boolean(), reason: z.string().trim().max(500).optional() }).safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
   const { uid, disabled, reason } = parsed.data;

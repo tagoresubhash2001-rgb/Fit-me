@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { CouponBox } from './CouponBox';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { httpsCallable } from 'firebase/functions';
@@ -272,6 +273,8 @@ export default function PlansScreen() {
           </div>
         </div>
       </Card>
+
+      {market && <CouponBox period={period} country={profile.country} format={(v, c) => formatPrice(v, c, i18n.language)} />}
 
       <TrialSummarySheet q={summary} market={market} money={money} date={date} eligible={eligible} freeUntil={freeUntil} onClose={() => setSummary(null)} />
       {subscribed && <CancelSheet open={cancelOpen} ent={subscribed} date={date} onClose={() => setCancelOpen(false)} />}

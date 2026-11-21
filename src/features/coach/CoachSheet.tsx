@@ -25,7 +25,6 @@ function CoachConversation({ open, onClose }: { open: boolean; onClose: () => vo
   const { t } = useTranslation();
   const user = useSession((s) => s.user);
   const profile = useSession((s) => s.profile);
-  const plan = useSession((s) => s.plan);
   const [coach, setCoach] = useState<'jai' | 'jaya'>(profile?.coach ?? 'jaya');
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [text, setText] = useState('');

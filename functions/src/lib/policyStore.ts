@@ -1,11 +1,12 @@
-import { db } from './admin';
+import { db, isEmulator } from './admin';
 import { AccessPolicy, DEFAULT_POLICY } from './policy';
 
 let policyCache: { at: number; policy: AccessPolicy } | null = null;
 
 /** Admin access policy (appConfig/policy), cached for 30 seconds. Missing or invalid = defaults. */
 export async function loadPolicy(): Promise<AccessPolicy> {
-  if (!policyCache || Date.now() - policyCache.at > 30_000) {
+  // 30-second cache in production; none in the emulator so tests see changes at once.
+  if (!policyCache || isEmulator() || Date.now() - policyCache.at > 30_000) {
     const snap = await db().doc('appConfig/policy').get().catch(() => null);
     const parsed = snap?.exists ? AccessPolicy.safeParse(snap.data()) : null;
     policyCache = { at: Date.now(), policy: parsed?.success ? parsed.data : DEFAULT_POLICY };

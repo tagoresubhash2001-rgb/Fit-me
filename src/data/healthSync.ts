@@ -143,11 +143,23 @@ export async function syncHealth(days = 7): Promise<Record<string, number>> {
   const hrv = await avgByDay('heartRateVariability');
   const spo2 = await avgByDay('oxygenSaturation');
 
+  // Which apps and watches the steps came from (Samsung Health, Wear OS, Fitbit, Apple Watch ...), per day.
+  const stepSamples = (await safe(() => h.readSamples({ dataType: 'steps', startDate, endDate, limit: 1000 })))?.samples ?? [];
+  const sourcesByDay = new Map<string, Set<string>>();
+  for (const x of stepSamples) {
+    if (!x.sourceName) continue;
+    const d = localDate(new Date(x.startDate).getTime(), tz);
+    if (!sourcesByDay.has(d)) sourcesByDay.set(d, new Set());
+    sourcesByDay.get(d)!.add(String(x.sourceName).slice(0, 40));
+  }
+  const sourcesFor = (d: string) => [...(sourcesByDay.get(d) ?? [])].slice(0, 6);
+
   const dates = new Set([...steps.keys(), ...distance.keys(), ...energy.keys(), ...hrByDay.keys(), ...resting.keys(), ...hrv.keys(), ...spo2.keys()]);
   for (const date of dates) {
     const hrs = hrByDay.get(date) as { values?: Record<string, number>; value?: number } | undefined;
     const summary = {
       deviceName,
+      sources: sourcesFor(date),
       ...(steps.has(date) ? { steps: Math.round(steps.get(date)!) } : {}),
       ...(distance.has(date) ? { distanceM: Math.round(distance.get(date)!) } : {}),
       ...(energy.has(date) ? { activeKcal: Math.round(energy.get(date)!) } : {}),
@@ -159,7 +171,7 @@ export async function syncHealth(days = 7): Promise<Record<string, number>> {
       ...(spo2.has(date) ? { spo2: Math.round((spo2.get(date)! <= 1 ? spo2.get(date)! * 100 : spo2.get(date)!) * 10) / 10 } : {}),
     };
     await upsertRecord('healthDaily', `device-${date}`, summary, { date, source: 'device' });
-    if (steps.has(date)) await upsertRecord('stepLogs', `device-${date}`, { steps: Math.min(200000, Math.round(steps.get(date)!)), deviceName }, { date, source: 'device' });
+    if (steps.has(date)) await upsertRecord('stepLogs', `device-${date}`, { steps: Math.min(200000, Math.round(steps.get(date)!)), deviceName, sources: sourcesFor(date) }, { date, source: 'device' });
   }
   counts.days = dates.size;
 

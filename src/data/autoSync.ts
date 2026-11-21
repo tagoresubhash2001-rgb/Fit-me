@@ -1,3 +1,4 @@
+import { noteError } from '../lib/diagnostics';
 import { healthStatus, syncHealth } from './healthSync';
 import { phoneStepsStatus, syncPhoneSteps } from './steps';
 
@@ -9,12 +10,14 @@ export async function autoSyncDevices(): Promise<void> {
   last = Date.now();
   try {
     if ((await phoneStepsStatus()).enabled) await syncPhoneSteps(7);
-  } catch {
-    /* shown in Settings > Connected devices */
+  } catch (e) {
+    noteError('sync.phone', e); // shown in Settings > Connected devices and in diagnostics
   }
   try {
     if ((await healthStatus()).connected) await syncHealth(3);
-  } catch {
-    /* shown in Settings > Connected devices */
+  } catch (e) {
+    noteError('sync.health', e);
   }
+  // Refresh the push token (tokens rotate); only when the user already allowed notifications.
+  void import('./push').then((m) => m.registerPush()).catch(() => undefined);
 }

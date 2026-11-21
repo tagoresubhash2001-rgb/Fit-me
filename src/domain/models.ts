@@ -77,7 +77,7 @@ export const SleepLog = BaseRecord.extend({
 });
 export type SleepLog = z.infer<typeof SleepLog>;
 
-export const StepLog = BaseRecord.extend({ steps: z.number().int().min(0).max(200000), deviceName: z.string().max(80).optional() });
+export const StepLog = BaseRecord.extend({ steps: z.number().int().min(0).max(200000), deviceName: z.string().max(80).optional(), sources: z.array(z.string().max(40)).max(6).optional() });
 export type StepLog = z.infer<typeof StepLog>;
 
 export const WorkoutSet = z.object({

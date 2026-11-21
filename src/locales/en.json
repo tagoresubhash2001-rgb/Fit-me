@@ -436,7 +436,13 @@
     "phoneBody": "Count steps with your phone's motion sensor, even without a watch. It keeps counting when FitMe is closed.",
     "phoneOn": "Count steps on this phone",
     "phoneOff": "Stop counting",
-    "kmKcal": "{{km}} km · {{kcal}} kcal"
+    "kmKcal": "{{km}} km · {{kcal}} kcal",
+    "sources": {
+      "health": "From {{app}}",
+      "cloud": "From your watch",
+      "phone": "From this phone",
+      "manual": "Added by you"
+    }
   },
   "health": {
     "title": "Health",
@@ -1032,7 +1038,9 @@
       "welcome_other": "Your Welcome Unlock ends in {{count}} days ({{date}}). Your free trial starts then.",
       "trial_one": "Your free trial ends tomorrow ({{date}}). Choose a plan to keep your premium features.",
       "trial_other": "Your free trial ends in {{count}} days ({{date}}). Choose a plan to keep your premium features."
-    }
+    },
+    "freeLaunchTitle": "Everything is free during launch",
+    "freeLaunchBody": "Every FitMe feature is free for you right now. We will tell you in the app before anything changes."
   },
   "photo": {
     "add": "Add profile photo",
@@ -1163,12 +1171,22 @@
       "foods": "Food database",
       "settings": "Application settings",
       "admins": "Admin management",
-      "logs": "Activity log"
+      "logs": "Activity log",
+      "finance": "Finance",
+      "plans": "Plans and features",
+      "trials": "Trials",
+      "coupons": "Coupons and offers",
+      "notifications": "Notifications",
+      "integrations": "API keys",
+      "support": "Support"
     },
     "roles": {
       "superAdmin": "Super admin",
       "admin": "Admin",
-      "moderator": "Moderator"
+      "moderator": "Moderator",
+      "finance": "Finance",
+      "content": "Content editor",
+      "support": "Support"
     },
     "stages": {
       "welcome": "Welcome Unlock",
@@ -1230,7 +1248,26 @@
       "reactivateTitle": "Reactivate this account?",
       "reactivateBody": "The person can sign in and use FitMe again.",
       "deactivated": "Account deactivated",
-      "reactivated": "Account reactivated"
+      "reactivated": "Account reactivated",
+      "devices": "Devices",
+      "noHealth": "No health app connected",
+      "noPhoneSteps": "Phone step counting not set up",
+      "pushDevices_one": "{{count}} device registered for push",
+      "pushDevices_other": "{{count}} devices registered for push",
+      "grantTitle": "Give free access",
+      "endGrant": "End free access",
+      "days": "Days",
+      "daysHint": "Empty means no end date.",
+      "trialTitle": "Change trial",
+      "trialAction": "Action",
+      "trialOps": {
+        "extend": "Extend",
+        "reset": "Start again from today",
+        "end": "End now"
+      },
+      "messageTitle": "Send a message",
+      "sendMessage": "Send",
+      "messageSent": "Message sent"
     },
     "pricing": {
       "accessTitle": "Free stages",
@@ -1310,7 +1347,36 @@
       "endsAt": "Ends on",
       "removeBanner": "Remove banner",
       "addBanner": "Add banner",
-      "invalid": "Some values are not valid."
+      "invalid": "Some values are not valid.",
+      "tabHome": "Home and banners",
+      "tabTexts": "App texts",
+      "tabPages": "Pages",
+      "tabMedia": "Media",
+      "startsAt": "Starts",
+      "countries": "Countries",
+      "image": "Image",
+      "ribbons": "Promotional ribbon",
+      "ribbonsHint": "A short message across the top of the app. The newest active one is shown.",
+      "ribbonText": "Ribbon text",
+      "addRibbon": "Add ribbon",
+      "homeSections": "Home screen sections",
+      "homeSectionsHint": "Order and show or hide the sections on the member Home screen.",
+      "visible": "Show",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "sections": {
+        "access": "Free access card",
+        "banners": "Banners",
+        "announcements": "Announcements",
+        "summary": "Greeting",
+        "calories": "Calories",
+        "macros": "Macros",
+        "water": "Water",
+        "steps": "Steps",
+        "workouts": "Workouts",
+        "coach": "Coach insight",
+        "stories": "Stories"
+      }
     },
     "features": {
       "safety": "Turning a feature off hides it and the server refuses it. No user data is deleted; turning it on again restores everything.",
@@ -1349,6 +1415,22 @@
       "upgradePrompt": {
         "title": "Upgrade prompt",
         "body": "The gentle prompt for free users on Home."
+      },
+      "cloudWearables": {
+        "title": "Cloud watches (Garmin, Oura, WHOOP ...)",
+        "body": "Needs the Open Wearables backend. Keep off until it is deployed."
+      },
+      "routeTracking": {
+        "title": "GPS route tracking",
+        "body": "Track walks, runs and rides with a map."
+      },
+      "contact": {
+        "title": "Contact form",
+        "body": "Members can message support from Help."
+      },
+      "diagnostics": {
+        "title": "Send diagnostics",
+        "body": "Members can send a technical report from Settings."
       }
     },
     "foods": {
@@ -1396,7 +1478,20 @@
       "privacyUrlHint": "Full https address.",
       "termsUrl": "Terms of use link",
       "termsUrlHint": "Full https address.",
-      "invalid": "Check the links: they must be full https addresses."
+      "invalid": "Check the links: they must be full https addresses.",
+      "supportPhone": "Support phone",
+      "social": {
+        "instagram": "Instagram",
+        "youtube": "YouTube",
+        "x": "X",
+        "facebook": "Facebook"
+      },
+      "maintenanceTitle": "Maintenance mode",
+      "maintenanceOn": "Show a maintenance notice instead of the app",
+      "maintenanceMessage": "Message",
+      "maintenanceHint": "Staff can still open the admin dashboard.",
+      "minAppVersion": "Minimum app version",
+      "minAppVersionHint": "Phone apps older than this must update first (for example 1.2.0). Empty means no minimum."
     },
     "admins": {
       "myAccount": "Your account",
@@ -1432,7 +1527,14 @@
         "testimonial": "Testimonials",
         "appConfig": "Configuration",
         "food": "Foods",
-        "foodSuggestion": "Food suggestions"
+        "foodSuggestion": "Food suggestions",
+        "coupon": "Coupons",
+        "page": "Pages",
+        "announcement": "Announcements",
+        "notification": "Notifications",
+        "notifyTemplate": "Templates",
+        "secret": "API keys",
+        "contactMessage": "Support"
       },
       "empty": "No activity yet.",
       "when": "When",
@@ -1441,7 +1543,281 @@
       "target": "Target",
       "details": "Details",
       "before": "Before",
-      "after": "After"
+      "after": "After",
+      "search": "Search action, person or item"
+    },
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "active": "Active",
+    "inactive": "Inactive",
+    "remove": "Remove",
+    "saved": "Saved",
+    "exportCsv": "Export CSV",
+    "analytics": {
+      "title": "Analytics",
+      "body": "Real counts from the database. Change the range or pick a country.",
+      "range": "Range",
+      "lastDays_one": "Last {{count}} day",
+      "lastDays_other": "Last {{count}} days",
+      "signups": "Sign-ups per day",
+      "scans": "Food photo scans per day",
+      "stepDays": "Step days logged",
+      "workouts": "Workouts",
+      "foodLogs": "Food entries",
+      "aiCalls": "AI requests",
+      "byCountry": "Sign-ups by country",
+      "revenue": "Revenue by country",
+      "noRevenue": "No verified payments in this range."
+    },
+    "coupons": {
+      "subtitle": "Discount codes per country, plan and period. Codes are never deleted, only switched off.",
+      "new": "New code",
+      "edit": "Edit code",
+      "code": "Code",
+      "kind": "Type",
+      "percent": "Percent off",
+      "fixed": "Fixed amount off",
+      "value": "Value",
+      "markets": "Markets",
+      "plans": "Plans",
+      "periods": "Periods",
+      "emptyAll": "Empty means all.",
+      "maxUses": "Total uses",
+      "noLimit": "Empty means no limit.",
+      "starts": "Starts",
+      "ends": "Ends",
+      "clear": "Clear form",
+      "storeNote": "Web (Cashfree) payments use these codes directly. For the App Store and Google Play, create matching offer codes in the store consoles.",
+      "all": "All codes",
+      "none": "No codes yet",
+      "uses": "Uses",
+      "period": {
+        "monthly": "Monthly",
+        "quarterly": "3 months",
+        "yearly": "Yearly"
+      }
+    },
+    "finance": {
+      "subtitle": "Prices per country, payments, receipts and payment gateway logs.",
+      "tabPrices": "Countries and prices",
+      "tabPayments": "Payments",
+      "tabWebhooks": "Webhook logs",
+      "marketEnabled": "Offered in these countries",
+      "countries": "Countries",
+      "countriesHint": "Two-letter codes, separated by commas.",
+      "currency": "Currency",
+      "taxName": "Tax name",
+      "taxPercent": "Tax %",
+      "taxInclusive": "Prices include tax",
+      "methods": "Payment methods",
+      "method": {
+        "playStore": "Google Play",
+        "appStore": "App Store",
+        "cashfreeWeb": "Cashfree (web)"
+      },
+      "newCountry": "Country code",
+      "addCountry": "Add country",
+      "payments": "Payments",
+      "paymentsBody": "Verified payments from the stores and Cashfree. Records are never edited; refunds change only the status.",
+      "status": "Status",
+      "statuses": {
+        "all": "All",
+        "verified": "Paid",
+        "failed": "Failed",
+        "refunded": "Refunded"
+      },
+      "country": "Country",
+      "date": "Date",
+      "amount": "Amount",
+      "provider": "Channel",
+      "sandbox": "test",
+      "receipt": "Receipt",
+      "print": "Print",
+      "paymentId": "Payment",
+      "product": "Product",
+      "net": "Amount before tax",
+      "included": "included",
+      "total": "Total",
+      "noPayments": "No payments yet",
+      "noPaymentsBody": "Payments appear here once the stores or Cashfree send them.",
+      "webhooks": "Webhook logs",
+      "webhooksBody": "Every call from RevenueCat and Cashfree, and whether it changed a plan.",
+      "noWebhooks": "No webhook calls yet",
+      "event": "Event",
+      "applied": "Changed a plan",
+      "storeNote": "Web prices apply immediately. App Store and Google Play prices must also be set in the store consoles (see docs/store/pricing.md)."
+    },
+    "integrations": {
+      "subtitle": "Keys are stored in Google Secret Manager. They are never shown again after saving.",
+      "set": "Set",
+      "notSet": "Not set",
+      "version": "Version {{version}}, {{when}}",
+      "newValue": "New key",
+      "saved": "Key saved",
+      "test": "Test connection",
+      "ok": "Connected",
+      "failed": "Not connected",
+      "names": {
+        "GEMINI_API_KEY": "AI provider (Gemini)",
+        "CASHFREE_CLIENT_ID": "Cashfree client ID",
+        "CASHFREE_CLIENT_SECRET": "Cashfree client secret",
+        "REVENUECAT_WEBHOOK_AUTH": "RevenueCat webhook password",
+        "REVENUECAT_SECRET_KEY": "RevenueCat secret API key",
+        "OPEN_WEARABLES_API_KEY": "Open Wearables (cloud watches)"
+      },
+      "hints": {
+        "GEMINI_API_KEY": "Used for food photo scan, AI estimates and the coaches.",
+        "CASHFREE_CLIENT_ID": "From the Cashfree dashboard, Developers, API keys.",
+        "CASHFREE_CLIENT_SECRET": "Also used to check Cashfree webhook signatures.",
+        "REVENUECAT_WEBHOOK_AUTH": "The authorization header you set on the RevenueCat webhook.",
+        "REVENUECAT_SECRET_KEY": "RevenueCat project settings, API keys, secret key.",
+        "OPEN_WEARABLES_API_KEY": "Only needed once the Open Wearables backend is deployed."
+      }
+    },
+    "media": {
+      "title": "Media library",
+      "body": "Images for banners, pages and onboarding. Uploads are compressed.",
+      "upload": "Upload image",
+      "uploaded": "Image uploaded",
+      "failed": "That did not work. Use a JPEG, PNG or WebP image under 5 MB.",
+      "empty": "No images yet",
+      "emptyBody": "Upload an image to use it in banners and pages.",
+      "use": "Use",
+      "choose": "Choose image"
+    },
+    "notify": {
+      "tabSend": "Send",
+      "tabAnnouncements": "Announcements",
+      "send": "Send a notification",
+      "sendBody": "Goes to the in-app inbox and as a push message to phones that allowed notifications.",
+      "audience": "Audience",
+      "audiences": {
+        "all": "Everyone",
+        "country": "One country",
+        "plan": "One plan",
+        "user": "One user"
+      },
+      "value": {
+        "country": "Country code",
+        "plan": "Plan",
+        "user": "User ID"
+      },
+      "sendAt": "Send later",
+      "sendAtHint": "Leave empty to send now.",
+      "template": "Template",
+      "title": "Title",
+      "message": "Message",
+      "sendNow": "Send now",
+      "schedule": "Schedule",
+      "scheduled": "Scheduled",
+      "sent_one": "Sent to {{count}} person",
+      "sent_other": "Sent to {{count}} people",
+      "saveTemplate": "Save as template",
+      "templateName": "Template name (letters, numbers, dashes)",
+      "pushNote": "Push messages reach the Android and iOS apps. On the web, members see the message in the inbox.",
+      "history": "Sent and scheduled",
+      "none": "Nothing sent yet",
+      "recipients": "Inbox / push",
+      "announcements": "Announcements",
+      "announcementsBody": "A message on the Home screen for chosen countries and plans, between two dates."
+    },
+    "pages": {
+      "titleList": "Pages",
+      "body": "FAQ, help articles, terms, privacy and tips. Published pages are at /p/<slug> and in Help.",
+      "new": "New page",
+      "none": "No pages yet",
+      "slug": "Address",
+      "slugHint": "Lowercase letters, numbers and dashes.",
+      "kind": "Type",
+      "kinds": {
+        "faq": "FAQ",
+        "help": "Help article",
+        "legal": "Terms or privacy",
+        "blog": "Tip or blog post"
+      },
+      "order": "Order",
+      "title": "Title",
+      "bodyLabel": "Text",
+      "bodyHint": "Blank line = new paragraph. Start a line with # for a heading or - for a list.",
+      "seoTitle": "Search title",
+      "seoDescription": "Search description",
+      "published": "Published",
+      "draft": "Draft",
+      "view": "View page"
+    },
+    "plans": {
+      "freeLaunchTitle": "Free Launch Mode",
+      "freeLaunchBody": "Makes every feature free for everyone, or only in chosen countries. Plans, prices and subscriptions are kept; turning it off brings the Welcome Unlock, trial and paid plans back at once.",
+      "freeLaunchOn": "On",
+      "freeLaunchOff": "Off",
+      "allCountries": "All countries",
+      "countriesOptional": "Countries (optional)",
+      "countriesHint": "Empty means every country.",
+      "freeLaunchTurnOn": "Turn on",
+      "freeLaunchUpdate": "Update countries",
+      "freeLaunchTurnOff": "Turn off",
+      "freeLaunchConfirmOn": "Turn on Free Launch Mode?",
+      "freeLaunchConfirmOnBody": "Every feature becomes free for the selected members straight away.",
+      "freeLaunchConfirmOff": "Turn off Free Launch Mode?",
+      "freeLaunchConfirmOffBody": "Members go back to their own stage or plan straight away. Nothing is deleted.",
+      "tiersTitle": "Features per plan",
+      "tiersBody": "Choose which plan each feature needs, everywhere or in specific countries. Checked on the server.",
+      "feature": "Feature",
+      "defaultTier": "Default",
+      "overrides": "Changes",
+      "tier": "Plan",
+      "addOverride": "Add change",
+      "removeOverride": "Remove this change",
+      "features": {
+        "micronutrients": "Vitamins and minerals",
+        "foodPhotoScan": "Food photo scan",
+        "foodTextAnalysis": "AI food estimate",
+        "barcodeScan": "Barcode scan",
+        "coachChat": "Jai and Jaya coaches",
+        "planner": "Planner",
+        "aiPlanner": "AI auto-planner",
+        "mealPlanGenerator": "AI meal plans",
+        "workoutGenerator": "AI workout generator",
+        "reminders": "Smart reminders",
+        "advancedReports": "Advanced reports"
+      }
+    },
+    "strings": {
+      "title": "App texts",
+      "body": "Change any text in the member app, per language. Changes appear on every device within a minute. Keep words like {{count}} exactly as they are.",
+      "search": "Search by text or key",
+      "noMatch": "No text matches.",
+      "noOverrides": "No changed texts yet. Search to find one.",
+      "override": "New text for {{key}}",
+      "overridePlaceholder": "New text",
+      "reset": "Use the built-in text",
+      "placeholders": "Keep the same {{…}} placeholders as the built-in text."
+    },
+    "support": {
+      "inbox": "Inbox",
+      "inboxBody": "Messages sent from Help and contact in the app. Replies go to the member's in-app inbox.",
+      "statuses": {
+        "open": "Open",
+        "answered": "Answered",
+        "closed": "Closed",
+        "all": "All"
+      },
+      "none": "No messages",
+      "reply": "Reply",
+      "replyPlaceholder": "Write a reply",
+      "sendReply": "Send reply",
+      "close": "Close",
+      "reopen": "Reopen",
+      "diagnostics": "Diagnostics",
+      "diagnosticsBody": "Reports sent from Settings, Send diagnostics: permissions, sources, sync times and errors. No health values.",
+      "noDiagnostics": "No reports yet",
+      "errors_one": "{{count}} error",
+      "errors_other": "{{count}} errors"
+    },
+    "trials": {
+      "countryTitle": "Trial length per country",
+      "countryBody": "Welcome Unlock and trial days for new sign-ups in a country. Others use the values above.",
+      "oneUserHint": "To extend, reset or end one person's trial, open them in Users."
     }
   },
   "permissions": {
@@ -1517,6 +1893,102 @@
       "denied": "Location access is off. Allow it in Settings, then Permissions.",
       "unsupported": "Location is not available on this device.",
       "unavailable": "No GPS signal yet. Try outdoors with a clear view of the sky."
+    },
+    "noticeTitle": "FitMe is tracking your route",
+    "noticeBody": "Tap to return to your workout."
+  },
+  "coupon": {
+    "label": "Discount code",
+    "apply": "Apply",
+    "newPrice": "{{price}} instead of {{before}}",
+    "note": "The discount applies when payments open. Codes are checked for your country, plan and period.",
+    "reasons": {
+      "not_found": "This code is not valid.",
+      "inactive": "This code is no longer active.",
+      "not_started": "This code is not active yet.",
+      "expired": "This code has expired.",
+      "not_for_market": "This code is not valid in your country.",
+      "not_for_plan": "This code is not valid for this plan.",
+      "not_for_period": "This code is not valid for this billing period.",
+      "used_up": "This code has been used up.",
+      "already_used": "You have already used this code.",
+      "failed": "The code could not be checked. Try again."
     }
+  },
+  "diagnostics": {
+    "title": "Send diagnostics",
+    "body": "Sends a technical report to FitMe support: app version, permissions, connected step and health sources, last sync times and recent errors. No health values are sent.",
+    "send": "Send diagnostics",
+    "sent": "Report sent. Thank you.",
+    "failed": "The report could not be sent. Check your connection and try again.",
+    "reference": "Reference {{id}}"
+  },
+  "gates": {
+    "maintenanceTitle": "FitMe is being updated",
+    "maintenanceBody": "We are making improvements. Please try again in a little while.",
+    "updateTitle": "Update FitMe",
+    "updateBody": "This version of FitMe is no longer supported. Please update to the latest version to continue.",
+    "update": "Update now"
+  },
+  "help": {
+    "title": "Help and contact",
+    "entryBody": "Answers to common questions, or send us a message.",
+    "faq": "Questions and answers",
+    "noArticles": "Help articles will appear here.",
+    "openPage": "Open as a page",
+    "contactTitle": "Contact us",
+    "contactBody": "Tell us what you need. We reply in the app.",
+    "topic": "Topic",
+    "message": "Message",
+    "send": "Send message",
+    "sent": "Message sent. We will reply in the app.",
+    "failed": "The message could not be sent. Check your connection and try again.",
+    "orEmail": "Or email us at {{email}}."
+  },
+  "support": {
+    "topics": {
+      "help": "Question",
+      "bug": "Something is not working",
+      "billing": "Plans and payments",
+      "feedback": "Feedback",
+      "other": "Other"
+    }
+  },
+  "inbox": {
+    "title": "Messages",
+    "titleUnread_one": "Messages, {{count}} new",
+    "titleUnread_other": "Messages, {{count}} new",
+    "empty": "No messages yet",
+    "delete": "Delete message"
+  },
+  "pages": {
+    "notFound": "Page not found",
+    "notFoundBody": "This page does not exist or is not published."
+  },
+  "stepsHelp": {
+    "title": "Steps not updating?",
+    "subtitle": "Check permissions, connections and battery settings.",
+    "subtitleNone": "No steps yet today. Check what is set up.",
+    "check": "Check",
+    "checks": {
+      "motion": "Physical activity permission",
+      "health": "Health Connect or Apple Health",
+      "battery": "Battery settings",
+      "sync": "Last sync"
+    },
+    "motionOk": "Allowed. This phone is counting your steps.",
+    "motionOff": "Allowed, but step counting on this phone is off.",
+    "motionDenied": "FitMe is not allowed to use your physical activity. Allow it so this phone can count your steps.",
+    "motionUnsupported": "This phone has no step sensor. Connect a watch through Health Connect or Apple Health.",
+    "healthOk": "{{app}} is connected.",
+    "healthOff": "{{app}} is not connected. Connect it to bring in steps from your watch and other apps.",
+    "healthMissing": "Health Connect is not installed. Install it from Google Play to sync your watch.",
+    "healthKitMissing": "Apple Health is not available on this device.",
+    "openHealth": "Open {{app}}",
+    "batteryOn": "Battery saving may delay step syncs while FitMe is closed. Exclude FitMe from battery optimisation.",
+    "batteryOk": "Battery settings are fine.",
+    "batteryFix": "Open battery settings",
+    "lastSync": "Last synced {{when}}.",
+    "neverSynced": "Not synced yet."
   }
 }

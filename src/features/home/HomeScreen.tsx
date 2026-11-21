@@ -144,7 +144,10 @@ export default function HomeScreen() {
     if (i < 0) return { show: true };
     return { show: sections[i].visible, style: { order: i + 1 } };
   };
-  const stepSourceLabel = pickedSteps.source ? t(`steps.sources.${pickedSteps.source}`, { app: pickedSteps.row?.deviceName ?? '' }) : null;
+  const stepRowSources = (pickedSteps.row as { sources?: string[] } | null)?.sources ?? [];
+  const stepSourceLabel = pickedSteps.source
+    ? `${t(`steps.sources.${pickedSteps.source}`, { app: pickedSteps.row?.deviceName ?? '' })}${stepRowSources.length ? ` · ${stepRowSources.join(', ')}` : ''}`
+    : null;
 
   return (
     <div className="stagger grid grid-cols-1 gap-4 md:grid-cols-12 md:gap-5">
@@ -383,7 +386,6 @@ function CoachInsightCard({ className }: { className?: string }) {
   const navigate = useNavigate();
   const user = useSession((s) => s.user);
   const profile = useSession((s) => s.profile)!;
-  const plan = useSession((s) => s.plan);
   const setCoachOpen = useUi((s) => s.setCoachOpen);
   const isPro = useCanUse('coachChat');
   const coach = profile.coach;

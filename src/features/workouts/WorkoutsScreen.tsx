@@ -1,3 +1,4 @@
+import { useFeatures } from '../../data/appConfig';
 import { RouteTracker } from './RouteTracker';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -68,6 +69,7 @@ function useExercises() {
 const CATEGORIES = ['all', 'strength', 'bodyweight', 'cardio', 'hiit', 'walking', 'running', 'cycling', 'yoga', 'stretching'];
 
 export default function WorkoutsScreen() {
+  const features = useFeatures();
   const { t } = useTranslation();
   const [tab, setTab] = useState<'session' | 'library' | 'history'>('session');
   const [routeOpen, setRouteOpen] = useState(false);
@@ -84,9 +86,11 @@ export default function WorkoutsScreen() {
     <div className="stagger flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-display text-ink">{t('workouts.title')}</h1>
+        {features.routeTracking && (
         <Button id="open-route" variant="secondary" icon={<MapPin className="h-[18px] w-[18px]" strokeWidth={1.75} />} onClick={() => setRouteOpen(true)}>
           {t('route.track')}
         </Button>
+        )}
       </div>
       <Sheet open={routeOpen} onClose={() => setRouteOpen(false)} closeLabel={t('common.close')} title={t('route.title')}>
         {routeOpen && <RouteTracker onDone={() => setRouteOpen(false)} />}

@@ -115,7 +115,10 @@ export async function requestPermission(kind: PermissionKind): Promise<Permissio
       }
       case 'notifications': {
         const { LocalNotifications } = await import('@capacitor/local-notifications');
-        return fromCap((await LocalNotifications.requestPermissions()).display as CapState);
+        const state = fromCap((await LocalNotifications.requestPermissions()).display as CapState);
+        // Same system permission on both platforms; register the device for admin and reminder push messages.
+        if (state === 'granted') await import('./push').then((m) => m.requestPushPermission()).catch(() => undefined);
+        return state;
       }
       case 'health': {
         const { connectHealth } = await import('./healthSync');

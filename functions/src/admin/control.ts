@@ -297,6 +297,7 @@ action(
   'users',
   z.object({ uid: Uid, plan: z.enum(['premium', 'pro', 'free']), days: z.number().int().min(1).max(3650).nullable(), reason: Reason }),
   async (actor, { uid, plan, days, reason }) => {
+    if (actor.role === 'support' || actor.role === 'moderator') throw new HttpsError('permission-denied', 'staff_only', { section: 'users.grant' });
     if (!(await adminAuth().getUser(uid).catch(() => null))) throw new HttpsError('not-found', 'user_not_found');
     const ref = db().doc(`grants/${uid}`);
     const before = (await ref.get()).data() ?? null;
