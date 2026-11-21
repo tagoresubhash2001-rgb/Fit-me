@@ -7,8 +7,13 @@ export interface FoodItem {
   names?: Record<string, string>;
   per100g: Nutrients & Record<string, number | undefined>;
   servings: Array<{ label: string; labels?: Record<string, string>; grams: number }>;
-  source: 'usda' | 'curated' | 'off' | 'custom';
+  source: 'usda' | 'curated' | 'off' | 'custom' | 'ifct' | 'ai';
   sourceId?: string;
+  aliases?: string[];
+  brand?: string;
+  cuisine?: string;
+  /** Dataset the values come from (e.g. "Indian Food Composition Tables 2017 (NIN)"). */
+  dataset?: string;
   countries?: string[];
   category?: string;
   reviewStatus?: 'approved' | 'pending_review';
@@ -96,6 +101,29 @@ export function normalize(s: string): string {
     .replace(/[^\p{L}\p{N}\p{M}\s]/gu, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+/**
+ * Phonetic folding of Latin-script words, identical to functions/src/foods/search.ts (mirror-tested), so the
+ * offline search meets the same spelling variants: idly -> idli, dosai -> dosa, wada -> vada.
+ */
+export function foldWord(w: string): string {
+  if (!/^[a-z0-9]+$/.test(w)) return w;
+  let s = w;
+  if (s.length >= 4 && s.endsWith('s') && !s.endsWith('ss')) s = s.slice(0, -1);
+  s = s
+    .replace(/ee/g, 'i')
+    .replace(/oo/g, 'u')
+    .replace(/aa/g, 'a')
+    .replace(/ph/g, 'f')
+    .replace(/([bdgkst])h/g, '$1')
+    .replace(/ck/g, 'k')
+    .replace(/q/g, 'k')
+    .replace(/w/g, 'v')
+    .replace(/z/g, 'j')
+    .replace(/(.)\1+/g, '$1');
+  if (s.length >= 4) s = s.replace(/ai$/, 'a').replace(/y$/, 'i').replace(/e$/, 'a');
+  return s;
 }
 
 /** Prefix tokens (2–15 chars) of every word in every name, used for Firestore array-contains search. */

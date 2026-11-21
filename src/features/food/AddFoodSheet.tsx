@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Plus, Trash2, Lock, AlertTriangle } from 'lucide-react';
+import { Search, Plus, Trash2, Lock, AlertTriangle, Calculator, Camera } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ScanFood } from './ScanFood';
 import { Button, Card, EmptyState, Input, Sheet, Skeleton, Tabs, Badge, SwipeRow, toast } from '../../components/ui';
 import { AllergyWarning, QuantityEditor, quantityResult, useUnitOptions, type QuantityState } from './QuantityEditor';
 import { matchAllergens, matchRestrictions } from '../../domain/allergens';
-import { searchFoods, customToFoodItem } from '../../data/foods';
+import { searchFoods, searchFoodsPage, customToFoodItem, estimateFoodWithAi, type AiFoodEstimate, type FoodSearchPage } from '../../data/foods';
 import { createRecord, softDelete, restore, updateRecord } from '../../data/records';
 import { useAllRecords } from '../../data/useRecords';
 import { useSession } from '../../data/session';
@@ -13,7 +15,7 @@ import { planAllows } from '../../domain/plans';
 import type { FoodLog, MealSlot, Nutrients } from '../../domain/models';
 import { useFormat } from '../../lib/hooks';
 
-type Mode = 'search' | 'saved' | 'recipes' | 'manual';
+type Mode = 'search' | 'saved' | 'recipes' | 'manual' | 'scan';
 interface SavedMeal {
   id: string;
   name: string;
@@ -143,8 +145,11 @@ export function AddFoodSheet({
   const premium = planAllows(plan, 'premium');
   const [mode, setMode] = useState<Mode>('search');
   const [q, setQ] = useState(initialQuery);
-  const [results, setResults] = useState<FoodItem[] | null>(null);
+  const [page, setPage] = useState<FoodSearchPage | null>(null);
+  const results = page?.items ?? null;
   const [searching, setSearching] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [manualInitial, setManualInitial] = useState<ManualInitial | null>(null);
   const [searchError, setSearchError] = useState(false);
   const [picked, setPicked] = useState<FoodItem | null>(null);
   const [busy, setBusy] = useState(false);
@@ -174,7 +179,8 @@ export function AddFoodSheet({
   useEffect(() => {
     if (!open) {
       setQ('');
-      setResults(null);
+      setPage(null);
+      setManualInitial(null);
       setPicked(null);
       setMode('search');
     }
@@ -183,15 +189,15 @@ export function AddFoodSheet({
   useEffect(() => {
     if (mode !== 'search') return;
     if ([...q.trim()].length < 2) {
-      setResults(null);
+      setPage(null);
       return;
     }
     let cancelled = false;
     setSearching(true);
     setSearchError(false);
     const id = setTimeout(() => {
-      searchFoods(q, localFoods)
-        .then((r) => !cancelled && setResults(r))
+      searchFoodsPage(q, localFoods)
+        .then((r) => !cancelled && setPage(r))
         .catch(() => !cancelled && setSearchError(true))
         .finally(() => !cancelled && setSearching(false));
     }, 250);
@@ -226,7 +232,7 @@ export function AddFoodSheet({
   return (
     <Sheet inline={inline} open={open} onClose={onClose} closeLabel={t('common.close')} title={t('food.addTo', { slot: t(`slots.${slot}`) })} className={inline ? 'max-h-[calc(100dvh-8rem)]' : undefined}>
       <div className="flex flex-col gap-4">
-        {!picked && (
+        {!picked && mode !== 'scan' && (
           <Tabs
             value={mode}
             onChange={setMode}
@@ -280,6 +286,9 @@ export function AddFoodSheet({
                 className="h-12 w-full rounded-input border border-line bg-surface ps-11 pe-3 text-body text-ink placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
+            <Button id="open-scan" variant="secondary" icon={<Camera className="h-[18px] w-[18px]" strokeWidth={1.75} />} onClick={() => setMode('scan')}>
+              {t('scan.title')}
+            </Button>
             {searching && (
               <div className="flex flex-col gap-2">
                 <Skeleton className="h-14" />
@@ -290,15 +299,16 @@ export function AddFoodSheet({
             {!searching && searchError && <p className="text-small text-danger-text">{t('errors.loadFailed')}</p>}
             {!searching && results === null && !searchError && <p className="text-small text-muted">{t('food.searchHint')}</p>}
             {!searching && results?.length === 0 && (
-              <EmptyState
-                title={t('food.noResults', { q })}
-                action={
-                  <Button variant="secondary" onClick={() => setMode('manual')}>
-                    {t('food.addManual')}
-                  </Button>
-                }
+              <NoResults
+                q={q}
+                onManual={(initial) => {
+                  setManualInitial(initial);
+                  setMode('manual');
+                }}
               />
             )}
+            {!searching && page?.offline && !!results?.length && <p className="text-caption text-muted">{t('food.offlineResults')}</p>}
+            {!searching && page?.partial && <p className="text-caption text-muted">{t('food.closeMatches', { q })}</p>}
             {!searching && !!results?.length && (
               <ul className="list-lazy flex flex-col divide-y divide-line">
                 {results.map((f) => {
@@ -315,17 +325,33 @@ export function AddFoodSheet({
                           <span className="block truncate text-body text-ink">{displayName(f, i18n.language)}</span>
                           <span className="block truncate text-caption text-muted">
                             {s ? `${s.labels?.[i18n.language] ?? s.label} · ` : `${t('food.per100g')} · `}
-                            {kcal} {t('common.kcal')}
+                            {kcal} {t('common.kcal')} · {t(`food.sources.${f.source}`, { defaultValue: f.source })}
+                            {f.brand ? ` · ${f.brand}` : ''}
                           </span>
                         </span>
                         {hasAllergen(f) && <AlertTriangle aria-label={t('food.containsAllergen')} className="h-4 w-4 shrink-0 text-accent" strokeWidth={2} />}
-                        {f.source === 'curated' && <Badge tone="primary">{f.countries?.[0] ?? ''}</Badge>}
+                        {f.source === 'curated' && f.countries?.[0] && <Badge tone="primary">{f.countries[0]}</Badge>}
                         <Plus className="h-5 w-5 shrink-0 text-primary-text" strokeWidth={1.75} />
                       </button>
                     </li>
                   );
                 })}
               </ul>
+            )}
+            {!searching && page && !page.offline && page.items.length < page.total && (
+              <Button
+                variant="secondary"
+                loading={loadingMore}
+                onClick={() => {
+                  setLoadingMore(true);
+                  searchFoodsPage(q, [], page.items.length - localFoods.filter((f) => page.items.includes(f)).length)
+                    .then((r) => setPage((p) => (p ? { ...p, items: [...p.items, ...r.items.filter((x) => !p.items.some((y) => y.id === x.id))] } : r)))
+                    .catch(() => toast(t('errors.loadFailed'), 'error'))
+                    .finally(() => setLoadingMore(false));
+                }}
+              >
+                {t('food.showMore', { shown: page.items.length, total: page.total })}
+              </Button>
             )}
           </>
         )}
@@ -355,6 +381,15 @@ export function AddFoodSheet({
           <Button variant="ghost" onClick={() => setPicked(null)}>
             {t('common.back')}
           </Button>
+        )}
+
+        {mode === 'scan' && !picked && (
+          <>
+            <ScanFood slot={slot} date={date} onDone={onClose} />
+            <Button variant="ghost" onClick={() => setMode('search')}>
+              {t('common.back')}
+            </Button>
+          </>
         )}
 
         {mode === 'saved' && !picked && (
@@ -390,8 +425,9 @@ export function AddFoodSheet({
 
         {mode === 'manual' && !picked && (
           <ManualFood
+            initial={manualInitial}
             onSave={async (c) => {
-              const id = await createRecord('customFoods', c);
+              const id = await createRecord('customFoods', c, c.origin === 'ai' ? { source: 'ai' } : undefined);
               doAdd({
                 foodId: id,
                 name: c.name,
@@ -399,7 +435,7 @@ export function AddFoodSheet({
                 servings: 1,
                 grams: c.grams,
                 nutrients: c.nutrients,
-                foodSource: 'custom',
+                foodSource: c.origin === 'ai' ? 'ai' : 'custom',
               });
             }}
           />
@@ -469,9 +505,33 @@ function SavedMealsList({ meals, loading, onLog }: { meals: SavedMeal[]; loading
 
 const num = (v: string) => (v === '' ? NaN : Number(v));
 
-function ManualFood({ onSave }: { onSave: (c: Omit<CustomFood, 'id'>) => void }) {
+export interface ManualInitial {
+  name: string;
+  servingLabel?: string;
+  grams?: number;
+  calories?: number;
+  proteinG?: number;
+  carbsG?: number;
+  fatG?: number;
+  fiberG?: number;
+  /** Values came from an AI estimate: labelled, and saved with origin "ai" for review. */
+  ai?: boolean;
+}
+
+const str = (n: number | undefined) => (n === undefined ? '' : String(Math.round(n * 10) / 10));
+
+function ManualFood({ onSave, initial }: { onSave: (c: Omit<CustomFood, 'id'> & { origin?: 'ai' }) => void; initial?: ManualInitial | null }) {
   const { t } = useTranslation();
-  const [v, setV] = useState({ name: '', servingLabel: '', grams: '', calories: '', proteinG: '', carbsG: '', fatG: '', fiberG: '' });
+  const [v, setV] = useState({
+    name: initial?.name ?? '',
+    servingLabel: initial?.servingLabel ?? '',
+    grams: str(initial?.grams),
+    calories: str(initial?.calories),
+    proteinG: str(initial?.proteinG),
+    carbsG: str(initial?.carbsG),
+    fatG: str(initial?.fatG),
+    fiberG: str(initial?.fiberG),
+  });
   const up = (k: keyof typeof v) => (e: React.ChangeEvent<HTMLInputElement>) => setV((s) => ({ ...s, [k]: e.target.value }));
   const nums = ['calories', 'proteinG', 'carbsG', 'fatG', 'fiberG'] as const;
   const valid = v.name.trim().length > 0 && nums.every((k) => Number.isFinite(num(v[k])) && num(v[k]) >= 0) && num(v.calories) <= 10000;
@@ -482,6 +542,7 @@ function ManualFood({ onSave }: { onSave: (c: Omit<CustomFood, 'id'>) => void })
         e.preventDefault();
         if (!valid) return;
         onSave({
+          ...(initial?.ai ? { origin: 'ai' as const } : {}),
           name: v.name.trim(),
           servingLabel: v.servingLabel.trim() || '1',
           grams: v.grams ? Number(v.grams) : null,
@@ -495,7 +556,12 @@ function ManualFood({ onSave }: { onSave: (c: Omit<CustomFood, 'id'>) => void })
         });
       }}
     >
-      <Input label={t('food.foodName')} value={v.name} onChange={up('name')} />
+      {initial?.ai && (
+        <p id="ai-estimate-note" className="rounded-input bg-raised px-3 py-2 text-small text-ink">
+          {t('food.aiEstimateNote')}
+        </p>
+      )}
+      <Input label={t('food.foodName')} value={v.name} maxLength={120} onChange={up('name')} />
       <div className="grid grid-cols-2 gap-2">
         <Input label={t('food.servingLabel')} hint={t('food.servingLabelHint')} value={v.servingLabel} onChange={up('servingLabel')} />
         <Input label={t('food.gramsOptional')} inputMode="decimal" value={v.grams} onChange={up('grams')} />
@@ -513,9 +579,89 @@ function ManualFood({ onSave }: { onSave: (c: Omit<CustomFood, 'id'>) => void })
         <Input label={`${t('onboarding.fiber')} (${t('common.g')})`} inputMode="decimal" value={v.fiberG} onChange={up('fiberG')} />
       </div>
       <Button type="submit" fullWidth disabled={!valid}>
-        {t('food.addFood')}
+        {initial?.ai ? t('food.saveAndAdd') : t('food.addFood')}
       </Button>
     </form>
+  );
+}
+
+const mid = (r: { min: number; max: number }) => (r.min + r.max) / 2;
+
+/** No match: estimate with AI (server, labelled as an estimate) or add your own food. */
+function NoResults({ q, onManual }: { q: string; onManual: (initial: ManualInitial) => void }) {
+  const { t } = useTranslation();
+  const [state, setState] = useState<'idle' | 'loading' | 'error' | 'locked' | 'empty'>('idle');
+  const [estimate, setEstimate] = useState<AiFoodEstimate | null>(null);
+  const run = () => {
+    setState('loading');
+    estimateFoodWithAi(q)
+      .then((e) => {
+        setEstimate(e);
+        setState(e.items.length ? 'idle' : 'empty');
+      })
+      .catch((e: { code?: string }) => setState(e?.code === 'functions/permission-denied' ? 'locked' : 'error'));
+  };
+  return (
+    <div className="flex flex-col gap-3">
+      <EmptyState title={t('food.noResults', { q })} description={t('food.noResultsBody')} />
+      {estimate?.items.length ? (
+        <Card tone="subtle" className="flex flex-col gap-3" id="ai-estimate">
+          <p className="text-small font-semibold text-ink">{t('food.aiEstimateTitle')}</p>
+          <ul className="flex flex-col gap-2">
+            {estimate.items.map((it, i) => (
+              <li key={i} className="flex items-center gap-3">
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-body text-ink">{it.name}</span>
+                  <span className="block text-caption text-muted">
+                    {t('food.aiEstimateRange', { portion: it.portion, min: Math.round(it.calories.min), max: Math.round(it.calories.max) })}
+                  </span>
+                </span>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() =>
+                    onManual({
+                      ai: true,
+                      name: it.name,
+                      servingLabel: it.portion,
+                      grams: mid(it.grams),
+                      calories: mid(it.calories),
+                      proteinG: mid(it.proteinG),
+                      carbsG: mid(it.carbsG),
+                      fatG: mid(it.fatG),
+                      fiberG: mid(it.fiberG),
+                    })
+                  }
+                >
+                  {t('food.reviewAndSave')}
+                </Button>
+              </li>
+            ))}
+          </ul>
+          <p className="text-caption text-muted">{t('food.aiEstimateDisclaimer')}</p>
+        </Card>
+      ) : null}
+      {state === 'locked' && (
+        <p className="text-small text-muted">
+          {t('food.aiEstimateLocked')}{' '}
+          <Link to="/plans" className="font-semibold text-primary-text underline-offset-2 hover:underline">
+            {t('food.seePlans')}
+          </Link>
+        </p>
+      )}
+      {state === 'error' && <p className="text-small text-danger-text">{t('food.aiEstimateFailed')}</p>}
+      {state === 'empty' && <p className="text-small text-muted">{t('food.aiEstimateEmpty')}</p>}
+      <div className="flex flex-wrap gap-2">
+        {!estimate?.items.length && (
+          <Button id="estimate-ai" loading={state === 'loading'} icon={<Calculator className="h-[18px] w-[18px]" strokeWidth={1.75} />} onClick={run}>
+            {t('food.estimateWithAi')}
+          </Button>
+        )}
+        <Button id="add-own-food" variant="secondary" onClick={() => onManual({ name: q.trim() })}>
+          {t('food.addOwnFood')}
+        </Button>
+      </div>
+    </div>
   );
 }
 

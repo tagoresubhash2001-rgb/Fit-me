@@ -2,7 +2,7 @@ import { searchTokens } from './tokens';
 import type { FoodDoc } from './types';
 
 /**
- * FIT ME AI curated regional dishes (PRD section 9: "Owned by Sindulis"). Values are per 100 g for typical
+ * FitMe curated regional dishes (PRD section 9: "Owned by Sindulis"). Values are per 100 g for typical
  * home recipes and are approximations to be confirmed by a nutrition reviewer, so every item starts as
  * reviewStatus "pending_review" and the app labels the source accordingly.
  */
@@ -469,7 +469,7 @@ export function curatedFoods(): Array<{ id: string; doc: FoodDoc }> {
       searchTokens: searchTokens([name, ...Object.values(names)]),
       rank: 80,
       reviewStatus: 'pending_review',
-      license: 'FIT ME AI curated dish, owned by Sindulis Innovative Solutions',
+      license: 'FitMe curated dish, owned by Sindulis Innovative Solutions',
     },
   }));
 }
