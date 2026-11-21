@@ -761,7 +761,7 @@
     "saved": "Salvo: {{km}} km",
     "gps": "Precisão do GPS de cerca de {{m}} m",
     "weakGps": "Sinal de GPS fraco (cerca de {{m}} m). Pontos são ignorados até melhorar.",
-    "foregroundNote": "Mantenha o FitMe aberto enquanto registra. Seu percurso é salvo nos seus treinos.",
+    "foregroundNote": "No app FitMe para celular, o registro continua com a tela desligada. No navegador, mantenha esta página aberta. Seu percurso é salvo nos seus treinos.",
     "errors": {
       "denied": "O acesso à localização está desligado. Permita em Configurações, Permissões.",
       "unsupported": "A localização não está disponível neste dispositivo.",

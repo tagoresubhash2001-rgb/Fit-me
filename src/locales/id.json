@@ -761,7 +761,7 @@
     "saved": "Tersimpan: {{km}} km",
     "gps": "Akurasi GPS sekitar {{m}} m",
     "weakGps": "Sinyal GPS lemah (sekitar {{m}} m). Titik dilewati sampai membaik.",
-    "foregroundNote": "Biarkan FitMe terbuka saat merekam. Rutemu disimpan di latihanmu.",
+    "foregroundNote": "Di aplikasi FitMe untuk ponsel, perekaman tetap berjalan saat layar mati. Di browser, biarkan halaman ini terbuka. Rutemu disimpan di latihanmu.",
     "errors": {
       "denied": "Akses lokasi mati. Izinkan di Pengaturan, Izin.",
       "unsupported": "Lokasi tidak tersedia di perangkat ini.",

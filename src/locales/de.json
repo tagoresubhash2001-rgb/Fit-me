@@ -761,7 +761,7 @@
     "saved": "Gespeichert: {{km}} km",
     "gps": "GPS-Genauigkeit etwa {{m}} m",
     "weakGps": "Schwaches GPS-Signal (etwa {{m}} m). Punkte werden übersprungen, bis es besser wird.",
-    "foregroundNote": "Lass FitMe beim Aufzeichnen geöffnet. Deine Route wird bei deinen Trainings gespeichert.",
+    "foregroundNote": "In der FitMe-App fürs Handy läuft die Aufzeichnung auch bei ausgeschaltetem Bildschirm weiter. Im Browser lass diese Seite geöffnet. Deine Route wird bei deinen Trainings gespeichert.",
     "errors": {
       "denied": "Der Standortzugriff ist aus. Erlaube ihn unter Einstellungen, Berechtigungen.",
       "unsupported": "Der Standort ist auf diesem Gerät nicht verfügbar.",

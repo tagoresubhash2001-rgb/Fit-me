@@ -1,6 +1,5 @@
 import { onCall, HttpsError, type CallableRequest } from 'firebase-functions/v2/https';
 import { FieldValue, Timestamp, type Query } from 'firebase-admin/firestore';
-import { logger } from 'firebase-functions/v2';
 import { z } from 'zod';
 import { adminAuth, db } from '../lib/admin';
 import { callableOptions } from '../lib/callable';
@@ -430,5 +429,4 @@ action(
   },
 );
 
-logger.debug('admin actions registered', { count: Object.keys(actions).length });
 export const _actionNames = () => Object.keys(actions);

@@ -1888,7 +1888,7 @@
     "saved": "Saved: {{km}} km",
     "gps": "GPS accuracy about {{m}} m",
     "weakGps": "Weak GPS signal (about {{m}} m). Points are skipped until it improves.",
-    "foregroundNote": "Keep FitMe open while you track. Your route is saved to your workouts.",
+    "foregroundNote": "In the FitMe phone app, tracking continues with the screen off. In a browser, keep this page open. Your route is saved to your workouts.",
     "errors": {
       "denied": "Location access is off. Allow it in Settings, then Permissions.",
       "unsupported": "Location is not available on this device.",

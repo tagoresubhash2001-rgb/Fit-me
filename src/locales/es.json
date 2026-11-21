@@ -761,7 +761,7 @@
     "saved": "Guardado: {{km}} km",
     "gps": "Precisión GPS de unos {{m}} m",
     "weakGps": "Señal GPS débil (unos {{m}} m). Se omiten puntos hasta que mejore.",
-    "foregroundNote": "Mantén FitMe abierto mientras registras. Tu ruta se guarda en tus entrenamientos.",
+    "foregroundNote": "En la app FitMe del móvil, el registro sigue con la pantalla apagada. En un navegador, mantén esta página abierta. Tu ruta se guarda en tus entrenamientos.",
     "errors": {
       "denied": "El acceso a la ubicación está desactivado. Permítelo en Ajustes, Permisos.",
       "unsupported": "La ubicación no está disponible en este dispositivo.",

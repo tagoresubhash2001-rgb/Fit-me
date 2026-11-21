@@ -1,5 +1,5 @@
 # Hourly background jobs (stage and trial reminders, scheduled admin notifications) without Cloud Scheduler.
-# Uses the same deploy service account secret as deploy.yml. Runs only on the default branch.
+# Authenticates exactly like deploy.yml (keyless Workload Identity Federation, key fallback). Runs only on the default branch.
 name: Background jobs
 on:
   schedule:
@@ -7,6 +7,10 @@ on:
   workflow_dispatch: {}
 permissions:
   contents: read
+  id-token: write
+env:
+  WIF_PROVIDER: projects/216212194424/locations/global/workloadIdentityPools/github/providers/fit-me
+  DEPLOY_SERVICE_ACCOUNT: firebase-adminsdk-fbsvc@fit-me1.iam.gserviceaccount.com
 concurrency:
   group: background-jobs
   cancel-in-progress: false
@@ -19,19 +23,23 @@ jobs:
       HAS_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
     steps:
       - uses: actions/checkout@v4
-        if: env.HAS_SA_KEY == 'true'
       - uses: actions/setup-node@v4
-        if: env.HAS_SA_KEY == 'true'
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: functions/package-lock.json
-      - uses: google-github-actions/auth@v2
+      - name: Authenticate (service-account key fallback)
         if: env.HAS_SA_KEY == 'true'
+        uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - name: Authenticate (Workload Identity Federation, as deploy.yml)
+        if: env.HAS_SA_KEY != 'true'
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.DEPLOY_SERVICE_ACCOUNT }}
       - name: Run jobs
-        if: env.HAS_SA_KEY == 'true'
         run: |
           cd functions
           npm ci

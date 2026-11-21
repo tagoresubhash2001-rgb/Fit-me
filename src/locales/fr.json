@@ -761,7 +761,7 @@
     "saved": "Enregistré : {{km}} km",
     "gps": "Précision GPS d'environ {{m}} m",
     "weakGps": "Signal GPS faible (environ {{m}} m). Les points sont ignorés jusqu'à amélioration.",
-    "foregroundNote": "Gardez FitMe ouvert pendant l'enregistrement. Votre parcours est enregistré dans vos entraînements.",
+    "foregroundNote": "Dans l'appli FitMe sur téléphone, l'enregistrement continue écran éteint. Dans un navigateur, gardez cette page ouverte. Votre parcours est enregistré dans vos entraînements.",
     "errors": {
       "denied": "L'accès à la localisation est désactivé. Autorisez-le dans Réglages, Autorisations.",
       "unsupported": "La localisation n'est pas disponible sur cet appareil.",
