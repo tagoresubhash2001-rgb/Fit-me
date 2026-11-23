@@ -55,6 +55,45 @@ jobs:
           exit 1
       - run: echo "Deploying to dev (fit-me1)."
 
+  # What changed in this push (a manual run deploys everything). Each part deploys only when its files changed,
+  # and only the Cloud Functions whose code changed are deployed: every function deploy builds a new container
+  # image, so redeploying all of them on every push wastes Cloud Build time and Artifact Registry storage.
+  changes:
+    name: Detect changes
+    needs: guard
+    runs-on: ubuntu-latest
+    outputs:
+      hosting: ${{ steps.d.outputs.hosting }}
+      workflow: ${{ steps.d.outputs.workflow }}
+      firestore: ${{ steps.d.outputs.firestore }}
+      storage: ${{ steps.d.outputs.storage }}
+      functions: ${{ steps.d.outputs.functions }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - id: d
+        env:
+          BEFORE: ${{ github.event.before }}
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ] || [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            FILES="__all__"
+          elif [ "$EVENT" = "pull_request" ]; then
+            FILES=$(git diff --name-only "$PR_BASE" HEAD)
+          else
+            FILES=$(git diff --name-only "$BEFORE" HEAD)
+          fi
+          echo "Changed files:"; echo "$FILES"
+          has() { [ "$FILES" = "__all__" ] || echo "$FILES" | grep -qE "$1"; }
+          has '^(src/|public/|index\.html|vite\.config\.ts|package(-lock)?\.json|firebase\.json|tsconfig|e2e/render-check|deploy/)' && echo "hosting=true" >> "$GITHUB_OUTPUT" || echo "hosting=false" >> "$GITHUB_OUTPUT"
+          has '^(firestore\.rules|firestore\.indexes\.json)$' && echo "firestore=true" >> "$GITHUB_OUTPUT" || echo "firestore=false" >> "$GITHUB_OUTPUT"
+          has '^storage\.rules$' && echo "storage=true" >> "$GITHUB_OUTPUT" || echo "storage=false" >> "$GITHUB_OUTPUT"
+          has '^\.github/workflows/deploy\.yml$' && echo "workflow=true" >> "$GITHUB_OUTPUT" || echo "workflow=false" >> "$GITHUB_OUTPUT"
+          if [ "$FILES" = "__all__" ]; then FN=ALL; else FN=$(node scripts/changed-functions.mjs $FILES); fi
+          echo "Functions to deploy: ${FN:-none}"
+          echo "functions=$FN" >> "$GITHUB_OUTPUT"
+
   verify:
     name: Lint, test and build check
     needs: guard
@@ -69,7 +108,8 @@ jobs:
 
   hosting:
     name: Hosting (website)
-    needs: verify
+    needs: [verify, changes]
+    if: github.event_name == 'pull_request' || needs.changes.outputs.hosting == 'true'
     runs-on: ubuntu-latest
     environment: dev
     env:
@@ -161,8 +201,8 @@ jobs:
 
   firestore:
     name: Firestore rules and indexes
-    needs: verify
-    if: github.event_name != 'pull_request'
+    needs: [verify, changes]
+    if: github.event_name != 'pull_request' && needs.changes.outputs.firestore == 'true'
     runs-on: ubuntu-latest
     environment: dev
     env:
@@ -179,8 +219,8 @@ jobs:
 
   storage:
     name: Storage rules
-    needs: [verify, firestore]
-    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.verify.result == 'success' }}
+    needs: [verify, changes, firestore]
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.verify.result == 'success' && needs.changes.outputs.storage == 'true' }}
     runs-on: ubuntu-latest
     environment: dev
     env:
@@ -195,10 +235,30 @@ jobs:
       - *auth_wif
       - run: npx firebase deploy --only storage --project "$FIREBASE_PROJECT" --non-interactive
 
+  # Artifact Registry clean-up policy for function images (keep 1 day). Also runs inside every functions deploy;
+  # this job applies it when only the workflow changed, without redeploying any function.
+  artifacts:
+    name: Function image clean-up policy
+    needs: [verify, changes]
+    if: ${{ github.event_name != 'pull_request' && (needs.changes.outputs.workflow == 'true' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      HAS_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+    permissions: { contents: read, id-token: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - *auth_sa
+      - *auth_wif
+      - run: npx firebase functions:artifacts:setpolicy --location asia-south1 --days 1 --force --project "$FIREBASE_PROJECT" --non-interactive
+
   functions:
     name: Cloud Functions
-    needs: [verify, storage]
-    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.verify.result == 'success' }}
+    needs: [verify, changes, storage]
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.verify.result == 'success' && needs.changes.outputs.functions != '' }}
     runs-on: ubuntu-latest
     environment: dev
     env:
@@ -221,6 +281,7 @@ jobs:
       - name: Deploy functions
         env:
           SCHEDULED: ${{ vars.ENABLE_SCHEDULED_FUNCTIONS == 'true' && 'on' || 'off' }}
+          CHANGED: ${{ needs.changes.outputs.functions }}
         run: |
           if [ "$SCHEDULED" = "on" ]; then
             npx firebase deploy --only functions --project "$FIREBASE_PROJECT" --non-interactive --force
@@ -228,7 +289,9 @@ jobs:
             npm run build --prefix functions
             # One function at a time with retries: deploying all at once exceeds the project's regional
             # Cloud Run CPU quota (each function is its own service).
-            NAMES=$(cd functions && SCHEDULED_FUNCTIONS=off node -e "console.log(Object.keys(require('./lib/index.js')).join(' '))")
+            ALL_NAMES=$(cd functions && SCHEDULED_FUNCTIONS=off node -e "console.log(Object.keys(require('./lib/index.js')).join(' '))")
+            if [ "$CHANGED" = "ALL" ]; then NAMES="$ALL_NAMES"; else NAMES=$(for f in $CHANGED; do echo " $ALL_NAMES " | grep -q " $f " && echo $f; done); fi
+            echo "Deploying only: $NAMES"
             FAILED=""
             for f in $NAMES; do
               ok=0
@@ -240,6 +303,8 @@ jobs:
             done
             if [ -n "$FAILED" ]; then echo "::error::Functions not deployed:$FAILED"; exit 1; fi
           fi
+      - name: Keep only recent function images (Artifact Registry clean-up, 1 day)
+        run: npx firebase functions:artifacts:setpolicy --location asia-south1 --days 1 --force --project "$FIREBASE_PROJECT" --non-interactive
       - name: Smoke test healthCheck
         run: |
           for i in 1 2 3 4 5 6; do

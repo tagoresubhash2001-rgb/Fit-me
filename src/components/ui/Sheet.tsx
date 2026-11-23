@@ -19,6 +19,8 @@ export interface SheetProps {
   inline?: boolean;
   /** Dialog width on tablet and desktop. */
   size?: 'md' | 'lg';
+  /** Full screen on phones (editors and detail views) instead of a bottom sheet. */
+  mobileFull?: boolean;
 }
 
 const FOCUSABLE =
@@ -28,7 +30,7 @@ const FOCUSABLE =
  * Bottom sheet on phones; centred dialog (max 560 px) with a dimmed glass backdrop from 768 px.
  * Esc closes, focus is trapped inside and returned to the opener on close.
  */
-export function Sheet({ open, onClose, title, closeLabel, children, footer, className, inline, size = 'md' }: SheetProps) {
+export function Sheet({ open, onClose, title, closeLabel, children, footer, className, inline, size = 'md', mobileFull = false }: SheetProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   // Stay mounted for the exit animation (slide down on phones, scale out on wider screens).
   const [mounted, setMounted] = useState(open);
@@ -143,6 +145,7 @@ export function Sheet({ open, onClose, title, closeLabel, children, footer, clas
             ? 'animate-[sheet-down_190ms_ease-in_forwards] md:animate-[dialog-out_170ms_ease-in_forwards]'
             : 'animate-[sheet-up_320ms_var(--ease-spring)] md:animate-[dialog-in_240ms_var(--ease-spring)]',
           size === 'lg' ? 'md:max-w-[720px]' : 'md:max-w-[560px]',
+          mobileFull && 'max-md:h-[100dvh] max-md:max-h-[100dvh] max-md:rounded-none max-md:pt-[env(safe-area-inset-top)]',
           className,
         )}
       >

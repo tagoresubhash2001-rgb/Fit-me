@@ -4,7 +4,7 @@ import { collection, getDocs, limit, orderBy, query, startAfter, where, type Que
 import { Button, Card, EmptyState, PageHeader, Skeleton } from '../../components/ui';
 import { db } from '../../lib/firebase';
 import { downloadCsv, fmtDate } from './api';
-import { Table, Td, inputCls } from './ui';
+import { Field, FilterBar, Table, Td, inputCls } from './ui';
 
 interface Log {
   id: string;
@@ -31,7 +31,15 @@ export default function LogsPage() {
   const [text, setText] = useState('');
   const shown = useMemo(() => {
     const n = text.trim().toLowerCase();
-    return n ? rows?.filter((r) => [r.action, r.actorEmail, r.targetId, r.note].some((v) => String(v ?? '').toLowerCase().includes(n))) : rows;
+    return n
+      ? rows?.filter((r) =>
+          [r.action, r.actorEmail, r.targetId, r.note].some((v) =>
+            String(v ?? '')
+              .toLowerCase()
+              .includes(n),
+          ),
+        )
+      : rows;
   }, [rows, text]);
   const load = useCallback(
     async (after: QueryDocumentSnapshot | null) => {
@@ -53,23 +61,63 @@ export default function LogsPage() {
   }, [load]);
   return (
     <div className="flex flex-col gap-4" id="admin-logs">
-      <PageHeader
-        title={t('admin.nav.logs')}
-        actions={
-          <select aria-label={t('admin.logs.filter')} value={filter} onChange={(e) => setFilter(e.target.value)} className={inputCls}>
-            <option value="">{t('admin.logs.all')}</option>
-            {['user', 'testimonial', 'appConfig', 'food', 'foodSuggestion', 'coupon', 'page', 'announcement', 'notification', 'notifyTemplate', 'secret', 'contactMessage'].map((x) => (
-              <option key={x} value={x}>
-                {t(`admin.logs.types.${x}`)}
-              </option>
-            ))}
-          </select>
-        }
-      />
+      <PageHeader title={t('admin.nav.logs')} />
       <Card>
+        <div className="mb-3">
+          <FilterBar>
+            <Field label={t('admin.logs.filter')}>
+              <select value={filter} onChange={(e) => setFilter(e.target.value)} className={inputCls}>
+                <option value="">{t('admin.logs.all')}</option>
+                {[
+                  'user',
+                  'testimonial',
+                  'appConfig',
+                  'food',
+                  'foodSuggestion',
+                  'coupon',
+                  'page',
+                  'announcement',
+                  'notification',
+                  'notifyTemplate',
+                  'secret',
+                  'contactMessage',
+                ].map((x) => (
+                  <option key={x} value={x}>
+                    {t(`admin.logs.types.${x}`)}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </FilterBar>
+        </div>
         <div className="mb-3 flex flex-wrap gap-2">
-          <input id="logs-search" className={`${inputCls} min-w-0 flex-1`} value={text} onChange={(e) => setText(e.target.value)} placeholder={t('admin.logs.search')} />
-          <Button variant="secondary" disabled={!shown?.length} onClick={() => downloadCsv('fitme-admin-log', (shown ?? []).map((r) => ({ when: r.at?.toMillis?.() ? new Date(r.at.toMillis()).toISOString() : '', who: r.actorEmail, role: r.actorRole, action: r.action, targetType: r.targetType, targetId: r.targetId, note: r.note ?? '', before: r.before, after: r.after })))}>
+          <input
+            id="logs-search"
+            className={`${inputCls} min-w-0 flex-1`}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder={t('admin.logs.search')}
+          />
+          <Button
+            variant="secondary"
+            disabled={!shown?.length}
+            onClick={() =>
+              downloadCsv(
+                'fitme-admin-log',
+                (shown ?? []).map((r) => ({
+                  when: r.at?.toMillis?.() ? new Date(r.at.toMillis()).toISOString() : '',
+                  who: r.actorEmail,
+                  role: r.actorRole,
+                  action: r.action,
+                  targetType: r.targetType,
+                  targetId: r.targetId,
+                  note: r.note ?? '',
+                  before: r.before,
+                  after: r.after,
+                })),
+              )
+            }
+          >
             {t('admin.exportCsv')}
           </Button>
         </div>
@@ -78,7 +126,10 @@ export default function LogsPage() {
         ) : !shown?.length ? (
           <EmptyState title={t('admin.logs.empty')} />
         ) : (
-          <Table label={t('admin.nav.logs')} head={[t('admin.logs.when'), t('admin.logs.who'), t('admin.logs.action'), t('admin.logs.target'), '']}>
+          <Table
+            label={t('admin.nav.logs')}
+            head={[t('admin.logs.when'), t('admin.logs.who'), t('admin.logs.action'), t('admin.logs.target'), '']}
+          >
             {shown.map((r) => (
               <React.Fragment key={r.id}>
                 <tr>
@@ -104,7 +155,9 @@ export default function LogsPage() {
                         {(['before', 'after'] as const).map((k) => (
                           <div key={k}>
                             <p className="text-caption font-semibold text-muted">{t(`admin.logs.${k}`)}</p>
-                            <pre className="max-h-64 overflow-auto rounded-input bg-surface p-2 text-caption whitespace-pre-wrap text-ink">{JSON.stringify(r[k], null, 2)}</pre>
+                            <pre className="max-h-64 overflow-auto rounded-input bg-surface p-2 text-caption whitespace-pre-wrap text-ink">
+                              {JSON.stringify(r[k], null, 2)}
+                            </pre>
                           </div>
                         ))}
                       </div>

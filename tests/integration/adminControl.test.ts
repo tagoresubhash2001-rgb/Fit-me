@@ -177,3 +177,15 @@ describe('coupons, content, notifications, users, support, logs', () => {
     expect(diag.rows).toHaveLength(1);
   });
 });
+
+describe('empty optional fields from the web SDK (sent as null) are accepted', () => {
+  it('user list, announcements without id, support close without reply', async () => {
+    await as('superAdmin');
+    const r = await fn<{ users: unknown[] }>('adminListUsers', { status: 'all', q: undefined, pageToken: undefined });
+    expect(Array.isArray(r.users)).toBe(true);
+    const a = await act<{ id: string }>('announcements.save', { id: undefined, announcement: { active: false, title: { en: 'T' }, body: { en: 'B' }, startsAt: null, endsAt: null, countries: [], plans: [] } });
+    expect(a.id).toBeTruthy();
+    await expect(act('users.diagnostics', { uid: undefined })).resolves.toBeTruthy();
+    await expect(act('logs.search', { action: undefined, targetType: undefined })).resolves.toBeTruthy();
+  });
+});

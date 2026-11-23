@@ -22,8 +22,8 @@
       "failed": "Sign-in failed. Check the email and password."
     },
     "denied": {
-      "title": "No admin access",
-      "body": "{{email}} is not a FitMe admin. Ask a super admin to add you.",
+      "title": "You do not have admin access",
+      "body": "{{email}} is not a FitMe admin, so you have been signed out of the admin area. Ask a super admin to add you.",
       "back": "Back to the app"
     },
     "nav": {
@@ -683,6 +683,11 @@
       "countryTitle": "Trial length per country",
       "countryBody": "Welcome Unlock and trial days for new sign-ups in a country. Others use the values above.",
       "oneUserHint": "To extend, reset or end one person's trial, open them in Users."
-    }
+    },
+    "filters": "Filters",
+    "applyFilters": "Show results",
+    "collapseMenu": "Collapse menu",
+    "expandMenu": "Expand menu",
+    "closeMenu": "Close menu"
   }
 }

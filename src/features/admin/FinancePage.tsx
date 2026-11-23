@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Badge, Button, Card, CardHeader, EmptyState, PageHeader, Sheet, Skeleton, Tabs } from '../../components/ui';
 import { downloadCsv, fmtDate, useAction } from './api';
-import { Field, inputCls, Table, Td } from './ui';
+import { Field, FilterBar, inputCls, Table, Td } from './ui';
 import { PricesCard } from './PricingPage';
 
 type Row = Record<string, unknown> & { id: string };
@@ -25,9 +25,22 @@ function ReceiptSheet({ id, onClose }: { id: string; onClose: () => void }) {
   const r = useAction<Receipt>('finance.receipt', { id }, [id]);
   const d = r.data;
   return (
-    <Sheet open onClose={onClose} closeLabel={t('common.close')} title={t('admin.finance.receipt')} footer={<Button onClick={() => window.print()}>{t('admin.finance.print')}</Button>}>
+    <Sheet
+      mobileFull
+      size="lg"
+      className="admin-touch"
+      open
+      onClose={onClose}
+      closeLabel={t('common.close')}
+      title={t('admin.finance.receipt')}
+      footer={<Button onClick={() => window.print()}>{t('admin.finance.print')}</Button>}
+    >
       {!d ? (
-        r.error ? <p className="text-small text-danger-text">{r.error}</p> : <Skeleton className="h-40" />
+        r.error ? (
+          <p className="text-small text-danger-text">{r.error}</p>
+        ) : (
+          <Skeleton className="h-40" />
+        )
       ) : (
         <div className="flex flex-col gap-2 text-small text-ink" id="receipt">
           <p className="text-body font-semibold">
@@ -48,7 +61,8 @@ function ReceiptSheet({ id, onClose }: { id: string; onClose: () => void }) {
             {t('admin.finance.net')}: {money(d.tax.net, d.payment.currency, i18n.language)}
           </p>
           <p>
-            {d.tax.name} {d.tax.percent}% {d.tax.inclusive ? `(${t('admin.finance.included')})` : ''}: {money(d.tax.tax, d.payment.currency, i18n.language)}
+            {d.tax.name} {d.tax.percent}% {d.tax.inclusive ? `(${t('admin.finance.included')})` : ''}:{' '}
+            {money(d.tax.tax, d.payment.currency, i18n.language)}
           </p>
           <p className="font-semibold">
             {t('admin.finance.total')}: {money(d.tax.gross, d.payment.currency, i18n.language)}
@@ -70,7 +84,13 @@ function Payments() {
   return (
     <Card className="flex flex-col gap-4" id="admin-payments">
       <CardHeader title={t('admin.finance.payments')} subtitle={t('admin.finance.paymentsBody')} />
-      <div className="flex flex-wrap items-end gap-2">
+      <FilterBar
+        actions={
+          <Button variant="secondary" disabled={!r.data?.rows.length} onClick={() => downloadCsv('fitme-payments', r.data?.rows ?? [])}>
+            {t('admin.exportCsv')}
+          </Button>
+        }
+      >
         <Field label={t('admin.finance.status')}>
           <select className={inputCls} value={status} onChange={(e) => setStatus(e.target.value as typeof status)}>
             {(['all', 'verified', 'failed', 'refunded'] as const).map((s) => (
@@ -81,18 +101,35 @@ function Payments() {
           </select>
         </Field>
         <Field label={t('admin.finance.country')}>
-          <input className={inputCls} maxLength={2} value={country} onChange={(e) => setCountry(e.target.value.toUpperCase())} placeholder="IN" />
+          <input
+            className={inputCls}
+            maxLength={2}
+            value={country}
+            onChange={(e) => setCountry(e.target.value.toUpperCase())}
+            placeholder="IN"
+          />
         </Field>
-        <Button variant="secondary" disabled={!r.data?.rows.length} onClick={() => downloadCsv('fitme-payments', r.data?.rows ?? [])}>
-          {t('admin.exportCsv')}
-        </Button>
-      </div>
+      </FilterBar>
       {!r.data ? (
-        r.error ? <p className="text-small text-danger-text">{r.error}</p> : <Skeleton className="h-24" />
+        r.error ? (
+          <p className="text-small text-danger-text">{r.error}</p>
+        ) : (
+          <Skeleton className="h-24" />
+        )
       ) : r.data.rows.length === 0 ? (
         <EmptyState title={t('admin.finance.noPayments')} description={t('admin.finance.noPaymentsBody')} />
       ) : (
-        <Table head={[t('admin.finance.date'), t('admin.finance.amount'), t('admin.finance.country'), t('admin.finance.provider'), t('admin.finance.status'), '']} label={t('admin.finance.payments')}>
+        <Table
+          head={[
+            t('admin.finance.date'),
+            t('admin.finance.amount'),
+            t('admin.finance.country'),
+            t('admin.finance.provider'),
+            t('admin.finance.status'),
+            '',
+          ]}
+          label={t('admin.finance.payments')}
+        >
           {r.data.rows.map((p) => (
             <tr key={p.id}>
               <Td>{fmtDate(p.createdAt as number, i18n.language)}</Td>
@@ -124,11 +161,18 @@ function Webhooks() {
     <Card className="flex flex-col gap-4" id="admin-webhooks">
       <CardHeader title={t('admin.finance.webhooks')} subtitle={t('admin.finance.webhooksBody')} />
       {!r.data ? (
-        r.error ? <p className="text-small text-danger-text">{r.error}</p> : <Skeleton className="h-24" />
+        r.error ? (
+          <p className="text-small text-danger-text">{r.error}</p>
+        ) : (
+          <Skeleton className="h-24" />
+        )
       ) : r.data.rows.length === 0 ? (
         <EmptyState title={t('admin.finance.noWebhooks')} />
       ) : (
-        <Table head={[t('admin.finance.date'), t('admin.finance.provider'), t('admin.finance.event'), t('admin.finance.applied')]} label={t('admin.finance.webhooks')}>
+        <Table
+          head={[t('admin.finance.date'), t('admin.finance.provider'), t('admin.finance.event'), t('admin.finance.applied')]}
+          label={t('admin.finance.webhooks')}
+        >
           {r.data.rows.map((w) => (
             <tr key={w.id}>
               <Td>{fmtDate(w.at as number, i18n.language)}</Td>

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Avatar, Badge, Button, Card, EmptyState, PageHeader, Sheet, Skeleton, toast } from '../../components/ui';
 import { act, call, canOpen, errorCode, fmtDate, useAction, type Role } from './api';
 import { Diagnostics } from './SupportPage';
-import { Confirm, Field, Table, Td, inputCls } from './ui';
+import { Confirm, Field, FilterBar, Table, Td, inputCls } from './ui';
 
 interface Row {
   uid: string;
@@ -30,14 +30,26 @@ interface Detail extends Row {
 
 function UserDevices({ uid }: { uid: string }) {
   const { t, i18n } = useTranslation();
-  const r = useAction<{ health: { app: string; connected: boolean; lastSyncAt: number | null } | null; phoneSteps: { enabled: boolean; lastSyncAt: number | null } | null; pushDevices: number }>('users.devices', { uid }, [uid]);
+  const r = useAction<{
+    health: { app: string; connected: boolean; lastSyncAt: number | null } | null;
+    phoneSteps: { enabled: boolean; lastSyncAt: number | null } | null;
+    pushDevices: number;
+  }>('users.devices', { uid }, [uid]);
   if (!r.data) return null;
   const d = r.data;
   return (
     <div className="rounded-input border border-line p-3 text-small text-ink" id="user-devices">
       <p className="font-semibold">{t('admin.users.devices')}</p>
-      <p>{d.health ? `${t(`devices.${d.health.app}`)}: ${d.health.connected ? t('devices.connected') : t('devices.off')} · ${fmtDate(d.health.lastSyncAt, i18n.language)}` : t('admin.users.noHealth')}</p>
-      <p>{d.phoneSteps ? `${t('steps.phoneTitle')}: ${d.phoneSteps.enabled ? t('devices.connected') : t('devices.off')} · ${fmtDate(d.phoneSteps.lastSyncAt, i18n.language)}` : t('admin.users.noPhoneSteps')}</p>
+      <p>
+        {d.health
+          ? `${t(`devices.${d.health.app}`)}: ${d.health.connected ? t('devices.connected') : t('devices.off')} · ${fmtDate(d.health.lastSyncAt, i18n.language)}`
+          : t('admin.users.noHealth')}
+      </p>
+      <p>
+        {d.phoneSteps
+          ? `${t('steps.phoneTitle')}: ${d.phoneSteps.enabled ? t('devices.connected') : t('devices.off')} · ${fmtDate(d.phoneSteps.lastSyncAt, i18n.language)}`
+          : t('admin.users.noPhoneSteps')}
+      </p>
       <p>{t('admin.users.pushDevices', { count: d.pushDevices })}</p>
     </div>
   );
@@ -53,7 +65,7 @@ function GrantAccess({ uid, onDone }: { uid: string; onDone: () => void }) {
   return (
     <fieldset className="flex flex-col gap-2 rounded-input border border-line p-3" id="user-grant">
       <legend className="px-1 text-small font-semibold text-ink">{t('admin.users.grantTitle')}</legend>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <Field label={t('admin.plans.tier')}>
           <select className={inputCls} value={plan} onChange={(e) => setPlan(e.target.value as typeof plan)}>
             <option value="pro">{t('plans.pro')}</option>
@@ -62,7 +74,14 @@ function GrantAccess({ uid, onDone }: { uid: string; onDone: () => void }) {
           </select>
         </Field>
         <Field label={t('admin.users.days')} hint={t('admin.users.daysHint')}>
-          <input type="number" min={1} className={inputCls} value={days} onChange={(e) => setDays(e.target.value)} disabled={plan === 'free'} />
+          <input
+            type="number"
+            min={1}
+            className={inputCls}
+            value={days}
+            onChange={(e) => setDays(e.target.value)}
+            disabled={plan === 'free'}
+          />
         </Field>
       </div>
       <Field label={t('admin.reason')}>
@@ -103,7 +122,7 @@ function TrialAdjust({ uid, onDone }: { uid: string; onDone: () => void }) {
   return (
     <fieldset className="flex flex-col gap-2 rounded-input border border-line p-3" id="user-trial">
       <legend className="px-1 text-small font-semibold text-ink">{t('admin.users.trialTitle')}</legend>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <Field label={t('admin.users.trialAction')}>
           <select className={inputCls} value={op} onChange={(e) => setOp(e.target.value as typeof op)}>
             {(['extend', 'reset', 'end'] as const).map((o) => (
@@ -157,8 +176,23 @@ function MessageUser({ uid }: { uid: string }) {
   return (
     <fieldset className="flex flex-col gap-2 rounded-input border border-line p-3" id="user-message">
       <legend className="px-1 text-small font-semibold text-ink">{t('admin.users.messageTitle')}</legend>
-      <input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80} placeholder={t('admin.notify.title')} aria-label={t('admin.notify.title')} />
-      <textarea rows={2} className="w-full rounded-input border border-line bg-surface px-3 py-2 text-body text-ink" value={body} onChange={(e) => setBody(e.target.value)} maxLength={400} placeholder={t('admin.notify.message')} aria-label={t('admin.notify.message')} />
+      <input
+        className={inputCls}
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        maxLength={80}
+        placeholder={t('admin.notify.title')}
+        aria-label={t('admin.notify.title')}
+      />
+      <textarea
+        rows={2}
+        className="w-full rounded-input border border-line bg-surface px-3 py-2 text-body text-ink"
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+        maxLength={400}
+        placeholder={t('admin.notify.message')}
+        aria-label={t('admin.notify.message')}
+      />
       <div>
         <Button
           size="sm"
@@ -186,7 +220,19 @@ function MessageUser({ uid }: { uid: string }) {
   );
 }
 
-function UserDetail({ uid, canEdit, canTrials, onChanged, onClose }: { uid: string; canEdit: boolean; canTrials: boolean; onChanged: () => void; onClose: () => void }) {
+function UserDetail({
+  uid,
+  canEdit,
+  canTrials,
+  onChanged,
+  onClose,
+}: {
+  uid: string;
+  canEdit: boolean;
+  canTrials: boolean;
+  onChanged: () => void;
+  onClose: () => void;
+}) {
   const { t, i18n } = useTranslation();
   const [d, setD] = useState<Detail | null>(null);
   const [confirm, setConfirm] = useState(false);
@@ -200,21 +246,44 @@ function UserDetail({ uid, canEdit, canTrials, onChanged, onClose }: { uid: stri
   const rows: Array<[string, React.ReactNode]> = d
     ? [
         [t('admin.users.email'), d.email ?? '—'],
-        [t('admin.users.uid'), <code key="u" className="text-caption">{d.uid}</code>],
+        [
+          t('admin.users.uid'),
+          <code key="u" className="text-caption">
+            {d.uid}
+          </code>,
+        ],
         [t('admin.users.providers'), d.providers.join(', ') || '—'],
         [t('admin.users.created'), fmtDate(d.createdAt, i18n.language)],
         [t('admin.users.lastSignIn'), fmtDate(d.lastSignInAt, i18n.language)],
         [t('admin.users.country'), d.profile.country ?? '—'],
         [t('admin.users.language'), d.profile.language ?? '—'],
         [t('admin.users.onboarded'), d.profile.onboarded ? t('admin.yes') : t('admin.no')],
-        [t('admin.users.stage'), d.access ? `${t(`admin.stages.${d.access.stage}`)}${d.access.daysLeft ? ` · ${t('admin.users.daysLeft', { count: d.access.daysLeft })}` : ''}` : '—'],
-        [t('admin.users.subscription'), d.entitlement ? `${d.entitlement.plan} · ${d.entitlement.status} · ${d.entitlement.source} · ${fmtDate(d.entitlement.expiresAt, i18n.language)}` : t('admin.users.noSubscription')],
+        [
+          t('admin.users.stage'),
+          d.access
+            ? `${t(`admin.stages.${d.access.stage}`)}${d.access.daysLeft ? ` · ${t('admin.users.daysLeft', { count: d.access.daysLeft })}` : ''}`
+            : '—',
+        ],
+        [
+          t('admin.users.subscription'),
+          d.entitlement
+            ? `${d.entitlement.plan} · ${d.entitlement.status} · ${d.entitlement.source} · ${fmtDate(d.entitlement.expiresAt, i18n.language)}`
+            : t('admin.users.noSubscription'),
+        ],
         [t('admin.users.activity'), t('admin.users.activityValue', d.activity30d)],
         [t('admin.users.testimonials'), d.testimonials.length ? d.testimonials.map((x) => x.status).join(', ') : '—'],
       ]
     : [];
   return (
-    <Sheet open onClose={onClose} closeLabel={t('common.close')} title={d?.name ?? d?.email ?? t('admin.users.user')}>
+    <Sheet
+      mobileFull
+      size="lg"
+      className="admin-touch"
+      open
+      onClose={onClose}
+      closeLabel={t('common.close')}
+      title={d?.name ?? d?.email ?? t('admin.users.user')}
+    >
       {!d ? (
         <Skeleton className="h-64" />
       ) : (
@@ -281,7 +350,12 @@ export default function UsersPage({ role }: { role: Role }) {
     async (pageToken?: string) => {
       setBusy(true);
       try {
-        const r = await call<{ users: Row[]; nextPageToken: string | null }>('adminListUsers', { q: q.trim() || undefined, status, pageToken });
+        // Only send fields that have a value (the SDK would send empty ones as null).
+        const r = await call<{ users: Row[]; nextPageToken: string | null }>('adminListUsers', {
+          status,
+          ...(q.trim() ? { q: q.trim() } : {}),
+          ...(pageToken ? { pageToken } : {}),
+        });
         setRows((prev) => (pageToken ? [...(prev ?? []), ...r.users] : r.users));
         setNext(r.nextPageToken);
       } catch (e) {
@@ -301,14 +375,28 @@ export default function UsersPage({ role }: { role: Role }) {
     <div className="flex flex-col gap-4" id="admin-users">
       <PageHeader title={t('admin.nav.users')} />
       <Card className="flex flex-col gap-3 md:flex-row">
-        <input type="search" aria-label={t('admin.users.search')} placeholder={t('admin.users.search')} value={q} onChange={(e) => setQ(e.target.value)} className={inputCls} id="admin-user-search" />
-        <select aria-label={t('admin.users.filter')} value={status} onChange={(e) => setStatus(e.target.value as typeof status)} className={`${inputCls} md:w-48`}>
-          {(['all', 'active', 'disabled', 'staff'] as const).map((s) => (
-            <option key={s} value={s}>
-              {t(`admin.users.filters.${s}`)}
-            </option>
-          ))}
-        </select>
+        <input
+          type="search"
+          aria-label={t('admin.users.search')}
+          placeholder={t('admin.users.search')}
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          className={inputCls}
+          id="admin-user-search"
+        />
+        <div className="md:w-48">
+          <FilterBar>
+            <Field label={t('admin.users.filter')}>
+              <select value={status} onChange={(e) => setStatus(e.target.value as typeof status)} className={inputCls}>
+                {(['all', 'active', 'disabled', 'staff'] as const).map((s) => (
+                  <option key={s} value={s}>
+                    {t(`admin.users.filters.${s}`)}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </FilterBar>
+        </div>
       </Card>
       <Card>
         {!rows ? (
@@ -316,7 +404,17 @@ export default function UsersPage({ role }: { role: Role }) {
         ) : !rows.length ? (
           <EmptyState title={t('admin.users.none')} />
         ) : (
-          <Table label={t('admin.nav.users')} head={[t('admin.users.user'), t('admin.users.stage'), t('admin.users.subscription'), t('admin.users.created'), t('admin.users.status'), '']}>
+          <Table
+            label={t('admin.nav.users')}
+            head={[
+              t('admin.users.user'),
+              t('admin.users.stage'),
+              t('admin.users.subscription'),
+              t('admin.users.created'),
+              t('admin.users.status'),
+              '',
+            ]}
+          >
             {rows.map((r) => (
               <tr key={r.uid}>
                 <Td>
@@ -350,7 +448,15 @@ export default function UsersPage({ role }: { role: Role }) {
           </Button>
         )}
       </Card>
-      {open && <UserDetail uid={open} canEdit={role !== 'support' && role !== 'moderator'} canTrials={canOpen(role, 'trials')} onChanged={() => void search()} onClose={() => setOpen(null)} />}
+      {open && (
+        <UserDetail
+          uid={open}
+          canEdit={role !== 'support' && role !== 'moderator'}
+          canTrials={canOpen(role, 'trials')}
+          onChanged={() => void search()}
+          onClose={() => setOpen(null)}
+        />
+      )}
     </div>
   );
 }
