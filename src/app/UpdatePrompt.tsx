@@ -19,12 +19,17 @@ function Prompt() {
   } = useRegisterSW({
     // React mounts after the window load event, so register right away instead of waiting for it.
     immediate: true,
-    // Check for a new release every hour while the app stays open.
     onRegisterError(e) {
       console.warn('Service worker registration failed', e);
     },
     onRegisteredSW(_url, reg) {
-      if (reg) setInterval(() => void reg.update(), 60 * 60 * 1000);
+      if (!reg) return;
+      // Look for a new release on every app open (and when it comes back to the foreground), then hourly.
+      void reg.update();
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') void reg.update().catch(() => undefined);
+      });
+      setInterval(() => void reg.update().catch(() => undefined), 60 * 60 * 1000);
     },
   });
   if (!needRefresh) return null;

@@ -116,9 +116,10 @@ async function rowsFor(users: UserRecord[]): Promise<UserRow[]> {
 }
 
 const ListInput = z.object({
-  q: z.string().trim().max(120).optional(),
+  // nullish: the web SDK sends unset fields as null.
+  q: z.string().trim().max(120).nullish(),
   status: z.enum(['all', 'active', 'disabled', 'staff']).default('all'),
-  pageToken: z.string().max(400).optional(),
+  pageToken: z.string().max(400).nullish(),
 });
 
 /** Paged user list from Firebase Auth joined with profile, plan and stage. Search matches email, phone, name or uid. */
@@ -138,7 +139,7 @@ export const adminListUsers = onCall(opts, async (req) => {
     const hits = direct.filter((u): u is UserRecord => !!u);
     if (hits.length) return { users: await rowsFor(hits), nextPageToken: null };
   }
-  const page = await adminAuth().listUsers(500, pageToken);
+  const page = await adminAuth().listUsers(500, pageToken ?? undefined);
   let rows = await rowsFor(page.users);
   if (needle) rows = rows.filter((r) => [r.email, r.name, r.uid].some((v) => v?.toLowerCase().includes(needle)));
   if (status === 'active') rows = rows.filter((r) => !r.disabled);

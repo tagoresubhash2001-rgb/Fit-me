@@ -81,7 +81,7 @@ function FoodForm({ draft, title, onSave, onClose }: { draft: Draft; title: stri
   const nums = ['calories', 'proteinG', 'carbsG', 'fatG', 'fiberG'] as const;
   const valid = d.name.trim().length >= 2 && nums.every((k) => d[k] !== '' && Number(d[k]) >= 0);
   return (
-    <Sheet open onClose={onClose} closeLabel={t('common.close')} title={title}>
+    <Sheet mobileFull size="lg" className="admin-touch" open onClose={onClose} closeLabel={t('common.close')} title={title}>
       <div className="flex flex-col gap-3" id="admin-food-form">
         <Field label={t('food.foodName')}>
           <input className={inputCls} value={d.name} maxLength={120} onChange={up('name')} />
@@ -108,7 +108,7 @@ function FoodForm({ draft, title, onSave, onClose }: { draft: Draft; title: stri
             </Field>
           ))}
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label={t('food.servingLabel')}>
             <input className={inputCls} value={d.servingLabel} maxLength={60} onChange={up('servingLabel')} />
           </Field>

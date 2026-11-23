@@ -149,7 +149,7 @@ action('finance.receipt', 'finance', z.object({ id: z.string().min(3).max(200) }
 });
 
 /** Country table: one market per country or currency group, with prices, tax, payment methods and on/off. */
-action('finance.savePricing', 'finance', z.object({ pricing: PricingConfig.omit({ version: true }), note: z.string().max(300).optional() }), async (actor, { pricing, note }) => {
+action('finance.savePricing', 'finance', z.object({ pricing: PricingConfig.omit({ version: true }), note: z.string().max(300).nullish() }), async (actor, { pricing, note }) => {
   for (const [key, m] of Object.entries(pricing.markets)) {
     for (const plan of ['premium', 'pro'] as const) if (m.plans[plan].offer <= 0) throw new HttpsError('invalid-argument', 'price_required', { market: key, plan });
   }
@@ -249,7 +249,7 @@ action('pages.unpublish', 'content', z.object({ slug: z.string().regex(/^[a-z0-9
 });
 
 action('announcements.list', 'notifications', z.object({}), async () => ({ rows: (await db().collection('announcements').orderBy('updatedAt', 'desc').limit(100).get()).docs.map(plain) }));
-action('announcements.save', 'notifications', z.object({ id: z.string().regex(/^[A-Za-z0-9_-]{3,40}$/).optional(), announcement: Announcement }), async (actor, { id, announcement }) => {
+action('announcements.save', 'notifications', z.object({ id: z.string().regex(/^[A-Za-z0-9_-]{3,40}$/).nullish(), announcement: Announcement }), async (actor, { id, announcement }) => {
   const ref = id ? db().doc(`announcements/${id}`) : db().collection('announcements').doc();
   const before = (await ref.get()).data() ?? null;
   await ref.set({ ...announcement, updatedAt: FieldValue.serverTimestamp(), updatedBy: actor.uid });
@@ -314,7 +314,7 @@ action('users.message', 'users', z.object({ uid: Uid, title: z.string().trim().m
   await logAdmin(actor, 'user.message', { type: 'user', id: uid }, null, { title });
   return { id: ref.id, ...(await deliverNotification(ref.id)) };
 });
-action('users.diagnostics', 'users', z.object({ uid: Uid.optional() }), async (_a, { uid }) => {
+action('users.diagnostics', 'users', z.object({ uid: Uid.nullish() }), async (_a, { uid }) => {
   let q: Query = db().collection('diagnostics');
   if (uid) q = q.where('uid', '==', uid);
   const snap = await q.orderBy('createdAt', 'desc').limit(50).get();
@@ -393,7 +393,7 @@ action('support.list', 'support', z.object({ status: z.enum(['open', 'answered',
   const snap = await q.orderBy('createdAt', 'desc').limit(100).get();
   return { rows: snap.docs.map(plain) };
 });
-action('support.reply', 'support', z.object({ id: z.string().min(5).max(60), reply: z.string().trim().max(2000).optional(), status: z.enum(['open', 'answered', 'closed']) }), async (actor, { id, reply, status }) => {
+action('support.reply', 'support', z.object({ id: z.string().min(5).max(60), reply: z.string().trim().max(2000).nullish(), status: z.enum(['open', 'answered', 'closed']) }), async (actor, { id, reply, status }) => {
   const ref = db().doc(`contactMessages/${id}`);
   const s = await ref.get();
   if (!s.exists) throw new HttpsError('not-found', 'not_found');
@@ -413,7 +413,7 @@ action('support.reply', 'support', z.object({ id: z.string().min(5).max(60), rep
 action(
   'logs.search',
   'logs',
-  z.object({ action: z.string().max(60).optional(), targetType: z.string().max(40).optional(), actorUid: z.string().max(128).optional(), from: z.number().optional(), to: z.number().optional(), before: z.number().nullable().default(null), limit: z.number().int().min(1).max(1000).default(100) }),
+  z.object({ action: z.string().max(60).nullish(), targetType: z.string().max(40).nullish(), actorUid: z.string().max(128).nullish(), from: z.number().nullish(), to: z.number().nullish(), before: z.number().nullable().default(null), limit: z.number().int().min(1).max(1000).default(100) }),
   async (_a, f) => {
     let q: Query = db().collection('adminLogs');
     if (f.targetType) q = q.where('targetType', '==', f.targetType);

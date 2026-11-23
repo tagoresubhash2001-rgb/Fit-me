@@ -119,7 +119,7 @@ export function MediaPicker({ label, value, onChange }: { label: string; value: 
           </Button>
         )}
       </div>
-      <Sheet open={open} onClose={() => setOpen(false)} closeLabel={t('common.close')} title={t('admin.media.title')} footer={<UploadButton onFile={async (f) => onChange(await m.upload(f))} />}>
+      <Sheet mobileFull size="lg" className="admin-touch" open={open} onClose={() => setOpen(false)} closeLabel={t('common.close')} title={t('admin.media.title')} footer={<UploadButton onFile={async (f) => onChange(await m.upload(f))} />}>
         {m.items ? (
           <Grid
             items={m.items}

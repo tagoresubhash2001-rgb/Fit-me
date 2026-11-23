@@ -69,7 +69,7 @@ function Review({ item, onClose }: { item: T; onClose: () => void }) {
   const area = 'w-full rounded-input border border-line bg-surface px-3 py-2 text-body text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20';
   const reviewable = ['pending', 'approved', 'unpublished'].includes(item.status);
   return (
-    <Sheet open onClose={onClose} closeLabel={t('common.close')} title={t('admin.testimonials.review')}>
+    <Sheet mobileFull size="lg" className="admin-touch" open onClose={onClose} closeLabel={t('common.close')} title={t('admin.testimonials.review')}>
       <div className="flex flex-col gap-4" id="admin-review">
         <div className="flex flex-wrap items-center gap-2">
           <Badge>{t(`stories.status.${item.status}`)}</Badge>
@@ -128,6 +128,8 @@ function Review({ item, onClose }: { item: T; onClose: () => void }) {
   );
 }
 
+const STATUSES = ['pending', 'changes_requested', 'approved', 'rejected', 'all'] as const;
+
 export default function TestimonialsPage() {
   const { t, i18n } = useTranslation();
   const [status, setStatus] = useState<Status | 'all'>('pending');
@@ -146,11 +148,17 @@ export default function TestimonialsPage() {
   return (
     <div className="flex flex-col gap-4" id="admin-testimonials">
       <PageHeader title={t('admin.nav.testimonials')} />
-      <Tabs
-        value={status}
-        onChange={setStatus}
-        items={(['pending', 'changes_requested', 'approved', 'rejected', 'all'] as const).map((s) => ({ id: s, label: s === 'all' ? t('admin.logs.all') : t(`stories.status.${s}`) }))}
-      />
+      {/* Five statuses do not fit side by side on a phone: a select there, tabs from 768 px. */}
+      <div className="hidden md:block">
+        <Tabs value={status} onChange={setStatus} items={STATUSES.map((s) => ({ id: s, label: s === 'all' ? t('admin.logs.all') : t(`stories.status.${s}`) }))} />
+      </div>
+      <select aria-label={t('admin.finance.status')} className={`${inputCls} md:hidden`} value={status} onChange={(e) => setStatus(e.target.value as typeof status)} id="testimonial-status">
+        {STATUSES.map((s) => (
+          <option key={s} value={s}>
+            {s === 'all' ? t('admin.logs.all') : t(`stories.status.${s}`)}
+          </option>
+        ))}
+      </select>
       {!rows ? (
         <Skeleton className="h-40" />
       ) : !rows.length ? (

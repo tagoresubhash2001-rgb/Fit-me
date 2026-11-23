@@ -193,7 +193,7 @@ export function PricesCard() {
             />
           </Field>
           {(['premium', 'pro'] as const).map((plan) => (
-            <div key={plan} className="grid grid-cols-2 gap-2 md:grid-cols-4">
+            <div key={plan} className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-4">
               <p className="col-span-2 text-small font-medium text-ink md:col-span-1 md:self-center">{t(`plans.${plan}`)}</p>
               <Field label={t('admin.pricing.offer')}>
                 <input type="number" min={0} step="any" className={inputCls} value={m.plans[plan].offer} onChange={(e) => price(key, plan, 'offer', e.target.value)} />

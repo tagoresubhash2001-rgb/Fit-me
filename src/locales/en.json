@@ -910,7 +910,7 @@
     }
   },
   "pwa": {
-    "updateAvailable": "A new version of FitMe is ready.",
+    "updateAvailable": "A new version of FitMe is available.",
     "refresh": "Refresh"
   },
   "scan": {
