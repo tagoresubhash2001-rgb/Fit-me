@@ -84,6 +84,7 @@ jobs:
           else
             FILES=$(git diff --name-only "$BEFORE" HEAD)
           fi
+          BASE=$([ "$EVENT" = "pull_request" ] && echo "$PR_BASE" || echo "$BEFORE"); export BASE
           echo "Changed files:"; echo "$FILES"
           has() { [ "$FILES" = "__all__" ] || echo "$FILES" | grep -qE "$1"; }
           has '^(src/|public/|index\.html|vite\.config\.ts|package(-lock)?\.json|firebase\.json|tsconfig|e2e/render-check|deploy/)' && echo "hosting=true" >> "$GITHUB_OUTPUT" || echo "hosting=false" >> "$GITHUB_OUTPUT"
