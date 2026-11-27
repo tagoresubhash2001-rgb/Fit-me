@@ -44,12 +44,12 @@ interface AndroidConfig {
 
 const DEFAULT_ANDROID_CONFIG: AndroidConfig = {
   latestVersionName: 'v2.0.1',
-  latestVersionCode: 201,
-  minSupportedVersionCode: 200,
+  latestVersionCode: 20001,
+  minSupportedVersionCode: 20001,
   apkUrl: '/download/android',
-  fileSizeMB: 24.5,
+  fileSizeMB: 11.4,
   releaseNotes: 'Precision Health Connect step sync, continuous heart rate analytics, and AI coaching updates.',
-  releaseDate: 'November 26, 2026',
+  releaseDate: 'November 27, 2026',
 };
 
 const SCREENSHOTS = [

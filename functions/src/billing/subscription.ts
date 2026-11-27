@@ -106,7 +106,7 @@ export const createCashfreeCheckout = onCall(callableOptions(), async (req) => {
   if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
   const { plan, period, returnUrl } = parsed.data;
 
-  const profile = (await db().doc(`users/${uid}`).get()).data() ?? {};
+  await db().doc(`users/${uid}`).get();
   const orderId = `cf_${uid}_${Date.now()}`;
   const amount = plan === 'premium' ? (period === 'yearly' ? 1999 : period === 'quarterly' ? 399 : 199) : (period === 'yearly' ? 3999 : period === 'quarterly' ? 799 : 399);
 

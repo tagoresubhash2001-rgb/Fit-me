@@ -33,6 +33,11 @@
 -dontwarn com.capgo.**
 -keep class com.capgo.** { *; }
 
+# Optional Auth SDKs referenced by Capacitor Firebase Auth
+-dontwarn com.facebook.**
+-dontwarn com.twitter.**
+-dontwarn com.google.firebase.auth.**
+
 # Guava
 -dontwarn com.google.common.**
 -keep class com.google.common.** { *; }
