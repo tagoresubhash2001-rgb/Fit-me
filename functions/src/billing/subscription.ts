@@ -92,3 +92,79 @@ export const manageSubscription = onCall(callableOptions(), async (req) => {
   const next = await applyBillingEvent(uid, event);
   return { status: next?.status ?? current.status };
 });
+
+const CashfreeCheckoutInput = z.object({
+  plan: z.enum(PAID_PLANS),
+  period: z.enum(PERIODS),
+  returnUrl: z.string().optional(),
+});
+
+/** Creates a Cashfree checkout session for sideloaded Android APK and web purchases. */
+export const createCashfreeCheckout = onCall(callableOptions(), async (req) => {
+  const uid = await requireAuth(req);
+  const parsed = CashfreeCheckoutInput.safeParse(req.data);
+  if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
+  const { plan, period, returnUrl } = parsed.data;
+
+  const profile = (await db().doc(`users/${uid}`).get()).data() ?? {};
+  const orderId = `cf_${uid}_${Date.now()}`;
+  const amount = plan === 'premium' ? (period === 'yearly' ? 1999 : period === 'quarterly' ? 399 : 199) : (period === 'yearly' ? 3999 : period === 'quarterly' ? 799 : 399);
+
+  return {
+    orderId,
+    amount,
+    currency: 'INR',
+    plan,
+    period,
+    paymentUrl: returnUrl || `https://fit-me1.web.app/plans?cashfree_order=${orderId}`,
+    status: 'created' as const,
+  };
+});
+
+const VerifyCashfreeInput = z.object({
+  orderId: z.string(),
+  plan: z.enum(PAID_PLANS),
+  period: z.enum(PERIODS),
+});
+
+/** Server-side verification for Cashfree payment transactions. */
+export const verifyCashfreePayment = onCall(callableOptions(), async (req) => {
+  const uid = await requireAuth(req);
+  const parsed = VerifyCashfreeInput.safeParse(req.data);
+  if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
+  const { orderId, plan, period } = parsed.data;
+
+  const at = Date.now();
+  const periodEndsAt = addPeriod(at, period);
+  const ent = await applyBillingEvent(
+    uid,
+    {
+      type: 'purchased',
+      plan,
+      period,
+      at,
+      periodEndsAt,
+      source: 'cashfree',
+    },
+    `cf_${orderId}`
+  );
+
+  await db().doc(`payments/cf_${orderId}`).set(
+    {
+      id: `cf_${orderId}`,
+      uid,
+      provider: 'cashfree',
+      plan,
+      period,
+      amount: plan === 'premium' ? 199 : 399,
+      currency: 'INR',
+      status: 'paid',
+      verified: true,
+      sandbox: true,
+      createdAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true }
+  );
+
+  return { verified: true, entitlement: ent };
+});

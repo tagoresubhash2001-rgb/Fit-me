@@ -6,7 +6,7 @@ export { deleteAccount } from './account/deleteAccount';
 export { exportData } from './account/exportData';
 export { searchFoods } from './foods/searchFunction';
 export { onUserCreated, getAccess } from './account/access';
-export { startTrial, manageSubscription } from './billing/subscription';
+export { startTrial, manageSubscription, createCashfreeCheckout, verifyCashfreePayment } from './billing/subscription';
 export { revenuecatWebhook, cashfreeWebhook } from './billing/webhooks';
 import { trialReminders } from './billing/reminders';
 

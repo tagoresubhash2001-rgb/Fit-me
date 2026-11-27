@@ -43,7 +43,8 @@
       "coupons": "Coupons and offers",
       "notifications": "Notifications",
       "integrations": "API keys",
-      "support": "Support"
+      "support": "Support",
+      "releases": "App Releases"
     },
     "roles": {
       "superAdmin": "Super admin",

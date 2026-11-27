@@ -21,6 +21,7 @@ export const ADMIN_SECTIONS = [
   'settings',
   'integrations',
   'support',
+  'releases',
   'admins',
   'logs',
 ] as const;

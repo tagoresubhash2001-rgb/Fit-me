@@ -53,6 +53,12 @@ service firebase.storage {
         && (request.resource == null || (request.resource.size < 5 * 1024 * 1024 && request.resource.contentType.matches('image/(jpeg|png|webp|svg[+]xml)')));
     }
 
+    // Public APK releases: public read, staff upload
+    match /releases/{fileName} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
     match /{allPaths=**} {
       allow read, write: if false;
     }

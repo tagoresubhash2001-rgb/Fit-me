@@ -2,11 +2,15 @@ package com.sindulis.fitmeai.steps;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
+import androidx.core.content.FileProvider;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PermissionState;
@@ -26,15 +30,24 @@ import com.google.android.gms.fitness.data.LocalDataSet;
 import com.google.android.gms.fitness.data.LocalDataType;
 import com.google.android.gms.fitness.data.LocalField;
 import com.google.android.gms.fitness.request.LocalDataReadRequest;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
- * FitMe on-device steps (Android). Primary: the Google Recording API on mobile (Play services records steps in the
- * background with no app running, keeps about 10 days of history, survives restarts and reboots). Fallback: the
- * hardware step counter sampled by WorkManager (StepSampleWorker). Live updates come from the sensor while the app
- * is open. Needs ACTIVITY_RECOGNITION (Android 10+).
+ * FitMe on-device steps, health fallback and updater plugin (Android).
+ * Handles:
+ * - Google Recording API on mobile (Play services records steps in the background)
+ * - Fallback hardware step counter sampled by WorkManager (StepSampleWorker)
+ * - Live step updates while the app is in the foreground
+ * - Battery optimization detection and manufacturer-specific intent resolution
+ * - In-app APK updates for sideloaded distribution (REQUEST_INSTALL_PACKAGES, download, installer)
  */
 @CapacitorPlugin(name = "FitMeSteps", permissions = { @Permission(alias = "activity", strings = { Manifest.permission.ACTIVITY_RECOGNITION }) })
 public class StepsPlugin extends Plugin implements SensorEventListener {
@@ -179,13 +192,13 @@ public class StepsPlugin extends Plugin implements SensorEventListener {
     /** Opens FitMe's page in the system settings (for permissions the user denied permanently). */
     @PluginMethod
     public void openAppSettings(PluginCall call) {
-        android.content.Intent i = new android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.fromParts("package", getContext().getPackageName(), null));
-        i.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", getContext().getPackageName(), null));
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         getContext().startActivity(i);
         call.resolve();
     }
 
-    /** Whether Android may stop FitMe in the background (battery optimisation). Counting itself keeps working. */
+    /** Whether Android may stop FitMe in the background (battery optimisation). */
     @PluginMethod
     public void batteryStatus(PluginCall call) {
         android.os.PowerManager pm = (android.os.PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
@@ -197,12 +210,145 @@ public class StepsPlugin extends Plugin implements SensorEventListener {
     /** Opens the system list where the user can exclude FitMe from battery optimisation. */
     @PluginMethod
     public void openBatterySettings(PluginCall call) {
-        android.content.Intent i = new android.content.Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-        i.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent i = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
             getContext().startActivity(i);
         } catch (Exception e) {
             openAppSettings(call);
+            return;
+        }
+        call.resolve();
+    }
+
+    /** Whether the user has granted permission to install unknown apps (sideloaded APK updates). */
+    @PluginMethod
+    public void canRequestPackageInstalls(PluginCall call) {
+        JSObject r = new JSObject();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            r.put("granted", getContext().getPackageManager().canRequestPackageInstalls());
+        } else {
+            r.put("granted", true);
+        }
+        call.resolve(r);
+    }
+
+    /** Opens the system settings screen to allow installing unknown apps from FitMe. */
+    @PluginMethod
+    public void openInstallPermissionSettings(PluginCall call) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + getContext().getPackageName()));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                getContext().startActivity(intent);
+            } catch (Exception e) {
+                openAppSettings(call);
+                return;
+            }
+        } else {
+            openAppSettings(call);
+            return;
+        }
+        call.resolve();
+    }
+
+    /** Downloads an APK from the provided URL, saves it to private cache, and triggers the Android package installer. */
+    @PluginMethod
+    public void installApk(PluginCall call) {
+        String url = call.getString("url");
+        if (url == null || url.isEmpty()) {
+            call.reject("missing_url");
+            return;
+        }
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                File cacheDir = new File(getContext().getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS), "updates");
+                if (!cacheDir.exists()) cacheDir.mkdirs();
+                File apkFile = new File(cacheDir, "fitme-update.apk");
+                if (apkFile.exists()) apkFile.delete();
+
+                URL downloadUrl = new URL(url);
+                HttpURLConnection conn = (HttpURLConnection) downloadUrl.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(30000);
+                conn.connect();
+
+                int code = conn.getResponseCode();
+                if (code >= 300 && code < 400) {
+                    String loc = conn.getHeaderField("Location");
+                    if (loc != null) {
+                        conn.disconnect();
+                        downloadUrl = new URL(loc);
+                        conn = (HttpURLConnection) downloadUrl.openConnection();
+                        conn.connect();
+                    }
+                }
+
+                try (InputStream in = conn.getInputStream(); FileOutputStream out = new FileOutputStream(apkFile)) {
+                    byte[] buf = new byte[8192];
+                    int read;
+                    while ((read = in.read(buf)) != -1) {
+                        out.write(buf, 0, read);
+                    }
+                }
+
+                Uri apkUri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", apkFile);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(intent);
+
+                JSObject res = new JSObject();
+                res.put("success", true);
+                call.resolve(res);
+            } catch (Exception e) {
+                call.reject("install_failed", e.getMessage());
+            }
+        });
+    }
+
+    /** Device details for manufacturer-specific battery optimization handling. */
+    @PluginMethod
+    public void getDeviceDetails(PluginCall call) {
+        JSObject r = new JSObject();
+        r.put("manufacturer", Build.MANUFACTURER);
+        r.put("brand", Build.BRAND);
+        r.put("model", Build.MODEL);
+        r.put("sdkInt", Build.VERSION.SDK_INT);
+        call.resolve(r);
+    }
+
+    /** Attempts to open manufacturer auto-start / background power management settings. */
+    @PluginMethod
+    public void openManufacturerBatterySettings(PluginCall call) {
+        String m = Build.MANUFACTURER != null ? Build.MANUFACTURER.toLowerCase() : "";
+        Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        boolean launched = false;
+        try {
+            if (m.contains("xiaomi") || m.contains("redmi") || m.contains("poco")) {
+                intent.setComponent(new android.content.ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"));
+                getContext().startActivity(intent);
+                launched = true;
+            } else if (m.contains("oppo") || m.contains("realme")) {
+                intent.setComponent(new android.content.ComponentName("com.coloros.safecenter", "com.coloros.safecenter.permission.startup.StartupAppListActivity"));
+                getContext().startActivity(intent);
+                launched = true;
+            } else if (m.contains("vivo")) {
+                intent.setComponent(new android.content.ComponentName("com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"));
+                getContext().startActivity(intent);
+                launched = true;
+            } else if (m.contains("samsung")) {
+                intent.setComponent(new android.content.ComponentName("com.samsung.android.lool", "com.samsung.android.sm.ui.battery.BatteryActivity"));
+                getContext().startActivity(intent);
+                launched = true;
+            }
+        } catch (Exception ignored) {
+            launched = false;
+        }
+        if (!launched) {
+            openBatterySettings(call);
             return;
         }
         call.resolve();

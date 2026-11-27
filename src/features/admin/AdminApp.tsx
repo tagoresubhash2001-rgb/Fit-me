@@ -21,6 +21,7 @@ import {
   Salad,
   Settings,
   Shield,
+  Smartphone,
   ToggleRight,
   Users,
 } from 'lucide-react';
@@ -50,6 +51,7 @@ const FeaturesPage = lazy(() => import('./FeaturesPage'));
 const FoodsPage = lazy(() => import('./FoodsPage'));
 const SettingsPage = lazy(() => import('./SettingsPage'));
 const AdminsPage = lazy(() => import('./AdminsPage'));
+const ReleasesPage = lazy(() => import('./ReleasesPage'));
 const LogsPage = lazy(() => import('./LogsPage'));
 
 const NAV: Array<{ to: string; key: AdminSection; icon: React.ComponentType<{ className?: string; strokeWidth?: number }> }> = [
@@ -67,6 +69,7 @@ const NAV: Array<{ to: string; key: AdminSection; icon: React.ComponentType<{ cl
   { to: 'settings', key: 'settings', icon: Settings },
   { to: 'integrations', key: 'integrations', icon: KeyRound },
   { to: 'support', key: 'support', icon: LifeBuoy },
+  { to: 'releases', key: 'releases', icon: Smartphone },
   { to: 'admins', key: 'admins', icon: Shield },
   { to: 'logs', key: 'logs', icon: Activity },
 ];
@@ -350,6 +353,7 @@ export default function AdminApp() {
               {canOpen(role, 'settings') && <Route path="settings" element={<SettingsPage />} />}
               {canOpen(role, 'integrations') && <Route path="integrations" element={<IntegrationsPage />} />}
               {canOpen(role, 'support') && <Route path="support" element={<SupportPage />} />}
+              {canOpen(role, 'releases') && <Route path="releases" element={<ReleasesPage />} />}
               {canOpen(role, 'admins') && <Route path="admins" element={<AdminsPage role={role} />} />}
               {canOpen(role, 'logs') && <Route path="logs" element={<LogsPage />} />}
               <Route path="*" element={<Navigate to="/admin" replace />} />

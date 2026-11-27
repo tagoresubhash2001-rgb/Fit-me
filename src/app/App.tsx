@@ -6,6 +6,7 @@ import { watchSession } from '../data/auth';
 import { setLanguage } from '../lib/i18n';
 import { useThemeStore } from '../stores/theme.store';
 import { routeLoaders } from './routes';
+import { isNative } from '../lib/platform';
 
 // Every screen is its own chunk: signed-out visitors download only the sign-in screen, signed-in users only the app.
 const Shell = lazy(() => import('./Shell').then((m) => ({ default: m.Shell })));
@@ -25,6 +26,17 @@ const AdminApp = lazy(() => import('../features/admin/AdminApp'));
 const PageView = lazy(() => import('../features/pages/PageView'));
 const HelpScreen = lazy(() => import('../features/pages/HelpScreen'));
 const LateGates = lazy(() => import('./Gates'));
+
+// Landing Page & Public Pages
+const LandingScreen = lazy(() => import('../features/landing/LandingScreen'));
+const PrivacyPage = lazy(() => import('../features/pages/PrivacyPage'));
+const TermsPage = lazy(() => import('../features/pages/TermsPage'));
+const RefundPage = lazy(() => import('../features/pages/RefundPage'));
+const DeleteAccountPage = lazy(() => import('../features/pages/DeleteAccountPage'));
+
+// Native sideload updater & battery optimization
+import { InAppUpdateDialog } from '../features/updater/InAppUpdateDialog';
+import { BatteryOptimizationPrompt } from '../features/permissions/BatteryOptimizationPrompt';
 
 /** Same look as the static splash in index.html, so the hand-over from HTML to React does not flash. */
 export function FullScreenLoader() {
@@ -57,6 +69,13 @@ export function FullScreenLoader() {
   );
 }
 
+function AndroidDownloadRedirect() {
+  useEffect(() => {
+    window.location.href = '/downloads/FitMe-v2.0.1.apk';
+  }, []);
+  return <FullScreenLoader />;
+}
+
 function Gate() {
   const { authReady, user, profileReady, profile } = useSession();
   const { pathname } = useLocation();
@@ -64,7 +83,7 @@ function Gate() {
   const applyTheme = useThemeStore((s) => s.applyTheme);
 
   useEffect(() => watchSession(), []);
-  // Only the public sign-in page may be indexed; everything behind sign-in is noindex.
+  // Only the public sign-in page / landing may be indexed; everything behind sign-in is noindex.
   useEffect(() => {
     let tag = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
     if (!tag) {
@@ -72,17 +91,55 @@ function Gate() {
       tag.name = 'robots';
       document.head.appendChild(tag);
     }
-    tag.content = user ? 'noindex, nofollow' : 'index, follow';
+    tag.content = user && isNative() ? 'noindex, nofollow' : 'index, follow';
   }, [user]);
+
   useEffect(() => {
     applyTheme();
   }, [theme, applyTheme]);
+
   // The profile language wins over the device language once the user has chosen one.
   useEffect(() => {
     if (profile?.language) void setLanguage(profile.language);
   }, [profile?.language]);
 
+  // ==========================================================
+  // WEB ROUTING (Vendors & Admins remain, Customers use Native APK)
+  // ==========================================================
+  if (!isNative()) {
+    // Admin dashboard: its own sign-in and layout
+    if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+      return (
+        <Suspense fallback={<FullScreenLoader />}>
+          <Routes>
+            <Route path="admin/*" element={<AdminApp />} />
+          </Routes>
+        </Suspense>
+      );
+    }
+
+    return (
+      <Suspense fallback={<FullScreenLoader />}>
+        <Routes>
+          <Route path="/" element={<LandingScreen />} />
+          <Route path="privacy" element={<PrivacyPage />} />
+          <Route path="terms" element={<TermsPage />} />
+          <Route path="refund" element={<RefundPage />} />
+          <Route path="delete-account" element={<DeleteAccountPage />} />
+          <Route path="p/:slug" element={<PageView />} />
+          <Route path="download/android" element={<AndroidDownloadRedirect />} />
+          {/* Customer web routes redirect to landing download section with banner */}
+          <Route path="*" element={<Navigate to="/#download?redirect=mobile_only" replace />} />
+        </Routes>
+      </Suspense>
+    );
+  }
+
+  // ==========================================================
+  // NATIVE APP ROUTING (Android / iOS)
+  // ==========================================================
   if (!authReady) return <FullScreenLoader />;
+
   // Published pages (terms, privacy, help, tips) are public.
   if (pathname.startsWith('/p/'))
     return (
@@ -92,54 +149,42 @@ function Gate() {
         </Routes>
       </Suspense>
     );
-  // Admin dashboard: its own sign-in and layout, independent of the member onboarding.
-  if (pathname === '/admin' || pathname.startsWith('/admin/'))
-    return (
-      <Suspense fallback={<FullScreenLoader />}>
-        <Routes>
-          <Route path="admin/*" element={<AdminApp />} />
-        </Routes>
-      </Suspense>
-    );
+
   if (!user)
     return (
-      <>
-        <Suspense fallback={<FullScreenLoader />}>
-          <SignInScreen />
-        </Suspense>
-      </>
+      <Suspense fallback={<FullScreenLoader />}>
+        <SignInScreen />
+      </Suspense>
     );
+
   if (!profileReady) return <FullScreenLoader />;
+
   if (!profile)
     return (
-      <>
-        <Suspense fallback={<FullScreenLoader />}>
-          <Onboarding />
-        </Suspense>
-      </>
+      <Suspense fallback={<FullScreenLoader />}>
+        <Onboarding />
+      </Suspense>
     );
 
   return (
-    <>
-      <Suspense fallback={<FullScreenLoader />}>
-        <Routes>
-          <Route element={<Shell />}>
-            <Route index element={<HomeScreen />} />
-            <Route path="food" element={<FoodScreen />} />
-            <Route path="planner" element={<PlannerScreen />} />
-            <Route path="health" element={<HealthScreen />} />
-            <Route path="health/:tab" element={<HealthScreen />} />
-            <Route path="workouts" element={<WorkoutsScreen />} />
-            <Route path="store" element={<StoreScreen />} />
-            <Route path="settings" element={<SettingsScreen />} />
-            <Route path="plans" element={<PlansScreen />} />
-            <Route path="stories" element={<TestimonialsScreen />} />
-            <Route path="help" element={<HelpScreen />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        </Routes>
-      </Suspense>
-    </>
+    <Suspense fallback={<FullScreenLoader />}>
+      <Routes>
+        <Route element={<Shell />}>
+          <Route index element={<HomeScreen />} />
+          <Route path="food" element={<FoodScreen />} />
+          <Route path="planner" element={<PlannerScreen />} />
+          <Route path="health" element={<HealthScreen />} />
+          <Route path="health/:tab" element={<HealthScreen />} />
+          <Route path="workouts" element={<WorkoutsScreen />} />
+          <Route path="store" element={<StoreScreen />} />
+          <Route path="settings" element={<SettingsScreen />} />
+          <Route path="plans" element={<PlansScreen />} />
+          <Route path="stories" element={<TestimonialsScreen />} />
+          <Route path="help" element={<HelpScreen />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </Suspense>
   );
 }
 
@@ -163,7 +208,13 @@ export default function App() {
     <BrowserRouter>
       <PermissionProvider>
         <Gate />
-        <DeferredGates />
+        {isNative() && (
+          <>
+            <InAppUpdateDialog />
+            <BatteryOptimizationPrompt />
+            <DeferredGates />
+          </>
+        )}
       </PermissionProvider>
     </BrowserRouter>
   );

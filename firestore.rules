@@ -230,6 +230,34 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Android APK and app configuration: public read, staff write
+    match /app_config/{docId} {
+      allow read: if true;
+      allow write: if staffRole();
+    }
+
+    // iOS waitlist: public create only, staff read/write
+    match /ios_waitlist/{id} {
+      allow create: if request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.email.size() < 254;
+      allow read, update, delete: if staffRole();
+    }
+
+    // Public account deletion requests: public create only, staff read/write
+    match /deletion_requests/{id} {
+      allow create: if request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.email.size() < 254;
+      allow read, update, delete: if staffRole();
+    }
+
+    // Download tracking: public create only, staff read
+    match /app_downloads/{id} {
+      allow create: if true;
+      allow read: if staffRole();
+    }
+
     // Everything else is denied (trialRegistry, billing, usage, payments, aiUsage ...).
     match /{document=**} {
       allow read, write: if false;

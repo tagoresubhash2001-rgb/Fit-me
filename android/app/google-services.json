@@ -30,6 +30,14 @@
           }
         },
         {
+          "client_id": "216212194424-v39a2k491e9tct364pt9kfhl8thavd0c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sindulis.fitmeai",
+            "certificate_hash": "3e11eb5a50eb02d29fea8cf5e95d26e8172b8230"
+          }
+        },
+        {
           "client_id": "216212194424-1tdet41fli8ls72du3059312dua11k9s.apps.googleusercontent.com",
           "client_type": 3
         }

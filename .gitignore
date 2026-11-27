@@ -11,6 +11,9 @@
 *.jks
 key.properties
 service-account*.json
+*keystore*
+*KEYSTORE_INFO*
+*.bak
 
 # Node / functions
 node_modules/
