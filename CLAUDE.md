@@ -112,9 +112,12 @@ light mode first (cream `#F7F5EF` background, white cards, primary green `#1FA45
 (`#0F1720` background, `#17212B` cards). No navy, no purple/indigo gradients. Inter + Noto Sans Telugu,
 Devanagari, Tamil and Arabic fallbacks; 12 px minimum; tabular numbers; sentence case; no emojis; no jargon.
 All colours from tokens (`src/index.css`), shared primitives in `src/components/ui/`.
-Cards (owner decision): 1 px border `#0F1720` (dark `#3A4654`), 20 px radius, layered shadow
-`0 1px 2px rgba(15,23,32,.08), 0 6px 16px rgba(15,23,32,.10), 0 14px 32px rgba(15,23,32,.08)`, hover lift 2–3 px,
-press 0.98, staggered enter 150–250 ms — only via the shared `Card` and tokens. Header, nav, sheets, modals and toasts
+Cards (owner decision, Nov 2026): hairline border (`--card-border`), 24 px radius, soft layered shadow
+(`--shadow-card`), optional `glass` tone for hero/summary cards, hover lift 2–3 px, press 0.98, staggered enter
+150–250 ms — only via the shared `Card` and tokens. Brand green `#1FA45B` (`--brand`) for rings, icons, active
+states and accents; `--primary` (#168247, same hue) only behind white text for AA. Metric accents: steps green,
+calories orange, water blue, sleep violet, heart red (tokens `--data-*`, gradients `--grad-*`).
+Website (`src/features/website`) uses the same tokens; copy in `src/locales/site.en.json`. Header, nav, sheets, modals and toasts
 use the `.glass` finish (blur 16–20 px). Every log entry is editable and deletable with undo (swipe on touch, ⋯ menu on web).
 Full UX checklist: `docs/UX_CHECKLIST.md`.
 Text contrast (AA): green fills behind text `#168247`, green text `#157A43` (dark `#3DBE77`), orange text `#A65006`,

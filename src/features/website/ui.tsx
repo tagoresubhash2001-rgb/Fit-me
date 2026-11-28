@@ -102,18 +102,18 @@ export function SiteButton({ to, variant = 'primary', icon, children, className,
 }
 
 /** The three ways in: Android download, iPhone, browser. */
-export function CtaGroup({ className, compact = false }: { className?: string; compact?: boolean }) {
+export function CtaGroup({ className, compact = false, idPrefix = 'cta' }: { className?: string; compact?: boolean; idPrefix?: string }) {
   const { t } = useTranslation();
   const icon = 'h-5 w-5';
   return (
     <div className={cn('flex flex-col gap-3 sm:flex-row sm:flex-wrap', compact && 'sm:justify-center', className)}>
-      <SiteButton id="cta-android" to="/download#android" icon={<Smartphone className={icon} strokeWidth={1.9} aria-hidden />}>
+      <SiteButton id={`${idPrefix}-android`} to="/download#android" icon={<Smartphone className={icon} strokeWidth={1.9} aria-hidden />}>
         {t('site.cta.android')}
       </SiteButton>
-      <SiteButton id="cta-iphone" to="/download#ios" variant="dark" icon={<Apple className={icon} strokeWidth={1.9} aria-hidden />}>
+      <SiteButton id={`${idPrefix}-iphone`} to="/download#ios" variant="dark" icon={<Apple className={icon} strokeWidth={1.9} aria-hidden />}>
         {t('site.cta.iphone')}
       </SiteButton>
-      <SiteButton id="cta-browser" to="/app/" variant="ghost" icon={<Globe className={icon} strokeWidth={1.9} aria-hidden />}>
+      <SiteButton id={`${idPrefix}-browser`} to="/app/" variant="ghost" icon={<Globe className={icon} strokeWidth={1.9} aria-hidden />}>
         {t('site.cta.browser')}
       </SiteButton>
     </div>

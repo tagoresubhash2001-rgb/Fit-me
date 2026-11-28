@@ -345,7 +345,7 @@ export function DynamicIslandNavbar() {
                     ))}
                   </ul>
                   <div className="mt-3 border-t border-white/10 pt-4">
-                    <CtaGroup className="[&>a]:w-full" />
+                    <CtaGroup idPrefix="menu-cta" className="[&>a]:w-full" />
                   </div>
                 </div>
               </m.div>

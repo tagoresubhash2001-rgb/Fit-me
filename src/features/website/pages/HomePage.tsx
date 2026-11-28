@@ -172,7 +172,7 @@ export function FinalCta() {
               {t('site.home.finalTitle')}
             </h2>
             <p className="max-w-xl text-body text-island-muted sm:text-lg">{t('site.home.finalBody')}</p>
-            <CtaGroup compact className="mt-2 w-full sm:w-auto" />
+            <CtaGroup compact idPrefix="final-cta" className="mt-2 w-full sm:w-auto" />
           </div>
         </Reveal>
       </Container>
