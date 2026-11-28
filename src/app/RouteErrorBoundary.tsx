@@ -1,3 +1,4 @@
+import { appPath } from '../lib/appPaths';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { RefreshCw, Home } from 'lucide-react';
@@ -35,7 +36,7 @@ function ErrorScreen({ chunk, onRetry }: { chunk: boolean; onRetry: () => void }
       <p className="text-body text-muted">{chunk ? t('errors.newVersionBody') : t('errors.screenBody')}</p>
       <div className="flex flex-wrap justify-center gap-2">
         <Button onClick={() => (chunk ? window.location.reload() : onRetry())}>{chunk ? t('errors.reload') : t('common.retry')}</Button>
-        <Button variant="secondary" icon={<Home className="h-[18px] w-[18px]" strokeWidth={1.75} />} onClick={() => (window.location.href = '/')}>
+        <Button variant="secondary" icon={<Home className="h-[18px] w-[18px]" strokeWidth={1.75} />} onClick={() => (window.location.href = appPath('/'))}>
           {t('nav.home')}
         </Button>
       </div>

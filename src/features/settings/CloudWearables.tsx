@@ -1,3 +1,4 @@
+import { appUrl } from '../../lib/appPaths';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { httpsCallable } from 'firebase/functions';
@@ -41,7 +42,7 @@ export function CloudWearables() {
       if (action === 'connect') {
         const { url } = await call<{ url: string }>('wearablesConnect', {
           provider: id,
-          returnUrl: `${window.location.origin}/settings#devices`,
+          returnUrl: appUrl('/settings#devices'),
         });
         window.location.assign(url);
         return;

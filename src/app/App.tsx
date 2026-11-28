@@ -7,6 +7,7 @@ import { setLanguage } from '../lib/i18n';
 import { useThemeStore } from '../stores/theme.store';
 import { routeLoaders } from './routes';
 import { isNative } from '../lib/platform';
+import { APP_BASE, LEGACY_APP_PATHS, appPath, legacyTarget, rendersMemberApp } from '../lib/appPaths';
 
 // Every screen is its own chunk: signed-out visitors download only the sign-in screen, signed-in users only the app.
 const Shell = lazy(() => import('./Shell').then((m) => ({ default: m.Shell })));
@@ -76,14 +77,20 @@ export function FullScreenLoader() {
   );
 }
 
-function Gate() {
-  const { authReady, user, profileReady, profile } = useSession();
-  const { pathname } = useLocation();
+/** Old member-app paths (/food, /health/water ...) now live under /app: full page load into the member app. */
+function LegacyAppRedirect() {
+  useEffect(() => {
+    const target = legacyTarget(window.location.pathname) ?? appPath('/');
+    window.location.replace(`${target}${window.location.search}${window.location.hash}`);
+  }, []);
+  return <FullScreenLoader />;
+}
+
+/** Shared by both trees: theme, language and the robots tag. */
+function useAppChrome(noindex: boolean) {
   const theme = useThemeStore((s) => s.theme);
   const applyTheme = useThemeStore((s) => s.applyTheme);
-
-  useEffect(() => watchSession(), []);
-  // Only the public sign-in page / landing may be indexed; everything behind sign-in is noindex.
+  const { profile } = useSession();
   useEffect(() => {
     let tag = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
     if (!tag) {
@@ -91,71 +98,67 @@ function Gate() {
       tag.name = 'robots';
       document.head.appendChild(tag);
     }
-    tag.content = user && isNative() ? 'noindex, nofollow' : 'index, follow';
-  }, [user]);
-
+    tag.content = noindex ? 'noindex, nofollow' : 'index, follow';
+  }, [noindex]);
   useEffect(() => {
     applyTheme();
   }, [theme, applyTheme]);
-
   // The profile language wins over the device language once the user has chosen one.
   useEffect(() => {
     if (profile?.language) void setLanguage(profile.language);
   }, [profile?.language]);
+}
 
-  // ==========================================================
-  // WEB ROUTING (Vendors & Admins remain, Customers use Native APK)
-  // ==========================================================
-  if (!isNative()) {
-    // Admin & Vendor dashboards
-    if (pathname === '/admin' || pathname.startsWith('/admin/') || pathname === '/vendor' || pathname.startsWith('/vendor/')) {
-      return (
-        <Suspense fallback={<FullScreenLoader />}>
-          <Routes>
-            <Route path="admin/*" element={<AdminApp />} />
-            <Route path="vendor/*" element={<Navigate to="/admin" replace />} />
-          </Routes>
-        </Suspense>
-      );
-    }
-
+/** Marketing website, legal pages and the admin area (web only, no basename). */
+function WebsiteGate() {
+  const { pathname } = useLocation();
+  const admin = pathname === '/admin' || pathname.startsWith('/admin/') || pathname === '/vendor' || pathname.startsWith('/vendor/');
+  useEffect(() => {
+    if (!admin) return;
+    return watchSession();
+  }, [admin]);
+  useAppChrome(admin);
+  if (admin)
     return (
       <Suspense fallback={<FullScreenLoader />}>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="features" element={<FeaturesPage />} />
-          <Route path="how-it-works" element={<HowItWorksPage />} />
-          <Route path="download" element={<DownloadPage />} />
-          <Route path="about" element={<AboutPage />} />
-          <Route path="faq" element={<FaqPage />} />
-          <Route path="contact" element={<ContactPage />} />
-          <Route path="privacy" element={<PrivacyPage />} />
-          <Route path="terms" element={<TermsPage />} />
-          <Route path="refund" element={<RefundPage />} />
-          <Route path="delete-account" element={<DeleteAccountPage />} />
-          <Route path="p/:slug" element={<PageView />} />
-
-          {/* Legacy customer web routes redirect to /download with banner */}
-          <Route path="food" element={<Navigate to="/download?redirect=mobile_only" replace />} />
-          <Route path="planner" element={<Navigate to="/download?redirect=mobile_only" replace />} />
-          <Route path="health/*" element={<Navigate to="/download?redirect=mobile_only" replace />} />
-          <Route path="workouts" element={<Navigate to="/download?redirect=mobile_only" replace />} />
-          <Route path="store" element={<Navigate to="/download?redirect=mobile_only" replace />} />
-          <Route path="settings" element={<Navigate to="/download?redirect=mobile_only" replace />} />
-          <Route path="plans" element={<Navigate to="/download?redirect=mobile_only" replace />} />
-          <Route path="stories" element={<Navigate to="/download?redirect=mobile_only" replace />} />
-          <Route path="help" element={<Navigate to="/download?redirect=mobile_only" replace />} />
-
-          {/* Any other route renders custom 404 page */}
-          <Route path="*" element={<NotFoundPage />} />
+          <Route path="admin/*" element={<AdminApp />} />
+          <Route path="vendor/*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </Suspense>
     );
-  }
+  return (
+    <Suspense fallback={<FullScreenLoader />}>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="features" element={<FeaturesPage />} />
+        <Route path="how-it-works" element={<HowItWorksPage />} />
+        <Route path="download" element={<DownloadPage />} />
+        <Route path="about" element={<AboutPage />} />
+        <Route path="faq" element={<FaqPage />} />
+        <Route path="contact" element={<ContactPage />} />
+        <Route path="privacy" element={<PrivacyPage />} />
+        <Route path="terms" element={<TermsPage />} />
+        <Route path="refund" element={<RefundPage />} />
+        <Route path="delete-account" element={<DeleteAccountPage />} />
+        <Route path="p/:slug" element={<PageView />} />
+        {LEGACY_APP_PATHS.map((p) => (
+          <Route key={p} path={`${p}/*`} element={<LegacyAppRedirect />} />
+        ))}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </Suspense>
+  );
+}
 
-  // ==========================================================
-  // NATIVE APP ROUTING (Android / iOS)
-  // ==========================================================
+/** Member app: /app/* on the web (router basename /app), the whole app in the native shells. */
+function MemberGate() {
+  const { authReady, user, profileReady, profile } = useSession();
+  const { pathname } = useLocation();
+
+  useEffect(() => watchSession(), []);
+  useAppChrome(true);
+
   if (!authReady) return <FullScreenLoader />;
 
   // Published pages (terms, privacy, help, tips) are public.
@@ -222,14 +225,16 @@ function DeferredGates() {
 }
 
 export default function App() {
+  // Decided once per page load: the member app (native shells and /app/* on the web) or the website.
+  const member = rendersMemberApp();
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={member && !isNative() ? APP_BASE : undefined}>
       <PermissionProvider>
-        <Gate />
-        {isNative() && (
+        {member ? <MemberGate /> : <WebsiteGate />}
+        {member && (
           <>
-            <InAppUpdateDialog />
-            <BatteryOptimizationPrompt />
+            {isNative() && <InAppUpdateDialog />}
+            {isNative() && <BatteryOptimizationPrompt />}
             <DeferredGates />
           </>
         )}

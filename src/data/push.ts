@@ -1,3 +1,4 @@
+import { nativeRoute } from '../lib/appPaths';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../lib/firebase';
 import { isNative, platform } from '../lib/platform';
@@ -32,7 +33,7 @@ export async function registerPush(): Promise<boolean> {
         if (target && typeof window !== 'undefined') {
           if (target.startsWith('/')) {
             window.location.hash = '';
-            window.location.pathname = target;
+            window.location.pathname = nativeRoute(target);
           } else {
             window.location.href = target;
           }

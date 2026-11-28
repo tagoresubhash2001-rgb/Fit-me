@@ -1,3 +1,4 @@
+import { WebDeviceNotice } from './WebDeviceNotice';
 import React, { useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -27,6 +28,7 @@ export default function HealthScreen() {
   return (
     <div className="stagger flex flex-col gap-4">
       <h1 className="card-enter text-display text-ink">{t('health.title')}</h1>
+      <WebDeviceNotice />
       <div className="card-enter flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <Tabs
           className="md:min-w-0 md:flex-1 xl:max-w-xl"

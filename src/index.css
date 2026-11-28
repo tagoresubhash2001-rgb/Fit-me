@@ -31,18 +31,22 @@
   --brand-orange: #ff8a24;
   --brand-orange-subtle: #fff1e4;
   --brand-dark: #111613; /* Neutral near-black with subtle forest undertone, no navy */
-  --brand-cream: #fbfdfb;
+  --brand-cream: #f5f7f5; /* soft green-tinted neutral canvas shared by the app and the website */
   --brand-sage: #ddebdd;
   --brand-white: #ffffff;
 
   /* Semantic, light mode */
   --canvas: var(--brand-cream);
   --surface: var(--brand-white);
-  --raised: #f3f1ea;
+  --raised: #eef2ef;
   --ink: var(--brand-dark);
   --muted: #5b616b;
-  --line: #e6e3d8;
-  --track: #eceae2;
+  --line: #e3e8e4;
+  --track: #e8ede9;
+  /* Brand green from the approved logo (public/favicon.svg). Used for rings, icons, active states, focus,
+     charts and accents. Behind white text the deeper shade --primary of the same hue is used (AA). */
+  --brand: var(--brand-green);
+  --brand-soft: #34c77b;
   /* UI green behind text: #168247 keeps white text at 4.9:1 (WCAG AA). The brand #1FA45B stays for the logo. */
   --primary: #168247;
   --primary-pressed: #136b3b;
@@ -67,6 +71,32 @@
   --data-protein: #1fa45b;
   --data-carbs: #ff8a24;
   --data-fat: #d9a21b;
+  /* Metric accents (charts, rings, icons) and their AA text shades. */
+  --data-steps: #1fa45b;
+  --data-calories: #ff8a24;
+  --data-heart: #e5484d;
+  --text-water: #1d64c7;
+  --text-sleep: #5b3fc0;
+  --text-heart: #c2264b;
+  --text-calories: #a65006;
+  /* Ring and chart gradients (start -> end). */
+  --grad-steps-from: #4fd38c;
+  --grad-steps-to: #1fa45b;
+  --grad-calories-from: #ffb35c;
+  --grad-calories-to: #ff7a1a;
+  --grad-water-from: #6bb8ff;
+  --grad-water-to: #2f80ed;
+  --grad-sleep-from: #b39cf5;
+  --grad-sleep-to: #6e4fd0;
+  --grad-heart-from: #ff8aa0;
+  --grad-heart-to: #e5484d;
+  /* Website: graphite island navbar and the hero mesh. */
+  --island: #141a17;
+  --island-ink: #f2f5f3;
+  --island-muted: #a3ada6;
+  --mesh-1: rgba(31, 164, 91, 0.22);
+  --mesh-2: rgba(79, 211, 140, 0.18);
+  --mesh-3: rgba(47, 128, 237, 0.10);
 
   /* Cards (owner correction 7): brand-dark 1 px border and a layered, raised shadow. */
   --card-border: #0f1720;
@@ -103,6 +133,15 @@
   --scrim: rgba(0, 0, 0, 0.6);
   --data-water: #5aa2ff;
   --data-sleep: #a48cf0;
+  --data-heart: #ff6b7a;
+  --text-water: #7fb6ff;
+  --text-sleep: #b9a5f5;
+  --text-heart: #ff8a96;
+  --text-calories: #ffa95e;
+  --island: #0b0f0d;
+  --mesh-1: rgba(31, 164, 91, 0.20);
+  --mesh-2: rgba(79, 211, 140, 0.10);
+  --mesh-3: rgba(47, 128, 237, 0.08);
   --card-border: #2e3d31;
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 16px rgba(0, 0, 0, 0.32), 0 14px 32px rgba(0, 0, 0, 0.28);
   --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.34), 0 10px 24px rgba(0, 0, 0, 0.4), 0 22px 44px rgba(0, 0, 0, 0.34);
@@ -144,6 +183,18 @@
   --color-card-border: var(--card-border);
   --color-glass: var(--glass);
   --color-glass-border: var(--glass-border);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-steps: var(--data-steps);
+  --color-calories: var(--data-calories);
+  --color-heart: var(--data-heart);
+  --color-water-text: var(--text-water);
+  --color-sleep-text: var(--text-sleep);
+  --color-heart-text: var(--text-heart);
+  --color-calories-text: var(--text-calories);
+  --color-island: var(--island);
+  --color-island-ink: var(--island-ink);
+  --color-island-muted: var(--island-muted);
   --color-water: var(--data-water);
   --color-sleep: var(--data-sleep);
   --color-protein: var(--data-protein);

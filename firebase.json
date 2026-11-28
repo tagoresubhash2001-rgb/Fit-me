@@ -119,7 +119,7 @@
         ]
       },
       {
-        "source": "/@(food|planner|health|workouts|store|settings|plans)",
+        "source": "/@(app|admin)",
         "headers": [
           {
             "key": "X-Robots-Tag",
@@ -128,7 +128,7 @@
         ]
       },
       {
-        "source": "/@(food|planner|health|workouts|store|settings|plans)/**",
+        "source": "/@(app|admin)/**",
         "headers": [
           {
             "key": "X-Robots-Tag",
@@ -137,7 +137,59 @@
         ]
       }
     ],
-    "trailingSlash": false
+    "trailingSlash": false,
+    "redirects": [
+      {
+        "source": "/food",
+        "destination": "/app/food",
+        "type": 301
+      },
+      {
+        "source": "/planner",
+        "destination": "/app/planner",
+        "type": 301
+      },
+      {
+        "source": "/health",
+        "destination": "/app/health",
+        "type": 301
+      },
+      {
+        "source": "/workouts",
+        "destination": "/app/workouts",
+        "type": 301
+      },
+      {
+        "source": "/store",
+        "destination": "/app/store",
+        "type": 301
+      },
+      {
+        "source": "/settings",
+        "destination": "/app/settings",
+        "type": 301
+      },
+      {
+        "source": "/plans",
+        "destination": "/app/plans",
+        "type": 301
+      },
+      {
+        "source": "/stories",
+        "destination": "/app/stories",
+        "type": 301
+      },
+      {
+        "source": "/help",
+        "destination": "/app/help",
+        "type": 301
+      },
+      {
+        "source": "/health/:tab",
+        "destination": "/app/health/:tab",
+        "type": 301
+      }
+    ]
   },
   "emulators": {
     "auth": {

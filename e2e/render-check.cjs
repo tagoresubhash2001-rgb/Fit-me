@@ -1,6 +1,6 @@
 /**
- * Release gate: the site must render the sign-in screen in a real browser with no page errors and no
- * CSP violations, and register its service worker. Used before and after every Hosting deploy.
+ * Release gate: the website home page (/) and the web app sign-in screen (/app/) must render in a real browser
+ * with no page errors and no CSP violations, and the service worker must register. Used before and after every Hosting deploy.
  * Usage: node e2e/render-check.cjs <url>
  */
 const { chromium } = require('playwright');
@@ -17,7 +17,15 @@ const url = process.argv[2];
     const page = await browser.newPage({ viewport });
     page.on('pageerror', (e) => problems.push(`${name}: page error: ${e.message}`));
     page.on('console', (m) => /Content Security Policy|Refused to/i.test(m.text()) && problems.push(`${name}: ${m.text().slice(0, 200)}`));
-    await page.goto(url, { waitUntil: 'load' });
+    const base = url.replace(/\/$/, '');
+    await page.goto(`${base}/`, { waitUntil: 'load' });
+    await page
+      .locator('main h1')
+      .first()
+      .waitFor({ timeout: 30000 })
+      .catch(() => problems.push(`${name}: website home did not render`));
+    if ((await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)) > 1) problems.push(`${name}: horizontal scroll on /`);
+    await page.goto(`${base}/app/`, { waitUntil: 'load' });
     await page
       .getByRole('button', { name: 'Continue with email' })
       .waitFor({ timeout: 30000 })
