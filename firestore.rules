@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// FIT ME AI Firestore Security Rules (PRD section 13).
+// FitMe Firestore Security Rules (PRD section 13).
 // - Users read and write only their own data under users/{uid}.
 // - entitlements, foods, exercises, appConfig and other global data are server-write only
 //   (Cloud Functions use the Admin SDK, which bypasses these rules).
@@ -230,43 +230,64 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Android APK and app configuration: public read, staff write
+    // ---------------------------------------------------------------- Public website collections
+    // Release info for the download page and the in-app updater (app_config/android, app_config/ios):
+    // anyone may read; only a super admin or admin may change it (Admin -> Releases).
     match /app_config/{docId} {
-      allow read: if true;
-      allow write: if staffRole();
+      allow read: if docId in ['android', 'ios'];
+      allow write: if roleIn(['superAdmin', 'admin']) && docId in ['android', 'ios'];
     }
 
-    // iOS waitlist: public create only, staff read/write
+    function emailOk(e) {
+      return e is string && e.size() > 5 && e.size() < 254 && e.matches('[^@\\s]+@[^@\\s]+[.][^@\\s]+');
+    }
+    function textOk(v, min, max) {
+      return v is string && v.size() >= min && v.size() <= max;
+    }
+
+    // iOS waitlist (older download page): public create only, with a fixed shape; staff read and export.
     match /ios_waitlist/{id} {
-      allow create: if request.resource.data.email is string
-        && request.resource.data.email.size() > 3
-        && request.resource.data.email.size() < 254;
-      allow read, update, delete: if staffRole();
+      allow create: if request.resource.data.keys().hasOnly(['email', 'createdAt', 'source', 'device'])
+        && emailOk(request.resource.data.email)
+        && request.resource.data.createdAt == request.time
+        && (!('source' in request.resource.data) || textOk(request.resource.data.source, 1, 40))
+        && (!('device' in request.resource.data) || textOk(request.resource.data.device, 0, 400));
+      allow read, delete: if staffRole();
+      allow update: if false;
     }
 
-    // Public contact messages: public create only, staff read/write
+    // Website contact form: public create only, fixed shape and sizes; support staff read and update the status.
     match /contact_messages/{id} {
-      allow create: if request.resource.data.email is string
-        && request.resource.data.email.size() > 3
-        && request.resource.data.email.size() < 254
-        && request.resource.data.message is string
-        && request.resource.data.message.size() > 0
-        && request.resource.data.message.size() < 5000;
-      allow read, update, delete: if staffRole();
+      allow create: if request.resource.data.keys().hasOnly(['name', 'email', 'subject', 'message', 'createdAt', 'status', 'source', 'locale'])
+        && textOk(request.resource.data.name, 1, 120)
+        && emailOk(request.resource.data.email)
+        && textOk(request.resource.data.subject, 0, 160)
+        && textOk(request.resource.data.message, 10, 5000)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.status == 'new'
+        && request.resource.data.source == 'website'
+        && textOk(request.resource.data.locale, 2, 12);
+      allow read: if roleIn(['superAdmin', 'admin', 'support', 'moderator']);
+      allow update: if roleIn(['superAdmin', 'admin', 'support', 'moderator'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'handledBy', 'handledAt']);
+      allow delete: if roleIn(['superAdmin', 'admin']);
     }
 
-    // Public account deletion requests: public create only, staff read/write
+    // Account deletion requests from the public /delete-account page (Google Play requirement).
     match /deletion_requests/{id} {
-      allow create: if request.resource.data.email is string
-        && request.resource.data.email.size() > 3
-        && request.resource.data.email.size() < 254;
-      allow read, update, delete: if staffRole();
+      allow create: if request.resource.data.keys().hasOnly(['email', 'reason', 'requestedAt', 'status'])
+        && emailOk(request.resource.data.email)
+        && textOk(request.resource.data.reason, 0, 1000)
+        && request.resource.data.requestedAt == request.time
+        && request.resource.data.status == 'pending';
+      allow read, update: if roleIn(['superAdmin', 'admin', 'support', 'moderator']);
+      allow delete: if false;
     }
 
-    // Download tracking: public create only, staff read
+    // Download counts are written by the server only.
     match /app_downloads/{id} {
-      allow create: if true;
       allow read: if staffRole();
+      allow write: if false;
     }
 
     // Everything else is denied (trialRegistry, billing, usage, payments, aiUsage ...).

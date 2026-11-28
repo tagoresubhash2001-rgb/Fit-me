@@ -10,7 +10,7 @@ import { isEmulator } from '../lib/admin';
  */
 const cache = new Map<string, { value: string; at: number }>();
 
-export async function webhookSecret(name: 'REVENUECAT_WEBHOOK_AUTH' | 'CASHFREE_CLIENT_SECRET' | 'OPEN_WEARABLES_API_KEY'): Promise<string> {
+export async function webhookSecret(name: 'REVENUECAT_WEBHOOK_AUTH' | 'CASHFREE_CLIENT_SECRET' | 'CASHFREE_APP_ID' | 'CASHFREE_ENV' | 'OPEN_WEARABLES_API_KEY'): Promise<string> {
   if (isEmulator()) return process.env[name] ?? '';
   const hit = cache.get(name);
   if (hit && Date.now() - hit.at < 5 * 60 * 1000) return hit.value;

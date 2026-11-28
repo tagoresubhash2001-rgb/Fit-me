@@ -1,3 +1,6 @@
+import { allowedApkUrl, storageMediaUrl } from '../src/releases/download';
+import { makeOrderId, orderPaidFor } from '../src/billing/cashfree';
+import { safeReturnUrl } from '../src/billing/subscription';
 import { describe, expect, it } from 'vitest';
 import { createHmac } from 'crypto';
 import { cashfreeSignatureValid, cashfreeUid, fromCashfree, fromRevenueCat, parseProductId, revenueCatAuthorized } from '../src/billing/mappers';
@@ -77,5 +80,40 @@ describe('server plan check honours entitlement states', () => {
     expect(effectivePlan({ plan: 'pro', status: 'expired', expiresAt: T + DAY }, T)).toBe('free');
     expect(effectivePlan({ plan: 'pro', status: 'cancelled', expiresAt: T + DAY }, T)).toBe('pro');
     expect(effectivePlan({ plan: 'pro', status: 'cancelled', expiresAt: T - 1 }, T)).toBe('free');
+  });
+});
+
+describe('Cashfree orders (server-verified)', () => {
+  const ok = { order_status: 'PAID', order_amount: 199, order_currency: 'INR', customer_details: { customer_id: 'u1' }, order_tags: { uid: 'u1' } };
+  const expect1 = { uid: 'u1', amount: 199, currency: 'INR' };
+  it('accepts only a PAID order for the same user, amount and currency', () => {
+    expect(orderPaidFor(ok, expect1)).toBe(true);
+    expect(orderPaidFor({ ...ok, order_status: 'ACTIVE' }, expect1)).toBe(false);
+    expect(orderPaidFor({ ...ok, order_amount: 1 }, expect1)).toBe(false);
+    expect(orderPaidFor({ ...ok, order_currency: 'USD' }, expect1)).toBe(false);
+    expect(orderPaidFor({ ...ok, customer_details: { customer_id: 'u2' } }, expect1)).toBe(false);
+    expect(orderPaidFor({ ...ok, order_tags: { uid: 'u2' } }, expect1)).toBe(false);
+    expect(orderPaidFor({}, expect1)).toBe(false);
+  });
+  it('makes valid order ids', () => {
+    const id = makeOrderId('abc/DEF.123', 'premium', 'monthly', 1_700_000_000_000);
+    expect(id).toMatch(/^[A-Za-z0-9_-]{3,45}$/);
+    expect(id.startsWith('fm_pm_')).toBe(true);
+  });
+  it('only returns to this site or the app', () => {
+    expect(safeReturnUrl('https://fit-me1.web.app/app/plans?x=1')).toBe('https://fit-me1.web.app/app/plans?x=1');
+    expect(safeReturnUrl('https://evil.example/steal')).toBe('https://fit-me1.web.app/app/plans');
+    expect(safeReturnUrl(null)).toBe('https://fit-me1.web.app/app/plans');
+    expect(safeReturnUrl('not a url')).toBe('https://fit-me1.web.app/app/plans');
+  });
+});
+
+describe('Android download redirect', () => {
+  it('serves only https URLs on the allowed hosts', () => {
+    expect(allowedApkUrl('https://firebasestorage.googleapis.com/v0/b/x/o/releases%2FFitMe-v3.apk?alt=media')).toContain('firebasestorage');
+    expect(allowedApkUrl('http://firebasestorage.googleapis.com/x.apk')).toBeNull();
+    expect(allowedApkUrl('https://evil.example/x.apk')).toBeNull();
+    expect(allowedApkUrl(undefined)).toBeNull();
+    expect(storageMediaUrl('b', 'releases/FitMe-v3.apk')).toBe('https://firebasestorage.googleapis.com/v0/b/b/o/releases%2FFitMe-v3.apk?alt=media');
   });
 });

@@ -347,7 +347,7 @@ export function FeaturesPage() {
                       isReversed ? 'lg:order-1' : 'lg:order-2'
                     }`}
                   >
-                    <div className="w-[260px] sm:w-[280px] rounded-[40px] border-[8px] border-slate-900 bg-slate-900 shadow-2xl overflow-hidden aspect-[9/19.5]">
+                    <div className="w-65 sm:w-70 rounded-[40px] border-[8px] border-slate-900 bg-slate-900 shadow-2xl overflow-hidden aspect-[9/19.5]">
                       <img
                         src={feat.screenshot}
                         alt={`${feat.title} interface screenshot`}

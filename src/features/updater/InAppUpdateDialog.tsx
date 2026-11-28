@@ -3,7 +3,7 @@ import { registerPlugin } from '@capacitor/core';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { isNative, platform } from '../../lib/platform';
-import { RefreshCw, AlertCircle, Download, CheckCircle2, ShieldCheck, ExternalLink, X, Loader2 } from 'lucide-react';
+import { RefreshCw, AlertCircle, Download, ExternalLink, X, Loader2 } from 'lucide-react';
 
 interface AndroidConfig {
   latestVersionName: string;
@@ -25,7 +25,6 @@ const Native = registerPlugin<FitMeStepsPlugin>('FitMeSteps');
 
 // Current App build info
 const CURRENT_VERSION_CODE = 201; // Matches android/app/build.gradle versionCode
-const CURRENT_VERSION_NAME = '2.0.1';
 
 export function InAppUpdateDialog() {
   const [config, setConfig] = useState<AndroidConfig | null>(null);

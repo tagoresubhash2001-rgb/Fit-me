@@ -3,7 +3,8 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { z } from 'zod';
 import { callableOptions, requireAuth } from '../lib/callable';
 import { db, isEmulator } from '../lib/admin';
-import { PAID_PLANS, PERIODS, hasAccess, trialEligible, type BillingEvent } from './billing';
+import { PAID_PLANS, PERIODS, hasAccess, marketFor, quote, trialEligible, type BillingEvent } from './billing';
+import { cashfreeCreds, createOrder, fetchOrder, makeOrderId, orderPaidFor } from './cashfree';
 import { applyBillingEvent, loadBillingMode, loadPricing, readEntitlement, trialUsedAt } from './store';
 import { ensureAccess } from '../account/access';
 
@@ -96,75 +97,92 @@ export const manageSubscription = onCall(callableOptions(), async (req) => {
 const CashfreeCheckoutInput = z.object({
   plan: z.enum(PAID_PLANS),
   period: z.enum(PERIODS),
-  returnUrl: z.string().optional(),
+  returnUrl: z.string().max(500).nullish(),
 });
 
-/** Creates a Cashfree checkout session for sideloaded Android APK and web purchases. */
+/** Where Cashfree may send the user back to: this site (any path) or the app's own scheme. */
+const RETURN_ORIGINS = ['https://fit-me1.web.app', 'https://fit-me1.firebaseapp.com', 'http://localhost:5173', 'capacitor://localhost', 'https://localhost'];
+export function safeReturnUrl(url: string | null | undefined): string {
+  const fallback = 'https://fit-me1.web.app/app/plans';
+  if (!url) return fallback;
+  try {
+    const u = new URL(url);
+    return RETURN_ORIGINS.includes(u.origin) ? u.toString() : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * Starts a Cashfree checkout (web app and the direct-download Android APK). The amount comes from the server price
+ * list for the user's market; the client only picks plan and period. The pending order is kept server-side in
+ * billingOrders/{orderId} (no client access) so verification never trusts the client.
+ */
 export const createCashfreeCheckout = onCall(callableOptions(), async (req) => {
   const uid = await requireAuth(req);
   const parsed = CashfreeCheckoutInput.safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
-  const { plan, period, returnUrl } = parsed.data;
+  const { plan, period } = parsed.data;
+  if ((await loadBillingMode()) === 'interest') throw new HttpsError('failed-precondition', 'payments_not_live');
+  const creds = await cashfreeCreds();
+  if (!creds) throw new HttpsError('failed-precondition', 'payments_not_configured');
 
-  await db().doc(`users/${uid}`).get();
-  const orderId = `cf_${uid}_${Date.now()}`;
-  const amount = plan === 'premium' ? (period === 'yearly' ? 1999 : period === 'quarterly' ? 399 : 199) : (period === 'yearly' ? 3999 : period === 'quarterly' ? 799 : 399);
+  const profile = (await db().doc(`users/${uid}`).get()).data() ?? {};
+  const pricing = await loadPricing();
+  const market = marketFor(pricing, String(profile.country ?? 'IN'), String(profile.currency ?? 'INR'));
+  const q = market ? quote(pricing, market, plan, period, Date.now()) : null;
+  if (!q || q.currency !== 'INR') throw new HttpsError('failed-precondition', 'cashfree_inr_only');
 
-  return {
+  const orderId = makeOrderId(uid, plan, period, Date.now());
+  const order = await createOrder(creds, {
     orderId,
-    amount,
-    currency: 'INR',
+    uid,
+    amount: q.total,
+    currency: q.currency,
     plan,
     period,
-    paymentUrl: returnUrl || `https://fit-me1.web.app/plans?cashfree_order=${orderId}`,
-    status: 'created' as const,
-  };
+    email: req.auth?.token.email ?? null,
+    phone: (req.auth?.token.phone_number as string | undefined)?.replace(/^\+91/, '') ?? null,
+    returnUrl: safeReturnUrl(parsed.data.returnUrl),
+  }).catch(() => {
+    throw new HttpsError('unavailable', 'cashfree_unavailable');
+  });
+  await db()
+    .doc(`billingOrders/${orderId}`)
+    .set({ id: orderId, uid, plan, period, amount: q.total, currency: q.currency, provider: 'cashfree', status: 'created', createdAt: FieldValue.serverTimestamp() });
+  return { orderId, amount: q.total, currency: q.currency, paymentSessionId: order.payment_session_id ?? null, environment: creds.base.includes('sandbox') ? 'sandbox' : 'production' };
 });
 
-const VerifyCashfreeInput = z.object({
-  orderId: z.string(),
-  plan: z.enum(PAID_PLANS),
-  period: z.enum(PERIODS),
-});
+const VerifyCashfreeInput = z.object({ orderId: z.string().min(3).max(64) });
 
-/** Server-side verification for Cashfree payment transactions. */
+/**
+ * Confirms a Cashfree order after checkout. The plan is granted only when Cashfree reports the order PAID for this
+ * user at the server price recorded when the order was created. Safe to call twice (idempotent per order).
+ */
 export const verifyCashfreePayment = onCall(callableOptions(), async (req) => {
   const uid = await requireAuth(req);
   const parsed = VerifyCashfreeInput.safeParse(req.data);
   if (!parsed.success) throw new HttpsError('invalid-argument', 'bad_request');
-  const { orderId, plan, period } = parsed.data;
-
+  const ref = db().doc(`billingOrders/${parsed.data.orderId}`);
+  const pending = (await ref.get()).data();
+  if (!pending || pending.uid !== uid) throw new HttpsError('not-found', 'order_not_found');
+  if (pending.status === 'paid') return { verified: true };
+  const creds = await cashfreeCreds();
+  if (!creds) throw new HttpsError('failed-precondition', 'payments_not_configured');
+  const order = await fetchOrder(creds, parsed.data.orderId).catch(() => {
+    throw new HttpsError('unavailable', 'cashfree_unavailable');
+  });
+  if (!order || !orderPaidFor(order, { uid, amount: Number(pending.amount), currency: String(pending.currency) })) {
+    return { verified: false, status: order?.order_status ?? 'UNKNOWN' };
+  }
   const at = Date.now();
-  const periodEndsAt = addPeriod(at, period);
-  const ent = await applyBillingEvent(
-    uid,
-    {
-      type: 'purchased',
-      plan,
-      period,
-      at,
-      periodEndsAt,
-      source: 'cashfree',
-    },
-    `cf_${orderId}`
-  );
-
-  await db().doc(`payments/cf_${orderId}`).set(
-    {
-      id: `cf_${orderId}`,
-      uid,
-      provider: 'cashfree',
-      plan,
-      period,
-      amount: plan === 'premium' ? 199 : 399,
-      currency: 'INR',
-      status: 'paid',
-      verified: true,
-      sandbox: true,
-      createdAt: FieldValue.serverTimestamp(),
-    },
-    { merge: true }
-  );
-
-  return { verified: true, entitlement: ent };
+  const ent = await applyBillingEvent(uid, { type: 'purchased', plan: pending.plan, period: pending.period, at, periodEndsAt: addPeriod(at, pending.period), source: 'cashfree' }, `cf_order_${parsed.data.orderId}`);
+  await ref.set({ status: 'paid', paidAt: FieldValue.serverTimestamp() }, { merge: true });
+  await db()
+    .doc(`payments/cf_${parsed.data.orderId}`)
+    .set(
+      { id: `cf_${parsed.data.orderId}`, uid, provider: 'cashfree', plan: pending.plan, period: pending.period, amount: pending.amount, currency: pending.currency, status: 'paid', verified: true, sandbox: creds.base.includes('sandbox'), createdAt: FieldValue.serverTimestamp() },
+      { merge: true }
+    );
+  return { verified: true, status: ent?.status ?? 'active' };
 });

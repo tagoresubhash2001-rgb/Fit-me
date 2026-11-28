@@ -34,3 +34,4 @@ export {
 export { adminAction } from './admin/control';
 export { memberAction } from './member/member';
 export { wearablesStatus, wearablesConnect, wearablesDisconnect, wearablesSync } from './wearables/openWearables';
+export { androidDownload } from './releases/download';

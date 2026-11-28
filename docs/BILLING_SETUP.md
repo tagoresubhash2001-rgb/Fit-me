@@ -114,3 +114,15 @@ mail provider (for example the Firebase "Trigger Email" extension): pending.
 - End to end: `e2e/devices-flow.cjs` on six devices (Plans → period → trial summary → trial → Pro unlocked
   → cancel → still active).
 - Seed: `node functions/lib/scripts/seed-billing.js --project fit-me1` creates the config only if missing.
+
+## Cashfree orders for the web app and the direct-download APK
+
+Google Play Billing does not work in an APK installed outside the Play Store, so the web app and the direct APK pay
+through Cashfree orders (`createCashfreeCheckout` → Cashfree checkout → `verifyCashfreePayment`).
+
+- The price always comes from `appConfig/pricing` on the server (INR market only); the client only picks the plan and period.
+- A plan is granted only when Cashfree reports the order `PAID` for the same user, amount and currency.
+- Nothing works until `appConfig/billing.mode` is `test` or `live` **and** these Secret Manager secrets exist:
+  - `CASHFREE_APP_ID`: the Cashfree App ID (client id).
+  - `CASHFREE_CLIENT_SECRET`: the Cashfree secret key (also used to check webhook signatures).
+  - `CASHFREE_ENV`: `sandbox` (default) or `production`.

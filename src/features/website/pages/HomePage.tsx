@@ -83,7 +83,7 @@ export function HomePage() {
       <section className="relative pt-8 pb-20 lg:pt-14 lg:pb-32 overflow-hidden">
         {/* Soft brand green background gradient */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[520px] pointer-events-none opacity-40 dark:opacity-20">
-          <div className="w-[600px] h-[450px] mx-auto rounded-full bg-gradient-to-tr from-[#1FA45B]/25 to-emerald-200/30 blur-[120px]" />
+          <div className="w-150 h-[450px] mx-auto rounded-full bg-gradient-to-tr from-[#1FA45B]/25 to-emerald-200/30 blur-[120px]" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -157,7 +157,7 @@ export function HomePage() {
 
             {/* Right Phone Mockup Column */}
             <div className="lg:col-span-5 flex justify-center">
-              <div className="relative w-full max-w-[320px] sm:max-w-[340px]">
+              <div className="relative w-full max-w-80 sm:max-w-85">
                 {/* Glow ring */}
                 <div className="absolute inset-0 bg-[#1FA45B]/20 rounded-[50px] blur-2xl transform scale-105" />
 
@@ -351,7 +351,7 @@ export function HomePage() {
           {/* Active Screenshot Display */}
           <div className="mt-8 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-center p-6 sm:p-10 rounded-3xl bg-white dark:bg-[#171D18] border border-slate-200/80 dark:border-white/10 shadow-sm">
             <div className="md:col-span-5 flex justify-center">
-              <div className="w-[240px] sm:w-[260px] rounded-[36px] border-[8px] border-slate-900 bg-slate-900 shadow-xl overflow-hidden aspect-[9/19.5]">
+              <div className="w-60 sm:w-65 rounded-[36px] border-[8px] border-slate-900 bg-slate-900 shadow-xl overflow-hidden aspect-[9/19.5]">
                 <img
                   src={SCREENSHOTS[activeSlide].src}
                   alt={SCREENSHOTS[activeSlide].title}

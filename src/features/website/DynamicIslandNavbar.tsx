@@ -148,10 +148,10 @@ export function DynamicIslandNavbar() {
           }}
           className={`pointer-events-auto relative transition-all duration-300 ease-out ${
             showCompact
-              ? 'h-12 w-[340px] sm:w-[380px] rounded-full shadow-md bg-white/95 dark:bg-[#121714]/95 border border-[#1FA45B]/25'
+              ? 'h-12 w-85 sm:w-95 rounded-full shadow-md bg-white/95 dark:bg-[#121714]/95 border border-[#1FA45B]/25'
               : mobileMenuOpen
-              ? 'w-full max-w-[420px] rounded-[28px] shadow-2xl bg-white dark:bg-[#121714] border border-[#1FA45B]/30'
-              : 'h-14 max-w-[940px] w-full rounded-full shadow-lg shadow-black/5 bg-white/90 dark:bg-[#121714]/90 border border-slate-200/80 dark:border-white/10'
+              ? 'w-full max-w-105 rounded-[28px] shadow-2xl bg-white dark:bg-[#121714] border border-[#1FA45B]/30'
+              : 'h-14 max-w-235 w-full rounded-full shadow-lg shadow-black/5 bg-white/90 dark:bg-[#121714]/90 border border-slate-200/80 dark:border-white/10'
           } backdrop-blur-xl`}
         >
           {/* COMPACT ISLAND VIEW (Shown on scroll down or initial compact state) */}
@@ -253,7 +253,7 @@ export function DynamicIslandNavbar() {
                         {featuresOpen && (
                           <div
                             ref={featuresDropdownRef}
-                            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[460px] p-3 rounded-2xl bg-white/95 dark:bg-[#121714]/95 shadow-xl shadow-black/10 border border-slate-200/90 dark:border-white/10 backdrop-blur-2xl grid grid-cols-2 gap-1.5 transition-all animate-in fade-in zoom-in-95 duration-150 z-50"
+                            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-115 p-3 rounded-2xl bg-white/95 dark:bg-[#121714]/95 shadow-xl shadow-black/10 border border-slate-200/90 dark:border-white/10 backdrop-blur-2xl grid grid-cols-2 gap-1.5 transition-all animate-in fade-in zoom-in-95 duration-150 z-50"
                           >
                             <div className="col-span-2 px-2 py-1 text-[11px] font-semibold text-[#1FA45B] uppercase tracking-wider border-b border-slate-100 dark:border-white/5 mb-1 flex items-center justify-between">
                               <span>FitMe Health Capabilities</span>

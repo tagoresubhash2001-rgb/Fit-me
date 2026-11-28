@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { registerPlugin } from '@capacitor/core';
 import { isNative, platform } from '../../lib/platform';
-import { BatteryCharging, ExternalLink, X, ShieldAlert, Check } from 'lucide-react';
+import { BatteryCharging, ExternalLink, X } from 'lucide-react';
 
 interface DeviceDetails {
   manufacturer: string;

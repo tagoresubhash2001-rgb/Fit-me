@@ -43,9 +43,9 @@ export function ContactPage() {
         subject: subject.trim(),
         message: message.trim(),
         createdAt: serverTimestamp(),
-        status: 'unread',
-        origin: 'website_contact_form',
-        userAgent: navigator.userAgent || 'unknown',
+        status: 'new',
+        source: 'website',
+        locale: (navigator.language || 'en').slice(0, 12),
       });
 
       setStatus('success');

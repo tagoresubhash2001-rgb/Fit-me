@@ -1,7 +1,7 @@
 name: Deploy to Firebase
 
 # How deployments work (details: docs/DEPLOY.md)
-# - Push to `main`                 -> deploy to dev (Firebase project fit-me1).
+# - Push to `ccr-e653337b-g4rwtg` (default branch) or `main` -> deploy to dev (Firebase project fit-me1).
 #   Hosting deploys in its own job, so the website goes live even if a backend job fails.
 #   Backend order: Firestore rules + indexes -> Storage rules -> Cloud Functions, then smoke tests.
 # - Pull request into `main`       -> temporary Hosting preview on fit-me1 (expires after 7 days),
@@ -16,9 +16,10 @@ name: Deploy to Firebase
 
 on:
   push:
-    branches: [main]
+    # ccr-e653337b-g4rwtg is the repository's default branch; main is kept for older pull requests.
+    branches: [main, ccr-e653337b-g4rwtg]
   pull_request:
-    branches: [main]
+    branches: [main, ccr-e653337b-g4rwtg]
   workflow_dispatch:
     inputs:
       target:
@@ -182,6 +183,26 @@ jobs:
             if (old) await github.rest.issues.updateComment({ ...context.repo, comment_id: old.id, body });
             else await github.rest.issues.createComment({ ...context.repo, issue_number: context.issue.number, body });
 
+      # The APK is no longer kept in git (public/downloads/*.apk is ignored). New releases are uploaded from
+      # Admin -> Releases to Storage releases/. This one-time step moves the last APK that was committed
+      # (it is still in git history) to Storage if releases/ has none yet, so /download/android keeps working.
+      - name: Make sure an APK is in Storage releases/
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        env:
+          BUCKET: ${{ vars.VITE_FIREBASE_STORAGE_BUCKET || 'fit-me1.firebasestorage.app' }}
+        run: |
+          if gcloud storage ls "gs://$BUCKET/releases/*.apk" >/dev/null 2>&1; then echo "Storage already has an APK."; exit 0; fi
+          git fetch --quiet --unshallow origin || true
+          commit=$(git log --all --format=%H --diff-filter=A -- 'public/downloads/*.apk' | head -1)
+          path=$(git show --name-only --format= "$commit" -- 'public/downloads/*.apk' | head -1)
+          [ -n "$path" ] || { echo "::warning::No APK in Storage and none in git history; upload one in Admin -> Releases."; exit 0; }
+          name=$(basename "$path")
+          git show "$commit:$path" > "$name"
+          gcloud storage cp "$name" "gs://$BUCKET/releases/$name" \
+            --content-type=application/vnd.android.package-archive \
+            --content-disposition="attachment; filename=\"$name\"" --cache-control="public, max-age=86400"
+          echo "Uploaded $name to releases/."
       - name: Deploy Hosting (live)
         if: github.event_name != 'pull_request'
         run: npx firebase deploy --only hosting --project "$FIREBASE_PROJECT" --non-interactive --message "GitHub ${GITHUB_SHA::7}"

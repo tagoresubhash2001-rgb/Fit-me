@@ -60,12 +60,33 @@ for (const m of text.matchAll(/import\s*\{([^}]+)\}\s*from\s*['"](\.[^'"]+)['"]/
   }
 
 const changedAbs = new Set(changed.filter((c) => c.startsWith('functions/src/')).map((c) => join(root, c)));
-// index.ts itself changed: functions added, removed or renamed; deploy all to be safe.
-if (changedAbs.has(index)) {
-  console.log('ALL');
-  process.exit(0);
-}
 const out = [];
+// index.ts changed: deploy functions that are new (or re-pointed) compared with BASE; without BASE deploy all.
+if (changedAbs.has(index)) {
+  let before = null;
+  try {
+    if (process.env.BASE) before = execFileSync('git', ['show', `${process.env.BASE}:functions/src/index.ts`], { cwd: root, encoding: 'utf8' });
+  } catch {
+    before = null;
+  }
+  if (before === null) {
+    console.log('ALL');
+    process.exit(0);
+  }
+  const prev = new Map();
+  for (const m of before.matchAll(/export\s*\{([^}]+)\}\s*from\s*['"](\.[^'"]+)['"]/g)) for (const n of m[1].split(',')) prev.set(n.trim().split(/\s+as\s+/).pop(), m[2]);
+  for (const m of before.matchAll(/import\s*\{([^}]+)\}\s*from\s*['"](\.[^'"]+)['"]/g)) for (const n of m[1].split(',')) prev.set(n.trim(), m[2]);
+  const nowSpec = new Map();
+  for (const m of text.matchAll(/export\s*\{([^}]+)\}\s*from\s*['"](\.[^'"]+)['"]/g)) for (const n of m[1].split(',')) nowSpec.set(n.trim().split(/\s+as\s+/).pop(), m[2]);
+  for (const m of text.matchAll(/import\s*\{([^}]+)\}\s*from\s*['"](\.[^'"]+)['"]/g)) for (const n of m[1].split(',')) nowSpec.set(n.trim(), m[2]);
+  for (const name of owners.keys()) if (prev.get(name) !== nowSpec.get(name)) out.push(name);
+  // Other edits to index.ts (options, conditions) affect every function.
+  const strip = (t) => t.replace(/export\s*\{[^}]+\}\s*from\s*['"][^'"]+['"];?/g, '').replace(/import\s*\{[^}]+\}\s*from\s*['"][^'"]+['"];?/g, '').replace(/\s+/g, '');
+  if (strip(before) !== strip(text)) {
+    console.log('ALL');
+    process.exit(0);
+  }
+}
 for (const [name, file] of owners) if (file && [...closure(file)].some((f) => changedAbs.has(f))) out.push(name);
-console.log(out.sort().join(' '));
+console.log([...new Set(out)].sort().join(' '));
 if (process.env.DEBUG) for (const [n, f] of owners) console.error(n, relative(root, f ?? '?'));

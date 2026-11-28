@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
 import { assertFails, assertSucceeds, initializeTestEnvironment, type RulesTestEnvironment } from '@firebase/rules-unit-testing';
-import { doc, getDoc, setDoc, updateDoc, deleteDoc, Timestamp, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, Timestamp, collection, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 
 let env: RulesTestEnvironment;
 
@@ -347,5 +347,50 @@ describe('v4 admin and member collections', () => {
     await assertSucceeds(getDoc(doc(anon, 'appConfig/strings')));
     await assertFails(getDoc(doc(anon, 'appConfig/billing')));
     await assertFails(setDoc(doc(staffCtx('sa', 'superAdmin'), 'pages/faq-1'), { published: false }));
+  });
+});
+
+describe('public website collections', () => {
+  const msg = (extra: Record<string, unknown> = {}) => ({
+    name: 'Asha',
+    email: 'asha@example.com',
+    subject: 'Hello',
+    message: 'A question about the app.',
+    createdAt: serverTimestamp(),
+    status: 'new',
+    source: 'website',
+    locale: 'en-IN',
+    ...extra,
+  });
+  it('contact_messages: anyone can send a well-formed message, nobody else can read it', async () => {
+    await assertSucceeds(setDoc(doc(anon(), 'contact_messages/m1'), msg()));
+    await assertFails(setDoc(doc(anon(), 'contact_messages/m2'), msg({ email: 'not-an-email' })));
+    await assertFails(setDoc(doc(anon(), 'contact_messages/m3'), msg({ message: 'short' })));
+    await assertFails(setDoc(doc(anon(), 'contact_messages/m4'), msg({ status: 'handled' })));
+    await assertFails(setDoc(doc(anon(), 'contact_messages/m5'), msg({ admin: true })));
+    await assertFails(getDoc(doc(anon(), 'contact_messages/m1')));
+    await assertFails(getDoc(doc(alice(), 'contact_messages/m1')));
+    await assertSucceeds(getDoc(doc(staffCtx('s1', 'support'), 'contact_messages/m1')));
+    await assertFails(updateDoc(doc(anon(), 'contact_messages/m1'), { status: 'spam' }));
+  });
+  it('app_config: release info is public, only super admin and admin change it', async () => {
+    await seed('app_config/android', { latestVersionName: '2.0.1' });
+    await assertSucceeds(getDoc(doc(anon(), 'app_config/android')));
+    await assertSucceeds(getDoc(doc(anon(), 'app_config/ios')));
+    await assertFails(getDoc(doc(anon(), 'app_config/secret')));
+    await assertFails(setDoc(doc(alice(), 'app_config/android'), { apkUrl: 'https://evil.example/x.apk' }));
+    await assertFails(setDoc(doc(staffCtx('c1', 'content'), 'app_config/android'), { apkUrl: 'x' }));
+    await assertSucceeds(setDoc(doc(staffCtx('a1', 'admin'), 'app_config/ios'), { testflightUrl: 'https://testflight.apple.com/join/x' }));
+  });
+  it('ios_waitlist: public create only; staff read', async () => {
+    await assertSucceeds(setDoc(doc(anon(), 'ios_waitlist/w1'), { email: 'a@b.co', createdAt: serverTimestamp(), source: 'download_page' }));
+    await assertFails(setDoc(doc(anon(), 'ios_waitlist/w2'), { email: 'a@b.co', createdAt: serverTimestamp(), extra: 1 }));
+    await assertFails(getDoc(doc(anon(), 'ios_waitlist/w1')));
+    await assertSucceeds(getDoc(doc(staffCtx('s1', 'support'), 'ios_waitlist/w1')));
+  });
+  it('deletion_requests: public create only; app_downloads: server only', async () => {
+    await assertSucceeds(addDoc(collection(anon(), 'deletion_requests'), { email: 'a@b.co', reason: '', requestedAt: serverTimestamp(), status: 'pending' }));
+    await assertFails(addDoc(collection(anon(), 'deletion_requests'), { email: 'a@b.co', reason: '', requestedAt: serverTimestamp(), status: 'done' }));
+    await assertFails(addDoc(collection(anon(), 'app_downloads'), { at: 1 }));
   });
 });

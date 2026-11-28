@@ -26,7 +26,7 @@ const DEFAULT_ANDROID_CONFIG: AndroidConfig = {
 export function DownloadPage() {
   const [deviceType, setDeviceType] = useState<'android' | 'ios' | 'desktop'>('desktop');
   const [config, setConfig] = useState<AndroidConfig>(DEFAULT_ANDROID_CONFIG);
-  const [downloadStarted, setDownloadStarted] = useState(false);
+  
 
   // iOS Waitlist Form State
   const [waitlistEmail, setWaitlistEmail] = useState('');
@@ -68,7 +68,7 @@ export function DownloadPage() {
 
   // Handle direct download click
   const handleAndroidDownload = () => {
-    setDownloadStarted(true);
+
     window.location.href = '/download/android';
   };
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-time Google Cloud setup for FIT ME AI dev (fit-me1). Run by a project Owner in Cloud Shell:
+# One-time Google Cloud setup for FitMe dev (fit-me1). Run by a project Owner in Cloud Shell:
 #   https://console.cloud.google.com/cloudshell?project=fit-me1
 # Safe to re-run. It does not touch any data.
 set -u

@@ -76,13 +76,6 @@ export function FullScreenLoader() {
   );
 }
 
-function AndroidDownloadRedirect() {
-  useEffect(() => {
-    window.location.href = '/downloads/FitMe-v2.0.1.apk';
-  }, []);
-  return <FullScreenLoader />;
-}
-
 function Gate() {
   const { authReady, user, profileReady, profile } = useSession();
   const { pathname } = useLocation();
@@ -141,7 +134,6 @@ function Gate() {
           <Route path="refund" element={<RefundPage />} />
           <Route path="delete-account" element={<DeleteAccountPage />} />
           <Route path="p/:slug" element={<PageView />} />
-          <Route path="download/android" element={<AndroidDownloadRedirect />} />
 
           {/* Legacy customer web routes redirect to /download with banner */}
           <Route path="food" element={<Navigate to="/download?redirect=mobile_only" replace />} />
