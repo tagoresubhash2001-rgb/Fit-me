@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { collection, getDocs, limit, orderBy, query } from 'firebase/firestore';
 import { Quote } from 'lucide-react';
-import { db } from '../../lib/firebase';
+import { siteDb } from './data';
 import { Container, Reveal, SectionHeading } from './ui';
 
 interface Story {
@@ -18,9 +17,21 @@ interface Story {
 export function Stories() {
   const { t } = useTranslation();
   const [stories, setStories] = useState<Story[]>([]);
+  const probe = useRef<HTMLDivElement>(null);
+  const [near, setNear] = useState(false);
+  // Fetch only when the section is close to the screen, so the first paint loads no Firebase code.
   useEffect(() => {
+    const el = probe.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return setNear(true);
+    const io = new IntersectionObserver((e) => e.some((x) => x.isIntersecting) && setNear(true), { rootMargin: '600px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  useEffect(() => {
+    if (!near) return;
     let live = true;
-    getDocs(query(collection(db(), 'publicTestimonials'), orderBy('approvedAt', 'desc'), limit(6)))
+    siteDb()
+      .then(({ db, fs }) => fs.getDocs(fs.query(fs.collection(db, 'publicTestimonials'), fs.orderBy('approvedAt', 'desc'), fs.limit(6))))
       .then((snap) => {
         if (!live) return;
         setStories(
@@ -33,8 +44,8 @@ export function Stories() {
     return () => {
       live = false;
     };
-  }, []);
-  if (!stories.length) return null;
+  }, [near]);
+  if (!stories.length) return <div ref={probe} aria-hidden />;
   return (
     <section aria-labelledby="stories-title" className="py-16" id="stories">
       <Container>

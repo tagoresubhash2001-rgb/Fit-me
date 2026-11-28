@@ -1,6 +1,5 @@
 import { env } from './env';
 import { isNative } from './platform';
-import { firebase } from './firebase';
 
 /**
  * Error reporting. Web: Firebase Analytics `app_exception` events (loaded only when the first error happens,
@@ -16,6 +15,7 @@ function loader() {
     if (env.useEmulators || !env.firebase.measurementId) return null;
     const { getAnalytics, isSupported, logEvent } = await import('firebase/analytics');
     if (!(await isSupported())) return null;
+    const { firebase } = await import('./firebase');
     const analytics = getAnalytics(firebase().app);
     return (e: { description: string; fatal: boolean }) => logEvent(analytics, 'exception', { ...e, platform: isNative() ? 'native' : 'web' });
   })().catch(() => null);

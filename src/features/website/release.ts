@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
+import { siteDb } from './data';
 
 /** app_config/android (Admin -> Releases). Nothing is hard-coded: missing fields stay null. */
 export interface AndroidRelease {
@@ -65,7 +64,8 @@ function useConfig<T>(id: 'android' | 'ios', parse: (d: Record<string, unknown> 
   const [state, setState] = useState<State<T>>({ loading: true, value: null });
   useEffect(() => {
     let live = true;
-    getDoc(doc(db(), 'app_config', id))
+    siteDb()
+      .then(({ db, fs }) => fs.getDoc(fs.doc(db, 'app_config', id)))
       .then((s) => live && setState({ loading: false, value: parse(s.exists() ? s.data() : undefined) }))
       .catch(() => live && setState({ loading: false, value: parse(undefined) }));
     return () => {

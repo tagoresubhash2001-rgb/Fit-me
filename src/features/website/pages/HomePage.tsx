@@ -27,18 +27,13 @@ function Hero() {
             <Activity className="h-4 w-4 text-brand" strokeWidth={2} aria-hidden />
             {t('site.home.badge')}
           </m.p>
-          <m.h1
+          <h1
             id="hero-title"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...softSpring, delay: 0.05 }}
             className="text-balance text-[clamp(2.4rem,6vw,4.25rem)] leading-[1.04] font-extrabold tracking-tight text-ink"
           >
             {t('site.home.title')} <span className="bg-gradient-to-r from-brand to-brand-soft bg-clip-text text-transparent">{t('site.home.titleAccent')}</span>
-          </m.h1>
-          <m.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ ...softSpring, delay: 0.1 }} className="max-w-xl text-pretty text-lg text-muted">
-            {t('site.home.subtitle')}
-          </m.p>
+          </h1>
+          <p className="max-w-xl text-pretty text-lg text-muted">{t('site.home.subtitle')}</p>
           <m.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ ...softSpring, delay: 0.15 }} className="w-full sm:w-auto">
             <CtaGroup />
           </m.div>

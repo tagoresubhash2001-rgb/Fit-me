@@ -1,9 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { AlertCircle, CheckCircle2, Loader2, Mail, Send } from 'lucide-react';
-import { db } from '../../../lib/firebase';
-import { useAppSettings } from '../../../data/appConfig';
+import { siteDb } from '../data';
 import { WebsiteLayout } from '../WebsiteLayout';
 import { Container, Reveal } from '../ui';
 import { Field, emailValid, fieldCls } from '../form';
@@ -24,7 +22,17 @@ function recentSends(): number[] {
 /** Website contact form -> contact_messages (public create-only, read in Admin -> Support). */
 export function ContactPage() {
   const { t, i18n } = useTranslation();
-  const { supportEmail } = useAppSettings();
+  const [supportEmail, setSupportEmail] = useState<string | null>(null);
+  // Support email from Admin -> Settings (appConfig/app, public); shown only when set.
+  useEffect(() => {
+    void siteDb()
+      .then(({ db, fs }) => fs.getDoc(fs.doc(db, 'appConfig', 'app')))
+      .then((s) => {
+        const e = s.get('supportEmail');
+        if (typeof e === 'string' && e.includes('@')) setSupportEmail(e);
+      })
+      .catch(() => undefined);
+  }, []);
   const openedAt = useRef(Date.now());
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '', website: '' });
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
@@ -47,12 +55,13 @@ export function ContactPage() {
     if (sends.length >= MAX_PER_HOUR) return setError(t('site.contact.errorLimit'));
     setStatus('sending');
     try {
-      await addDoc(collection(db(), 'contact_messages'), {
+      const { db, fs } = await siteDb();
+      await fs.addDoc(fs.collection(db, 'contact_messages'), {
         name: form.name.trim().slice(0, 120),
         email: form.email.trim(),
         subject: form.subject.trim().slice(0, 160),
         message: form.message.trim().slice(0, 5000),
-        createdAt: serverTimestamp(),
+        createdAt: fs.serverTimestamp(),
         status: 'new',
         source: 'website',
         locale: (i18n.language || 'en').slice(0, 12),

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { AlertCircle, CheckCircle2, Loader2, Smartphone, Trash2 } from 'lucide-react';
-import { db } from '../../lib/firebase';
+import { siteDb } from '../website/data';
 import { WebsiteLayout } from '../website/WebsiteLayout';
 import { Container, Reveal } from '../website/ui';
 import { list } from '../website/i18n';
@@ -23,7 +22,8 @@ export default function DeleteAccountPage() {
     if (!emailValid(email)) return setError(t('site.legal.delete.invalid'));
     setStatus('sending');
     try {
-      await addDoc(collection(db(), 'deletion_requests'), { email: email.trim().toLowerCase(), reason: reason.trim().slice(0, 1000), requestedAt: serverTimestamp(), status: 'pending' });
+      const { db, fs } = await siteDb();
+      await fs.addDoc(fs.collection(db, 'deletion_requests'), { email: email.trim().toLowerCase(), reason: reason.trim().slice(0, 1000), requestedAt: fs.serverTimestamp(), status: 'pending' });
       setSentFor(email.trim().toLowerCase());
       setStatus('done');
     } catch {
