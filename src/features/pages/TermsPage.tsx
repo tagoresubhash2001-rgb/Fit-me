@@ -1,81 +1,71 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, FileText, AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
+import { WebsiteLayout } from '../website/WebsiteLayout';
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-[#0A0F1D] text-slate-100 selection:bg-[#1FA45B] selection:text-white">
-      {/* Top Bar */}
-      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#0A0F1D]/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
-          <Link to="/" className="inline-flex items-center gap-2.5 text-slate-200 transition-colors hover:text-white">
-            <ArrowLeft className="h-4 w-4" />
-            <span className="text-sm font-medium">Back to FitMe</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <img src="/favicon.svg" alt="FitMe" width={28} height={28} className="h-7 w-7 rounded-lg" />
-            <span className="font-semibold tracking-tight text-white">FitMe</span>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-        <div className="mb-10 text-center sm:text-left">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
-            <FileText className="h-3.5 w-3.5" />
+    <WebsiteLayout
+      title="Terms of Service | FitMe"
+      description="FitMe Terms of Service, medical disclaimers, usage guidelines, and intellectual property terms by Sindulis Innovative Solutions."
+    >
+      <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+        <div className="mb-10 text-center sm:text-left space-y-2">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#1FA45B]/25 bg-[#F0FDF4] dark:bg-[#1FA45B]/15 px-3 py-1 text-xs font-semibold text-[#1FA45B]">
+            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+            </svg>
             <span>User Agreement</span>
           </div>
-          <h1 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#11181C] dark:text-white">
             Terms of Service
           </h1>
-          <p className="mt-2 text-sm text-slate-400">
-            Last Updated: November 26, 2026 · Sindulis Innovative Solutions
+          <p className="text-sm text-[#5B6471] dark:text-[#9AA89E]">
+            Last Updated: November 27, 2026 · Sindulis Innovative Solutions
           </p>
         </div>
 
-        <div className="space-y-8 text-sm leading-relaxed text-slate-300">
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-            <h2 className="text-lg font-semibold text-white">1. Acceptance of Terms</h2>
-            <p className="mt-3">
+        <div className="space-y-8 text-sm leading-relaxed text-[#5B6471] dark:text-[#CBD5E1]">
+          <section className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-[#FBFDFB] dark:bg-[#171D18] p-6 sm:p-8 space-y-3">
+            <h2 className="text-lg font-bold text-[#11181C] dark:text-white">1. Acceptance of Terms</h2>
+            <p>
               By accessing the FitMe mobile application or website, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not download, install, or use the service.
             </p>
           </section>
 
-          <section className="rounded-2xl border border-amber-500/30 bg-amber-950/20 p-6 text-amber-200">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 shrink-0 text-amber-400 mt-0.5" />
-              <div>
-                <h2 className="text-lg font-semibold text-white">2. Medical Disclaimer</h2>
-                <p className="mt-2 text-sm leading-relaxed text-amber-200/90">
-                  FitMe is designed purely as an informational lifestyle and personal wellness tool. FitMe is NOT a licensed medical care provider and does NOT diagnose, treat, or prevent any illness, cardiac condition, or medical disorder. Always consult a qualified medical professional before starting any new fitness program or altering your nutrition regimen. In the event of acute symptoms (e.g. chest pain, severe shortness of breath), seek immediate emergency assistance.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-            <h2 className="text-lg font-semibold text-white">3. Free Trial and Subscription Terms</h2>
-            <p className="mt-3">
-              FitMe provides an introductory 7-day all-feature free experience, followed by an optional 30-day trial period upon plan selection. Unless cancelled before the trial ends, your chosen subscription (Monthly, Quarterly, or Annual) will renew automatically. Subscriptions can be cancelled at any time without cancellation penalties.
+          <section className="rounded-3xl border border-amber-500/30 bg-amber-50/50 dark:bg-amber-950/20 p-6 sm:p-8 space-y-3 text-amber-900 dark:text-amber-200">
+            <h2 className="text-lg font-bold text-[#11181C] dark:text-white flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-amber-500" />
+              2. Medical Disclaimer
+            </h2>
+            <p>
+              FitMe is an activity and wellness tracking companion. <strong>FitMe is NOT a medical device, nor does it provide clinical diagnostic advice or medical treatment plans.</strong>
+            </p>
+            <p>
+              Always consult with a licensed physician or healthcare professional before beginning any new exercise regimen, radical dietary change, or weight management plan. Never disregard professional medical advice because of information presented in the app or generated by the AI Coach.
             </p>
           </section>
 
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-            <h2 className="text-lg font-semibold text-white">4. Direct Sideload Distribution</h2>
-            <p className="mt-3">
-              The FitMe Android APK distributed directly through our website is digitally signed by Sindulis Innovative Solutions. You agree to download updates exclusively through official FitMe channels to guarantee application integrity and cryptographic security.
+          <section className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-[#FBFDFB] dark:bg-[#171D18] p-6 sm:p-8 space-y-3">
+            <h2 className="text-lg font-bold text-[#11181C] dark:text-white">3. User Accounts &amp; Security</h2>
+            <p>
+              You are responsible for maintaining the confidentiality of your credentials. You agree to provide accurate registration information and immediately notify us of any unauthorized account activity.
             </p>
           </section>
 
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
-            <h2 className="text-lg font-semibold text-white">5. Account Termination</h2>
-            <p className="mt-3">
-              You may terminate your account at any time through the in-app settings or via our web deletion portal at <Link to="/delete-account" className="text-emerald-400 underline">fit-me1.web.app/delete-account</Link>. All personal health records and synced telemetry are permanently erased upon request.
+          <section className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-[#FBFDFB] dark:bg-[#171D18] p-6 sm:p-8 space-y-3">
+            <h2 className="text-lg font-bold text-[#11181C] dark:text-white">4. Intellectual Property</h2>
+            <p>
+              All software, logos (including the approved green F-dot mark), user interfaces, documentation, and algorithms are the proprietary property of Sindulis Innovative Solutions.
+            </p>
+          </section>
+
+          <section className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-[#FBFDFB] dark:bg-[#171D18] p-6 sm:p-8 space-y-3">
+            <h2 className="text-lg font-bold text-[#11181C] dark:text-white">5. Governing Law</h2>
+            <p>
+              These Terms shall be governed by and construed in accordance with the laws governing Sindulis Innovative Solutions, without regard to its conflict of law provisions.
             </p>
           </section>
         </div>
-      </main>
-    </div>
+      </div>
+    </WebsiteLayout>
   );
 }

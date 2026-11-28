@@ -1,10 +1,19 @@
 User-agent: *
-Allow: /$
-Disallow: /food
-Disallow: /planner
-Disallow: /health
-Disallow: /workouts
-Disallow: /store
-Disallow: /settings
-Disallow: /plans
+Allow: /
+Allow: /features
+Allow: /how-it-works
+Allow: /download
+Allow: /about
+Allow: /faq
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+Allow: /refund
+Allow: /delete-account
+
+Disallow: /admin
+Disallow: /admin/
+Disallow: /vendor
 Disallow: /__/
+
+Sitemap: https://fit-me1.web.app/sitemap.xml

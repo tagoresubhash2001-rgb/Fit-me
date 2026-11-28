@@ -244,6 +244,17 @@ service cloud.firestore {
       allow read, update, delete: if staffRole();
     }
 
+    // Public contact messages: public create only, staff read/write
+    match /contact_messages/{id} {
+      allow create: if request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.email.size() < 254
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() < 5000;
+      allow read, update, delete: if staffRole();
+    }
+
     // Public account deletion requests: public create only, staff read/write
     match /deletion_requests/{id} {
       allow create: if request.resource.data.email is string

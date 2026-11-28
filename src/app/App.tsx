@@ -27,8 +27,15 @@ const PageView = lazy(() => import('../features/pages/PageView'));
 const HelpScreen = lazy(() => import('../features/pages/HelpScreen'));
 const LateGates = lazy(() => import('./Gates'));
 
-// Landing Page & Public Pages
-const LandingScreen = lazy(() => import('../features/landing/LandingScreen'));
+// Landing Page & Multi-Page Website
+const HomePage = lazy(() => import('../features/website/pages/HomePage').then((m) => ({ default: m.HomePage })));
+const FeaturesPage = lazy(() => import('../features/website/pages/FeaturesPage').then((m) => ({ default: m.FeaturesPage })));
+const HowItWorksPage = lazy(() => import('../features/website/pages/HowItWorksPage').then((m) => ({ default: m.HowItWorksPage })));
+const DownloadPage = lazy(() => import('../features/website/pages/DownloadPage').then((m) => ({ default: m.DownloadPage })));
+const AboutPage = lazy(() => import('../features/website/pages/AboutPage').then((m) => ({ default: m.AboutPage })));
+const FaqPage = lazy(() => import('../features/website/pages/FaqPage').then((m) => ({ default: m.FaqPage })));
+const ContactPage = lazy(() => import('../features/website/pages/ContactPage').then((m) => ({ default: m.ContactPage })));
+const NotFoundPage = lazy(() => import('../features/website/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
 const PrivacyPage = lazy(() => import('../features/pages/PrivacyPage'));
 const TermsPage = lazy(() => import('../features/pages/TermsPage'));
 const RefundPage = lazy(() => import('../features/pages/RefundPage'));
@@ -107,12 +114,13 @@ function Gate() {
   // WEB ROUTING (Vendors & Admins remain, Customers use Native APK)
   // ==========================================================
   if (!isNative()) {
-    // Admin dashboard: its own sign-in and layout
-    if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    // Admin & Vendor dashboards
+    if (pathname === '/admin' || pathname.startsWith('/admin/') || pathname === '/vendor' || pathname.startsWith('/vendor/')) {
       return (
         <Suspense fallback={<FullScreenLoader />}>
           <Routes>
             <Route path="admin/*" element={<AdminApp />} />
+            <Route path="vendor/*" element={<Navigate to="/admin" replace />} />
           </Routes>
         </Suspense>
       );
@@ -121,15 +129,33 @@ function Gate() {
     return (
       <Suspense fallback={<FullScreenLoader />}>
         <Routes>
-          <Route path="/" element={<LandingScreen />} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="features" element={<FeaturesPage />} />
+          <Route path="how-it-works" element={<HowItWorksPage />} />
+          <Route path="download" element={<DownloadPage />} />
+          <Route path="about" element={<AboutPage />} />
+          <Route path="faq" element={<FaqPage />} />
+          <Route path="contact" element={<ContactPage />} />
           <Route path="privacy" element={<PrivacyPage />} />
           <Route path="terms" element={<TermsPage />} />
           <Route path="refund" element={<RefundPage />} />
           <Route path="delete-account" element={<DeleteAccountPage />} />
           <Route path="p/:slug" element={<PageView />} />
           <Route path="download/android" element={<AndroidDownloadRedirect />} />
-          {/* Customer web routes redirect to landing download section with banner */}
-          <Route path="*" element={<Navigate to="/#download?redirect=mobile_only" replace />} />
+
+          {/* Legacy customer web routes redirect to /download with banner */}
+          <Route path="food" element={<Navigate to="/download?redirect=mobile_only" replace />} />
+          <Route path="planner" element={<Navigate to="/download?redirect=mobile_only" replace />} />
+          <Route path="health/*" element={<Navigate to="/download?redirect=mobile_only" replace />} />
+          <Route path="workouts" element={<Navigate to="/download?redirect=mobile_only" replace />} />
+          <Route path="store" element={<Navigate to="/download?redirect=mobile_only" replace />} />
+          <Route path="settings" element={<Navigate to="/download?redirect=mobile_only" replace />} />
+          <Route path="plans" element={<Navigate to="/download?redirect=mobile_only" replace />} />
+          <Route path="stories" element={<Navigate to="/download?redirect=mobile_only" replace />} />
+          <Route path="help" element={<Navigate to="/download?redirect=mobile_only" replace />} />
+
+          {/* Any other route renders custom 404 page */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
     );

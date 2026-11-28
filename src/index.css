@@ -22,14 +22,16 @@
 @custom-variant hover-fine (@media (hover: hover) and (pointer: fine));
 
 :root {
-  /* Brand */
+  /* Brand Palette derived from approved Logo Green #1FA45B */
   --brand-green: #1fa45b;
   --brand-green-pressed: #178a4c;
-  --brand-green-subtle: #e8f5ec;
+  --brand-green-subtle: #f0fdf4;
+  --brand-green-tint: #dcfce7;
+  --brand-green-deep: #0e5b30;
   --brand-orange: #ff8a24;
   --brand-orange-subtle: #fff1e4;
-  --brand-dark: #0f1720;
-  --brand-cream: #f7f5ef;
+  --brand-dark: #111613; /* Neutral near-black with subtle forest undertone, no navy */
+  --brand-cream: #fbfdfb;
   --brand-sage: #ddebdd;
   --brand-white: #ffffff;
 
@@ -85,29 +87,29 @@
 
 .dark {
   --canvas: var(--brand-dark);
-  --surface: #17212b;
-  --raised: #1f2a35;
-  --ink: #f2f4f5;
-  --muted: #9aa3ad;
-  --line: #26323e;
-  --track: #26323e;
+  --surface: #171d18;
+  --raised: #202822;
+  --ink: #f2f5f3;
+  --muted: #9aa89e;
+  --line: #2a362c;
+  --track: #2a362c;
   --primary-subtle: rgba(31, 164, 91, 0.16);
   --accent: var(--brand-orange);
   --accent-subtle: rgba(255, 138, 36, 0.14);
   --sage: #1e2c26;
   --danger-subtle: rgba(229, 72, 77, 0.16);
   --danger-text: #ff7b7f;
-  --nav: #17212b;
+  --nav: #171d18;
   --scrim: rgba(0, 0, 0, 0.6);
   --data-water: #5aa2ff;
   --data-sleep: #a48cf0;
-  --card-border: #3a4654;
+  --card-border: #2e3d31;
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 16px rgba(0, 0, 0, 0.32), 0 14px 32px rgba(0, 0, 0, 0.28);
   --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.34), 0 10px 24px rgba(0, 0, 0, 0.4), 0 22px 44px rgba(0, 0, 0, 0.34);
   --shadow-float: 0 2px 4px rgba(0, 0, 0, 0.24), 0 8px 24px rgba(0, 0, 0, 0.32);
-  --glass: rgba(23, 33, 43, 0.72);
-  --glass-strong: rgba(23, 33, 43, 0.92);
-  --glass-solid: #17212b;
+  --glass: rgba(23, 29, 24, 0.72);
+  --glass-strong: rgba(23, 29, 24, 0.92);
+  --glass-solid: #171d18;
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-edge: rgba(0, 0, 0, 0.3);
   color-scheme: dark;
