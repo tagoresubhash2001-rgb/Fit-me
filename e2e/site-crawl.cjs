@@ -14,6 +14,15 @@ const fail = (m) => problems.push(m);
 // Errors from the network that are not the site's fault (blocked analytics in headless, offline font CDNs).
 const IGNORE = [/favicon\.ico/, /google-analytics|googletagmanager/, /ERR_BLOCKED_BY_CLIENT/];
 
+/** Page load with one retry (live sites over a slow network). */
+async function go(page, url) {
+  try {
+    return await page.goto(url, { waitUntil: 'load', timeout: 60000 });
+  } catch {
+    return page.goto(url, { waitUntil: 'load', timeout: 60000 });
+  }
+}
+
 (async () => {
   const browser = await chromium.launch();
   const links = new Set();
@@ -31,7 +40,7 @@ const IGNORE = [/favicon\.ico/, /google-analytics|googletagmanager/, /ERR_BLOCKE
 
     for (const path of PAGES) {
       current = path;
-      const res = await page.goto(BASE + path, { waitUntil: 'load' });
+      const res = await go(page, BASE + path);
       if (!res || res.status() >= 400) fail(`${w}px ${path}: HTTP ${res && res.status()}`);
       await page.locator('main h1').first().waitFor({ timeout: 20000 }).catch(() => fail(`${w}px ${path}: no h1`));
       // Scroll through so every reveal animation runs, then check layout.
@@ -68,7 +77,7 @@ const IGNORE = [/favicon\.ico/, /google-analytics|googletagmanager/, /ERR_BLOCKE
 
     // Navigation: desktop island links and the features menu; on smaller screens the morphing menu.
     current = 'navbar';
-    await page.goto(BASE + '/', { waitUntil: 'load' });
+    await go(page, BASE + '/');
     await page.waitForTimeout(800);
     if (w >= 1024) {
       for (const label of ['How it works', 'Download', 'About', 'FAQ', 'Home']) {

@@ -17,6 +17,7 @@ describe('detectDevice', () => {
   });
   it('treats iPadOS (desktop Mac user agent with touch) as an iPad', () => {
     expect(detectDevice(UA.mac, 5)).toBe('ipad');
+    expect(detectDevice(UA.mac, 1)).toBe('ipad');
     expect(detectDevice(UA.mac, 0)).toBe('desktop');
   });
   it('everything else is desktop', () => {

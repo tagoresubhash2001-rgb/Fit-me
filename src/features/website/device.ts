@@ -8,7 +8,7 @@ export function detectDevice(ua: string, maxTouchPoints = 0): Device {
   if (/android/i.test(ua)) return 'android';
   if (/iPad/.test(ua)) return 'ipad';
   if (/iPhone|iPod/.test(ua)) return 'iphone';
-  if (/Macintosh/.test(ua) && maxTouchPoints > 1) return 'ipad';
+  if (/Macintosh/.test(ua) && maxTouchPoints > 0) return 'ipad';
   return 'desktop';
 }
 
