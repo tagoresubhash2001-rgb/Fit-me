@@ -50,6 +50,8 @@ export const FoodLog = BaseRecord.extend({
   unitGrams: z.number().positive().max(5000).optional(),
   servingsOptions: z.array(z.object({ label: z.string(), grams: z.number() })).max(8).optional(),
   timeMinutes: z.number().int().min(0).max(1439).optional(),
+  /** Product photo when the food has one (Open Food Facts), shown as a rounded thumbnail. */
+  imageUrl: z.string().max(400).regex(/^(https:\/\/(images\.openfoodfacts\.org|firebasestorage\.googleapis\.com)\/|\/[\w/.-]+$)/).optional(),
 });
 export type FoodLog = z.infer<typeof FoodLog>;
 

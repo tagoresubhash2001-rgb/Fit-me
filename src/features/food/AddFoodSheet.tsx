@@ -373,6 +373,7 @@ export function AddFoodSheet({
                 grams: r.grams,
                 nutrients: r.nutrients,
                 foodSource: picked.source,
+                ...(picked.imageUrl ? { imageUrl: picked.imageUrl } : {}),
                 per100g: forPlan(picked.per100g, premium),
                 unitId: r.option.id,
                 unitGrams: r.option.grams,

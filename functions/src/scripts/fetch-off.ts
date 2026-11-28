@@ -6,7 +6,7 @@
 import { appendFileSync, writeFileSync } from 'node:fs';
 
 const COUNTRIES = ['india', 'united-states', 'united-kingdom', 'france', 'germany', 'spain', 'brazil', 'indonesia', 'united-arab-emirates', 'mexico', 'portugal', 'saudi-arabia'];
-const FIELDS = 'code,product_name,brands,countries_tags,categories_tags,serving_size,serving_quantity,unique_scans_n,nutriments';
+const FIELDS = 'code,product_name,brands,countries_tags,categories_tags,serving_size,serving_quantity,unique_scans_n,nutriments,image_front_small_url';
 const arg = (name: string) => {
   const i = process.argv.indexOf(`--${name}`);
   return i >= 0 ? process.argv[i + 1] : undefined;

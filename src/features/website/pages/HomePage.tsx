@@ -13,8 +13,8 @@ const BENTO = [
   { id: 'activity', icon: Footprints, tone: 'text-steps', span: '' },
   { id: 'workouts', icon: Map, tone: 'text-water', span: '' },
   { id: 'coach', icon: Sparkles, tone: 'text-brand', span: 'md:col-span-2' },
-  { id: 'wellness', icon: Moon, tone: 'text-sleep', span: '' },
-  { id: 'languages', icon: Languages, tone: 'text-calories', span: '' },
+  { id: 'wellness', icon: Moon, tone: 'text-sleep', span: 'md:col-span-2' },
+  { id: 'languages', icon: Languages, tone: 'text-calories', span: 'md:col-span-2' },
 ] as const;
 
 function Hero() {
@@ -123,9 +123,9 @@ function Screens() {
       <Container>
         <SectionHeading id="screens-title" title={t('site.home.screensTitle')} subtitle={t('site.home.screensSubtitle')} />
       </Container>
-      <ul className="no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-6 sm:px-6 lg:justify-center lg:px-8" aria-label={t('site.home.screensTitle')}>
+      <ul className="no-scrollbar mx-auto flex max-w-6xl snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-6 sm:px-6 lg:grid lg:grid-cols-6 lg:overflow-visible lg:px-8" aria-label={t('site.home.screensTitle')}>
         {SHOTS.map((s, i) => (
-          <Reveal as="li" key={s} delay={i * 0.05} className="flex w-[min(62vw,15rem)] shrink-0 snap-center flex-col items-center gap-3">
+          <Reveal as="li" key={s} delay={i * 0.05} className="flex w-[min(62vw,15rem)] shrink-0 snap-center flex-col items-center gap-3 lg:w-auto">
             <PhoneFrame shot={s} alt={t(`site.home.screens.${s}`)} />
             <span className="text-small font-medium text-muted">{t(`site.home.screens.${s}`)}</span>
           </Reveal>

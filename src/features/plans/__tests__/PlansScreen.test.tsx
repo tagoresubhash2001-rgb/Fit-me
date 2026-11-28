@@ -87,7 +87,10 @@ describe('Plans screen', () => {
     expect(within(sheet).getByText('₹2,873 every year')).toBeInTheDocument();
     expect(within(sheet).getByText(/Cancel anytime before/)).toBeInTheDocument();
     await u.click(within(sheet).getByRole('button', { name: 'Start free trial' }));
-    expect(calls).toEqual([{ name: 'startTrial', data: { plan: 'pro', period: 'yearly' } }]);
+    // Web: Cashfree is tried first; with payments not live (no payment session) the trial flow runs.
+    expect(calls.map((c) => c.name)).toEqual(['createCashfreeCheckout', 'startTrial']);
+    expect(calls[0].data).toMatchObject({ plan: 'pro', period: 'yearly' });
+    expect(calls[1].data).toEqual({ plan: 'pro', period: 'yearly' });
   });
 
   it('subscribed users see their plan with change and cancel', async () => {

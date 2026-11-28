@@ -11,6 +11,8 @@ export interface FoodItem {
   sourceId?: string;
   aliases?: string[];
   brand?: string;
+  /** Small product photo (Open Food Facts), shown as a rounded thumbnail. */
+  imageUrl?: string;
   cuisine?: string;
   /** Dataset the values come from (e.g. "Indian Food Composition Tables 2017 (NIN)"). */
   dataset?: string;

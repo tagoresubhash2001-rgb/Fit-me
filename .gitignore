@@ -53,3 +53,6 @@ public/downloads/*.apk
 *.apk
 *.aab
 keystore.properties
+
+# Raw captures from e2e/capture-site-shots.cjs (the optimised copies are in public/screenshots/app)
+docs/screenshots/site-raw/

@@ -1,3 +1,4 @@
+import { HeartRateCard } from './HeartRateCard';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Smartphone, RefreshCw } from 'lucide-react';
@@ -484,7 +485,7 @@ export function StepsPanel() {
         )}
         {todaySource && <Badge>{t('steps.source', { source: todaySource.deviceName ?? t('steps.manualSource') })}</Badge>}
         {available === false ? (
-          <p className="text-center text-small text-muted">
+          <p data-screenshot-hide className="text-center text-small text-muted">
             {t('steps.webOnly')}{' '}
             <Link to="/settings#devices" className="font-semibold text-primary-text hover:underline">
               {t('devices.title')}
@@ -507,6 +508,7 @@ export function StepsPanel() {
           </Button>
         )}
       </Card>
+      <HeartRateCard />
       <Card>
         <CardHeader title={t('steps.title')} />
         <BarChart

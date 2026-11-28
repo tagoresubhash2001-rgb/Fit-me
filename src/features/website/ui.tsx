@@ -76,7 +76,7 @@ export function SectionHeading({ title, subtitle, center = true, id }: { title: 
 const btn = {
   base: 'site-press inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-5 text-body font-semibold transition-[transform,box-shadow,background-color] duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
   primary: 'bg-primary text-on-primary shadow-float hover:bg-primary-pressed',
-  dark: 'bg-island text-island-ink shadow-float hover:opacity-90',
+  dark: 'bg-island text-island-ink shadow-float ring-1 ring-white/20 hover:opacity-90',
   ghost: 'glass-chip text-ink hover:bg-surface',
 };
 

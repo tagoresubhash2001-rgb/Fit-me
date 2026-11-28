@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 
 /** Starts at 0 and moves to the real value on the next frame, so rings and bars fill in when they appear. */
 function useFillIn(target: number) {
@@ -10,6 +10,15 @@ function useFillIn(target: number) {
   return v;
 }
 import { cn } from './cn';
+
+/** Gradient for a ring from its colour class (stroke-water -> water, stroke-sleep -> sleep, ...). */
+export function ringTone(colorClass: string): 'steps' | 'water' | 'sleep' | 'calories' | 'heart' {
+  if (/water/.test(colorClass)) return 'water';
+  if (/sleep/.test(colorClass)) return 'sleep';
+  if (/accent|calor|carbs/.test(colorClass)) return 'calories';
+  if (/heart|danger/.test(colorClass)) return 'heart';
+  return 'steps';
+}
 
 export interface ProgressRingProps {
   value: number;
@@ -34,6 +43,10 @@ export function ProgressRing({
   className,
 }: ProgressRingProps) {
   const ratio = useFillIn(max > 0 ? Math.min(1, Math.max(0, value / max)) : 0);
+  // Thick rounded strokes with a metric-colour gradient (tokens --grad-<metric>-from/to).
+  const id = useId().replace(/:/g, '');
+  const tone = ringTone(colorClass);
+  stroke = Math.round(stroke * 1.25);
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   return (
@@ -46,7 +59,13 @@ export function ProgressRing({
       aria-valuemax={max}
       aria-valuenow={Math.round(value)}
     >
-      <svg width={size} height={size} className="-rotate-90">
+      <svg width={size} height={size} className="-rotate-90" aria-hidden>
+        <defs>
+          <linearGradient id={`ring-${id}`} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" style={{ stopColor: `var(--grad-${tone}-from)` }} />
+            <stop offset="100%" style={{ stopColor: `var(--grad-${tone}-to)` }} />
+          </linearGradient>
+        </defs>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} className="stroke-track" />
         <circle
           cx={size / 2}
@@ -57,7 +76,8 @@ export function ProgressRing({
           strokeLinecap="round"
           strokeDasharray={c}
           strokeDashoffset={c * (1 - ratio)}
-          className={cn(colorClass, 'transition-[stroke-dashoffset] duration-700 ease-[var(--ease-emphasized)]')}
+          stroke={`url(#ring-${id})`}
+          className="transition-[stroke-dashoffset] duration-1000 ease-[var(--ease-emphasized)] motion-reduce:transition-none"
         />
       </svg>
       {children && <div className="absolute inset-0 flex flex-col items-center justify-center text-center">{children}</div>}

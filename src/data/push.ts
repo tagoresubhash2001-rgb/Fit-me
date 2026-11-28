@@ -7,6 +7,16 @@ import { noteError } from '../lib/diagnostics';
 let initialized = false;
 
 /**
+ * Android notification channels (names are shown in system settings; English here, the OS shows them as set).
+ * The server sends reminders on "reminders" (also the default channel in AndroidManifest.xml).
+ */
+export const PUSH_CHANNELS = [
+  { id: 'reminders', name: 'Reminders', description: 'Water, meals, workouts and sleep reminders', high: true },
+  { id: 'coach', name: 'Coach', description: 'Messages from Jai and Jaya', high: false },
+  { id: 'updates', name: 'App updates', description: 'New versions and account notices', high: false },
+] as const;
+
+/**
  * Push messages on the phone apps (Firebase Cloud Messaging through @capacitor-firebase/messaging).
  * Asked only after the in-app explanation (PermissionPrimer "notifications"); the device token is stored
  * server-side so the admin dashboard, coach, and reminders can reach the device.
@@ -17,6 +27,12 @@ export async function registerPush(): Promise<boolean> {
     const { FirebaseMessaging } = await import('@capacitor-firebase/messaging');
     const perm = await FirebaseMessaging.checkPermissions();
     if (perm.receive !== 'granted') return false;
+    // Android 8+: named notification channels so people can mute each kind separately in system settings.
+    if (platform() === 'android') {
+      const { Importance } = await import('@capacitor-firebase/messaging');
+      for (const ch of PUSH_CHANNELS)
+        await FirebaseMessaging.createChannel({ id: ch.id, name: ch.name, description: ch.description, importance: ch.high ? Importance.High : Importance.Default }).catch(() => undefined);
+    }
     const { token } = await FirebaseMessaging.getToken();
     if (!token) return false;
     await httpsCallable(functions(), 'memberAction')({

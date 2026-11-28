@@ -1,4 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import { paysWithCashfree } from '../../lib/distribution';
+import { startCashfreeCheckout, verifyCashfreeReturn } from '../../data/cashfree';
+import React, { useEffect, useMemo, useState } from 'react';
 import { CouponBox } from './CouponBox';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -48,6 +50,19 @@ export default function PlansScreen() {
   const [cancelOpen, setCancelOpen] = useState(false);
   const [changing, setChanging] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
+
+  // Back from Cashfree: confirm the order on the server (it checks with Cashfree), then clear the link.
+  const cashfreeOrder = params.get('cashfree_order');
+  useEffect(() => {
+    if (!cashfreeOrder) return;
+    void verifyCashfreeReturn(cashfreeOrder)
+      .then((ok) => toast(ok ? t('plans.paymentConfirmed') : t('plans.paymentPending'), ok ? 'success' : 'info'))
+      .catch(() => toast(t('plans.paymentPending'), 'info'))
+      .finally(() => {
+        params.delete('cashfree_order');
+        setParams(params, { replace: true });
+      });
+  }, [cashfreeOrder]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const now = Date.now();
   const market = marketFor(pricing, profile.country, profile.currency);
@@ -525,6 +540,8 @@ function TrialSummarySheet({
   const start = async () => {
     setBusy(true);
     try {
+      // Web app and the direct APK pay through Cashfree once payments are live; otherwise the trial flow below.
+      if (paysWithCashfree() && (await startCashfreeCheckout(q.plan, q.period)) === 'redirected') return;
       const r = (await httpsCallable(functions(), 'startTrial')({ plan: q.plan, period: q.period })).data as {
         status: 'trialing' | 'interest' | 'active';
         trialEndsAt?: number;

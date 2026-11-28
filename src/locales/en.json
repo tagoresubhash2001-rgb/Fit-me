@@ -710,7 +710,9 @@
     "subtitleFreeUntil": "Free until {{date}}. Choose a plan now or later; your first payment would be on {{date}}.",
     "subtitlePaid": "Choose the plan that fits you. Cancel anytime.",
     "freeUntilBadge": "Free until {{date}}",
-    "subscribed": "You are now on {{plan}}."
+    "subscribed": "You are now on {{plan}}.",
+    "paymentConfirmed": "Payment confirmed. Your plan is active.",
+    "paymentPending": "We have not received confirmation of your payment yet. If you were charged, your plan appears within a few minutes."
   },
   "settings": {
     "title": "Settings",
@@ -1306,5 +1308,41 @@
     "batteryFix": "Open battery settings",
     "lastSync": "Last synced {{when}}.",
     "neverSynced": "Not synced yet."
+  },
+  "heart": {
+    "title": "Heart rate",
+    "today": "Today",
+    "resting": "Resting",
+    "average": "Average",
+    "range": "Range",
+    "bpm": "bpm",
+    "trend": "Resting heart rate, last 7 days",
+    "emptyTitle": "No heart rate yet",
+    "emptyBody": "Connect Health Connect or Apple Health in the phone app and your heart rate appears here."
+  },
+  "updater": {
+    "availableTitle": "Update available",
+    "requiredTitle": "Please update FitMe",
+    "version": "Version {{version}}",
+    "availableBody": "A new version of FitMe is ready to install.",
+    "requiredBody": "This version of FitMe is no longer supported. Update to keep your data syncing.",
+    "update": "Update",
+    "updateSize": "Update ({{size}} MB)",
+    "later": "Later",
+    "allowInstall": "Allow installing updates",
+    "failed": "The download did not finish. Check your connection and try again."
+  },
+  "battery": {
+    "title": "Keep step counting accurate",
+    "forBrand": "Recommended for {{brand}}",
+    "later": "Later",
+    "open": "Open battery settings",
+    "advice": {
+      "xiaomi": "Your phone can stop apps in the background. Turn on Autostart for FitMe and set Battery saver to No restrictions.",
+      "samsung": "Your phone can put apps to sleep. In App info, Battery, choose Unrestricted for FitMe.",
+      "oppo": "Your phone limits background apps. In battery settings, allow background activity for FitMe.",
+      "vivo": "Your phone limits background power. In battery settings, allow high background power use for FitMe.",
+      "other": "Allow FitMe to run in the background and turn off battery optimisation, so your steps keep counting."
+    }
   }
 }

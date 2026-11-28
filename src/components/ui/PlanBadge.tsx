@@ -19,6 +19,7 @@ export function PlanBadge({
   return (
     <button
       type="button"
+      data-plan-ui
       aria-label={ariaLabel}
       onClick={(e) => {
         e.stopPropagation();

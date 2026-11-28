@@ -1,0 +1,50 @@
+# FitMe iOS: build the Capacitor app and upload it to TestFlight (run by .github/workflows/ios-testflight.yml).
+# Signing uses an App Store Connect API key and a distribution certificate + App Store provisioning profile
+# that CI installs into a temporary keychain. Nothing secret is stored in the repository.
+default_platform(:ios)
+
+platform :ios do
+  desc "Build FitMe and upload to TestFlight"
+  lane :beta do
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      key_content: ENV.fetch("ASC_KEY_P8"),
+      is_key_content_base64: true,
+      in_house: false
+    )
+
+    # Build number = the next one after the latest on TestFlight; version from package.json (or MARKETING_VERSION).
+    latest = latest_testflight_build_number(api_key: api_key, app_identifier: ENV.fetch("IOS_BUNDLE_ID", "com.sindulis.fitmeai"), initial_build_number: 0)
+    increment_build_number(xcodeproj: "App.xcodeproj", build_number: latest + 1)
+    increment_version_number(xcodeproj: "App.xcodeproj", version_number: ENV["APP_VERSION"]) if ENV["APP_VERSION"].to_s != ""
+
+    update_code_signing_settings(
+      path: "App.xcodeproj",
+      use_automatic_signing: false,
+      team_id: ENV.fetch("APPLE_TEAM_ID"),
+      code_sign_identity: "Apple Distribution",
+      profile_name: ENV.fetch("IOS_PROFILE_NAME"),
+      bundle_identifier: ENV.fetch("IOS_BUNDLE_ID", "com.sindulis.fitmeai"),
+      targets: ["App"]
+    )
+
+    build_app(
+      project: "App.xcodeproj",
+      scheme: "App",
+      configuration: "Release",
+      export_method: "app-store",
+      export_options: {
+        provisioningProfiles: { ENV.fetch("IOS_BUNDLE_ID", "com.sindulis.fitmeai") => ENV.fetch("IOS_PROFILE_NAME") }
+      },
+      output_directory: "build",
+      output_name: "FitMe.ipa"
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true,
+      changelog: ENV.fetch("TESTFLIGHT_CHANGELOG", "Bug fixes and improvements.")
+    )
+  end
+end

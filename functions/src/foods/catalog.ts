@@ -26,6 +26,8 @@ export interface CatalogFood {
   dataset: string;
   sourceId: string;
   brand?: string;
+  /** Small product photo (Open Food Facts), shown as a rounded thumbnail. */
+  imageUrl?: string;
   per100g: { calories: number; proteinG: number; carbsG: number; fatG: number; fiberG: number };
   micros: FoodMicrosDoc;
   servings: Array<{ label: string; labels?: Record<string, string>; grams: number }>;
@@ -336,7 +338,13 @@ export function dishFoods(table: IngredientTable): CatalogFood[] {
 
 // ---------------------------------------------------------------- Open Food Facts
 /** A product from the Open Food Facts API (fields requested by scripts/fetch-off.ts). */
+/** Open Food Facts product photo (CC BY-SA), only from images.openfoodfacts.org over https. */
+export function offImage(url: string | undefined): string | null {
+  return typeof url === 'string' && /^https:\/\/images\.openfoodfacts\.org\/images\/products\/[\w/.-]+\.jpg$/.test(url) ? url : null;
+}
+
 export interface OffProduct {
+  image_front_small_url?: string;
   code: string;
   product_name?: string;
   brands?: string;
@@ -392,6 +400,7 @@ export function offFoods(products: OffProduct[]): CatalogFood[] {
       dataset: 'Open Food Facts',
       sourceId: p.code,
       ...(brand ? { brand } : {}),
+      ...(offImage(p.image_front_small_url) ? { imageUrl: offImage(p.image_front_small_url)! } : {}),
       per100g: { calories: Math.round(kcal), proteinG: r(g('proteins_100g')!), carbsG: r(g('carbohydrates_100g')!), fatG: r(g('fat_100g')!), fiberG: r(g('fiber_100g') ?? 0) },
       micros,
       servings: sq > 0 && sq < 2000 ? [{ label: p.serving_size?.trim() || `1 serving (${sq} g)`, grams: r(sq) }] : [],

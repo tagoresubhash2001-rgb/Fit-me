@@ -161,9 +161,19 @@ export function DynamicIslandNavbar() {
 
   const compact = !mounted || (scrolledCompact && !featuresOpen && !menuOpen);
   const featuresActive = pathname.startsWith('/features');
+  const openedAt = useRef(0);
   const openFeatures = () => {
     window.clearTimeout(closeTimer.current);
-    setFeaturesOpen(true);
+    setFeaturesOpen((o) => {
+      if (!o) openedAt.current = Date.now();
+      return true;
+    });
+  };
+  // A click right after hover opened the menu keeps it open (no open-then-close flicker).
+  const clickFeatures = () => {
+    if (featuresOpen && Date.now() - openedAt.current < 400) return;
+    if (featuresOpen) setFeaturesOpen(false);
+    else openFeatures();
   };
   const leaveFeatures = () => {
     window.clearTimeout(closeTimer.current);
@@ -211,7 +221,7 @@ export function DynamicIslandNavbar() {
                           id="island-features"
                           aria-expanded={featuresOpen}
                           aria-controls={featuresId}
-                          onClick={() => setFeaturesOpen((o) => !o)}
+                          onClick={clickFeatures}
                           className={linkCls(featuresActive || featuresOpen)}
                           aria-current={featuresActive ? 'page' : undefined}
                         >

@@ -171,7 +171,7 @@ export function DownloadPage() {
   const { t } = useTranslation();
   const [device] = useState<Device>(() => currentDevice());
   const recommended = device === 'android' ? 'android' : isApple(device) ? 'ios' : 'browser';
-  const order: ('android' | 'ios' | 'browser')[] = device === 'android' ? ['android', 'ios', 'browser'] : isApple(device) ? ['ios', 'browser', 'android'] : ['android', 'ios', 'browser'];
+  const order: ('android' | 'ios' | 'browser')[] = device === 'android' ? ['android', 'ios', 'browser'] : isApple(device) ? ['ios', 'browser', 'android'] : ['browser', 'android', 'ios'];
   return (
     <WebsiteLayout metaKey="download" path="/download">
       <section className="site-mesh -mt-20 pt-32 pb-10 sm:-mt-24 sm:pt-40">

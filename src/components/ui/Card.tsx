@@ -2,7 +2,7 @@ import React from 'react';
 import { cn } from './cn';
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  tone?: 'default' | 'sage' | 'subtle';
+  tone?: 'default' | 'sage' | 'subtle' | 'glass';
   padding?: 'none' | 'sm' | 'md';
   /** Makes the whole card pressable (a full-size button behind the content). */
   onPress?: () => void;
@@ -12,13 +12,14 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   static?: boolean;
 }
 
-// Owner correction 7 (PRD section 12): 1 px brand-dark border, 20 px radius, layered raised shadow,
-// hover lift on pointer devices, press scale, and a short enter animation.
+// Premium card (owner brief B1, replaces the earlier dark-border style): hairline border, 24 px radius, soft layered
+// shadow, hover lift on pointer devices, press scale and a short enter animation. `glass` = frosted hero/summary card.
 const base = 'rounded-card border border-card-border transition-[transform,box-shadow] duration-200 ease-out motion-reduce:transition-none';
 const tones = {
   default: 'bg-surface shadow-card [@media(hover:hover)]:hover:-translate-y-0.5 [@media(hover:hover)]:hover:shadow-card-hover',
   sage: 'bg-sage shadow-card',
   subtle: 'bg-raised',
+  glass: 'glass-card shadow-card',
 };
 const paddings = { none: '', sm: 'p-3', md: 'p-4' };
 

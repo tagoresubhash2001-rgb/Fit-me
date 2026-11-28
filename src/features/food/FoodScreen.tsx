@@ -169,17 +169,29 @@ export default function FoodScreen() {
                           deleteLabel={t('common.delete')}
                           menuLabel={t('common.moreActions')}
                         >
-                          <button type="button" className="block w-full py-2.5 text-start" onClick={() => setEditing(l)}>
-                            <span className="block truncate text-body text-ink">{l.name}</span>
-                            <span className="block truncate text-caption text-muted">
-                              {l.unitId === 'g' || l.unitId === 'ml'
-                                ? `${n(l.servings)} ${l.servingLabel}`
-                                : l.servings === 1
-                                  ? l.servingLabel
-                                  : `${n(l.servings, 2)} × ${l.servingLabel}`}{' '}
-                              · {n(l.nutrients.calories)} {t('common.kcal')}
-                              {(l as FoodLog & { timeMinutes?: number }).timeMinutes !== undefined &&
-                                ` · ${formatMinutes((l as FoodLog & { timeMinutes: number }).timeMinutes, lang)}`}
+                          <button type="button" className="flex w-full items-center gap-3 py-2.5 text-start" onClick={() => setEditing(l)}>
+                            {l.imageUrl && (
+                              <img
+                                src={l.imageUrl}
+                                alt=""
+                                width={44}
+                                height={44}
+                                loading="lazy"
+                                className="h-11 w-11 shrink-0 rounded-xl bg-raised object-cover"
+                              />
+                            )}
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-body text-ink">{l.name}</span>
+                              <span className="block truncate text-caption text-muted">
+                                {l.unitId === 'g' || l.unitId === 'ml'
+                                  ? `${n(l.servings)} ${l.servingLabel}`
+                                  : l.servings === 1
+                                    ? l.servingLabel
+                                    : `${n(l.servings, 2)} × ${l.servingLabel}`}{' '}
+                                · {n(l.nutrients.calories)} {t('common.kcal')}
+                                {(l as FoodLog & { timeMinutes?: number }).timeMinutes !== undefined &&
+                                  ` · ${formatMinutes((l as FoodLog & { timeMinutes: number }).timeMinutes, lang)}`}
+                              </span>
                             </span>
                           </button>
                         </SwipeRow>

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './app/App';
 import { UpdatePrompt } from './app/UpdatePrompt';
 import './index.css';
+import './lib/screenshotMode';
 import { useThemeStore } from './stores/theme.store';
 import { ToastViewport } from './components/ui';
 import { initI18n } from './lib/i18n';

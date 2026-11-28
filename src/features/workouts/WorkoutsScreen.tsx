@@ -304,7 +304,7 @@ function SessionPanel() {
             {t('workouts.start')}
           </Button>
         </Card>
-        <Card onPress={() => navigate('/plans?highlight=pro')} pressLabel={t('workouts.generator')} className="flex items-center gap-3">
+        <Card data-plan-ui onPress={() => navigate('/plans?highlight=pro')} pressLabel={t('workouts.generator')} className="flex items-center gap-3">
           <Lock className="h-5 w-5 shrink-0 text-muted" strokeWidth={1.75} />
           <div className="min-w-0 flex-1">
             <p className="text-body font-medium text-ink">{t('workouts.generator')}</p>

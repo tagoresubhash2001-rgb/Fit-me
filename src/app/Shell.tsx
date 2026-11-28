@@ -182,10 +182,10 @@ function BottomBar() {
   return (
     <nav
       aria-label={t('nav.main')}
-      className="glass glass-strong fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-50 mx-auto max-w-lg rounded-card border p-1.5 shadow-float land:hidden xl:hidden"
+      className="glass glass-strong fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-50 mx-auto max-w-lg rounded-[2rem] border p-1.5 shadow-soft land:hidden xl:hidden"
     >
       <ul ref={list} className="relative flex items-stretch justify-between gap-1">
-        <SlidingPill container={list} selector='[aria-current="page"] [data-pill]' watch={pathname} className="rounded-full bg-primary-subtle" />
+        <SlidingPill container={list} selector='[aria-current="page"] [data-pill]' watch={pathname} className="rounded-full bg-gradient-to-br from-brand-soft/25 to-brand/20 ring-1 ring-brand/20" />
         {tabs.map(({ to, key, icon: Icon, ...rest }) => (
           <li key={key} className="relative z-10 min-w-0 flex-1">
             <NavLink to={to} end={'end' in rest} id={`nav-${key}`} {...prefetchProps(key)} className="group flex w-full flex-col items-center gap-0.5 rounded-button py-1 active:scale-95 transition-transform duration-150">
@@ -290,7 +290,7 @@ function Sidebar() {
         ))}
         {plan !== 'pro' && (
           <li>
-            <NavLink to="/plans" id="side-upgrade" data-tip={collapsed ? t('plans.upgrade') : undefined} data-tip-side="end" className={cn(item(false), 'bg-accent-subtle font-semibold text-accent hover:bg-accent-subtle')}>
+            <NavLink to="/plans" id="side-upgrade" data-plan-ui data-tip={collapsed ? t('plans.upgrade') : undefined} data-tip-side="end" className={cn(item(false), 'bg-accent-subtle font-semibold text-accent hover:bg-accent-subtle')}>
               <CircleArrowUp className="h-5 w-5 shrink-0" strokeWidth={1.75} />
               {label(t('plans.upgrade'))}
             </NavLink>
@@ -390,6 +390,7 @@ function TopBar() {
           {plan !== 'pro' && (
             <button
               id="header-upgrade"
+              data-plan-ui
               type="button"
               onClick={() => navigate('/plans')}
               className="flex h-9 items-center gap-1.5 rounded-full bg-accent-subtle px-3 text-small font-semibold text-accent transition-transform duration-150 active:scale-95 xl:hidden"
@@ -453,7 +454,7 @@ function AvatarMenu({ initial, photoURL }: { initial: string; photoURL?: string 
             {t('nav.settings')}
           </button>
           {plan !== 'pro' && (
-            <button role="menuitem" type="button" className={itemCls} onClick={() => go('/plans')}>
+            <button role="menuitem" type="button" data-plan-ui className={itemCls} onClick={() => go('/plans')}>
               <CircleArrowUp className="h-4 w-4 text-accent" strokeWidth={1.75} />
               {t('plans.upgrade')}
             </button>

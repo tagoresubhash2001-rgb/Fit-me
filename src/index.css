@@ -99,9 +99,10 @@
   --mesh-3: rgba(47, 128, 237, 0.10);
 
   /* Cards (owner correction 7): brand-dark 1 px border and a layered, raised shadow. */
-  --card-border: #0f1720;
-  --shadow-card: 0 1px 2px rgba(15, 23, 32, 0.08), 0 6px 16px rgba(15, 23, 32, 0.1), 0 14px 32px rgba(15, 23, 32, 0.08);
-  --shadow-card-hover: 0 2px 4px rgba(15, 23, 32, 0.1), 0 10px 24px rgba(15, 23, 32, 0.14), 0 22px 44px rgba(15, 23, 32, 0.12);
+  /* Cards: hairline border and a soft, layered shadow (no dark outline). */
+  --card-border: rgba(16, 24, 20, 0.06);
+  --shadow-card: 0 1px 2px rgba(16, 24, 20, 0.04), 0 4px 12px rgba(16, 24, 20, 0.05), 0 16px 32px -12px rgba(16, 24, 20, 0.1);
+  --shadow-card-hover: 0 2px 4px rgba(16, 24, 20, 0.05), 0 10px 24px rgba(16, 24, 20, 0.08), 0 24px 44px -12px rgba(16, 24, 20, 0.14);
   --shadow-float: 0 2px 4px rgba(15, 23, 32, 0.06), 0 8px 24px rgba(15, 23, 32, 0.1);
   --shadow-soft: 0 1px 2px rgba(16, 24, 20, 0.04), 0 8px 24px rgba(16, 24, 20, 0.07), 0 24px 48px -16px rgba(16, 24, 20, 0.1);
 
@@ -143,7 +144,7 @@
   --mesh-1: rgba(31, 164, 91, 0.20);
   --mesh-2: rgba(79, 211, 140, 0.10);
   --mesh-3: rgba(47, 128, 237, 0.08);
-  --card-border: #2e3d31;
+  --card-border: rgba(255, 255, 255, 0.06);
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 16px rgba(0, 0, 0, 0.32), 0 14px 32px rgba(0, 0, 0, 0.28);
   --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.34), 0 10px 24px rgba(0, 0, 0, 0.4), 0 22px 44px rgba(0, 0, 0, 0.34);
   --shadow-float: 0 2px 4px rgba(0, 0, 0, 0.24), 0 8px 24px rgba(0, 0, 0, 0.32);
@@ -203,7 +204,7 @@
   --color-carbs: var(--data-carbs);
   --color-fat: var(--data-fat);
 
-  --radius-card: 20px;
+  --radius-card: 24px;
   --radius-button: 14px;
   --radius-input: 12px;
 
@@ -521,3 +522,7 @@
 @keyframes drawer-in { from { transform: translateX(-100%); } to { transform: none; } }
 [dir='rtl'] #admin-drawer [role='dialog'] { animation-name: drawer-in-rtl; }
 @keyframes drawer-in-rtl { from { transform: translateX(100%); } to { transform: none; } }
+
+/* Dev-only screenshot mode (src/lib/screenshotMode.ts): no plan, price, upgrade or trial UI in screenshots. */
+html.screenshot-mode [data-plan-ui],
+html.screenshot-mode [data-screenshot-hide] { display: none !important; }

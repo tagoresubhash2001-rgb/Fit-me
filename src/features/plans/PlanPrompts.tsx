@@ -1,3 +1,4 @@
+import { screenshotMode } from '../../lib/screenshotMode';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +20,7 @@ const safe = <T,>(fn: () => T, fallback: T): T => {
 };
 
 /** In-app reminder in the last three days of a trial (the server also sends a push). */
-export function TrialEndingBanner() {
+function TrialEndingBannerInner() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const ent = useSession((s) => s.entitlement);
@@ -44,7 +45,7 @@ export function TrialEndingBanner() {
  * Gentle prompt for free users who have used the app for at least three days. Shown at most once per
  * session and not again for a week after "Not now". No countdowns, no scarcity.
  */
-export function UpgradeNudge() {
+function UpgradeNudgeInner() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const plan = useSession((s) => s.plan);
@@ -85,7 +86,7 @@ export function UpgradeNudge() {
 }
 
 /** In-app reminder 3 days and 1 day before a free stage ends (the server also sends a push when enabled). */
-export function StageEndingBanner() {
+function StageEndingBannerInner() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const access = useSession((s) => s.access);
@@ -118,7 +119,7 @@ export function StageEndingBanner() {
 }
 
 /** Current free stage, days left and what happens next. Calm, no countdown clock. */
-export function AccessStageCard({ compact = false }: { compact?: boolean }) {
+function AccessStageCardInner({ compact = false }: { compact?: boolean }) {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const access = useSession((s) => s.access);
@@ -163,3 +164,9 @@ export function AccessStageCard({ compact = false }: { compact?: boolean }) {
     </section>
   );
 }
+
+/** Dev screenshot mode (src/lib/screenshotMode.ts) shows no plan, trial or upgrade prompts. */
+export const TrialEndingBanner = () => (screenshotMode ? null : <TrialEndingBannerInner />);
+export const UpgradeNudge = () => (screenshotMode ? null : <UpgradeNudgeInner />);
+export const StageEndingBanner = () => (screenshotMode ? null : <StageEndingBannerInner />);
+export const AccessStageCard = (p: { compact?: boolean }) => (screenshotMode ? null : <AccessStageCardInner {...p} />);

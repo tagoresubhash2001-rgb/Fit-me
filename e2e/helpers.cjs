@@ -14,6 +14,9 @@ const DEVICES = {
 };
 
 /** Real pointer tap at the element's centre (works inside sheets where the page scroll is locked). */
+/** The member app lives at /app/ on the web. */
+const appUrl = (base) => (/\/app\/?$/.test(base) ? base : `${base.replace(/\/$/, '')}/app/`);
+
 async function tap(page, locator) {
   await locator.waitFor();
   await locator.scrollIntoViewIfNeeded();
@@ -22,7 +25,7 @@ async function tap(page, locator) {
 }
 
 async function signUp(page, base, email, name = 'Ravi') {
-  await page.goto(base, { waitUntil: 'domcontentloaded' });
+  await page.goto(appUrl(base), { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Continue with email' }).click();
   await page.getByRole('button', { name: 'New here? Create an account' }).click();
   await page.getByLabel('Your name').fill(name);
@@ -89,7 +92,7 @@ async function assertNoHorizontalScroll(page, label) {
 module.exports = { DEVICES, tap, signUp, onboard, assertNoHorizontalScroll, path };
 
 async function signIn(page, base, email) {
-  await page.goto(base, { waitUntil: 'domcontentloaded' });
+  await page.goto(appUrl(base), { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'Continue with email' }).click();
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill('a-long-test-password');
@@ -97,3 +100,4 @@ async function signIn(page, base, email) {
   await page.locator('#card-calories').waitFor({ timeout: 30000 });
 }
 module.exports.signIn = signIn;
+module.exports.appUrl = appUrl;
