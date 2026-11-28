@@ -27,7 +27,7 @@ Play Console tasks for the owner:
    sleep and progress); no writes.
 2. App content → Data safety: health and fitness data, photos (processed, not stored for scans), approximate/precise
    location (only while tracking a route), app activity; encrypted in transit; deletion available in Settings.
-3. Privacy policy URL: `https://fit-me1.web.app/privacy.html` (also set in `health_connect_privacy_policy_url`).
+3. Privacy policy URL: `https://fit-me1.web.app/privacy` (also set in `health_connect_privacy_policy_url`).
 4. Physical activity permission rationale is shown in-app (Permissions primer) before the system prompt.
 5. Upload a signed AAB: `cd android && ./gradlew bundleRelease` then sign with the upload key (keystore is not in git;
    create it in Play App Signing).

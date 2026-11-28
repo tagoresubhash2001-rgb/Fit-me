@@ -40,8 +40,32 @@
         }
       },
       {
-        "source": "**",
+        "source": "/app",
+        "destination": "/app-shell.html"
+      },
+      {
+        "source": "/app/**",
+        "destination": "/app-shell.html"
+      },
+      {
+        "source": "/admin",
+        "destination": "/app-shell.html"
+      },
+      {
+        "source": "/admin/**",
+        "destination": "/app-shell.html"
+      },
+      {
+        "source": "/vendor/**",
+        "destination": "/app-shell.html"
+      },
+      {
+        "source": "/p/**",
         "destination": "/index.html"
+      },
+      {
+        "source": "/offline",
+        "destination": "/offline.html"
       }
     ],
     "headers": [
@@ -187,6 +211,11 @@
       {
         "source": "/health/:tab",
         "destination": "/app/health/:tab",
+        "type": 301
+      },
+      {
+        "source": "/vendor",
+        "destination": "/admin",
         "type": 301
       }
     ]

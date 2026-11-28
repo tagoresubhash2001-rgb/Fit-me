@@ -5,5 +5,5 @@
     <string name="package_name">com.sindulis.fitmeai</string>
     <string name="custom_url_scheme">com.sindulis.fitmeai</string>
     <!-- Shown by Health Connect when the user opens "Privacy policy" in its permission screen -->
-    <string name="health_connect_privacy_policy_url">https://fit-me1.web.app/privacy.html</string>
+    <string name="health_connect_privacy_policy_url">https://fit-me1.web.app/privacy</string>
 </resources>

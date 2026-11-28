@@ -1,0 +1,555 @@
+{
+  "site": {
+    "brand": "FitMe",
+    "tagline": "FitMe – For a Healthier Life.",
+    "company": "Sindulis Innovative Solutions",
+    "skip": "Skip to content",
+    "meta": {
+      "home": {
+        "title": "FitMe – For a Healthier Life.",
+        "description": "Track food with macros, water, sleep, steps, weight and workouts in one calm app. On Android, iPhone and in your browser."
+      },
+      "features": {
+        "title": "Features – FitMe",
+        "description": "Food logging with macros, steps and heart rate from your phone or watch, GPS workouts, water, sleep, weight and AI coaches Jai and Jaya."
+      },
+      "howItWorks": {
+        "title": "How it works – FitMe",
+        "description": "Set your goal, log your day in seconds and see your progress. How FitMe works, step by step."
+      },
+      "download": {
+        "title": "Download FitMe – Android, iPhone and browser",
+        "description": "Get FitMe on Android, on iPhone or continue in your browser. Install guide and the latest version."
+      },
+      "about": {
+        "title": "About FitMe",
+        "description": "FitMe is made by Sindulis Innovative Solutions to make healthy habits simple, private and available in your language."
+      },
+      "faq": {
+        "title": "Questions and answers – FitMe",
+        "description": "Answers about installing FitMe, health data, privacy, languages and plans."
+      },
+      "contact": {
+        "title": "Contact FitMe",
+        "description": "Send the FitMe team a message. We read every one."
+      },
+      "privacy": {
+        "title": "Privacy – FitMe",
+        "description": "What FitMe does with your data, including health data, meal photos and your rights."
+      },
+      "terms": {
+        "title": "Terms of use – FitMe",
+        "description": "The terms for using the FitMe app and website."
+      },
+      "refund": {
+        "title": "Refunds and cancellation – FitMe",
+        "description": "How cancelling and refunds work for FitMe Premium and Pro."
+      },
+      "deleteAccount": {
+        "title": "Delete your FitMe account",
+        "description": "How to delete your FitMe account and data, in the app or with a request."
+      },
+      "notFound": {
+        "title": "Page not found – FitMe",
+        "description": "This page does not exist."
+      }
+    },
+    "nav": {
+      "label": "Main",
+      "home": "Home",
+      "features": "Features",
+      "howItWorks": "How it works",
+      "download": "Download",
+      "about": "About",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "getApp": "Get the app",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "featuresMenu": "Features menu",
+      "allFeatures": "See all features",
+      "items": {
+        "food": {
+          "title": "Food and macros",
+          "body": "Log meals in seconds"
+        },
+        "activity": {
+          "title": "Steps and heart rate",
+          "body": "From your phone or watch"
+        },
+        "workouts": {
+          "title": "Workouts and routes",
+          "body": "Guided sessions and GPS"
+        },
+        "coach": {
+          "title": "Jai and Jaya",
+          "body": "Your AI coaches"
+        },
+        "wellness": {
+          "title": "Water, sleep and weight",
+          "body": "Daily habits that add up"
+        }
+      }
+    },
+    "cta": {
+      "android": "Download for Android",
+      "iphone": "Download for iPhone",
+      "browser": "Continue in browser",
+      "getStarted": "Get started"
+    },
+    "home": {
+      "badge": "Food, activity, sleep and coaching in one app",
+      "title": "Healthy habits, made simple.",
+      "titleAccent": "Every day.",
+      "subtitle": "FitMe brings your meals, steps, water, sleep, weight and workouts together, with friendly AI coaches when you want them. Free to start, in your language.",
+      "previewLabel": "Example screens from the FitMe app",
+      "metrics": {
+        "steps": "Steps",
+        "water": "Water",
+        "protein": "Protein",
+        "sleep": "Sleep"
+      },
+      "factsTitle": "Built for everyday life",
+      "facts": {
+        "languages": "languages, including Hindi, Telugu, Tamil and Arabic",
+        "areas": "daily health areas in one place",
+        "platforms": "ways to use it: Android, iPhone and your browser"
+      },
+      "bentoTitle": "Everything you track, in one calm place",
+      "bentoSubtitle": "No clutter, no jargon. Just what helps you build better days.",
+      "bento": {
+        "food": {
+          "title": "Food with macros",
+          "body": "Search regional and global foods, scan a barcode or snap a photo. See calories, protein, carbs, fat and fiber at a glance."
+        },
+        "activity": {
+          "title": "Steps and heart rate",
+          "body": "Connect Health Connect or Apple Health and your steps and heart rate appear on their own. Your phone can count steps too."
+        },
+        "workouts": {
+          "title": "Workouts with GPS routes",
+          "body": "Record walks, runs and rides with a map of your route, or follow a guided session."
+        },
+        "coach": {
+          "title": "Jai and Jaya, your AI coaches",
+          "body": "Ask about training or food and get answers based on your own goals and logs. Pro plan."
+        },
+        "wellness": {
+          "title": "Water, sleep and weight",
+          "body": "Quick taps for water, a simple sleep log and a weight trend that shows real progress."
+        },
+        "languages": {
+          "title": "In your language",
+          "body": "Use FitMe in English, Hindi, Telugu, Tamil, Spanish, Portuguese, French, German, Arabic or Indonesian."
+        }
+      },
+      "screensTitle": "See FitMe in action",
+      "screensSubtitle": "Real screens from the app, filled with a week of example data.",
+      "screens": {
+        "home": "Your day at a glance",
+        "food": "Food and macros",
+        "activity": "Steps and heart rate",
+        "workouts": "Workouts and routes",
+        "coach": "AI coach chat",
+        "insights": "Weekly insights"
+      },
+      "storiesTitle": "Stories from FitMe members",
+      "storiesSubtitle": "Shared by members and published with their consent.",
+      "privacyTitle": "Your health data stays yours",
+      "privacyBody": "Health data is used only to show your progress inside FitMe. It is never sold and never used for advertising. You can export or delete everything from Settings.",
+      "privacyLink": "Read how we handle data",
+      "finalTitle": "Start your healthier routine today",
+      "finalBody": "Download the app or open FitMe right here in your browser.",
+      "metricValues": {
+        "steps": "8,240",
+        "water": "1.8 L",
+        "protein": "92 g",
+        "sleep": "7 h 40 min"
+      }
+    },
+    "features": {
+      "title": "Everything FitMe can do",
+      "subtitle": "One app for food, activity, workouts and daily habits. Start free and add more when you are ready.",
+      "plansNote": "Free: food with macros, steps and watch connection, water, weight, sleep and basic workouts. Premium adds micronutrients and AI food photo scan. Pro adds the AI coaches, planner and reports.",
+      "sections": {
+        "food": {
+          "title": "Food and macros",
+          "body": "Log what you eat in seconds and see where your day stands.",
+          "points": [
+            "Regional and global food database with local serving sizes",
+            "Barcode scan and AI meal photo scan (Premium)",
+            "Calories, protein, carbs, fat and fiber; vitamins and minerals in Premium",
+            "Edit or delete any entry, with undo"
+          ]
+        },
+        "activity": {
+          "title": "Steps and heart rate",
+          "body": "Your activity, collected for you.",
+          "points": [
+            "Health Connect on Android and Apple Health on iPhone",
+            "Built-in step counting when no watch is connected",
+            "Daily step goal and history",
+            "In the browser you can add steps by hand"
+          ]
+        },
+        "workouts": {
+          "title": "Workouts and routes",
+          "body": "Move your way and keep a record of it.",
+          "points": [
+            "Walks, runs and rides with a GPS route map",
+            "Strength and home sessions",
+            "Duration, distance and calories for each session",
+            "Workout history by week and month"
+          ]
+        },
+        "coach": {
+          "title": "Jai and Jaya",
+          "body": "Two AI coaches who know your goals. Jai for fitness, Jaya for food and wellness.",
+          "points": [
+            "Chat or talk in your language",
+            "Answers based on your own logs, never invented data",
+            "Weekly planner and meal ideas",
+            "Health safety first: no diagnosis or medication advice"
+          ]
+        },
+        "wellness": {
+          "title": "Water, sleep and weight",
+          "body": "Small daily habits with a clear picture over time.",
+          "points": [
+            "Water goal from your body weight, one tap to log",
+            "Sleep duration and how rested you feel",
+            "Weight trend with your goal",
+            "Reminders when you want them"
+          ]
+        }
+      }
+    },
+    "how": {
+      "title": "How FitMe works",
+      "subtitle": "Three steps to a calmer, healthier routine.",
+      "steps": [
+        {
+          "title": "Tell us about you",
+          "body": "Your goal, height, weight and activity level. FitMe works out your daily calories, protein and water."
+        },
+        {
+          "title": "Log your day in seconds",
+          "body": "Search or scan food, tap to add water, and let your phone or watch fill in steps and heart rate."
+        },
+        {
+          "title": "See your progress",
+          "body": "Rings, trends and weekly insights show what is working. Ask Jai or Jaya when you want help."
+        }
+      ],
+      "syncTitle": "Your data on every device",
+      "syncBody": "Sign in on your phone, tablet or computer and your logs are there. They are saved to your private account, and work offline until you are back online."
+    },
+    "download": {
+      "title": "Get FitMe",
+      "subtitle": "Choose your device. We highlighted the best option for the one you are using.",
+      "recommended": "Recommended for this device",
+      "android": {
+        "title": "Android",
+        "body": "Install the FitMe app directly. Works on Android 8 and later.",
+        "latest": "Latest version",
+        "version": "Version {{version}}",
+        "size": "{{size}} MB",
+        "released": "Released {{date}}",
+        "button": "Download APK",
+        "unavailable": "The Android download is being prepared. Please check back soon or continue in your browser.",
+        "guideTitle": "Install in three steps",
+        "guide": [
+          "Tap Download APK and open the file when it finishes.",
+          "If asked, allow your browser to install apps (Settings, Install unknown apps).",
+          "Tap Install, then open FitMe and sign in."
+        ],
+        "notesTitle": "What is new"
+      },
+      "ios": {
+        "title": "iPhone and iPad",
+        "storeBody": "Get FitMe from the App Store.",
+        "storeBadge": "Download on the App Store",
+        "testflightBody": "Install FitMe on iPhone through Apple TestFlight.",
+        "testflightButton": "Install on iPhone (TestFlight)",
+        "testflightGuide": [
+          "Install TestFlight from the App Store.",
+          "Tap Install on iPhone (TestFlight) on this page.",
+          "Tap Accept, then Install, and open FitMe."
+        ],
+        "browserTitle": "Use FitMe on iPhone in your browser",
+        "browserBody": "FitMe works fully in Safari. Add it to your Home Screen for an app-like experience.",
+        "browserGuide": [
+          "Open fit-me1.web.app/app in Safari.",
+          "Tap the Share button.",
+          "Tap Add to Home Screen, then Add."
+        ],
+        "version": "Version {{version}}"
+      },
+      "browser": {
+        "title": "Browser",
+        "body": "Use FitMe on any computer, tablet or phone. Nothing to install.",
+        "button": "Continue in browser",
+        "note": "Automatic steps and heart rate need the phone app. You can add them by hand in the browser."
+      },
+      "qrTitle": "On your computer?",
+      "qrBody": "Scan this code with your phone camera to open the download page there.",
+      "qrAlt": "QR code for the FitMe download page"
+    },
+    "about": {
+      "title": "About FitMe",
+      "lead": "We believe looking after your health should feel simple, kind and personal.",
+      "paragraphs": [
+        "FitMe is made by Sindulis Innovative Solutions. We built it for people who want one calm place for food, activity, sleep and habits, without confusing charts or jargon.",
+        "FitMe works in ten languages and understands local foods and serving sizes, from katori and roti to cups and slices.",
+        "Your data belongs to you. It is stored in your private account, never sold and never used for advertising, and you can delete it at any time."
+      ],
+      "valuesTitle": "What we care about",
+      "values": {
+        "simple": {
+          "title": "Simple",
+          "body": "Log your day in seconds. Clear numbers, no jargon."
+        },
+        "private": {
+          "title": "Private",
+          "body": "Your health data is yours. Export or delete it any time."
+        },
+        "local": {
+          "title": "Local",
+          "body": "Your language, your foods, your units."
+        },
+        "safe": {
+          "title": "Safe",
+          "body": "Coaching, never diagnosis. We point you to a doctor when it matters."
+        }
+      }
+    },
+    "faq": {
+      "title": "Questions and answers",
+      "subtitle": "Cannot find your answer? Send us a message.",
+      "contactLink": "Contact us",
+      "items": [
+        {
+          "q": "Is FitMe free?",
+          "a": "Yes. Food logging with macros, steps, water, weight, sleep and basic workouts are free. Premium adds micronutrients and AI food photo scan. Pro adds the AI coaches Jai and Jaya, the planner and reports."
+        },
+        {
+          "q": "How do I install FitMe on Android?",
+          "a": "Open the Download page on your phone, tap Download APK and open the file. If Android asks, allow your browser to install apps, then tap Install."
+        },
+        {
+          "q": "Can I use FitMe on iPhone?",
+          "a": "Yes. Open the Download page on your iPhone for the current option. You can always use FitMe in Safari and add it to your Home Screen."
+        },
+        {
+          "q": "Can I use FitMe on my computer?",
+          "a": "Yes. Choose Continue in browser. Your logs sync between the browser and the phone app. Automatic steps and heart rate need the phone app."
+        },
+        {
+          "q": "Which watches and health apps work with FitMe?",
+          "a": "On Android, any watch or app that shares with Health Connect. On iPhone, Apple Health. Your phone can also count steps on its own."
+        },
+        {
+          "q": "What happens to my health data?",
+          "a": "It is used only to show your progress inside FitMe. It is never sold or used for advertising. You can export or delete it from Settings."
+        },
+        {
+          "q": "Does the AI coach give medical advice?",
+          "a": "No. Jai and Jaya help with fitness and food habits. They do not diagnose or advise on medication, and they suggest seeing a doctor when symptoms need it."
+        },
+        {
+          "q": "Which languages are available?",
+          "a": "English, Hindi, Telugu, Tamil, Spanish, Portuguese, French, German, Arabic and Indonesian."
+        },
+        {
+          "q": "How do I delete my account?",
+          "a": "In the app go to Settings, then Delete account. You can also request deletion on our Delete account page."
+        }
+      ]
+    },
+    "contact": {
+      "title": "Contact us",
+      "subtitle": "Questions, ideas or a problem with the app? Send a message and we will reply by email.",
+      "name": "Your name",
+      "email": "Email",
+      "subject": "Subject (optional)",
+      "message": "Message",
+      "messageHint": "At least 10 characters.",
+      "send": "Send message",
+      "sending": "Sending",
+      "successTitle": "Message sent",
+      "successBody": "Thank you. We will reply to {{email}}.",
+      "sendAnother": "Send another message",
+      "errorRequired": "Please fill in your name, a valid email and a message of at least 10 characters.",
+      "errorSend": "We could not send your message. Check your connection and try again.",
+      "errorTooFast": "That was quick. Please wait a few seconds and try again.",
+      "errorLimit": "You have sent several messages already. Please try again later.",
+      "orEmail": "Or email us at {{email}}.",
+      "honeypot": "Leave this field empty"
+    },
+    "notFound": {
+      "title": "We could not find that page",
+      "body": "The link may be old or mistyped.",
+      "home": "Go to the home page",
+      "app": "Open the web app"
+    },
+    "footer": {
+      "product": "Product",
+      "company": "Company",
+      "legal": "Legal",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "refund": "Refunds",
+      "deleteAccount": "Delete account",
+      "webApp": "Web app",
+      "rights": "© {{year}} Sindulis Innovative Solutions",
+      "disclaimer": "FitMe is not a medical device and does not give medical advice. Talk to a doctor about any health concern."
+    },
+    "legal": {
+      "updated": "Last updated {{date}}",
+      "updatedDate": "28 November 2026",
+      "privacy": {
+        "title": "Privacy",
+        "intro": "This page explains what FitMe, made by Sindulis Innovative Solutions, does with the data you choose to give it.",
+        "sections": [
+          {
+            "h": "Your account",
+            "p": [
+              "To sync your logs we keep your name, email or phone number, country, language and the goals you set. You can change them in Settings."
+            ]
+          },
+          {
+            "h": "What you log",
+            "p": [
+              "Food, water, weight, sleep, workouts and notes are stored in your private FitMe account so they are on every device you sign in on. Nobody else can read them."
+            ]
+          },
+          {
+            "h": "Health data from Apple Health and Health Connect",
+            "p": [
+              "Only after you connect it in Settings, Connected devices, FitMe reads steps, distance, active energy, heart rate, sleep, workouts and weight. FitMe never writes to Apple Health or Health Connect.",
+              "It is used only to show your activity, sleep and progress in FitMe and to give you suggestions inside the app. It is never sold, never used for advertising and never shared with third parties.",
+              "You can disconnect at any time, change permissions in Apple Health or Health Connect, and delete synced entries or your whole account in Settings."
+            ]
+          },
+          {
+            "h": "Location",
+            "p": [
+              "When you record a workout route, your location is used to draw the map and measure distance. It is saved only with that workout."
+            ]
+          },
+          {
+            "h": "Meal photos",
+            "p": [
+              "When you scan a meal, the photo is sent securely to our server and to the AI service that estimates the foods, then discarded. It is not stored. You check and correct the result before anything is saved."
+            ]
+          },
+          {
+            "h": "AI coaches",
+            "p": [
+              "When you chat with Jai or Jaya, your message and a summary of your goals and recent logs are sent to the AI service to write the answer. Chats are saved in your account so you can read them again."
+            ]
+          },
+          {
+            "h": "Payments and ads",
+            "p": [
+              "Payments are handled by Apple, Google or Cashfree. We never see your full card details. Free members of the mobile app may see ads; ads never use your health data."
+            ]
+          },
+          {
+            "h": "Your rights",
+            "p": [
+              "You can download your data and delete your account from Settings. Deleting the account removes your logs, photos and settings. Write to us from the Contact page with any question."
+            ]
+          }
+        ]
+      },
+      "terms": {
+        "title": "Terms of use",
+        "intro": "By using FitMe you agree to these terms.",
+        "sections": [
+          {
+            "h": "The service",
+            "p": [
+              "FitMe helps you track food, activity, sleep and habits. It is not a medical device and does not give medical advice, diagnosis or treatment."
+            ]
+          },
+          {
+            "h": "Your account",
+            "p": [
+              "Keep your sign-in details safe. You are responsible for what is logged in your account. You must be at least 13 years old, or older where local law requires it."
+            ]
+          },
+          {
+            "h": "Plans and payments",
+            "p": [
+              "Premium and Pro are paid subscriptions with the price shown before you pay, in your currency. They renew until you cancel. The free trial is offered once per account."
+            ]
+          },
+          {
+            "h": "Fair use",
+            "p": [
+              "Do not misuse FitMe, try to access other people's data or interfere with the service. We may suspend accounts that do."
+            ]
+          },
+          {
+            "h": "Changes",
+            "p": [
+              "We may update the app and these terms. We will tell you in the app about important changes."
+            ]
+          },
+          {
+            "h": "Contact",
+            "p": [
+              "FitMe is provided by Sindulis Innovative Solutions. Write to us from the Contact page."
+            ]
+          }
+        ]
+      },
+      "refund": {
+        "title": "Refunds and cancellation",
+        "intro": "You can cancel a FitMe subscription at any time.",
+        "sections": [
+          {
+            "h": "Cancelling",
+            "p": [
+              "Cancel in the app under Settings, Plan, or in your App Store or Google Play subscriptions. You keep access until the end of the period you paid for."
+            ]
+          },
+          {
+            "h": "Refunds for App Store and Google Play",
+            "p": [
+              "Purchases made through Apple or Google are refunded by them under their rules. Request a refund from Apple or Google directly."
+            ]
+          },
+          {
+            "h": "Refunds for web payments",
+            "p": [
+              "For payments made on the website, write to us from the Contact page within 7 days of the charge if something went wrong. Approved refunds go back to the original payment method."
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "title": "Delete your account",
+        "intro": "You can delete your FitMe account and all its data at any time.",
+        "inAppTitle": "In the app",
+        "inAppSteps": [
+          "Open FitMe and sign in.",
+          "Go to Settings.",
+          "Tap Delete account and confirm."
+        ],
+        "inAppNote": "Your logs, photos, settings and coach chats are deleted. Payment records we must keep by law are kept for the required time, without your health data.",
+        "requestTitle": "Request deletion",
+        "requestBody": "Cannot sign in? Send a request with the email of your account and we will delete it.",
+        "email": "Account email",
+        "reason": "Reason (optional)",
+        "submit": "Request deletion",
+        "submitting": "Sending",
+        "doneTitle": "Request received",
+        "doneBody": "We will delete the account for {{email}} and confirm by email.",
+        "error": "We could not send the request. Please try again.",
+        "invalid": "Enter the email of your FitMe account."
+      }
+    }
+  }
+}

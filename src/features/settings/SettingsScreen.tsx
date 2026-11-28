@@ -1,3 +1,5 @@
+import { SITE_ORIGIN } from '../website/meta';
+import { isNative } from '../../lib/platform';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download, LogOut, Trash2, User, Bell, ShieldCheck } from 'lucide-react';
@@ -282,7 +284,8 @@ export default function SettingsScreen() {
           <p className="text-small text-ink">{t('common.disclaimer')}</p>
           <p className="mt-2 text-caption text-muted">{t('settings.version', { v: import.meta.env.VITE_APP_VERSION ?? '0.1.0' })}</p>
           <a
-            href="/privacy.html"
+            href={isNative() ? `${SITE_ORIGIN}/privacy` : '/privacy'}
+            {...(isNative() ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             className="mt-2 inline-flex min-h-11 items-center text-small font-semibold text-primary-text hover:underline"
           >
             {t('settings.privacyPage')}

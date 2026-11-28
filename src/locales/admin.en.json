@@ -44,7 +44,7 @@
       "notifications": "Notifications",
       "integrations": "API keys",
       "support": "Support",
-      "releases": "App Releases"
+      "releases": "App releases"
     },
     "roles": {
       "superAdmin": "Super admin",
@@ -689,6 +689,51 @@
     "applyFilters": "Show results",
     "collapseMenu": "Collapse menu",
     "expandMenu": "Expand menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "releases": {
+      "title": "App releases",
+      "subtitle": "The download page and the in-app updater read these settings.",
+      "refresh": "Refresh",
+      "android": "Android (direct download)",
+      "androidHelp": "Saved to app_config/android. Upload the signed APK first; its link and size fill in automatically.",
+      "versionName": "Version name (for example 2.1.0)",
+      "versionCode": "Version code (whole number)",
+      "minCode": "Minimum supported version code",
+      "minHelp": "Phones with an older version must update before they can continue.",
+      "releaseDate": "Release date",
+      "notes": "What is new",
+      "apkUrl": "APK link",
+      "size": "Size (MB)",
+      "upload": "Upload signed APK",
+      "uploading": "Uploading {{pct}}%",
+      "uploadNeedsVersion": "Enter the version name before uploading.",
+      "uploadWrongFile": "Choose a .apk file.",
+      "uploadFailed": "Upload failed: {{msg}}",
+      "uploaded": "APK uploaded ({{size}} MB). Save to publish it.",
+      "save": "Save",
+      "saved": "Saved",
+      "saveFailed": "Could not save. Only a super admin or admin can change releases.",
+      "ios": "iPhone",
+      "iosHelp": "Saved to app_config/ios. App Store link wins; otherwise the TestFlight link; with neither, the site offers the web app.",
+      "appStoreUrl": "App Store link (https://apps.apple.com/...)",
+      "testflightUrl": "TestFlight public link (https://testflight.apple.com/join/...)",
+      "iosVersion": "Version",
+      "iosMode": "The download page now shows: {{mode}}",
+      "modes": {
+        "appstore": "App Store badge",
+        "testflight": "TestFlight install",
+        "browser": "Use in browser"
+      },
+      "invalidUrl": "Enter a full https link on the right site, or leave it empty.",
+      "downloads": "Android downloads (last 30 days)",
+      "waitlist": "iOS waitlist",
+      "waitlistHelp": "Sign-ups from the earlier download page. Kept for when the iPhone app is available.",
+      "export": "Export CSV",
+      "empty": "No sign-ups.",
+      "email": "Email",
+      "date": "Date",
+      "source": "Source",
+      "notSet": "Not set"
+    }
   }
 }

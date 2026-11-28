@@ -3,7 +3,7 @@ import { RouteTracker } from './RouteTracker';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, limit, query } from 'firebase/firestore';
-import { Play, Pause, Plus, Trash2, Timer, Search, Lock, Dumbbell, MapPin } from 'lucide-react';
+import { Play, Pause, Plus, Trash2, Timer, Search, Lock, Dumbbell, MapPin, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
   Button,
@@ -431,7 +431,7 @@ function SessionPanel() {
                   }}
                   className={`mb-0.5 h-11 w-11 rounded-input border text-small font-semibold ${set.done ? 'border-primary bg-primary text-on-primary' : 'border-line text-muted'}`}
                 >
-                  ✓
+                  <Check className="mx-auto h-5 w-5" strokeWidth={2.2} aria-hidden />
                 </button>
               </div>
             ))}

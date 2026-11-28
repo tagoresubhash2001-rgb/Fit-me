@@ -1,459 +1,348 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { AnimatePresence, LayoutGroup, m, useReducedMotion } from 'motion/react';
+import { Activity, ChevronDown, Dumbbell, Droplets, Menu, MessageCircleHeart, Salad, X } from 'lucide-react';
+import { cn } from '../../components/ui/cn';
+import { CtaGroup, spring } from './ui';
 
-interface NavItem {
-  label: string;
-  path: string;
-  hasDropdown?: boolean;
+type LinkDef = { to: string; key: string; end?: boolean };
+const LINKS: LinkDef[] = [
+  { to: '/', key: 'home', end: true },
+  { to: '/features', key: 'features' },
+  { to: '/how-it-works', key: 'howItWorks' },
+  { to: '/download', key: 'download' },
+  { to: '/about', key: 'about' },
+  { to: '/faq', key: 'faq' },
+];
+const FEATURE_ITEMS = [
+  { id: 'food', icon: Salad },
+  { id: 'activity', icon: Activity },
+  { id: 'workouts', icon: Dumbbell },
+  { id: 'coach', icon: MessageCircleHeart },
+  { id: 'wellness', icon: Droplets },
+] as const;
+
+/** Scroll direction: compact while scrolling down past the top, expanded when scrolling up or at the top. */
+function useCompactOnScroll() {
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    let last = window.scrollY;
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        if (y < 80) setCompact(false);
+        else if (y > last + 6) setCompact(true);
+        else if (y < last - 6) setCompact(false);
+        last = y;
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return compact;
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { label: 'Home', path: '/' },
-  { label: 'Features', path: '/features', hasDropdown: true },
-  { label: 'How It Works', path: '/how-it-works' },
-  { label: 'Download', path: '/download' },
-  { label: 'About', path: '/about' },
-  { label: 'FAQ', path: '/faq' },
-  { label: 'Contact', path: '/contact' },
-];
+function useIsDesktop() {
+  const q = '(min-width: 1024px)';
+  const [desktop, setDesktop] = useState(() => typeof window !== 'undefined' && window.matchMedia(q).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(q);
+    const on = () => setDesktop(mq.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+  return desktop;
+}
 
-const FEATURE_DROPDOWN_ITEMS = [
-  { label: 'Activity & Steps', desc: 'Hardware & Health Connect sync', hash: 'activity' },
-  { label: 'Heart Rate & Vitals', desc: 'Cardio zones & resting telemetry', hash: 'heart-rate' },
-  { label: 'Food & Macros', desc: 'Calorie budget & nutrient balance', hash: 'food-macros' },
-  { label: 'Water & Hydration', desc: 'Daily goals & smart logs', hash: 'water' },
-  { label: 'Sleep & Recovery', desc: 'Sleep stages & quality index', hash: 'sleep' },
-  { label: 'Weight & Body', desc: 'BMI trends & milestone tracker', hash: 'weight' },
-  { label: 'Workouts & GPS', desc: 'Pace, elevation & route maps', hash: 'workouts' },
-  { label: 'AI Health Coach', desc: 'Personalized guidance & advice', hash: 'ai-coach' },
-  { label: 'Progress Insights', desc: 'Interactive charts & milestones', hash: 'insights' },
-  { label: 'Reminders & Habits', desc: 'Actionable smart notifications', hash: 'reminders' },
-];
+const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+function Logo({ label }: { label: string }) {
+  return (
+    <Link to="/" className="flex shrink-0 items-center gap-2 rounded-full py-1 pr-2 pl-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" aria-label={label}>
+      <img src="/favicon.svg" alt="" width={32} height={32} className="h-8 w-8 rounded-[10px]" />
+      <span className="text-[17px] font-bold tracking-tight text-island-ink">FitMe</span>
+    </Link>
+  );
+}
+
+/**
+ * Website navigation: a graphite "Dynamic Island" pill. It mounts compact (logo + FitMe) and springs open into
+ * the full navigation; scrolling down shrinks it to a pill with "Get the app", scrolling up expands it again.
+ * The Features menu grows out of the island itself. On phones the island morphs into a panel with every link
+ * and the three ways in. All size changes are motion layout animations (width, height and radius).
+ */
 export function DynamicIslandNavbar() {
-  const location = useLocation();
-  const currentPath = location.pathname;
-
-  // Animation states
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isCompactOnScroll, setIsCompactOnScroll] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const desktop = useIsDesktop();
+  const scrolledCompact = useCompactOnScroll();
+  const reduce = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
   const [featuresOpen, setFeaturesOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const islandRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const closeTimer = useRef<number | undefined>(undefined);
+  const panelId = useId();
+  const featuresId = useId();
 
-  const lastScrollY = useRef(0);
-  const featuresDropdownRef = useRef<HTMLDivElement>(null);
-  const islandRef = useRef<HTMLDivElement>(null);
-
-  // Initial load spring-like expansion
+  // Spring open shortly after the first paint (instant with reduced motion).
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsExpanded(true);
-    }, 150);
-    return () => clearTimeout(timer);
-  }, []);
+    const id = window.setTimeout(() => setMounted(true), reduce ? 0 : 350);
+    return () => window.clearTimeout(id);
+  }, [reduce]);
 
-  // Scroll direction detection for dynamic island collapse / expand
+  // Route change closes everything.
   useEffect(() => {
-    let ticking = false;
-
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY;
-          const delta = currentScrollY - lastScrollY.current;
-
-          if (currentScrollY > 100 && delta > 8 && !mobileMenuOpen) {
-            // Scrolling down past threshold -> shrink to compact island
-            setIsCompactOnScroll(true);
-            setFeaturesOpen(false);
-          } else if (delta < -12 || currentScrollY <= 80) {
-            // Scrolling up or near top -> expand
-            setIsCompactOnScroll(false);
-          }
-
-          lastScrollY.current = currentScrollY;
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [mobileMenuOpen]);
-
-  // Lock body scroll on mobile menu open
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [mobileMenuOpen]);
-
-  // Close menus on route change
-  useEffect(() => {
-    setMobileMenuOpen(false);
     setFeaturesOpen(false);
-  }, [currentPath]);
+    setMenuOpen(false);
+  }, [pathname]);
 
-  // Click outside to close dropdowns
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (islandRef.current && !islandRef.current.contains(e.target as Node)) {
-        setFeaturesOpen(false);
-        setMobileMenuOpen(false);
-      }
-    };
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setFeaturesOpen(false);
-        setMobileMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEscape);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-    };
+  const close = useCallback(() => {
+    setFeaturesOpen(false);
+    setMenuOpen((open) => {
+      if (open) requestAnimationFrame(() => menuButtonRef.current?.focus());
+      return false;
+    });
   }, []);
 
-  // Is the island showing compact mode?
-  const showCompact = (!isExpanded || isCompactOnScroll) && !isHovered && !mobileMenuOpen;
+  // Escape and outside taps close the features menu and the mobile panel.
+  useEffect(() => {
+    if (!featuresOpen && !menuOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close();
+    const onDown = (e: PointerEvent) => {
+      if (islandRef.current && !islandRef.current.contains(e.target as Node)) close();
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onDown);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onDown);
+    };
+  }, [featuresOpen, menuOpen, close]);
 
-  // Active item title for compact view
-  const activeNavItem = NAV_ITEMS.find((item) =>
-    item.path === '/' ? currentPath === '/' : currentPath.startsWith(item.path)
-  ) || NAV_ITEMS[0];
+  // Mobile panel: lock page scroll and keep focus inside the island.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const first = islandRef.current?.querySelector<HTMLElement>(`#${CSS.escape(panelId)} ${FOCUSABLE}`);
+    first?.focus();
+    const trap = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !islandRef.current) return;
+      const items = [...islandRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((el) => el.offsetParent !== null);
+      if (!items.length) return;
+      const a = items[0];
+      const z = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === a) {
+        e.preventDefault();
+        z.focus();
+      } else if (!e.shiftKey && document.activeElement === z) {
+        e.preventDefault();
+        a.focus();
+      }
+    };
+    document.addEventListener('keydown', trap);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener('keydown', trap);
+    };
+  }, [menuOpen, panelId]);
+
+  useEffect(() => {
+    if (desktop) setMenuOpen(false);
+    else setFeaturesOpen(false);
+  }, [desktop]);
+
+  const compact = !mounted || (scrolledCompact && !featuresOpen && !menuOpen);
+  const featuresActive = pathname.startsWith('/features');
+  const openFeatures = () => {
+    window.clearTimeout(closeTimer.current);
+    setFeaturesOpen(true);
+  };
+  const leaveFeatures = () => {
+    window.clearTimeout(closeTimer.current);
+    closeTimer.current = window.setTimeout(() => setFeaturesOpen(false), 220);
+  };
+
+  const linkCls = (active: boolean) =>
+    cn(
+      'relative z-0 flex min-h-10 items-center gap-1 rounded-full px-3.5 text-[14px] font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
+      active ? 'text-island-ink' : 'text-island-muted hover:text-island-ink',
+    );
+  const ActivePill = () => <m.span layoutId="island-active" className="absolute inset-0 -z-10 rounded-full bg-white/12" transition={spring} />;
 
   return (
-    <>
-      {/* Dynamic Island Floating Header */}
-      <header
-        className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none"
-        role="banner"
-      >
-        <div
+    <div className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-[max(12px,env(safe-area-inset-top))]">
+      {menuOpen && <div className="pointer-events-auto fixed inset-0 -z-10 bg-scrim" aria-hidden onClick={close} />}
+      <LayoutGroup>
+        <m.nav
           ref={islandRef}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => {
-            setIsHovered(false);
-            setFeaturesOpen(false);
-          }}
-          className={`pointer-events-auto relative transition-all duration-300 ease-out ${
-            showCompact
-              ? 'h-12 w-85 sm:w-95 rounded-full shadow-md bg-white/95 dark:bg-[#121714]/95 border border-[#1FA45B]/25'
-              : mobileMenuOpen
-              ? 'w-full max-w-105 rounded-[28px] shadow-2xl bg-white dark:bg-[#121714] border border-[#1FA45B]/30'
-              : 'h-14 max-w-235 w-full rounded-full shadow-lg shadow-black/5 bg-white/90 dark:bg-[#121714]/90 border border-slate-200/80 dark:border-white/10'
-          } backdrop-blur-xl`}
+          layout
+          aria-label={t('site.nav.label')}
+          transition={spring}
+          style={{ borderRadius: menuOpen || featuresOpen ? 28 : 999 }}
+          onPointerLeave={desktop && featuresOpen ? leaveFeatures : undefined}
+          onPointerEnter={desktop && featuresOpen ? openFeatures : undefined}
+          className={cn(
+            'pointer-events-auto relative overflow-hidden bg-island text-island-ink shadow-float ring-1 ring-white/8',
+            menuOpen ? 'w-full max-w-lg' : 'max-w-full',
+          )}
+          id="island"
+          data-state={menuOpen ? 'menu' : featuresOpen ? 'features' : compact ? 'compact' : 'expanded'}
         >
-          {/* COMPACT ISLAND VIEW (Shown on scroll down or initial compact state) */}
-          {showCompact ? (
-            <div className="flex h-full w-full items-center justify-between px-3">
-              {/* Logo & Status */}
-              <Link
-                to="/"
-                className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1FA45B] rounded-full p-1"
-                aria-label="FitMe Home"
-              >
-                <img src="/favicon.svg" alt="FitMe" width={28} height={28} className="h-7 w-7 rounded-lg" />
-                <span className="font-semibold text-sm tracking-tight text-[#11181C] dark:text-white">FitMe</span>
-              </Link>
+          <m.div layout="position" className="flex items-center gap-1 py-1.5 pr-1.5 pl-2">
+            <Logo label={t('site.brand')} />
 
-              {/* Active Route Pill Indicator */}
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F0FDF4] dark:bg-[#1FA45B]/15 text-[#1FA45B] text-xs font-semibold">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#1FA45B] animate-pulse" />
-                <span>{activeNavItem.label}</span>
-              </div>
-
-              {/* Quick Action Button */}
-              <Link
-                to="/download"
-                className="inline-flex items-center justify-center gap-1.5 h-8 px-3.5 rounded-full bg-[#1FA45B] hover:bg-[#178A4C] text-white text-xs font-medium transition-all shadow-sm active:scale-95"
-              >
-                <span>Get App</span>
-                <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v7.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 11.586V4a1 1 0 011-1z" clipRule="evenodd" />
-                  <path d="M4 14a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1z" />
-                </svg>
-              </Link>
-            </div>
-          ) : (
-            /* EXPANDED DESKTOP / TABLET ISLAND VIEW */
-            <div className="flex h-14 w-full items-center justify-between px-3 md:px-5">
-              {/* Logo */}
-              <Link
-                to="/"
-                className="flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1FA45B] rounded-full p-1 group"
-                aria-label="FitMe Home"
-              >
-                <img
-                  src="/favicon.svg"
-                  alt="FitMe logo"
-                  width={32}
-                  height={32}
-                  className="h-8 w-8 rounded-lg shadow-sm transition-transform group-hover:scale-105"
-                />
-                <div className="flex flex-col text-left">
-                  <span className="font-bold text-base tracking-tight leading-none text-[#11181C] dark:text-white">
-                    FitMe
-                  </span>
-                  <span className="text-[10px] text-[#5B6471] dark:text-[#9AA89E] font-medium leading-tight">
-                    For a Healthier Life
-                  </span>
-                </div>
-              </Link>
-
-              {/* Desktop Nav Links */}
-              <nav className="hidden lg:flex items-center gap-1 relative" aria-label="Main Navigation">
-                {NAV_ITEMS.map((item) => {
-                  const isActive =
-                    item.path === '/'
-                      ? currentPath === '/'
-                      : currentPath.startsWith(item.path);
-
-                  if (item.hasDropdown) {
-                    return (
-                      <div
-                        key={item.path}
-                        className="relative"
-                        onMouseEnter={() => setFeaturesOpen(true)}
-                      >
+            {/* Desktop links (expanded) */}
+            <AnimatePresence initial={false} mode="popLayout">
+              {desktop && !compact && (
+                <m.ul key="links" className="flex items-center gap-0.5 px-2" initial={{ opacity: 0, filter: 'blur(4px)' }} animate={{ opacity: 1, filter: 'blur(0px)' }} exit={{ opacity: 0, filter: 'blur(4px)' }} transition={{ duration: 0.18 }}>
+                  {LINKS.map((l) =>
+                    l.key === 'features' ? (
+                      <li key={l.key} onPointerEnter={openFeatures}>
                         <button
                           type="button"
-                          onClick={() => setFeaturesOpen((prev) => !prev)}
+                          id="island-features"
                           aria-expanded={featuresOpen}
-                          className={`flex items-center gap-1 h-9 px-3.5 rounded-full text-xs font-semibold tracking-wide transition-all ${
-                            isActive || featuresOpen
-                              ? 'bg-[#F0FDF4] dark:bg-[#1FA45B]/15 text-[#1FA45B] shadow-xs'
-                              : 'text-[#5B6471] dark:text-[#CBD5E1] hover:text-[#11181C] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5'
-                          }`}
+                          aria-controls={featuresId}
+                          onClick={() => setFeaturesOpen((o) => !o)}
+                          className={linkCls(featuresActive || featuresOpen)}
+                          aria-current={featuresActive ? 'page' : undefined}
                         >
-                          <span>{item.label}</span>
-                          <svg
-                            className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                              featuresOpen ? 'rotate-180 text-[#1FA45B]' : 'text-slate-400'
-                            }`}
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                            aria-hidden="true"
-                          >
-                            <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                          </svg>
+                          {featuresActive && <ActivePill />}
+                          {t('site.nav.features')}
+                          <ChevronDown className={cn('h-4 w-4 transition-transform duration-200', featuresOpen && 'rotate-180')} strokeWidth={2} aria-hidden />
                         </button>
-
-                        {/* Morphing Features Dropdown Sub-Island */}
-                        {featuresOpen && (
-                          <div
-                            ref={featuresDropdownRef}
-                            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-115 p-3 rounded-2xl bg-white/95 dark:bg-[#121714]/95 shadow-xl shadow-black/10 border border-slate-200/90 dark:border-white/10 backdrop-blur-2xl grid grid-cols-2 gap-1.5 transition-all animate-in fade-in zoom-in-95 duration-150 z-50"
-                          >
-                            <div className="col-span-2 px-2 py-1 text-[11px] font-semibold text-[#1FA45B] uppercase tracking-wider border-b border-slate-100 dark:border-white/5 mb-1 flex items-center justify-between">
-                              <span>FitMe Health Capabilities</span>
-                              <Link
-                                to="/features"
-                                onClick={() => setFeaturesOpen(false)}
-                                className="text-[11px] font-medium text-[#5B6471] dark:text-slate-400 hover:text-[#1FA45B] underline"
-                              >
-                                View all features →
-                              </Link>
-                            </div>
-                            {FEATURE_DROPDOWN_ITEMS.map((feat) => (
-                              <Link
-                                key={feat.hash}
-                                to={`/features#${feat.hash}`}
-                                onClick={() => setFeaturesOpen(false)}
-                                className="flex flex-col p-2 rounded-xl text-left hover:bg-[#F0FDF4] dark:hover:bg-[#1FA45B]/10 transition-colors group"
-                              >
-                                <span className="text-xs font-semibold text-[#11181C] dark:text-white group-hover:text-[#1FA45B] transition-colors">
-                                  {feat.label}
-                                </span>
-                                <span className="text-[11px] text-[#5B6471] dark:text-[#9AA89E] leading-tight">
-                                  {feat.desc}
-                                </span>
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      aria-current={isActive ? 'page' : undefined}
-                      className={`relative h-9 px-3.5 rounded-full text-xs font-semibold tracking-wide transition-all flex items-center ${
-                        isActive
-                          ? 'bg-[#F0FDF4] dark:bg-[#1FA45B]/15 text-[#1FA45B] shadow-xs'
-                          : 'text-[#5B6471] dark:text-[#CBD5E1] hover:text-[#11181C] dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5'
-                      }`}
-                    >
-                      {isActive && (
-                        <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-[#1FA45B]" />
-                      )}
-                      <span>{item.label}</span>
-                    </Link>
-                  );
-                })}
-              </nav>
-
-              {/* Tablet Middle Quick Links */}
-              <nav className="hidden sm:flex lg:hidden items-center gap-1" aria-label="Tablet Navigation">
-                <Link
-                  to="/features"
-                  className={`h-8 px-3 rounded-full text-xs font-semibold ${
-                    currentPath.startsWith('/features')
-                      ? 'bg-[#F0FDF4] dark:bg-[#1FA45B]/15 text-[#1FA45B]'
-                      : 'text-[#5B6471] dark:text-slate-300'
-                  }`}
-                >
-                  Features
-                </Link>
-                <Link
-                  to="/how-it-works"
-                  className={`h-8 px-3 rounded-full text-xs font-semibold ${
-                    currentPath.startsWith('/how-it-works')
-                      ? 'bg-[#F0FDF4] dark:bg-[#1FA45B]/15 text-[#1FA45B]'
-                      : 'text-[#5B6471] dark:text-slate-300'
-                  }`}
-                >
-                  How It Works
-                </Link>
-              </nav>
-
-              {/* Right Side Action & Hamburger */}
-              <div className="flex items-center gap-2">
-                <Link
-                  to="/download"
-                  className="inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-full bg-[#1FA45B] hover:bg-[#178A4C] text-white text-xs font-semibold transition-all shadow-sm hover:shadow-md hover:shadow-[#1FA45B]/20 active:scale-95"
-                >
-                  <span>Download App</span>
-                  <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v7.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 11.586V4a1 1 0 011-1z" clipRule="evenodd" />
-                    <path d="M4 14a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1z" />
-                  </svg>
-                </Link>
-
-                {/* Mobile Hamburger Trigger */}
-                <button
-                  type="button"
-                  onClick={() => setMobileMenuOpen((prev) => !prev)}
-                  aria-expanded={mobileMenuOpen}
-                  aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
-                  className="lg:hidden inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 dark:bg-white/10 text-[#11181C] dark:text-white hover:bg-slate-200 transition-colors"
-                >
-                  {mobileMenuOpen ? (
-                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  ) : (
-                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
-                      <line x1="4" y1="7" x2="20" y2="7" />
-                      <line x1="4" y1="12" x2="20" y2="12" />
-                      <line x1="4" y1="17" x2="20" y2="17" />
-                    </svg>
+                      </li>
+                    ) : (
+                      <li key={l.key}>
+                        <NavLink to={l.to} end={l.end} className={({ isActive }) => linkCls(isActive)}>
+                          {({ isActive }) => (
+                            <>
+                              {isActive && <ActivePill />}
+                              {t(`site.nav.${l.key}`)}
+                            </>
+                          )}
+                        </NavLink>
+                      </li>
+                    ),
                   )}
-                </button>
-              </div>
-            </div>
-          )}
+                </m.ul>
+              )}
+            </AnimatePresence>
 
-          {/* MOBILE MORPHED MENU EXPANDED PANEL */}
-          {mobileMenuOpen && (
-            <div className="lg:hidden px-4 pt-2 pb-6 border-t border-slate-100 dark:border-white/10 flex flex-col gap-1 max-h-[80vh] overflow-y-auto">
-              <div className="py-2 px-1 text-[11px] font-semibold text-[#1FA45B] uppercase tracking-wider">
-                Menu Navigation
-              </div>
-              {NAV_ITEMS.map((item) => {
-                const isActive =
-                  item.path === '/'
-                    ? currentPath === '/'
-                    : currentPath.startsWith(item.path);
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    aria-current={isActive ? 'page' : undefined}
-                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-                      isActive
-                        ? 'bg-[#F0FDF4] dark:bg-[#1FA45B]/15 text-[#1FA45B]'
-                        : 'text-[#11181C] dark:text-white hover:bg-slate-50 dark:hover:bg-white/5'
-                    }`}
-                  >
-                    <span>{item.label}</span>
-                    {isActive && (
-                      <span className="h-2 w-2 rounded-full bg-[#1FA45B]" />
-                    )}
-                  </Link>
-                );
-              })}
-
-              {/* Mobile Quick Features Section */}
-              <div className="mt-3 pt-3 border-t border-slate-100 dark:border-white/10">
-                <div className="flex items-center justify-between px-1 mb-2">
-                  <span className="text-[11px] font-semibold text-[#1FA45B] uppercase tracking-wider">
-                    Core App Features
-                  </span>
-                  <Link
-                    to="/features"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-xs font-medium text-[#5B6471] hover:text-[#1FA45B] underline"
-                  >
-                    All Features
-                  </Link>
-                </div>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {FEATURE_DROPDOWN_ITEMS.slice(0, 6).map((feat) => (
-                    <Link
-                      key={feat.hash}
-                      to={`/features#${feat.hash}`}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="p-2 rounded-lg bg-slate-50 dark:bg-white/5 hover:bg-[#F0FDF4] text-xs font-medium text-[#11181C] dark:text-slate-200"
-                    >
-                      {feat.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* Mobile Download CTA */}
-              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-white/10">
+            {/* Right side: "Get the app" pill (desktop and compact) or the menu button (phones and tablets) */}
+            <m.div layout="position" className="ml-auto flex items-center gap-1 pl-2">
+              {(desktop || compact) && !menuOpen && (
                 <Link
                   to="/download"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 h-11 w-full rounded-xl bg-[#1FA45B] hover:bg-[#178A4C] text-white font-semibold text-sm shadow-md"
+                  id="island-get-app"
+                  className="site-press inline-flex min-h-10 items-center rounded-full bg-primary px-4 text-[14px] font-semibold whitespace-nowrap text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
                 >
-                  <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v7.586l2.293-2.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 11.586V4a1 1 0 011-1z" clipRule="evenodd" />
-                    <path d="M4 14a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1z" />
-                  </svg>
-                  <span>Download FitMe for Android</span>
+                  {t('site.nav.getApp')}
                 </Link>
-              </div>
-            </div>
-          )}
-        </div>
-      </header>
+              )}
+              {!desktop && (
+                <button
+                  ref={menuButtonRef}
+                  type="button"
+                  id="island-menu"
+                  aria-expanded={menuOpen}
+                  aria-controls={panelId}
+                  aria-label={menuOpen ? t('site.nav.closeMenu') : t('site.nav.openMenu')}
+                  onClick={() => setMenuOpen((o) => !o)}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-island-ink transition-colors hover:bg-white/16 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                >
+                  {menuOpen ? <X className="h-5 w-5" strokeWidth={2} aria-hidden /> : <Menu className="h-5 w-5" strokeWidth={2} aria-hidden />}
+                </button>
+              )}
+            </m.div>
+          </m.div>
 
-      {/* Dim backdrop when mobile menu is open */}
-      {mobileMenuOpen && (
-        <div
-          onClick={() => setMobileMenuOpen(false)}
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs transition-opacity"
-          aria-hidden="true"
-        />
-      )}
-    </>
+          {/* Features menu, grown out of the island (desktop) */}
+          <AnimatePresence initial={false}>
+            {desktop && featuresOpen && (
+              <m.div
+                key="features"
+                id={featuresId}
+                role="region"
+                aria-label={t('site.nav.featuresMenu')}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={spring}
+                className="overflow-hidden"
+              >
+                <ul className="grid grid-cols-3 gap-1 px-3 pt-1 pb-3">
+                  {FEATURE_ITEMS.map(({ id, icon: Icon }) => (
+                    <li key={id}>
+                      <Link to={`/features#${id}`} className="flex items-start gap-3 rounded-2xl p-3 transition-colors hover:bg-white/8 focus-visible:outline-2 focus-visible:outline-brand">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand/20 text-brand-soft">
+                          <Icon className="h-5 w-5" strokeWidth={1.9} aria-hidden />
+                        </span>
+                        <span className="flex flex-col">
+                          <span className="text-[14px] font-semibold text-island-ink">{t(`site.nav.items.${id}.title`)}</span>
+                          <span className="text-caption text-island-muted">{t(`site.nav.items.${id}.body`)}</span>
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                  <li>
+                    <Link to="/features" className="flex h-full items-center justify-center rounded-2xl p-3 text-[14px] font-semibold text-brand-soft hover:bg-white/8 focus-visible:outline-2 focus-visible:outline-brand">
+                      {t('site.nav.allFeatures')}
+                    </Link>
+                  </li>
+                </ul>
+              </m.div>
+            )}
+          </AnimatePresence>
+
+          {/* Mobile panel: the island morphs into a rounded panel */}
+          <AnimatePresence initial={false}>
+            {!desktop && menuOpen && (
+              <m.div
+                key="panel"
+                id={panelId}
+                role="dialog"
+                aria-modal="true"
+                aria-label={t('site.nav.label')}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={spring}
+                className="overflow-hidden"
+              >
+                <div className="max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain px-3 pb-4">
+                  <ul className="flex flex-col gap-0.5 pt-1">
+                    {[...LINKS, { to: '/contact', key: 'contact' }].map((l) => (
+                      <li key={l.key}>
+                        <NavLink
+                          to={l.to}
+                          end={(l as LinkDef).end}
+                          className={({ isActive }) =>
+                            cn('flex min-h-12 items-center rounded-2xl px-4 text-[17px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-brand', isActive ? 'bg-white/12 text-island-ink' : 'text-island-muted hover:bg-white/8 hover:text-island-ink')
+                          }
+                        >
+                          {t(`site.nav.${l.key}`)}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-3 border-t border-white/10 pt-4">
+                    <CtaGroup className="[&>a]:w-full" />
+                  </div>
+                </div>
+              </m.div>
+            )}
+          </AnimatePresence>
+        </m.nav>
+      </LayoutGroup>
+    </div>
   );
 }

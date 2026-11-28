@@ -1,44 +1,30 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Compass } from 'lucide-react';
 import { WebsiteLayout } from '../WebsiteLayout';
+import { Container, SiteButton } from '../ui';
 
 export function NotFoundPage() {
+  const { t } = useTranslation();
   return (
-    <WebsiteLayout
-      title="404 – Page Not Found | FitMe"
-      description="The page you were looking for does not exist or has been moved."
-    >
-      <section className="py-24 sm:py-32 flex flex-col items-center justify-center text-center px-4">
-        <div className="h-16 w-16 rounded-2xl bg-[#F0FDF4] dark:bg-[#1FA45B]/15 border border-[#1FA45B]/20 flex items-center justify-center text-[#1FA45B] shadow-sm mb-6">
-          <img src="/favicon.svg" alt="FitMe" width={40} height={40} className="h-10 w-10 rounded-lg" />
-        </div>
-
-        <span className="text-sm font-bold text-[#1FA45B] uppercase tracking-widest">
-          Error 404
-        </span>
-
-        <h1 className="mt-2 text-4xl sm:text-5xl font-extrabold text-[#11181C] dark:text-white tracking-tight">
-          Page Not Found
-        </h1>
-
-        <p className="mt-4 text-base text-[#5B6471] dark:text-[#9AA89E] max-w-md">
-          The link you clicked may be broken or the page may have been moved as part of our multi-page website update.
-        </p>
-
-        <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
-          <Link
-            to="/"
-            className="h-11 px-6 rounded-xl bg-[#1FA45B] hover:bg-[#178A4C] text-white font-semibold text-sm shadow-sm transition-all"
-          >
-            Back to Home
-          </Link>
-          <Link
-            to="/download"
-            className="h-11 px-6 rounded-xl border border-slate-300 dark:border-white/20 text-[#11181C] dark:text-white font-semibold text-sm hover:bg-slate-50 transition-colors"
-          >
-            Download Mobile App
-          </Link>
-        </div>
+    <WebsiteLayout metaKey="notFound" path={null} noindex>
+      <section className="site-mesh -mt-20 flex min-h-[70dvh] items-center pt-28 sm:-mt-24">
+        <Container className="flex flex-col items-center gap-5 text-center">
+          <span className="flex h-20 w-20 items-center justify-center rounded-[1.75rem] bg-surface text-brand shadow-soft">
+            <Compass className="h-10 w-10" strokeWidth={1.6} aria-hidden />
+          </span>
+          <p className="text-small font-semibold tracking-wide text-primary-text">404</p>
+          <h1 className="text-balance text-4xl font-extrabold tracking-tight text-ink">{t('site.notFound.title')}</h1>
+          <p className="text-lg text-muted">{t('site.notFound.body')}</p>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <SiteButton to="/" id="notfound-home">
+              {t('site.notFound.home')}
+            </SiteButton>
+            <SiteButton to="/app/" variant="ghost">
+              {t('site.notFound.app')}
+            </SiteButton>
+          </div>
+        </Container>
       </section>
     </WebsiteLayout>
   );
