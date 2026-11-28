@@ -11,11 +11,12 @@ const [base, prefix] = process.argv.slice(2);
     const p = await ctx.newPage();
     for (const path of ['/', '/download']) {
       await p.goto(base + path, { waitUntil: 'load' });
-      await p.waitForTimeout(1500);
-      for (let y = 0; y < 12000; y += 500) {
+      await p.waitForTimeout(3000);
+      for (let y = 0; y < 12000; y += 400) {
         await p.evaluate((v) => window.scrollTo(0, v), y);
-        await p.waitForTimeout(120);
+        await p.waitForTimeout(250);
       }
+      await p.evaluate(() => Promise.all([...document.images].map((i) => (i.loading = 'eager', i.complete ? null : new Promise((r) => (i.onload = i.onerror = r))))));
       await p.evaluate(() => window.scrollTo(0, 0));
       await p.waitForTimeout(900);
       await p.screenshot({ path: `${prefix}-${kind}${path === '/' ? '-home' : '-download'}.png`, fullPage: true });
