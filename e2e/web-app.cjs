@@ -24,6 +24,9 @@ const VIEWPORTS = [
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
     const email = `web-${name}-${Date.now()}@example.test`;
+    process.on('unhandledRejection', () => undefined);
+    globalThis.__page = page;
+    globalThis.__name = name;
 
     // Website -> Continue in browser -> sign-up at /app/
     await page.goto(`${BASE}/`, { waitUntil: 'load' });
@@ -36,10 +39,10 @@ const VIEWPORTS = [
     // Food
     await page.goto(`${BASE}/app/food`);
     await page.locator('#slot-breakfast').getByRole('button', { name: 'Add' }).click();
-    await page.getByRole('searchbox').fill('idli');
+    await page.getByPlaceholder('Search foods, for example dosa or oatmeal').last().fill('idli');
     await page.getByText('Idli', { exact: true }).first().waitFor({ timeout: 20000 });
     await tap(page, page.getByText('Idli', { exact: true }).first());
-    await tap(page, page.getByRole('dialog').getByRole('button', { name: 'Add food' }));
+    await tap(page, page.getByRole('button', { name: 'Add food' }).last());
     await page.locator('#slot-breakfast').getByText('Idli').first().waitFor();
 
     // Water
@@ -75,7 +78,8 @@ const VIEWPORTS = [
     await ctx.close();
   }
   await browser.close();
-})().catch((e) => {
+})().catch(async (e) => {
   console.error(e);
+  await globalThis.__page?.screenshot({ path: `docs/screenshots/site-raw/FAILED-web-app-${globalThis.__name}.png` }).catch(() => undefined);
   process.exit(1);
 });
